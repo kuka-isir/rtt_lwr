@@ -1,0 +1,5 @@
+
+
+setActivity("lwr_gazebo",0.001,LowestPriority,ORO_SCHED_OTHER)
+lwr_gazebo.configure()
+lwr_gazebo.start()

@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+      xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller" 
+   name="lwr" >
+
+  <xacro:macro name="gazebo_reference" params="name">
+    <gazebo reference="${name}">
+      <turnGravityOff>
+        false
+      </turnGravityOff>
+      <selfCollide>
+        true
+      </selfCollide>
+    </gazebo>
+  </xacro:macro>
+
+  <!-- Gazebo joint configuration -->
+  <xacro:macro name="gz_joint">
+    <provideFeedback>true</provideFeedback>
+    <implicitSpringDamper>true</implicitSpringDamper>
+    <!--<kp>0.0</kp>[> CFM <]-->
+    <!--<kd>0.0</kd>[> ERP <]-->
+    <!--<cfmDamping>true</cfmDamping>-->
+    <!--<dynamics damping="5.5" friction="1"/>-->
+  </xacro:macro>
+
+   <xacro:property name="velocity_scale" value="1.0"/>
+   <xacro:property name="effort_scale" value="1.0"/>
+
+   <xacro:macro name="lwr" params="parent name prefix *origin ">
+      <property name="M_PI" value="3.1415926535897931" />
+      <!-- joint between {parent} and arm_0_link -->
+      <joint name="${prefix}/${parent}_base" type="fixed">
+        <gazebo reference="${prefix}/${parent}_base">
+          <xacro:gz_joint/>
+        </gazebo>
+
+         <xacro:insert_block name="origin" />
+         <parent link="${parent}" />
+         <child link="${prefix}/${name}_0_link" />
+      </joint>
+      <link name="${prefix}/${name}_0_link">
+         <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="3.65" />
+            <inertia ixx="0.00805112828804" ixy="0" ixz="0" iyy="0.00845152236845" iyz="0" izz="0.00863585824764" />
+         </inertial>
+         <visual>
+            <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+            <geometry>
+               <mesh filename="package://lwr_description/meshes/lwr/link0.stl" />
+            </geometry>
+            <material name="color_j0" />
+         </visual>
+         <collision>
+            <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+            <geometry>
+               <mesh filename="package://lwr_description/meshes/lwr/link0.dae" />
+            </geometry>
+           <surface>
+            <friction>
+              <ode>
+                <mu>0.998000</mu>
+                <mu2>0.998000</mu2>
+                <fdir1>0.000000 0.000000 0.000000</fdir1>
+                <slip1>0.000000</slip1>
+                <slip2>0.000000</slip2>
+              </ode>
+            </friction>
+            <bounce>
+              <restitution_coefficient>0.000000</restitution_coefficient>
+              <threshold>100000.000000</threshold>
+            </bounce>
+            <contact>
+              <ode>
+                <soft_cfm>0.000000</soft_cfm>
+                <soft_erp>0.200000</soft_erp>
+                <kp>100000.000000</kp>
+                <kd>1.000000</kd>
+                <max_vel>100.000000</max_vel>
+                <min_depth>0.001000</min_depth>
+              </ode>
+            </contact>
+          </surface>
+         </collision>
+      </link>
+      <!-- joint between arm_0_link and arm_1_link -->
+      <joint name="${prefix}/${name}_0_joint" type="revolute">
+        <gazebo reference="${prefix}/${name}_0_joint">
+          <xacro:gz_joint/>
+        </gazebo>
+
+         <parent link="${prefix}/${name}_0_link" />
+         <child link="${prefix}/${name}_1_link" />
+         <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}" effort="${effort_scale * 200}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
+         
+         <dynamics friction="0.0" damping="1.0"/>
+         <origin xyz="0 0 0.103" rpy="0 0 0" />
+         <axis xyz="0 0 1" />
+      </joint>
+      <link name="${prefix}/${name}_1_link">
+         <inertial>
+            <origin xyz="2.1826998880744087e-05 -0.021623840412335664 -0.07915171924289198" rpy="0.239538165056 0.00537995201801 0.0492155584082" />
+            <mass value="2.0" />
+            <inertia ixx="0.0129545076394" ixy="0" ixz="0" iyy="0.0128178432409" iyz="0" izz="0.00442072765916" />
+         </inertial>
+         <visual>
+            <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+            <geometry>
+               <mesh filename="package://lwr_description/meshes/lwr/link1.stl" />
+            </geometry>
+            <material name="color_j1" />
+         </visual>
+         <collision>
+            <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+            <geometry>
+               <mesh filename="package://lwr_description/meshes/lwr/link1.dae" />
+            </geometry>
+           <surface>
+            <friction>
+              <ode>
+                <mu>0.998000</mu>
+                <mu2>0.998000</mu2>
+                <fdir1>0.000000 0.000000 0.000000</fdir1>
+                <slip1>0.000000</slip1>
+                <slip2>0.000000</slip2>
+              </ode>
+            </friction>
+            <bounce>
+              <restitution_coefficient>0.000000</restitution_coefficient>
+              <threshold>100000.000000</threshold>
+            </bounce>
+            <contact>
+              <ode>
+                <soft_cfm>0.000000</soft_cfm>
+                <soft_erp>0.200000</soft_erp>
+                <kp>100000.000000</kp>
+                <kd>1.000000</kd>
+                <max_vel>100.000000</max_vel>
+                <min_depth>0.001000</min_depth>
+              </ode>
+            </contact>
+          </surface>
+         </collision>
+      </link>
+      <!-- joint between arm_1_link and arm_2_link -->
+      <joint name="${prefix}/${name}_1_joint" type="revolute">
+        <gazebo reference="${prefix}/${name}_1_joint">
+          <xacro:gz_joint/>
+        </gazebo>
+
+         <parent link="${prefix}/${name}_1_link" />
+         <child link="${prefix}/${name}_2_link" />
+         <limit lower="${-120 * M_PI / 180}" upper="${120 * M_PI / 180}" effort="${effort_scale * 200}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
+         
+         <dynamics friction="0.0" damping="1.0"/>
+         <origin xyz="0 0 0.2105" rpy="0 0 0" />
+         <axis xyz="0 -1 0" />
+      </joint>
+      <link name="${prefix}/${name}_2_link">
+         <inertial>
+            <origin xyz="-0.0010097053542516513 0.028478464648332931 0.082033627936009448" rpy="0.252444092172 -0.0167820344187 0.0575928285281" />
+            <mass value="2.0" />
+            <inertia ixx="0.0132950018592" ixy="0" ixz="0" iyy="0.0131003199685" iyz="0" izz="0.0044657387969" />
+         </inertial>
+         <visual>
+            <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+            <geometry>
+               <mesh filename="package://lwr_description/meshes/lwr/link2.stl" />
+            </geometry>
+            <material name="color_j2" />
+         </visual>
+         <collision>
+            <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+            <geometry>
+               <mesh filename="package://lwr_description/meshes/lwr/link2.dae" />
+            </geometry>
+           <surface>
+            <friction>
+              <ode>
+                <mu>0.998000</mu>
+                <mu2>0.998000</mu2>
+              </ode>
+            </friction>
+          </surface>
+         </collision>
+      </link>
+      <!-- joint between arm_2_link and arm_3_link -->
+      <joint name="${prefix}/${name}_2_joint" type="revolute">
+        <gazebo reference="${prefix}/${name}_2_joint">
+          <xacro:gz_joint/>
+        </gazebo>
+
+         <parent link="${prefix}/${name}_2_link" />
+         <child link="${prefix}/${name}_3_link" />
+         <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}" effort="${effort_scale * 100}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
+         
+         <dynamics friction="0.0" damping="1.0"/>
+         <origin xyz="0 0 0.192" rpy="0 0 0" />
+         <axis xyz="0 0 1" />
+      </joint>
+      <link name="${prefix}/${name}_3_link">
+         <inertial>
+            <origin xyz="-0.00068512472584392442 0.022787627643261723 -0.078806475454300237" rpy="-0.211279484805 -0.0186487662306 -0.00721347462905" />
+            <mass value="2.0" />
+            <inertia ixx="0.0127763513867" ixy="0" ixz="0" iyy="0.0128011372133" iyz="0" izz="0.0043627376553" />
+         </inertial>
+         <visual>
+            <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+            <geometry>
+               <mesh filename="package://lwr_description/meshes/lwr/link3.stl" />
+            </geometry>
+            <material name="color_j3" />
+         </visual>
+         <collision>
+            <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+            <geometry>
+               <mesh filename="package://lwr_description/meshes/lwr/link3.dae" />
+            </geometry>
+           <surface>
+            <friction>
+              <ode>
+                <mu>0.998000</mu>
+                <mu2>0.998000</mu2>
+                <fdir1>0.000000 0.000000 0.000000</fdir1>
+                <slip1>0.000000</slip1>
+                <slip2>0.000000</slip2>
+              </ode>
+            </friction>
+            <bounce>
+              <restitution_coefficient>0.000000</restitution_coefficient>
+              <threshold>100000.000000</threshold>
+            </bounce>
+            <contact>
+              <ode>
+                <soft_cfm>0.000000</soft_cfm>
+                <soft_erp>0.200000</soft_erp>
+                <kp>100000.000000</kp>
+                <kd>1.000000</kd>
+                <max_vel>100.000000</max_vel>
+                <min_depth>0.001000</min_depth>
+              </ode>
+            </contact>
+          </surface>
+         </collision>
+      </link>
+      <!-- joint between arm_3_link and arm_4_link -->
+      <joint name="${prefix}/${name}_3_joint" type="revolute">
+        <gazebo reference="${prefix}/${name}_3_joint">
+          <xacro:gz_joint/>
+        </gazebo>
+
+         <parent link="${prefix}/${name}_3_link" />
+         <child link="${prefix}/${name}_4_link" />
+         <limit lower="${-120 * M_PI / 180}" upper="${120 * M_PI / 180}" effort="${effort_scale * 100}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
+            
+         <dynamics friction="0.0" damping="1.0"/>
+         <origin xyz="0 0.003 0.21" rpy="0 0 0" />
+         <axis xyz="0 1 0" />
+      </joint>
+      <link name="${prefix}/${name}_4_link">
+         <inertial>
+            <origin xyz="-0.00025120620404353643 0.027040543208881447 0.082599870266635594" rpy="0.259090664398 -0.00225330262131 0.0469419954367" />
+            <mass value="2.0" />
+            <inertia ixx="0.0132276730313" ixy="0" ixz="0" iyy="0.0130734228464" iyz="0" izz="0.00439977729281" />
+         </inertial>
+         <visual>
+            <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+            <geometry>
+               <mesh filename="package://lwr_description/meshes/lwr/link4.stl" />
+            </geometry>
+            <material name="color_j4" />
+         </visual>
+         <collision>
+            <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+            <geometry>
+               <mesh filename="package://lwr_description/meshes/lwr/link4.dae" />
+            </geometry>
+           <surface>
+            <friction>
+              <ode>
+                <mu>0.998000</mu>
+                <mu2>0.998000</mu2>
+                <fdir1>0.000000 0.000000 0.000000</fdir1>
+                <slip1>0.000000</slip1>
+                <slip2>0.000000</slip2>
+              </ode>
+            </friction>
+            <bounce>
+              <restitution_coefficient>0.000000</restitution_coefficient>
+              <threshold>100000.000000</threshold>
+            </bounce>
+            <contact>
+              <ode>
+                <soft_cfm>0.000000</soft_cfm>
+                <soft_erp>0.200000</soft_erp>
+                <kp>100000.000000</kp>
+                <kd>1.000000</kd>
+                <max_vel>100.000000</max_vel>
+                <min_depth>0.001000</min_depth>
+              </ode>
+            </contact>
+          </surface>
+         </collision>
+      </link>
+      <!-- joint between arm_4_link and arm_5_link -->
+      <joint name="${prefix}/${name}_4_joint" type="revolute">
+        <gazebo reference="${prefix}/${name}_4_joint">
+          <xacro:gz_joint/>
+        </gazebo>
+
+         <parent link="${prefix}/${name}_4_link" />
+         <child link="${prefix}/${name}_5_link" />
+         <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}" effort="${effort_scale * 100}" velocity="${velocity_scale * 180.0 * M_PI / 180}" />
+         
+         <dynamics friction="0.0" damping="1.0"/>
+         <origin xyz="0 0 0.193" rpy="0 0 0" />
+         <axis xyz="0 0 1" />
+      </joint>
+      <link name="${prefix}/${name}_5_link">
+         <inertial>
+            <origin xyz="-7.2951660343995983e-05 0.034300558520003806 -0.082836449419419589" rpy="-0.399346437469 -0.0238815557936 0.011018430381" />
+            <mass value="2.0" />
+            <inertia ixx="0.0124407882151" ixy="0" ixz="0" iyy="0.0124710412724" iyz="0" izz="0.00438005667842" />
+         </inertial>
+         <visual>
+            <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+            <geometry>
+               <mesh filename="package://lwr_description/meshes/lwr/link5.stl" />
+            </geometry>
+            <material name="color_j5" />
+         </visual>
+         <collision>
+            <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+            <geometry>
+               <mesh filename="package://lwr_description/meshes/lwr/link5.dae" />
+            </geometry>
+           <surface>
+            <friction>
+              <ode>
+                <mu>0.998000</mu>
+                <mu2>0.998000</mu2>
+                <fdir1>0.000000 0.000000 0.000000</fdir1>
+                <slip1>0.000000</slip1>
+                <slip2>0.000000</slip2>
+              </ode>
+            </friction>
+            <bounce>
+              <restitution_coefficient>0.000000</restitution_coefficient>
+              <threshold>100000.000000</threshold>
+            </bounce>
+            <contact>
+              <ode>
+                <soft_cfm>0.000000</soft_cfm>
+                <soft_erp>0.200000</soft_erp>
+                <kp>100000.000000</kp>
+                <kd>1.000000</kd>
+                <max_vel>100.000000</max_vel>
+                <min_depth>0.001000</min_depth>
+              </ode>
+            </contact>
+          </surface>
+         </collision>
+      </link>
+      <!-- joint between arm_5_link and arm_6_link -->
+      <joint name="${prefix}/${name}_5_joint" type="revolute">
+        <gazebo reference="${prefix}/${name}_5_joint">
+          <xacro:gz_joint/>
+        </gazebo>
+
+         <parent link="${prefix}/${name}_5_link" />
+         <child link="${prefix}/${name}_6_link" />
+         <limit lower="${-120 * M_PI / 180}" upper="${120 * M_PI / 180}" effort="${effort_scale * 30}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
+         
+         <dynamics friction="0.0" damping="1.0"/>
+         <origin xyz="0 0 0.2" rpy="0 0 0" />
+         <axis xyz="0 -1 0" />
+      </joint>
+      <link name="${prefix}/${name}_6_link">
+         <inertial>
+            <origin xyz="0.0033265785100209406 -0.00025060639771109469 0.0006250581115164501" rpy="0.0273247151986 -0.416007068876 -0.06463859276" />
+            <mass value="2.0" />
+            <inertia ixx="0.00284169077177" ixy="0" ixz="0" iyy="0.00298256896714" iyz="0" izz="0.00296892557443" />
+         </inertial>
+         <visual>
+            <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+            <geometry>
+               <mesh filename="package://lwr_description/meshes/lwr/link6.stl" />
+            </geometry>
+            <material name="color_j6" />
+         </visual>
+         <collision>
+            <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+            <geometry>
+               <mesh filename="package://lwr_description/meshes/lwr/link6.dae" />
+            </geometry>
+           <surface>
+            <friction>
+              <ode>
+                <mu>0.998000</mu>
+                <mu2>0.998000</mu2>
+                <fdir1>0.000000 0.000000 0.000000</fdir1>
+                <slip1>0.000000</slip1>
+                <slip2>0.000000</slip2>
+              </ode>
+            </friction>
+            <bounce>
+              <restitution_coefficient>0.000000</restitution_coefficient>
+              <threshold>100000.000000</threshold>
+            </bounce>
+            <contact>
+              <ode>
+                <soft_cfm>0.000000</soft_cfm>
+                <soft_erp>0.200000</soft_erp>
+                <kp>100000.000000</kp>
+                <kd>1.000000</kd>
+                <max_vel>100.000000</max_vel>
+                <min_depth>0.001000</min_depth>
+              </ode>
+            </contact>
+          </surface>
+         </collision>
+      </link>
+      <!-- joint between arm_6_link and arm_7_link -->
+      <joint name="${prefix}/${name}_6_joint" type="revolute">
+        <gazebo reference="${prefix}/${name}_6_joint">
+          <xacro:gz_joint/>
+        </gazebo>
+
+         <parent link="${prefix}/${name}_6_link" />
+         <child link="${prefix}/${name}_7_link" />
+         <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}" effort="${effort_scale * 30}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
+         <dynamics friction="0.0" damping="1.0"/>
+         <origin xyz="0 0 0.079" rpy="0 0 0" />
+         <axis xyz="0 0 1" />
+      </joint>
+      <link name="${prefix}/${name}_7_link">
+         <inertial>
+            <origin xyz="-1.0508863000830793e-05 0.00049391465901896074 0.062507829615577853" rpy="-0.00140457256351 -0.0113238487485 -0.621939623896" />
+            <mass value="0.350" />
+            <inertia ixx="0.000581502716972" ixy="0" ixz="0" iyy="0.000584472283068" iyz="0" izz="0.000968983240391" />
+         </inertial>
+         <visual>
+            <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+            <geometry>
+               <mesh filename="package://lwr_description/meshes/lwr/link7.stl" />
+            </geometry>
+            <material name="color_j7" />
+         </visual>
+         <collision>
+            <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
+            <geometry>
+               <mesh filename="package://lwr_description/meshes/lwr/link7.dae" />
+            </geometry>
+           <surface>
+            <friction>
+              <ode>
+                <mu>0.998000</mu>
+                <mu2>0.998000</mu2>
+                <fdir1>0.000000 0.000000 0.000000</fdir1>
+                <slip1>0.000000</slip1>
+                <slip2>0.000000</slip2>
+              </ode>
+            </friction>
+            <bounce>
+              <restitution_coefficient>0.000000</restitution_coefficient>
+              <threshold>100000.000000</threshold>
+            </bounce>
+            <contact>
+              <ode>
+                <soft_cfm>0.000000</soft_cfm>
+                <soft_erp>0.200000</soft_erp>
+                <kp>100000.000000</kp>
+                <kd>1.000000</kd>
+                <max_vel>100.000000</max_vel>
+                <min_depth>0.001000</min_depth>
+              </ode>
+            </contact>
+          </surface>
+         </collision>
+      </link>
+      <!-- Tool macro -->
+      <xacro:tool/>
+
+   </xacro:macro>
+</robot>

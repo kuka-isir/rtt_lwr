@@ -1,0 +1,37 @@
+import("lwr_fri")
+import("fri_examples")
+
+loadComponent("lwr", "lwr_fri::FRIComponent")
+loadComponent("friExample", "FriExampleJacobian")
+
+setActivity("lwr", 0, 99, ORO_SCHED_RT)
+
+lwr.udp_port = 49938
+lwr.configure
+
+var ConnPolicy cp
+
+//Only last data written is accessible
+cp.type = DATA
+//Use mutexes
+cp.lock_policy = LOCKED
+
+//Port connection
+connect("friExample.fromFRI", "lwr.toKRL", cp)
+connect("friExample.JointPositions_o", "lwr.JointPositionCommand", cp)
+connect("friExample.JointVelocities_o", "lwr.JointVelocityCommand", cp)
+connect("friExample.JointTorques_o", "lwr.JointEffortCommand", cp)
+connect("friExample.JointImpedance_o", "lwr.FriJointImpedance", cp)
+
+connect("lwr.fromKRL", "friExample.toFRI", cp)
+connect("lwr.FriJointState", "friExample.FRIJointState_i", cp)
+connect("lwr.JointState", "friExample.JointState_i", cp)
+connect("lwr.CartesianPosition", "friExample.CartesianPosition_i", cp)
+connect("lwr.Jacobian", "friExample.Jacobian_i", cp)
+
+friExample.configure
+friExample.setPeriod(0.02)
+
+lwr.start
+friExample.setControlStrategy(30)
+friExample.start

@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- roslaunch arguments -->
+<arg name="debug" default="false"/>
+<arg name="gui" default="true"/>
+<arg name="TAO" default="false"/>
+<arg name="ops_script" default="$(find rtt_lwr_gazebo)/scripts/lwr_gazebo.ops"/>
+<!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+<include file="$(find rtt_lwr_gazebo)/launch/empty_world.launch">
+	<arg name="debug" value="$(arg debug)" />
+	<arg name="gui" value="$(arg gui)" />
+	<arg name="paused" value="false"/>
+	<arg name="use_sim_time" value="true"/>
+	<arg name="headless" value="false"/>
+</include>
+
+
+<include file="$(find lwr_description)/launch/lwr_upload.launch">
+	<arg name="prefix" value="lwr"/>
+	<arg name="ops_script" value="$(arg ops_script)"/>
+</include>
+
+<group ns="lwr">
+
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen"/>
+
+	<!--node pkg="joint_state_publisher" type="joint_state_publisher" output="screen" name="joint_state_publisher">
+		<rosparam param="source_list" subst_value="true">
+          ["lwr/joint_states"]
+        </rosparam>
+		<remap from="robot_description" to="/robot_description"/>
+	</node-->
+
+
+</group>
+
+<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model lwr"  respawn="false" output="screen" />
+  <!-- Launch the CORBA TO naming service -->
+  <node if="$(arg TAO)" name="corba_naming_service" pkg="rtt_ros" type="corba-naming-service" args="-m 1"/>
+
+</launch>
+

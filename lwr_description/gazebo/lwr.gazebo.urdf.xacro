@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+			<!--plugin name="gazebo_ros_moveit_planning_scene" filename="libgazebo_ros_moveit_planning_scene.so">
+			    <robotNamespace>~</robotNamespace>
+			    <sceneName>B08</sceneName>
+			    <robotName>lwr</robotName>
+			    <updatePeriod>0.033</updatePeriod>
+			    <topicName>planning_scene</topicName>
+    		</plugin-->
+	<xacro:macro name="lwr_gazebo" params="name prefix">
+		<gazebo>
+			<plugin name="rtt_gazebo" filename="librtt_gazebo_deployer.so">
+			  <component>
+			    <package>rtt_lwr_gazebo</package>
+			    <type>LWRGazeboComponent</type>
+			    <name>lwr_gazebo</name>
+			  </component>
+			    <!--orocosScript><filename>$(arg ops_script)</filename></orocosScript-->
+			    <luaScript><filename>$(arg ops_script)</filename></luaScript>
+			</plugin>
+  		</gazebo>
+
+		<gazebo reference="${prefix}/${name}_0_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Orange</material>
+		</gazebo>
+
+		<gazebo reference="${prefix}/${name}_1_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Orange</material>
+		</gazebo>
+
+		<gazebo reference="${prefix}/${name}_2_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Orange</material>
+		</gazebo>
+
+		<gazebo reference="${prefix}/${name}_3_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Orange</material>
+		</gazebo>
+
+		<gazebo reference="${prefix}/${name}_4_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Orange</material>
+		</gazebo>
+
+		<gazebo reference="${prefix}/${name}_5_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Orange</material>
+		</gazebo>
+
+		<gazebo reference="${prefix}/${name}_6_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Grey</material>
+		</gazebo>
+
+		<gazebo reference="${prefix}/${name}_7_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Grey</material>
+		</gazebo>
+
+	</xacro:macro>
+
+</robot>

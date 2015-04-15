@@ -1,0 +1,78 @@
+import("ATISensor")
+import("lwr_fri")
+import("fri_examples")
+import("directKinematics")
+import("rtt_rosnode")
+
+loadComponent("lwr","lwr_fri::FRIRTNetComponent")
+loadComponent("friExample","ATIcalibration")
+loadComponent("ATI","ATISensor")
+loadComponent("dKinematics","DirectKinematics")
+
+setActivity("lwr",0,99,ORO_SCHED_RT)
+setActivity("ATI",0.01,10,ORO_SCHED_RT)
+setActivity("friExample",0.001,50,ORO_SCHED_RT)
+setActivity("dKinematics",0,30,ORO_SCHED_RT)
+
+lwr.control_mode=1
+lwr.local_port=49938
+ATI.setWebserver(0)
+
+
+var ConnPolicy cp
+//Only last data written is accessible
+cp.type = DATA
+//Use mutexes
+cp.lock_policy = LOCKED
+
+connectPeers("lwr","friExample")
+friExample.setPeer("lwr")
+
+dKinematics.configure
+
+//Port connection
+
+connect("lwr.msrJntPos","friExample.MsrJntPos_i",cp)
+connect("lwr.cmdJntPos","friExample.CmdJntPos_i", cp)
+//connect("lwr.msrJntPos","dKinematics.JntPos_i", cp)
+connect("lwr.estExtJntTrq","friExample.estExtJntTrq_i",cp)
+connect("lwr.events","friExample.Events_i",cp)
+connect("lwr.msrJntTrq","friExample.MsrJntTrq_i",cp)
+connect("lwr.estExtTcpWrench","friExample.EstExtTcpWrench_i",cp)
+
+connect("friExample.JointPositions_o", "lwr.desJntPos", cp)
+connect("friExample.BiasOrder_o","ATI.bias_i",cp)
+connect("friExample.addJntTorque_o","lwr.desAddJntTrq",cp)
+
+connect("dKinematics.sortie","ATI.transforms_i",cp)
+
+connect("ATI.FTvalues","friExample.ATI_i",cp)
+connect("friExample.ATI_calibration_results","ATI.FT_calibration_data_i",cp)
+
+lwr.configure
+
+//ATI.setPeriod(0.02)
+ATI.configure
+ATI.start
+
+dKinematics.start
+//Lancer la partie du dessus avant d'exécuter le script (bias a lieu lorsque le robot est droit), une fois en position lancer les 2 lignes suivantes
+
+friExample.configure
+
+friExample.friReset
+
+lwr.control_mode=7
+lwr.start
+
+stream("friExample.ATIforce_o", ros.topic("/ati_force"))
+stream("friExample.ATItorque_o", ros.topic("/ati_torque"))
+stream("friExample.KUKAforce_o", ros.topic("/kuka_force"))
+stream("friExample.KUKAtorque_o", ros.topic("/kuka_torque"))
+
+#friExample.setControlStrategy(7)
+
+#friExample.start
+
+
+

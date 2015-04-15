@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="lwr" >
+
+  <property name="M_PI" value="3.1415926535897931" />
+  <property name="name" value="lwr" />
+  <!-- lbr-->
+  <xacro:include filename="$(find lwr_description)/urdf/lwr.urdf.xacro" />
+
+  <!-- generic simulator_gazebo plugins -->
+  <xacro:include filename="$(find lwr_description)/gazebo/lwr.gazebo.urdf.xacro"/>
+  <xacro:include filename="$(find lwr_description)/urdf/lwr.transmission.xacro"/>
+  <!-- materials for visualization -->
+  <xacro:include filename="$(find lwr_description)/urdf/materials.urdf.xacro" />
+
+  <!-- world + base link-->
+  <link name="world"/>
+  <link name="$(arg prefix)/base_link"/>
+
+  <joint name="$(arg prefix)/base_joint" type="fixed">
+    <parent link="world" />
+    <child link="$(arg prefix)/base_link" />
+  </joint>
+
+  <gazebo reference="$(arg prefix)/base_link">
+    <static>true</static>>
+  </gazebo>
+
+<xacro:macro name="tool">
+      <link name="$(arg prefix)/kuka_polaris"/>
+      <joint name="$(arg prefix)/tool_joint" type="fixed">
+         <parent link="$(arg prefix)/${name}_7_link" />
+         <child link="$(arg prefix)/kuka_polaris" />
+	       <origin xyz="0 0 0.055" rpy="0 0 0" />
+      </joint>
+</xacro:macro>
+
+  <!--lbr-->
+  <xacro:lwr prefix="$(arg prefix)" name="${name}" parent="$(arg prefix)/base_link">
+    <!-- Position from origin -->
+    <origin xyz="0 0 0.01" rpy="0 0 ${2*M_PI/3}" />
+  </xacro:lwr>
+
+   <xacro:lwr_gazebo prefix="$(arg prefix)" name="${name}"/>
+   <xacro:lwr_transmission prefix="$(arg prefix)" name="${name}"/>
+
+</robot>

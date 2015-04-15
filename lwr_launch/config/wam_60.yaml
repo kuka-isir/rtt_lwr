@@ -1,0 +1,10 @@
+# These are the hardware calibrations for WAM#60
+# Zerocal
+home_position: [0.0, -1.58153, 0.0, 3.1415, -1.5708, -1.5708, -3.0]
+home_resolver_offset: [1.18423, -1.35297, 1.29775, -0.707165, 0.7455146629124219,
+  -0.15339807878856426, 2.147573103039898]
+# Velocity filtering
+velocity_cutoff: [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 1.0]
+velocity_smoothing_factor: 0.95
+# Torque constant scaling
+torque_scales: [1.4, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]

@@ -1,0 +1,16 @@
+
+import("rtt_ros")
+import("rtt_rosnode")
+import("rtt_roscomm")
+import("rtt_sensor_msgs")
+
+import("lwr_state_publisher")
+
+loadComponent("LWRStatePublisher","LWRStatePublisher")
+setActivity("LWRStatePublisher",0.001,LowestPriority,ORO_SCHED_OTHER)
+
+connectPeers("lwr","LWRStatePublisher")
+
+LWRStatePublisher.configure()
+LWRStatePublisher.start()
+

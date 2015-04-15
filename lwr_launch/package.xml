@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<package>
+  <name>lwr_launch</name>
+  <version>0.0.1</version>
+  <description>The lwr_launch package</description>
+
+  <maintainer email="hoarau.robotics@gmail.com">Antoine Hoarau</maintainer>
+
+  <license>LGPLv3</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>conman</run_depend>
+  <run_depend>control_toolbox</run_depend>
+  <run_depend>kdl_urdf_tools</run_depend>
+  <run_depend>lwr_description</run_depend>
+  <run_depend>rtt_ros</run_depend>
+  <run_depend>rtt_ros_tools</run_depend>
+  <run_depend>rtt_rosparam</run_depend>
+  <run_depend>rtt_sensor_msgs</run_depend>
+
+
+  <export>
+    <rtt_ros>
+      <plugin_depend>rtt_rosnode</plugin_depend>
+      <plugin_depend>rtt_rospack</plugin_depend>
+      <plugin_depend>rtt_rosparam</plugin_depend>
+      <plugin_depend>rtt_rosclock</plugin_depend>
+      <plugin_depend>rtt_roscomm</plugin_depend>
+      <plugin_depend>conman</plugin_depend>
+      <plugin_depend>conman_ros</plugin_depend>
+      <plugin_depend>conman_blocks</plugin_depend>
+    </rtt_ros>
+  </export>
+</package>

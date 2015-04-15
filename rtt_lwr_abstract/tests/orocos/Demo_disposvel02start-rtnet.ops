@@ -1,0 +1,95 @@
+//importation des librairies necessaires
+import("rtt_rosnode")
+import("tf_reader")
+import("disposvel")
+import("lwr_fri")
+//import("RTEKukaFRIClient")
+import("fri_examples")
+import("directKinematics")
+import("tfRobotSubscriber")
+
+require("print")
+
+//construstion des composants
+loadComponent("tf","tf_reader::Tf_reader")
+loadComponent("getDistances","Disposvel")
+//loadComponent("component_send", "Kuka_send_joint_positions")
+loadComponent("friExample","DemoKukaKinectKaramaRTNET")
+loadComponent("lwr","lwr_fri::FRIRTNetComponent")
+loadComponent("RobotState","DirectKinematics")
+loadComponent("tfSub","TfRobotSubscriber")
+
+
+setActivity("lwr",0, 99, ORO_SCHED_RT)
+
+lwr.control_mode=2
+lwr.local_port = 49938
+lwr.configure
+
+setActivity("tfSub",0.05, 20, ORO_SCHED_RT)
+setActivity("RobotState",0.02, 20, ORO_SCHED_RT)
+setActivity("getDistances",0.02, 30, ORO_SCHED_RT)
+setActivity("friExample",0.02, 40, ORO_SCHED_RT)
+
+
+//se connecter au topic tf de ROS
+stream("tf.tf_in",ros.topic("/tf"))
+
+connectPeers("getDistances","tf")
+connectServices("getDistances","tf")
+
+connectPeers("lwr","friExample")
+friExample.setPeer("lwr")
+
+getDistances.number_of_robot_frames = 7
+getDistances.number_of_human_frames = 8
+getDistances.number_of_robot_links = 3
+getDistances.number_of_human_limbes = 7
+
+
+tf.configure
+tf.start
+
+print.ln("lwr configured")
+
+RobotState.configure()
+
+tfSub.configure()
+
+var ConnPolicy cp
+cp.type = DATA
+//cp.size = 10
+cp.lock_policy = LOCKED
+
+
+connect("lwr.msrJntPos","RobotState.JntPos_i",cp)
+connect("RobotState.sortie","tfSub.inCartesianState",cp)
+connect("RobotState.sizeChain","tfSub.size",cp)
+
+getDistances.configure
+
+connect("lwr.msrJntPos", "friExample.MsrJntPos_i", cp)
+connect("friExample.JointVelocities_o","lwr.desJntVel", cp)
+connect("getDistances.distance","friExample.distance", cp)
+
+connect("lwr.RobotState","friExample.RobotState_i",cp)
+connect("lwr.events", "friExample.Events_i", cp)
+
+//stream("getDistances.nav_path", ros.topic("/distances/path"))
+
+friExample.configure
+lwr.control_mode=2
+friExample.friReset
+
+
+lwr.start
+RobotState.start()
+tfSub.start()
+
+//getDistances.start
+
+//friExample.setControlStrategy(2)
+
+//friExample.start
+
+

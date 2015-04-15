@@ -1,0 +1,21 @@
+#!/usr/bin/env deployer-gnulinux
+
+import("rtt_ros")
+
+## Need rtt_rosnode so ros::init is called
+import("rtt_rosnode")
+ros.import("rtt_lwr_control")
+
+## Load a HelloRobot component
+loadComponent("RttLWRControl","RttLWRControl")
+
+## Give it a periodic activity
+setActivity("RttLWRControl",0.001,HighestPriority,ORO_SCHED_RT)
+
+## Configure the RttRosControlExample component
+RttLWRControl.configure()
+
+## Start it
+RttLWRControl.start()
+
+

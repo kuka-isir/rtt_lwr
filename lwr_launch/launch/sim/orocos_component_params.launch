@@ -1,0 +1,229 @@
+<launch>
+  <arg name="oro_prefix" default="" doc="This prefix is used for orocos component names"/>
+  <arg name="tf_prefix" default="wam" doc="This prefix is used for TF frames"/>
+
+  <arg name="ee_empty" default="false" doc="(bool) True if there is no end-effector"/>
+  <arg name="ee_ball" default="false" doc="(bool) True if there is no end-effector"/>
+  <arg name="ee_hand" default="false" doc="(bool) True if there is no end-effector"/>
+  <arg name="ee_bumblebee" default="false" doc="(bool) True if there is no end-effector"/>
+
+  <group ns="$(arg oro_prefix)inverse_dynamics">
+    <rosparam subst_value="true">
+      robot_description_param: /robot_description
+      root_link: $(arg tf_prefix)/base_link
+      end_effector_frame_link: $(arg tf_prefix)/wrist_palm_link
+      gravity: [-9.8, 0.0, 0.0]
+      inertia_mass_rate: 0.3
+      inertia_com_rate: 0.05
+    </rosparam>
+    <rosparam if="$(arg ee_empty)" subst_value="true">
+      tip_link: $(arg tf_prefix)/wrist_palm_link
+    </rosparam>
+    <rosparam if="$(arg ee_ball)" subst_value="true">
+      tip_link: $(arg tf_prefix)/ball/bball_center_link
+    </rosparam>
+    <rosparam if="$(arg ee_bumblebee)" subst_value="true">
+      tip_link: $(arg tf_prefix)/bumblebee_mount_link
+    </rosparam>
+    <rosparam if="$(arg ee_hand)" subst_value="true">
+      tip_link: $(arg tf_prefix)/wrist_palm_link
+    </rosparam>
+  </group>
+
+  <group ns="$(arg oro_prefix)pid">
+    <rosparam subst_value="true">
+      root_link: $(arg tf_prefix)/base_link
+      tip_link: $(arg tf_prefix)/wrist_palm_link
+      # friction
+      static_deadband: [0.001, 0.001, 0.001, 0.01, 0.01, 0.01, 0.01]
+      static_effort: [4.0, 1.0, 2.0, 1.0, 0.2, 0.2, 0.05]
+      static_eps: 0.020
+      #i_gains: [5.0, 5.0, 4.0, 3.0, 0.3, 0.2, 0.2]
+      #i_clamps: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+      compensate_friction: false
+      verbose: false
+    </rosparam>
+    <rosparam if="$(arg ee_empty)" subst_value="true">
+      p_gains: [350.0, 300.0, 200.0, 170.0, 12.0, 12.0, 1.0]
+      d_gains: [20.0, 5.0, 3.0, 5.0, 0.4, 0.4, 0.001]
+      position_tolerance: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+      velocity_tolerance: [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
+    </rosparam>
+    <rosparam if="$(arg ee_ball)" subst_value="true">
+      p_gains: [350.0, 350.0, 350.0, 300.0, 15.0, 15.0, 0.5]
+      d_gains: [20.0, 5.0, 3.0, 5.0, 0.4, 0.4, 0.001]
+      position_tolerance: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+      velocity_tolerance: [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
+    </rosparam>
+    <rosparam if="$(arg ee_hand)" subst_value="true">
+      p_gains: [350.0, 350.0, 350.0, 300.0, 25.0, 25.0, 2.0]
+      d_gains: [40.0, 40.0, 30.0, 20.0, 6.5, 4.5, 1.1]
+      position_tolerance: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+      velocity_tolerance: [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
+    </rosparam>
+  </group>
+
+  <group ns="$(arg oro_prefix)traj_rml">
+    <rosparam subst_value="true">
+      root_link: $(arg tf_prefix)/base_link
+      tip_link: $(arg tf_prefix)/wrist_palm_link
+      sampling_resolution: 0.002
+      #note: absolute max joint velocity: 2.0 rad/s
+      #note: safe joint velocity: 0.5 rad/s
+      stop_on_violation: true
+      verbose: false
+      stop_time: 0.25
+      goal_position_tolerance: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+      goal_velocity_tolerance: [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+    </rosparam>
+    <rosparam if="$(arg ee_empty)" subst_value="true">
+      position_tolerance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0]
+      velocity_tolerance: [1.2, 1.2, 1.2, 1.2, 2.0, 2.0, 2.0]
+      max_velocities: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+      max_accelerations: [1.5, 1.5, 1.5, 4.0, 4.0, 4.0, 4.0]
+      max_jerks: [2.5, 2.5, 2.5, 2.5, 5.5, 5.5, 5.0]
+    </rosparam>
+    <rosparam if="$(arg ee_ball)" subst_value="true">
+      position_tolerance: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+      velocity_tolerance: [3.2, 3.2, 3.2, 3.2, 3.0, 3.0, 3.0]
+      max_velocities: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+      max_accelerations: [1.5, 1.5, 1.5, 4.0, 4.0, 4.0, 4.0]
+      max_jerks: [2.5, 2.5, 2.5, 2.5, 5.5, 5.5, 5.0]
+    </rosparam>
+    <rosparam if="$(arg ee_hand)" subst_value="true">
+      position_tolerance: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+      velocity_tolerance: [3.2, 3.2, 3.2, 3.2, 3.0, 3.0, 3.0]
+      max_velocities: [1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5]
+      max_accelerations: [1.5, 1.5, 1.5, 4.0, 8.0, 8.0, 8.0]
+      max_jerks: [2.5, 2.5, 2.5, 2.5, 5.5, 5.5, 5.0]
+    </rosparam>
+  </group>
+
+  <group ns="$(arg oro_prefix)jtns">
+    <rosparam subst_value="true">
+      root_link: $(arg tf_prefix)/base_link
+      target_frame: "" #$(arg tf_prefix)/cmd
+      singularity_avoidance_gain: 0.0
+      joint_center_gain: 0.0
+      linear_p_gain: 1000.0
+      linear_d_gain:  200.0
+      angular_p_gain: 10.0
+      angular_d_gain:  0.1
+      linear_effort_threshold: 50.0
+      linear_position_threshold: 0.1
+      angular_effort_threshold: 5.0
+      angular_position_threshold: 1.5
+      nullspace_damping: 0.8
+      jointspace_damping: 1.2
+      joint_d_gains: [0.8, 0.8, 0.8, 0.8, 0.1, 0.1, 0.5]
+      projector_type: 3
+    </rosparam>
+    <rosparam if="$(arg ee_empty)" subst_value="true">
+      tip_link: $(arg tf_prefix)/wrist_palm_link
+    </rosparam>
+    <rosparam if="$(arg ee_hand)" subst_value="true">
+      tip_link: $(arg tf_prefix)/hand/bhand_grasp_link
+    </rosparam>
+    <rosparam if="$(arg ee_ball)" subst_value="true">
+      tip_link: $(arg tf_prefix)/ball/bball_center_link
+    </rosparam>
+  </group>
+
+  <group ns="$(arg oro_prefix)cart_servo">
+    <rosparam subst_value="true">
+      root_link: $(arg tf_prefix)/base_link
+      target_frame: $(arg tf_prefix)/cmd
+      max_linear_rate: 0.1
+      max_linear_error: 0.05
+      max_angular_rate: 0.5
+      max_angular_error: 0.5
+      linear_p_gain: 100.0
+      angular_p_gain: 10.0
+    </rosparam>
+
+    <rosparam if="$(arg ee_empty)" subst_value="true">
+      tip_link: $(arg tf_prefix)/wrist_palm_link
+    </rosparam>
+    <rosparam if="$(arg ee_hand)" subst_value="true">
+      tip_link: $(arg tf_prefix)/hand/bhand_grasp_link
+    </rosparam>
+    <rosparam if="$(arg ee_ball)" subst_value="true">
+      tip_link: $(arg tf_prefix)/ball/bball_center_link
+    </rosparam>
+  </group>
+
+  <group ns="$(arg oro_prefix)coulomb">
+    <rosparam subst_value="true">
+      root_link: $(arg tf_prefix)/base_link
+      target_frame: $(arg tf_prefix)/cmd
+      friction_coefficients_neg: [0.1, 0.1, 0.1, 0.05, 0.01, 0.01, 0.001]
+      friction_coefficients_pos: [0.1, 0.1, 0.1, 0.05, 0.01, 0.01, 0.001]
+      zero_slope: 0.05
+      cutoff: 0.99
+    </rosparam>
+
+    <rosparam if="$(arg ee_empty)" subst_value="true">
+      tip_link: $(arg tf_prefix)/wrist_palm_link
+    </rosparam>
+    <rosparam if="$(arg ee_hand)" subst_value="true">
+      tip_link: $(arg tf_prefix)/hand/bhand_grasp_link
+    </rosparam>
+    <rosparam if="$(arg ee_ball)" subst_value="true">
+      tip_link: $(arg tf_prefix)/ball/bball_center_link
+    </rosparam>
+  </group>
+
+
+  <rosparam subst_value="true">
+    $(arg oro_prefix)traj_kdl:
+      root_link: $(arg tf_prefix)/base_link
+      tip_link: $(arg tf_prefix)/wrist_palm_link
+      trap_max_vels: [0.5, 0.5, 1.5, 0.8, 4.0, 4.0, 8.0]
+      trap_max_accs: [0.02, 0.06, 0.06, 0.04, 0.06, 0.06, 0.06]
+      position_tolerance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+      velocity_tolerance: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+  </rosparam>
+
+
+  <group ns="$(arg oro_prefix)ik">
+    <rosparam subst_value="true">
+      root_link: $(arg tf_prefix)/base_link
+      target_frame: $(arg tf_prefix)/cmd
+      hint_modes: [2, 2, 2, 2, 2, 2, 2]
+      hint_positions: [0.0, -0.7853, 0.0, 1.5707, 0.0, 0.0, 0.0]
+      damping: 0.5
+    </rosparam>
+
+    <rosparam if="$(arg ee_empty)" subst_value="true">
+      tip_link: $(arg tf_prefix)/wrist_palm_link
+    </rosparam>
+    <rosparam if="$(arg ee_hand)" subst_value="true">
+      tip_link: $(arg tf_prefix)/hand/bhand_grasp_link
+    </rosparam>
+    <rosparam if="$(arg ee_ball)" subst_value="true">
+      tip_link: $(arg tf_prefix)/ball/bball_center_link
+    </rosparam>
+
+    <node pkg="tf" type="static_transform_publisher" name="$(anon stp)"
+      args="0 0 0 0 0 0 /world /ik/world 50"/>
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="$(anon robot_state_publisher)">
+      <remap from="joint_states" to="joint_state_desired"/>
+      <param name="publish_frequency" value="50"/>
+      <param name="tf_prefix" value="ik"/>
+      <remap from="robot_description" to="/robot_description"/>
+    </node>
+  </group>
+
+  <rosparam subst_value="true">
+    $(arg oro_prefix)joint_setpoint:
+      root_link: $(arg tf_prefix)/base_link
+      tip_link: $(arg tf_prefix)/wrist_palm_link
+  </rosparam>
+
+  <rosparam subst_value="true">
+    $(arg oro_prefix)traj_setpoint:
+      root_link: $(arg tf_prefix)/base_link
+      tip_link: $(arg tf_prefix)/wrist_palm_link
+  </rosparam>
+
+</launch>

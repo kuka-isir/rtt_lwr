@@ -1,0 +1,40 @@
+import("lwr_fri")
+import("directKinematics")
+import("tfRobotSubscriber")
+
+loadComponent("lwr","lwr_fri::FRIRTNetComponent")
+loadComponent("RobotState","DirectKinematics")
+loadComponent("tfSub","TfRobotSubscriber")
+
+setActivity("lwr",0, 99, ORO_SCHED_RT)
+lwr.local_port = 49938
+lwr.configure()
+
+
+RobotState.setPeriod(0.01)
+RobotState.configure()
+
+tfSub.setPeriod(0.05)
+tfSub.configure()
+
+var ConnPolicy cp
+cp.type = DATA  
+//cp.size = 10   
+cp.lock_policy = LOCKED 
+connect("lwr.msrJntPos","RobotState.JntPos_i",cp) 
+
+var ConnPolicy cp_1
+cp_1.type = DATA  
+//cp_1.size = 10   
+cp_1.lock_policy = LOCKED 
+connect("RobotState.sortie","tfSub.inCartesianState",cp_1) 
+
+var ConnPolicy cp_2
+cp_2.type = DATA  
+//cp_1.size = 10   
+cp_2.lock_policy = LOCKED 
+connect("RobotState.sizeChain","tfSub.size",cp_2) 
+
+lwr.start()
+RobotState.start()
+tfSub.start()

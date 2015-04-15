@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package>
+  <name>rtt_lwr</name>
+  <version>0.1.0</version>
+  <description>The rtt_lwr package</description>
+
+  <maintainer email="hoarau.robotics@gmail.com">Antoine Hoarau</maintainer>
+
+  <license>LGPLv3</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>lwr_description</run_depend>
+  <run_depend>rtt_lwr_gazebo</run_depend>
+  <run_depend>rtt_lwr_sim</run_depend>
+  <run_depend>rtt_launch</run_depend>
+  <run_depend>rtt_lwr_abstract</run_depend>
+
+  <export>
+  </export>
+</package>
