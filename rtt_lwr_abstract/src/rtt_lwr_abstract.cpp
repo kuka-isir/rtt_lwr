@@ -204,7 +204,7 @@ FRI_STATE RTTLWRAbstract::getFRIMode(){
             return FRI_STATE_MON;
         }else{
             std::cout << "Cannot read FRI Mode" << std::endl;
-            return FRI_STATE_INVALID;
+            return FRI_STATE_OFF;
         }
     }
 }
