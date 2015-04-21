@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<package>
+  <name>rtt_lwr_example</name>
+  <version>1.0.0</version>
+  <description>Orocos lwr_example Component package</description>
+
+  <maintainer email="hoarau.robotics@gmail.com">Antoine Hoarau</maintainer>
+
+  <license>LGPLv3</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>rtt</build_depend>
+  <build_depend>rtt_ros</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>diagnostic_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>orocos_kdl</build_depend>
+  <build_depend>kdl_conversions</build_depend>
+  <build_depend>lwr_fri</build_depend>
+  <build_depend>kuka_lwr_fri</build_depend>
+  <build_depend>rtt_lwr_abstract</build_depend>
+
+  <run_depend>rtt</run_depend>
+  <run_depend>rtt_ros</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>diagnostic_msgs</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>orocos_kdl</run_depend>
+  <run_depend>kdl_conversions</run_depend>
+  <run_depend>lwr_fri</run_depend>
+  <run_depend>rtt_lwr_abstract</run_depend>
+
+  <export>
+    <rtt_ros>
+      <plugin_depend>rtt_std_msgs</plugin_depend>
+      <plugin_depend>rtt_diagnostic_msgs</plugin_depend>
+      <plugin_depend>rtt_geometry_msgs</plugin_depend>
+      <plugin_depend>rtt_sensor_msgs</plugin_depend>
+    </rtt_ros>
+  </export>
+</package>
