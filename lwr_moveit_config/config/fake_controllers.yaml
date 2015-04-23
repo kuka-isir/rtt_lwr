@@ -1,0 +1,10 @@
+controller_list:
+  - name: fake_arm_controller
+    joints:
+      - lwr/lwr_0_joint
+      - lwr/lwr_1_joint
+      - lwr/lwr_2_joint
+      - lwr/lwr_3_joint
+      - lwr/lwr_4_joint
+      - lwr/lwr_5_joint
+      - lwr/lwr_6_joint

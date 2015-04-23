@@ -1,6 +1,6 @@
 <package>
 
-  <name>lwr_moveit</name>
+  <name>lwr_moveit_config</name>
   <version>0.2.0</version>
   <description>
      An automatically generated package with all the configuration and launch files for using the lwr with the MoveIt Motion Planning Framework
@@ -20,8 +20,8 @@
   <run_depend>joint_state_publisher</run_depend>
   <run_depend>robot_state_publisher</run_depend>
   <run_depend>xacro</run_depend>
-  <build_depend>kuka_description</build_depend>
-  <run_depend>kuka_description</run_depend>
+  <build_depend>lwr_description</build_depend>
+  <run_depend>lwr_description</run_depend>
 
 
   <buildtool_depend>catkin</buildtool_depend>

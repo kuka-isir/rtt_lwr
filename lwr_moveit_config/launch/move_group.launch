@@ -1,6 +1,6 @@
 <launch>
 
-  <include file="$(find lwr_moveit)/launch/planning_context.launch" />
+  <include file="$(find lwr_moveit_config)/launch/planning_context.launch" />
 
   <!-- GDB Debug Option -->
   <arg name="debug" default="false" />
@@ -20,19 +20,19 @@
   <arg name="publish_monitored_planning_scene" default="true"/>
 
   <!-- Planning Functionality -->
-  <include ns="move_group" file="$(find lwr_moveit)/launch/planning_pipeline.launch.xml">
+  <include ns="move_group" file="$(find lwr_moveit_config)/launch/planning_pipeline.launch.xml">
     <arg name="pipeline" value="ompl" />
   </include>
 
   <!-- Trajectory Execution Functionality -->
-  <include ns="move_group" file="$(find lwr_moveit)/launch/trajectory_execution.launch.xml" if="$(arg allow_trajectory_execution)">
+  <include ns="move_group" file="$(find lwr_moveit_config)/launch/trajectory_execution.launch.xml" if="$(arg allow_trajectory_execution)">
     <arg name="moveit_manage_controllers" value="true" />
     <arg name="moveit_controller_manager" value="lwr" unless="$(arg fake_execution)"/>
     <arg name="moveit_controller_manager" value="fake" if="$(arg fake_execution)"/>
   </include>
 
   <!-- Sensors Functionality -->
-  <include ns="move_group" file="$(find lwr_moveit)/launch/sensor_manager.launch.xml" if="$(arg allow_trajectory_execution)">
+  <include ns="move_group" file="$(find lwr_moveit_config)/launch/sensor_manager.launch.xml" if="$(arg allow_trajectory_execution)">
     <arg name="moveit_sensor_manager" value="lwr" /> 
   </include>
 
