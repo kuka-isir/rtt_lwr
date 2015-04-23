@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<COLLADA xmlns="http://www.collada.org/2008/03/COLLADASchema" version="1.5.0">
+	<asset>
+		<contributor>
+			<authoring_tool>URDF Collada Writer</authoring_tool>
+		</contributor>
+		<created>2015-04-23T10:20:48.000000</created>
+		<modified>2015-04-23T10:20:48.000000</modified>
+		<unit/>
+		<up_axis>Z_UP</up_axis>
+	</asset>
+	<library_visual_scenes id="vscenes">
+		<visual_scene id="vscene" name="URDF Visual Scene">
+			<node id="visual0" name="lwr" sid="visual0">
+				<node id="vkmodel0_node1" name="world" sid="node1">
+					<translate>0 0 0</translate>
+					<rotate>1 0 0 0</rotate>
+					<node id="vkmodel0_node0" name="$(arg prefix)/base_link" sid="node0">
+						<translate>-0 -0 -0</translate>
+						<rotate>1 0 0 0</rotate>
+						<translate>0 0 0</translate>
+						<rotate>1 0 0 0</rotate>
+						<rotate sid="node_$(arg_prefix)_base_joint_axis0">0 0 0 0</rotate>
+						<translate>0 0 0</translate>
+						<rotate>1 0 0 0</rotate>
+					</node>
+				</node>
+			</node>
+		</visual_scene>
+	</library_visual_scenes>
+	<library_geometries id="geometries"/>
+	<library_effects id="effects"/>
+	<library_materials id="materials"/>
+	<library_kinematics_models id="kmodels">
+		<kinematics_model id="kmodel0" name="lwr">
+			<technique_common>
+				<joint name="$(arg prefix)/base_joint" sid="$(arg_prefix)_base_joint">
+					<revolute sid="axis0">
+						<axis>0 0 0</axis>
+						<limits>
+							<min>0</min>
+							<max>0</max>
+						</limits>
+					</revolute>
+				</joint>
+				<link sid="world" name="world">
+					<attachment_full joint="kmodel0/$(arg_prefix)_base_joint">
+						<translate>0 0 0</translate>
+						<rotate>1 0 0 0</rotate>
+						<link sid="$(arg_prefix)_base_link" name="$(arg prefix)/base_link"/>
+					</attachment_full>
+				</link>
+			</technique_common>
+		</kinematics_model>
+	</library_kinematics_models>
+	<library_articulated_systems id="asystems">
+		<articulated_system id="robot0_motion">
+			<motion>
+				<instance_articulated_system url="#robot0_kinematics">
+					<newparam sid="robot0_motion_kmodel0_inst">
+						<SIDREF>robot0_kinematics/robot0_kinematics_kmodel0_inst</SIDREF>
+					</newparam>
+					<newparam sid="robot0_motion_robot0_kinematics_kmodel0_inst_$(arg_prefix)_base_joint_axis0">
+						<SIDREF>robot0_kinematics/robot0_kinematics_kmodel0_inst_$(arg_prefix)_base_joint_axis0</SIDREF>
+					</newparam>
+					<newparam sid="robot0_motion_robot0_kinematics_kmodel0_inst_$(arg_prefix)_base_joint_axis0_value">
+						<SIDREF>robot0_kinematics/robot0_kinematics_kmodel0_inst_$(arg_prefix)_base_joint_axis0_value</SIDREF>
+					</newparam>
+				</instance_articulated_system>
+				<technique_common>
+					<axis_info axis="robot0_kinematics/axis_info_inst0"/>
+				</technique_common>
+			</motion>
+		</articulated_system>
+		<articulated_system id="robot0_kinematics">
+			<kinematics>
+				<instance_kinematics_model url="#kmodel0" sid="kmodel0_inst">
+					<newparam sid="robot0_kinematics_kmodel0_inst">
+						<SIDREF>robot0_kinematics/kmodel0_inst</SIDREF>
+					</newparam>
+					<newparam sid="robot0_kinematics_kmodel0_inst_$(arg_prefix)_base_joint_axis0">
+						<SIDREF>robot0_kinematics/kmodel0_inst/$(arg_prefix)_base_joint/axis0</SIDREF>
+					</newparam>
+					<newparam sid="robot0_kinematics_kmodel0_inst_$(arg_prefix)_base_joint_axis0_value">
+						<float>0</float>
+					</newparam>
+				</instance_kinematics_model>
+				<technique_common>
+					<axis_info sid="axis_info_inst0" axis="kmodel0/$(arg_prefix)_base_joint/axis0">
+						<active>
+							<bool>false</bool>
+						</active>
+						<locked>
+							<bool>false</bool>
+						</locked>
+						<limits>
+							<min>
+								<float>0</float>
+							</min>
+							<max>
+								<float>0</float>
+							</max>
+						</limits>
+					</axis_info>
+				</technique_common>
+			</kinematics>
+		</articulated_system>
+	</library_articulated_systems>
+	<library_kinematics_scenes id="kscenes">
+		<kinematics_scene id="kscene" name="URDF Kinematics Scene">
+			<instance_articulated_system sid="robot0_motion_inst" url="#robot0_motion" name="lwr">
+				<bind symbol="kscene_kmodel0_inst">
+					<param ref="robot0_motion/robot0_motion_kmodel0_inst"/>
+				</bind>
+				<bind symbol="kscene_kmodel0_inst_robot0_kinematics_kmodel0_inst_$(arg_prefix)_base_joint_axis0">
+					<param ref="robot0_motion/robot0_motion_robot0_kinematics_kmodel0_inst_$(arg_prefix)_base_joint_axis0"/>
+				</bind>
+				<bind symbol="kscene_kmodel0_inst_robot0_kinematics_kmodel0_inst_$(arg_prefix)_base_joint_axis0_value">
+					<param ref="robot0_motion/robot0_motion_robot0_kinematics_kmodel0_inst_$(arg_prefix)_base_joint_axis0_value"/>
+				</bind>
+			</instance_articulated_system>
+		</kinematics_scene>
+	</library_kinematics_scenes>
+	<library_physics_scenes id="pscenes">
+		<physics_scene id="pscene" name="URDF Physics Scene">
+			<instance_physics_model url="#pmodel0" sid="pmodel0_inst" parent="#visual0">
+				<instance_rigid_body body="rigid0" target="#vkmodel0_node0"/>
+				<instance_rigid_body body="rigid1" target="#vkmodel0_node1"/>
+			</instance_physics_model>
+			<technique_common>
+				<gravity>0 0 0</gravity>
+			</technique_common>
+		</physics_scene>
+	</library_physics_scenes>
+	<library_physics_models id="pmodels">
+		<physics_model id="pmodel0" name="lwr">
+			<rigid_body sid="rigid0" name="$(arg prefix)/base_link">
+				<technique_common/>
+			</rigid_body>
+			<rigid_body sid="rigid1" name="world">
+				<technique_common/>
+			</rigid_body>
+		</physics_model>
+	</library_physics_models>
+	<scene>
+		<instance_physics_scene url="#pscene"/>
+		<instance_visual_scene url="#vscene"/>
+		<instance_kinematics_scene url="#kscene">
+			<bind_kinematics_model node="visual0/node1">
+				<param>kscene_kmodel0_inst</param>
+			</bind_kinematics_model>
+			<bind_joint_axis target="node0/node_$(arg_prefix)_base_joint_axis0">
+				<axis>
+					<param>kscene_kmodel0_inst_robot0_kinematics_kmodel0_inst_$(arg_prefix)_base_joint_axis0</param>
+				</axis>
+				<value>
+					<param>kscene_kmodel0_inst_robot0_kinematics_kmodel0_inst_$(arg_prefix)_base_joint_axis0_value</param>
+				</value>
+			</bind_joint_axis>
+		</instance_kinematics_scene>
+	</scene>
+	<extra id="sensors" type="library_sensors">
+		<technique profile="OpenRAVE"/>
+	</extra>
+</COLLADA>
