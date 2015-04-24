@@ -8,10 +8,12 @@
 
 namespace lwr{
 class RTTLWRExample : public RTTLWRAbstract{
+public:
     RTTLWRExample(const std::string& name);
     virtual ~RTTLWRExample();
     void updateHook();
     bool configureHook();
 };
 }
+ORO_CREATE_COMPONENT(lwr::RTTLWRExample)
 #endif

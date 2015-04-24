@@ -1,5 +1,5 @@
-// Antoine Hoarau hoarau.robotics@gmail.com
 // Copyright ISIR 2015
+// Antoine Hoarau <hoarau.robotics@gmail.com>
 #include <rtt_lwr_sim/rtt_lwr_sim.hpp>
 
 namespace lwr{

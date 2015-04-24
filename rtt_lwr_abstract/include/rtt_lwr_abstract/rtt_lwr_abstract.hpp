@@ -5,7 +5,7 @@
 #define __RTT_LWR_ABSTRACT_HPP__
 
 #include <rtt/RTT.hpp>
-
+#include <rtt/Component.hpp>
 #include <kdl/frames.hpp>
 #include <kdl/jntarray.hpp>
 #include <kdl/jacobian.hpp>
@@ -38,7 +38,7 @@
 
 typedef Eigen::Matrix<double, LBR_MNJ, LBR_MNJ> Matrix77d;
 typedef Eigen::Matrix<double, LBR_MNJ, 1> Vector7d;
-
+namespace lwr{
 class RTTLWRAbstract : public RTT::TaskContext{
   public:
 	RTT::TaskContext* peer;
@@ -313,4 +313,5 @@ class RTTLWRAbstract : public RTT::TaskContext{
     void sendCartesianTwist(Vector7d &twist);
 
 };
+}
 #endif

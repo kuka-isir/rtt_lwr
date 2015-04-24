@@ -7,40 +7,50 @@ find_package(catkin REQUIRED COMPONENTS
     diagnostic_msgs 
     geometry_msgs 
     std_msgs 
-    kdl_conversions 
-    rtt_lwr_abstract 
+    kdl_conversions
+    #lwr_fri
+    #rtt_lwr_abstract
     cmake_modules
 )
 
-catkin_package(
-    DEPENDS rtt
-    CATKIN_DEPENDS rtt_ros diagnostic_msgs geometry_msgs std_msgs
-)
-
-find_package(OROCOS-RTT REQUIRED)
 find_package(Eigen REQUIRED)
 find_package(orocos_kdl REQUIRED)
 
-include_directories(include 
+#set(OROCOS_NO_AUTO_LINKING TRUE)
+
+catkin_package(
+   DEPENDS eigen rtt 
+   CATKIN_DEPENDS rtt_ros diagnostic_msgs geometry_msgs std_msgs
+   )
+   
+
+include_directories(
+    include 
     ${catkin_INCLUDE_DIRS} 
     ${Eigen_INCLUDE_DIRS} 
     ${orocos_kdl_INCLUDE_DIRS}
+    ${USE_OROCOS_INCLUDE_DIRS}
 )
 
-set(OROCOS_NO_AUTO_LINKING TRUE)
 orocos_component(${PROJECT_NAME} src/${PROJECT_NAME}.cpp)
+set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY COMPILE_DEFINITIONS RTT_COMPONENT)
 
-if($ENV{OROCOS_TARGET} STREQUAL "xenomai" )
-    find_package(Xenomai REQUIRED)
-    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY COMPILE_DEFINITIONS HAVE_RTNET XENOMAI)
-endif()
 
-target_link_libraries(${PROJECT_NAME} 
-    ${orocos_kdl_LIBRARIES} 
-    ${kdl_conversions_LIBRARIES} 
-    ${catkin_LIBRARIES} 
-    ${Xenomai_RTDM_LIBRARIES}
+target_link_libraries(${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${USE_OROCOS_LIBRARIES}
+    ${kdl_parser_LIBRARIES}
+    ${orocos_kdl_LIBRARIES}
+    ${kdl_conversions_LIBRARIES}
 )
 
-orocos_generate_package()
-
+message(WARNING "catkin_INCLUDE_DIRS
+${catkin_INCLUDE_DIRS}")
+message(WARNING "USE_OROCOS_INCLUDE_DIRS
+${USE_OROCOS_INCLUDE_DIRS}")
+message(WARNING "catkin_LIBRARIES
+${catkin_LIBRARIES}")
+message(WARNING "USE_OROCOS_LIBRARIES
+${USE_OROCOS_LIBRARIES}")
+add_dependencies(${PROJECT_NAME} rtt_lwr_abstract)
+orocos_generate_package(INCLUDE_DIRS include)

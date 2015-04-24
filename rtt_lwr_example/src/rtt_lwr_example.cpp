@@ -22,4 +22,3 @@ bool lwr::RTTLWRExample::configureHook()
 return lwr::RTTLWRAbstract::configureHook();
 }
 
-ORO_CREATE_COMPONENT(lwr::RTTLWRExample)
