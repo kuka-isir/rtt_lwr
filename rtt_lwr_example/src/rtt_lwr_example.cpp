@@ -3,10 +3,23 @@
 
 #include "rtt_lwr_example/rtt_lwr_example.hpp"
 
-using namespace lwr;
 
-void RTTLWRExample::updateHook()
+lwr::RTTLWRExample::RTTLWRExample(const std::string& name): RTTLWRAbstract(name)
+{
+    RTT::log(RTT::Info) << "Example Created !" << RTT::endlog();
+}
+lwr::RTTLWRExample::~RTTLWRExample()
 {
 
 }
 
+void lwr::RTTLWRExample::updateHook()
+{
+
+}
+bool lwr::RTTLWRExample::configureHook()
+{
+return lwr::RTTLWRAbstract::configureHook();
+}
+
+ORO_CREATE_COMPONENT(lwr::RTTLWRExample)

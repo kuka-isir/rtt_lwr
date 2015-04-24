@@ -4,11 +4,14 @@
 #ifndef __RTT_LWR_EXAMPLE_HPP__
 #define __RTT_LWR_EXAMPLE_HPP__
 
-#include <rtt_lwr_abstract/rtt_lwr_abstract.hpp>
+#include "rtt_lwr_abstract/rtt_lwr_abstract.hpp"
 
 namespace lwr{
 class RTTLWRExample : public RTTLWRAbstract{
+    RTTLWRExample(const std::string& name);
+    virtual ~RTTLWRExample();
     void updateHook();
+    bool configureHook();
 };
 }
 #endif
