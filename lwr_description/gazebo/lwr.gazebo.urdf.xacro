@@ -15,8 +15,8 @@
 			    <type>LWRGazeboComponent</type>
 			    <name>lwr_gazebo</name>
 			  </component>
-			    <!--orocosScript><filename>$(arg ops_script)</filename></orocosScript-->
-			    <luaScript><filename>$(arg ops_script)</filename></luaScript>
+			    <orocosScript><filename>$(arg ops_script)</filename></orocosScript>
+			    <!--luaScript><filename>$(arg lua_script)</filename></luaScript-->
 			</plugin>
   		</gazebo>
 
