@@ -127,7 +127,7 @@ public:
 
             // Write command
             if(gazebo_joints_.size())
-                gazebo_joints_[0]->SetForce(0,0.0);
+                gazebo_joints_[0]->SetForce(0,gazebo_joints_[0]->GetForce(0u));
             for(unsigned int j=0; j < n_joints_; j++)
                 gazebo_joints_[j+1]->SetForce(0,jnt_trq_cmd_[j]);
 
