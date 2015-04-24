@@ -5,8 +5,6 @@ project(lwr_launch)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  conman
-  control_toolbox
   kdl_urdf_tools
   lwr_description
   rtt_ros
