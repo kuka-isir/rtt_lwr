@@ -2,6 +2,7 @@
 // Author: Antoine Hoarau
 
 #include "rtt_lwr_abstract/rtt_lwr_abstract.hpp"
+using namespace lwr;
 
 const double RTTLWRAbstract::BDFcoeff[] = {60/147,-360/147,450/147,-400/147,225/147,-72/147,10/147};
 
@@ -89,11 +90,8 @@ bool RTTLWRAbstract::configureHook(){
     jnt_trq_cmd_ = Vector7d::Zero();
     jac_.resize(LBR_MNJ);
 
-    /*port_JointPosition.setDataSample(jnt_pos_);
-    port_JointVelocity.setDataSample(jnt_vel_);
-    port_JointTorque.setDataSample(jnt_trq_);
-    port_GravityTorque.setDataSample(grav_trq_);
-    port_Jacobian.setDataSample(jac_);*/
+    port_JointPositionCommand.setDataSample(jnt_pos_cmd_);
+    port_JointTorqueCommand.setDataSample(jnt_trq_cmd_);
 
     //initialize the arrays that will be send to KRL
     for(int i=0; i<FRI_USER_SIZE; ++i){
