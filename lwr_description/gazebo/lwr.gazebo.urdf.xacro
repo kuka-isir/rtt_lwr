@@ -1,22 +1,16 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
-			<!--plugin name="gazebo_ros_moveit_planning_scene" filename="libgazebo_ros_moveit_planning_scene.so">
-			    <robotNamespace>~</robotNamespace>
-			    <sceneName>B08</sceneName>
-			    <robotName>lwr</robotName>
-			    <updatePeriod>0.033</updatePeriod>
-			    <topicName>planning_scene</topicName>
-    		</plugin-->
+
 	<xacro:macro name="lwr_gazebo" params="name prefix">
 		<gazebo>
 			<plugin name="rtt_gazebo" filename="librtt_gazebo_deployer.so">
+				<robotNamespace>~</robotNamespace>
 			  <component>
 			    <package>rtt_lwr_gazebo</package>
 			    <type>LWRGazeboComponent</type>
 			    <name>lwr_gazebo</name>
 			  </component>
 			    <orocosScript><filename>$(arg ops_script)</filename></orocosScript>
-			    <!--luaScript><filename>$(arg lua_script)</filename></luaScript-->
 			</plugin>
   		</gazebo>
 

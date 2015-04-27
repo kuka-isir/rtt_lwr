@@ -4,7 +4,7 @@
    name="lwr" >
    <xacro:property name="velocity_scale" value="1.0"/>
    <xacro:property name="effort_scale" value="1.0"/>
-   <property name="M_PI" value="3.1415926535897931" />
+   <xacro:property name="M_PI" value="3.1415926535897931" />
 
   <xacro:macro name="gazebo_reference" params="name">
     <gazebo reference="${name}">
