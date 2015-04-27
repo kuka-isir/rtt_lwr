@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
     cmake_modules
 )
 
-#set(OROCOS_NO_AUTO_LINKING TRUE)
+set(OROCOS_NO_AUTO_LINKING TRUE)
 
 find_package(Eigen REQUIRED)
 find_package(orocos_kdl REQUIRED)
@@ -40,12 +40,20 @@ if(${OROCOS_TARGET} STREQUAL "xenomai" )
   set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY COMPILE_DEFINITIONS HAVE_RTNET XENOMAI)
 endif()
 
+MESSAGE(STATUS "BEFORE :
+${catkin_LIBRARIES}
+")
+list(REMOVE_ITEM catkin_LIBRARIES lwr_fri_generate_messages_cpp)
+list(REMOVE_ITEM catkin_LIBRARIES lwr_fri_generate_messages_lisp)
+list(REMOVE_ITEM catkin_LIBRARIES lwr_fri_generate_messages_py)
+MESSAGE(STATUS "AFTER :
+${catkin_LIBRARIES}
+")
 target_link_libraries(${PROJECT_NAME} 
     ${orocos_kdl_LIBRARIES} 
     ${kdl_conversions_LIBRARIES} 
     ${Xenomai_RTDM_LIBRARIES}
     ${catkin_LIBRARIES}
-    ${OROCOS-RTT_LIBRARIES}
 )
 
 add_dependencies(${PROJECT_NAME} lwr_fri_generate_messages_cpp)
