@@ -101,8 +101,11 @@ public:
 
         // Synchronize with update()
         RTT::os::MutexTryLock trylock(gazebo_mutex_);
+#ifdef XENOMAI
+        if(true){
+#else
         if(trylock.isSuccessful()) {
-
+#endif
             // Increment simulation step counter (debugging)
             steps_gz_++;
 
@@ -131,6 +134,8 @@ public:
             for(unsigned int j=0; j < n_joints_; j++)
                 gazebo_joints_[j+1]->SetForce(0,jnt_trq_cmd_[j]);
 
+        }else{
+            RTT::log(RTT::Error)<< "gazeboUpdateHook locked" <<RTT::endlog();
         }
 
     }
