@@ -33,7 +33,10 @@ orocos_use_package( orocos-rtt-corba )
 orocos_use_package( rtt-typekit )
 
 #set(CMAKE_BUILD_TYPE Debug)
-
+if(${OROCOS_TARGET} STREQUAL "xenomai" )
+  find_package(Xenomai REQUIRED)
+  set_property(DIRECTORY ${PROJECT_SOURCE_DIR} APPEND PROPERTY COMPILE_DEFINITIONS HAVE_RTNET XENOMAI)
+endif()
 ## Default component
 orocos_component(lwr_gazebo src/lwr_gazebo_component.cpp)
 set_target_properties(lwr_gazebo PROPERTIES COMPILE_FLAGS -DRTT_COMPONENT)
