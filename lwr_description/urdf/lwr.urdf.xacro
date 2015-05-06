@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro"
-      xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller" 
+      xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
    name="lwr" >
    <xacro:property name="velocity_scale" value="1.0"/>
    <xacro:property name="effort_scale" value="1.0"/>
@@ -26,7 +26,7 @@
     <!--<cfmDamping>true</cfmDamping>-->
     <!--<dynamics damping="5.5" friction="1"/>-->
 
-   
+
   </xacro:macro>
 
    <xacro:macro name="lwr" params="parent name prefix *origin ">
@@ -95,14 +95,14 @@
          <parent link="${prefix}/${name}_0_link" />
          <child link="${prefix}/${name}_1_link" />
          <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}" effort="${effort_scale * 200}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
-         
+
          <dynamics friction="0.0" damping="1.0"/>
-         <origin xyz="0 0 0.103" rpy="0 0 0" />
+         <origin xyz="0 0 0.11" rpy="0 0 0" />
          <axis xyz="0 0 1" />
       </joint>
       <link name="${prefix}/${name}_1_link">
          <inertial>
-            <origin xyz="2.1826998880744087e-05 -0.021623840412335664 -0.07915171924289198" rpy="0.239538165056 0.00537995201801 0.0492155584082" />
+            <origin xyz="0.00021826998880744087 -0.021623840412335664 -0.07915171924289198" rpy="0.239538165056 0.00537995201801 0.0492155584082" />
             <mass value="2.0" />
             <inertia ixx="0.0129545076394" ixy="0" ixz="0" iyy="0.0128178432409" iyz="0" izz="0.00442072765916" />
          </inertial>
@@ -154,9 +154,9 @@
          <parent link="${prefix}/${name}_1_link" />
          <child link="${prefix}/${name}_2_link" />
          <limit lower="${-120 * M_PI / 180}" upper="${120 * M_PI / 180}" effort="${effort_scale * 200}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
-         
+
          <dynamics friction="0.0" damping="1.0"/>
-         <origin xyz="0 0 0.2105" rpy="0 0 0" />
+         <origin xyz="0 0 0.2" rpy="0 0 0" />
          <axis xyz="0 -1 0" />
       </joint>
       <link name="${prefix}/${name}_2_link">
@@ -196,9 +196,9 @@
          <parent link="${prefix}/${name}_2_link" />
          <child link="${prefix}/${name}_3_link" />
          <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}" effort="${effort_scale * 100}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
-         
+
          <dynamics friction="0.0" damping="1.0"/>
-         <origin xyz="0 0 0.192" rpy="0 0 0" />
+         <origin xyz="0 0 0.2" rpy="0 0 0" />
          <axis xyz="0 0 1" />
       </joint>
       <link name="${prefix}/${name}_3_link">
@@ -255,9 +255,9 @@
          <parent link="${prefix}/${name}_3_link" />
          <child link="${prefix}/${name}_4_link" />
          <limit lower="${-120 * M_PI / 180}" upper="${120 * M_PI / 180}" effort="${effort_scale * 100}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
-            
+
          <dynamics friction="0.0" damping="1.0"/>
-         <origin xyz="0 0.003 0.21" rpy="0 0 0" />
+         <origin xyz="0 0.0 0.2" rpy="0 0 0" />
          <axis xyz="0 1 0" />
       </joint>
       <link name="${prefix}/${name}_4_link">
@@ -314,9 +314,9 @@
          <parent link="${prefix}/${name}_4_link" />
          <child link="${prefix}/${name}_5_link" />
          <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}" effort="${effort_scale * 100}" velocity="${velocity_scale * 180.0 * M_PI / 180}" />
-         
+
          <dynamics friction="0.0" damping="1.0"/>
-         <origin xyz="0 0 0.193" rpy="0 0 0" />
+         <origin xyz="0 0 0.2" rpy="0 0 0" />
          <axis xyz="0 0 1" />
       </joint>
       <link name="${prefix}/${name}_5_link">
@@ -373,9 +373,9 @@
          <parent link="${prefix}/${name}_5_link" />
          <child link="${prefix}/${name}_6_link" />
          <limit lower="${-120 * M_PI / 180}" upper="${120 * M_PI / 180}" effort="${effort_scale * 30}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
-         
+
          <dynamics friction="0.0" damping="1.0"/>
-         <origin xyz="0 0 0.2" rpy="0 0 0" />
+         <origin xyz="0 0 0.19" rpy="0 0 0" />
          <axis xyz="0 -1 0" />
       </joint>
       <link name="${prefix}/${name}_6_link">
@@ -433,7 +433,7 @@
          <child link="${prefix}/${name}_7_link" />
          <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}" effort="${effort_scale * 30}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
          <dynamics friction="0.0" damping="1.0"/>
-         <origin xyz="0 0 0.079" rpy="0 0 0" />
+         <origin xyz="0 0 0.078" rpy="0 0 0" />
          <axis xyz="0 0 1" />
       </joint>
       <link name="${prefix}/${name}_7_link">
