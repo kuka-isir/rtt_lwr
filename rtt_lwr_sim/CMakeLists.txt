@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(rtt_lwr_sim)
 
-#set(CMAKE_BUILD_TYPE ReleaseWithDebugInfo)
+set(CMAKE_BUILD_TYPE ReleaseWithDebugInfo)
 
 find_package(catkin REQUIRED COMPONENTS
   kuka_lwr_fri
@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   rtt_sensor_msgs
   kdl_parser
   lwr_fri
+  rtt_ros_kdl_tools
 )
 find_package(Eigen REQUIRED)
 find_package(orocos_kdl REQUIRED)
@@ -26,7 +27,7 @@ set(OROCOS_NO_AUTO_LINKING TRUE)
 
 catkin_package(
    DEPENDS eigen rtt 
-   CATKIN_DEPENDS rtt_ros diagnostic_msgs geometry_msgs std_msgs
+   CATKIN_DEPENDS rtt_ros diagnostic_msgs geometry_msgs std_msgs rtt_ros_kdl_tools
    )
    
 include_directories(
@@ -36,8 +37,6 @@ include_directories(
     ${orocos_kdl_INCLUDE_DIRS}
     ${USE_OROCOS_INCLUDE_DIRS}
 )
-
-
 
 orocos_component(${PROJECT_NAME} src/${PROJECT_NAME}.cpp)
 set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY COMPILE_DEFINITIONS RTT_COMPONENT)
@@ -54,7 +53,6 @@ target_link_libraries(
     ${orocos_kdl_LIBRARIES}
     ${kdl_conversions_LIBRARIES}
 )
-
 
 add_dependencies(${PROJECT_NAME} lwr_fri_generate_messages_cpp)
 orocos_generate_package(INCLUDE_DIRS include)
