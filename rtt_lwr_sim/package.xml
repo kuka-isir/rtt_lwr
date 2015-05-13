@@ -28,7 +28,9 @@
   <build_depend>kdl_typekit</build_depend>
   <build_depend>eigen_typekit</build_depend>
   <build_depend>lwr_fri</build_depend>
-
+  <build_depend>rtt_ros_kdl_tools</build_depend>
+  
+  <run_depend>rtt_ros_kdl_tools</run_depend>
   <run_depend>rtt</run_depend>
   <run_depend>kdl_typekit</run_depend>
   <run_depend>eigen_typekit</run_depend>
@@ -55,6 +57,9 @@
       <plugin_depend>eigen_typekit</plugin_depend>
       <plugin_depend>rtt_rosclock</plugin_depend>
       <plugin_depend>rtt_tf</plugin_depend>
+      <plugin_depend>rtt_rosparam</plugin_depend>
+      <plugin_depend>rtt_roscomm</plugin_depend>
+      <plugin_depend>rtt_rospack</plugin_depend>
     </rtt_ros>
   </export>
 </package>
