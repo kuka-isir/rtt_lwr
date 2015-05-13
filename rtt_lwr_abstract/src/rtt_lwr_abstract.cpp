@@ -138,8 +138,8 @@ bool RTTLWRAbstract::configureHook(){
     //m_fromKRL= peer->attributes()->getAttribute("fromKRL");
     port_ToKRL.connectTo(this->peer->getPort("toKRL"),policy);
     port_FromKRL.connectTo(this->peer->getPort("fromKRL"),policy);
-    port_JointTorqueRaw(this->peer->getPort("JointTorqueRaw"),policy);
-    port_JointPositionFRIOffset(this->peer->getPort("JointPositionFRIOffset"),policy);
+    port_JointTorqueRaw.connectTo(this->peer->getPort("JointTorqueRaw"),policy);
+    port_JointPositionFRIOffset.connectTo(this->peer->getPort("JointPositionFRIOffset"),policy);
     
     
     bool all_connected = true;
