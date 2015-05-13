@@ -44,7 +44,7 @@ public:
         this->provides("debug")->addAttribute("rtt_time",rtt_time_);
         this->provides("debug")->addAttribute("steps_rtt",steps_rtt_);
         this->provides("debug")->addAttribute("steps_gz",steps_gz_);
-        this->addAttribute("n_joints",n_joints_);
+        this->addProperty("n_joints",n_joints_);
 
     }
 
@@ -58,6 +58,7 @@ public:
 
         // Get the joints
         gazebo_joints_ = model->GetJoints();
+        model_links_ = model->GetLinks();
         n_joints_ = gazebo_joints_.size() -1 ;//!\\ This contains base_joint
 
         // Get the joint names
@@ -65,6 +66,7 @@ public:
             it != gazebo_joints_.end();
             ++it)
         {
+            (*it)->SetProvideFeedback(true);
             joint_names_.push_back((**it).GetName());
             RTT::log(RTT::Info)<<"Adding joint "<<(**it).GetName()<<RTT::endlog();
         }
@@ -89,6 +91,10 @@ public:
         port_JointVelocity.setDataSample(jnt_vel_);
         port_JointTorque.setDataSample(jnt_trq_);
 
+        port_JointPosition.keepLastWrittenValue(true);
+        port_JointVelocity.keepLastWrittenValue(true);
+        port_JointTorque.keepLastWrittenValue(true);
+        
         RTT::log(RTT::Info)<<"Done configuring gazebo"<<RTT::endlog();
         last_update_time_ = rtt_rosclock::rtt_now();
         return true;
@@ -102,7 +108,7 @@ public:
         // Synchronize with update()
         RTT::os::MutexTryLock trylock(gazebo_mutex_);
 #ifdef XENOMAI
-        if(true){
+        if(rtt_done){
 #else
         if(trylock.isSuccessful()) {
 #endif
@@ -119,20 +125,35 @@ public:
             wall_time_ = (double)gz_wall_time.sec + ((double)gz_wall_time.nsec)*1E-9;
 
             // Get state
+            gazebo::physics::JointWrench jw;
             for(unsigned j=0; j < n_joints_; j++) {
                 jnt_pos_[j] = gazebo_joints_[j+1]->GetAngle(0).Radian();
                 jnt_vel_[j] = gazebo_joints_[j+1]->GetVelocity(0);
-                //jnt_trq_[j] = gazebo_joints_[j+1]->GetForce(0u);//jnt_trq_cmd_[j];
-                jnt_trq_[j] = jnt_trq_cmd_[j];
+                jnt_trq_[j] = gazebo_joints_[j+1]->GetForce(0u);//jnt_trq_cmd_[j];
+                //jw = gazebo_joints_[j+1]->GetForceTorque(0u);
+                //RTT::log(RTT::Error)<<"j"<<j<<" "<<jw.body1Torque.x<<" "<<jw.body1Torque.y<<" "<<jw.body1Torque.z<<RTT::endlog(); 
+                //jnt_trq_[j] = jw.body1Torque.x;
+                //jnt_trq_[j] = jnt_trq_cmd_[j];
             }
 
 
-
+            if(jnt_trq_fs != RTT::NewData)
+            {
+                // Simulates the breaks
+                for(gazebo::physics::Link_V::iterator it = model_links_.begin();
+                    it != model_links_.end();++it)
+                    (*it)->SetGravityMode(false);
+            }else{
+                for(gazebo::physics::Link_V::iterator it = model_links_.begin();
+                    it != model_links_.end();++it)
+                    (*it)->SetGravityMode(true);
+            }
             // Write command
             if(gazebo_joints_.size())
                 gazebo_joints_[0]->SetForce(0,gazebo_joints_[0]->GetForce(0u));
             for(unsigned int j=0; j < n_joints_; j++)
                 gazebo_joints_[j+1]->SetForce(0,jnt_trq_cmd_[j]);
+            
 
         }else{
             RTT::log(RTT::Error)<< "gazeboUpdateHook locked" <<RTT::endlog();
@@ -150,11 +171,18 @@ public:
     virtual void updateHook()
     {
         // Synchronize with gazeboUpdate()
-        RTT::os::MutexLock lock(gazebo_mutex_);
+        //RTT::os::MutexLock lock(gazebo_mutex_);
+        rtt_done = false;
+        
+        static double last_update_time_sim;
+        period_sim_ = rtt_time_ - last_update_time_sim;
+        last_update_time_sim = rtt_time_;
 
-        ros::Time gz_time = rtt_rosclock::rtt_now();
-        RTT::Seconds gz_period = (gz_time - last_gz_update_time_).toSec();
-        gz_period_ = gz_period;
+        // Compute period in wall clock
+        static double last_update_time_wall;
+        period_wall_ = wall_time_ - last_update_time_wall;
+        last_update_time_wall = wall_time_;
+
 
         // Increment simulation step counter (debugging)
         steps_rtt_++;
@@ -172,16 +200,13 @@ public:
 
         // Write state to ports
         RTT::os::TimeService::ticks write_start = RTT::os::TimeService::Instance()->getTicks();
-        /*if(port_JointPosition.connected()
-                && port_JointVelocity.connected()
-                && port_JointPosition.connected())
-        {*/
-            port_JointVelocity.write(jnt_vel_);
-            port_JointPosition.write(jnt_pos_);
-            port_JointTorque.write(jnt_trq_);
-        /*}*/
 
+        port_JointVelocity.write(jnt_vel_);
+        port_JointPosition.write(jnt_pos_);
+        port_JointTorque.write(jnt_trq_);
+        
         write_duration_ = RTT::os::TimeService::Instance()->secondsSince(write_start);
+        rtt_done = true;
     }
 
 protected:
@@ -192,6 +217,7 @@ protected:
     //! The Gazebo Model
     //! The gazebo
     std::vector<gazebo::physics::JointPtr> gazebo_joints_;
+    gazebo::physics::Link_V model_links_;
     std::vector<std::string> joint_names_;
 
     RTT::InputPort<std::vector<double> > port_JointVelocityCommand;
@@ -223,9 +249,11 @@ protected:
 
     int steps_gz_;
     int steps_rtt_;
-    int n_joints_;
+    unsigned int n_joints_;
     double period_sim_;
     double period_wall_;
+    
+    boost::atomic<bool> rtt_done;
 };
 
 ORO_LIST_COMPONENT_TYPE(LWRGazeboComponent)
