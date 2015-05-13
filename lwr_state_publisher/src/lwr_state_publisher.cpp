@@ -18,10 +18,15 @@ class LWRStatePublisher : public RTT::TaskContext{
 public:
     LWRStatePublisher(std::string const& name):
         robot_name_("lwr"),
-        n_joints_(0),
+        robot_namespace_("lwr"),
+        link_prefix_("lwr"),
+        n_joints_(7),
         peer(NULL),
         cnt_(0),
         RTT::TaskContext(name){
+        this->addProperty("robot_name",robot_name_);
+        this->addProperty("robot_namespace",robot_namespace_);
+        this->addProperty("link_prefix",link_prefix_);
         this->ports()->addPort("JointPosition", port_JointPosition).doc("");
         this->ports()->addPort("JointVelocity", port_JointVelocity).doc("");
         this->ports()->addPort("JointTorque", port_JointTorque).doc("");
@@ -31,23 +36,26 @@ public:
 
     }
     virtual bool configureHook(){
+        RTT::log(RTT::Debug) << "Robot Name : "<<robot_name_ << RTT::endlog();
         if(this->hasPeer(robot_name_)){
             this->peer = this->getPeer(robot_name_);
             this->port_JointPosition.connectTo(this->peer->getPort("JointPosition"));
             this->port_JointVelocity.connectTo(this->peer->getPort("JointVelocity"));
             this->port_JointTorque.connectTo(this->peer->getPort("JointTorque"));
-            RTT::Attribute<int> njoints = this->peer->getAttribute("n_joints");
-            this->n_joints_ = njoints.get();
+            RTT::Property<unsigned int> n_joints_prop = this->peer->getProperty("n_joints");
+            RTT::Property<std::string> robot_name_prop = this->peer->getProperty("robot_name");
+            n_joints_ = n_joints_prop.get();
+            robot_name_ = robot_name_prop.get();
             //std::string urdf_str = this->peer->getAttribute<std::string>("robot_description")->get();
             //this->urdf.initString(urdf_str);
             this->port_JointTorqueCommand.connectTo(this->peer->getPort("JointPositionCommand"));
 
         }else{
-            RTT::log(RTT::Warning)<<"Couldn't find gazebo peer"<<RTT::endlog();
+            RTT::log(RTT::Warning)<<"Couldn't find "<<robot_name_<<" peer"<<RTT::endlog();
             //return false;
         }
 
-        this->port_JointState.createStream(rtt_roscomm::topic(robot_name_+"/joint_states"));
+        this->port_JointState.createStream(rtt_roscomm::topic(robot_namespace_+"/joint_states"));
 
         this->joint_position.resize(n_joints_);
         this->joint_velocity.resize(n_joints_);
@@ -63,7 +71,7 @@ public:
         {
             std::ostringstream ss;
             ss << i;
-            this->joint_state.name.push_back(robot_name_+"/"+robot_name_+"_"+ss.str()+"_joint");
+            this->joint_state.name.push_back(robot_namespace_+"/"+link_prefix_+"_"+ss.str()+"_joint");
             this->joint_state.position.push_back(0.0);
             this->joint_state.velocity.push_back(0.0);
             this->joint_state.effort.push_back(0.0);
@@ -88,8 +96,8 @@ public:
                 this->joint_state.position[i] = joint_position[i];
                 this->joint_state.velocity[i] = joint_velocity[i];
                 this->joint_state.effort[i] = joint_torque[i];
-                if(i==1  || i==3)
-                    this->joint_torque_command[i] = 50*3.14/180.0*sin(cnt_*this->getPeriod()*double(i));
+                if(i>=0)
+                    this->joint_torque_command[i] = 60*3.14/180.0*sin(cnt_*this->getPeriod()*3);//*double(i+1));
                 else
                     this->joint_torque_command[i] = 0.0;
             }
@@ -132,7 +140,7 @@ public:
     RTT::TaskContext* peer;
     ros::Time now;
     int n_joints_;
-    std::string robot_name_;
+    std::string robot_name_,robot_namespace_,link_prefix_;
     int cnt_;
     urdf::Model urdf;
 };
