@@ -6,11 +6,6 @@
 #include <rtt/Port.hpp>
 #include <rtt/Component.hpp>
 
-// Start of user code includes
-#include <kdl/frames.hpp>
-#include <kdl/jntarray.hpp>
-#include <kdl/jacobian.hpp>
-
 #include <kuka_lwr_fri/friComm.h>
 
 #include <lwr_fri/CartesianImpedance.h>
@@ -36,38 +31,41 @@
 #include <rtt_roscomm/rtt_rostopic.h>
 #include <urdf/model.h>
 #include <rtt_rosparam/rosparam.h>
-#include <kdl_parser/kdl_parser.hpp>
-#include <kdl/tree.hpp>
-#include <kdl/chain.hpp>
-#include <kdl/segment.hpp>
-#include <kdl/chainidsolver_recursive_newton_euler.hpp>
-#include <kdl/chainidsolver_vereshchagin.hpp>
+
+#include <rtt_ros_kdl_tools/tools.hpp>
+#include <boost/scoped_ptr.hpp>
 namespace lwr{
-enum CommandType {
-    EFFORT,
-    VELOCITY,
-    POSITION
-};
     class LWRSim : public RTT::TaskContext{
     public:
         LWRSim(std::string const& name):RTT::TaskContext(name),
         n_joints_(0),
         peer(NULL),
-        prop_joint_offset(7, 0.0),
+        prop_joint_offset(LBR_MNJ, 0.0),
         urdf_str_(""),
-        kp_(2000.0),
-        kd_(10.0),
-        robot_name_("lwr"),
+        kp_(LBR_MNJ,250.0),
+        kd_(LBR_MNJ,0.7),
+        kg_(LBR_MNJ,1.0),
+        robot_name_("lwr_sim"),
         velocity_smoothing_factor_(.95),
-        command_type_(EFFORT)
+        root_link("lwr/base_link"),
+        tip_link("lwr/lwr_7_link")
         {
 
             this->addProperty("fri_port", prop_fri_port).doc("");
             this->addProperty("joint_offset", prop_joint_offset).doc("");
+            
+            this->addProperty("root_link", root_link).doc("");
+            this->addProperty("tip_link", tip_link).doc("");
+            //this->addAttribute("fromKRL", m_fromKRL);
+            //this->addAttribute("toKRL", m_toKRL);
+            
             this->addProperty("robot_description",urdf_str_)
               .doc("The URDF of the Kuka");
-            this->addAttribute("n_joints",n_joints_);
-            this->addAttribute("robot_name",robot_name_);
+            this->addProperty("n_joints",n_joints_);
+            
+            robot_name_ = this->getName();
+            
+            this->addProperty("robot_name",robot_name_).doc("The name of the robot lwr/lwr_sim");
 
             this->ports()->addPort("JointPositionGazeboCommand", port_JointPositionGazeboCommand).doc("");
             this->ports()->addPort("JointVelocityGazeboCommand", port_JointVelocityGazeboCommand).doc("");
@@ -84,8 +82,10 @@ enum CommandType {
             this->ports()->addPort("JointPositionCommand", port_JointPositionCommand).doc("");
             this->ports()->addPort("JointTorqueCommand", port_JointTorqueCommand).doc("");
 
-//this->ports()->addPort("KRL_CMD", port_KRL_CMD).doc("");
-
+            this->ports()->addPort("toKRL",port_ToKRL).doc("");
+            //this->ports()->addPort("KRL_CMD", port_KRL_CMD).doc("");
+            this->ports()->addPort("fromKRL",port_FromKRL).doc("");
+            
             this->ports()->addPort("CartesianWrench", port_CartesianWrench).doc("");
             this->ports()->addPort("RobotState", port_RobotState).doc("");
             this->ports()->addPort("FRIState", port_FRIState).doc("");
@@ -98,28 +98,51 @@ enum CommandType {
             this->ports()->addPort("GravityTorque", port_GravityTorque).doc("");
             this->ports()->addPort("JointPosition", port_JointPosition).doc("");
 
+            this->ports()->addPort("JointState",port_JointState).doc("");
+            this->ports()->addPort("JointStateCommand",port_JointStateCommand).doc("");
+            this->ports()->addPort("JointStateFiltered",port_JointStateFiltered).doc("");
+            this->ports()->addPort("JointStateGravity",port_JointStateGravity).doc("");
+            
+            
             this->addProperty("kp",kp_);
             this->addProperty("kd",kd_);
+            this->addProperty("kg",kg_);
             this->addProperty("smoothing_factor",velocity_smoothing_factor_);
+            this->addOperation("setImpedance",&LWRSim::setImpedance,this,RTT::OwnThread);
+            this->addOperation("setGravityMode",&LWRSim::setGravityMode,this,RTT::OwnThread);
             this->provides("debug")->addAttribute("read_start",this->read_start);
             this->provides("debug")->addAttribute("write_start",this->write_start);
             this->provides("debug")->addAttribute("read_duration",this->read_duration);
+            this->provides("debug")->addAttribute("id_duration",this->id_duration);
+            this->provides("debug")->addAttribute("fk_duration",this->fk_duration);
+            this->provides("debug")->addAttribute("ik_duration",this->ik_duration);
             this->provides("debug")->addAttribute("write_duration",this->write_duration);
             this->provides("debug")->addAttribute("updatehook_duration",this->updatehook_duration);
 
         }
-        virtual bool configureHook();
-        virtual void updateHook();
-
+        bool configureHook();
+        void updateHook();
+        ~LWRSim(){};
     public:
+        bool setGravityMode(){
+            return this->setImpedance(std::vector<double>(LBR_MNJ,0),std::vector<double>(LBR_MNJ,0));
+        }
+        bool setImpedance(const std::vector< double >& stiffness, const std::vector< double >& damping);
+        bool torqueSafetyCheck(const std::vector<double>& torque);
+        bool velocitySafetyCheck(const std::vector<double>& velocity);
+        bool positionSafetyCheck(const std::vector<double>& position);
+        bool safetyChecks(const std::vector<double>& position,const std::vector<double>& velocity,const std::vector<double>& torque);
         RTT::InputPort<lwr_fri::CartesianImpedance > port_CartesianImpedanceCommand;
         RTT::InputPort<geometry_msgs::Wrench > port_CartesianWrenchCommand;
         RTT::InputPort<geometry_msgs::Pose > port_CartesianPositionCommand;
         RTT::InputPort<lwr_fri::FriJointImpedance > port_JointImpedanceCommand;
         RTT::InputPort<Eigen::VectorXd > port_JointPositionCommand;
         RTT::InputPort<Eigen::VectorXd > port_JointTorqueCommand;
-        RTT::InputPort<std_msgs::Int32 > port_KRL_CMD;
-
+        //RTT::InputPort<std_msgs::Int32 > port_KRL_CMD;
+        RTT::InputPort<tFriKrlData > port_ToKRL;
+        //RTT::InputPort<std_msgs::Int32 > port_KRL_CMD;
+        
+        RTT::OutputPort<tFriKrlData > port_FromKRL;
         RTT::OutputPort<geometry_msgs::Wrench > port_CartesianWrench;
         RTT::OutputPort<tFriRobotState > port_RobotState;
         RTT::OutputPort<tFriIntfState > port_FRIState;
@@ -179,28 +202,46 @@ enum CommandType {
 
         tFriMsrData m_msr_data;
         tFriCmdData m_cmd_data;
-
+        tFriKrlData m_fromKRL;
+        tFriKrlData m_toKRL;
         RTT::TaskContext* peer;
-        ros::Time now,read_start,write_start;
-        ros::Duration read_duration,write_duration,updatehook_duration;
-        int n_joints_;
+        ros::Time now;
+        double read_start,write_start;
+        double read_duration,write_duration,updatehook_duration;
+        double id_duration,ik_duration,fk_duration;
+        unsigned int n_joints_;
         std::string urdf_str_;
         urdf::Model urdf_model_;
         KDL::Tree kdl_tree_;
         KDL::Chain kdl_chain_;
         KDL::Chain kukaLWR_DHnew;
-        boost::shared_ptr<KDL::ChainIdSolver_RNE> id_rne_solver;
-        boost::shared_ptr<KDL::ChainIdSolver_Vereshchagin> id_ver_solver;
+        
+        boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver;
+        boost::scoped_ptr<KDL::ChainFkSolverVel_recursive> fk_vel_solver;
+        boost::scoped_ptr<KDL::ChainIkSolverVel_pinv_nso> ik_solver_vel;
+        boost::scoped_ptr<KDL::ChainDynParam> id_dyn_solver;
+        boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver;
+        
         //! Control gains
-        double kp_,kd_,velocity_smoothing_factor_;
-        CommandType command_type_;
+        std::vector<double> kp_,kd_,kg_;
+        double velocity_smoothing_factor_;
         std::string robot_name_;
-        sensor_msgs::JointState joint_state_filtered_;
-        sensor_msgs::JointState joint_state_;
-        sensor_msgs::JointState joint_state_cmd_;
+        sensor_msgs::JointState joint_state_filtered_,joint_state_,joint_state_cmd_,joint_state_gravity_;
         RTT::OutputPort<sensor_msgs::JointState> port_JointState;
         RTT::OutputPort<sensor_msgs::JointState> port_JointStateFiltered;
         RTT::OutputPort<sensor_msgs::JointState> port_JointStateCommand;
+        RTT::OutputPort<sensor_msgs::JointState> port_JointStateGravity;
+        std::string root_link;
+        std::string tip_link;
+    private:
+    void initGains(std::vector<double>& kp,std::vector<double> kd);
+    void initJointStateMsg(sensor_msgs::JointState& js,const unsigned int n_joints,const std::string& robot_name);
+        //KDL Stuff
+    KDL::Wrenches f_ext;
+    KDL::JntArray G,qdot,qddot,jnt_trq_kdl_;
+    KDL::Wrench cart_wrench_kdl_;
+    KDL::JntArrayVel q;
+    KDL::JntSpaceInertiaMatrix H;
     };
 }
 ORO_CREATE_COMPONENT(lwr::LWRSim)

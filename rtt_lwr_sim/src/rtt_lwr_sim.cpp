@@ -1,10 +1,43 @@
 // Copyright ISIR 2015
 // Antoine Hoarau <hoarau.robotics@gmail.com>
 #include <rtt_lwr_sim/rtt_lwr_sim.hpp>
+#include<Eigen/Core>
+#include<Eigen/SVD>
+
+namespace Eigen{
+template<typename _Matrix_Type_>
+_Matrix_Type_ pseudoInverse(const _Matrix_Type_ &a, double epsilon = std::numeric_limits<double>::epsilon())
+{
+        Eigen::JacobiSVD< _Matrix_Type_ > svd(a ,Eigen::ComputeThinU | Eigen::ComputeThinV);
+        double tolerance = epsilon * std::max(a.cols(), a.rows()) *svd.singularValues().array().abs()(0);
+        return svd.matrixV() *  (svd.singularValues().array().abs() > tolerance).select(svd.singularValues().array().inverse(), 0).matrix().asDiagonal() * svd.matrixU().adjoint();
+} 
+}
+// Wrench ~ inv(J^t)*T (pseudo inverse of Jacobian transpose dot torques)
+namespace KDL{
+    void MultiplyJacobian(const KDL::Jacobian& jac, const KDL::JntArray& torques, KDL::Wrench& est_wrench)
+    {
+        Eigen::VectorXd trq = torques.data;
+        
+        Eigen::MatrixXd Jt = jac.data;
+        //Jt.transposeInPlace();
+        
+        Eigen::VectorXd w(6);
+        Eigen::MatrixXd pinvJ = Eigen::pseudoInverse(Jt);
+        w = Jt*trq;
+        est_wrench.force.x(w(0));
+        est_wrench.force.y(w(1));
+        est_wrench.force.z(w(2));
+        
+        est_wrench.torque.x(w(3));
+        est_wrench.torque.y(w(4));
+        est_wrench.torque.z(w(5));
+    }
+}
 
 namespace lwr{
-using namespace KDL;
-Chain KukaLWR_DHnew(){
+KDL::Chain KukaLWR_DHnew(){
+    using namespace KDL;
     Chain kukaLWR_DHnew;
 
     //joint 0
@@ -60,6 +93,29 @@ Chain KukaLWR_DHnew(){
                                                       RotationalInertia(0.000001,0.0,0.0001203,0.0,0.0,0.0))));
     return kukaLWR_DHnew;
 }
+void LWRSim::initJointStateMsg(sensor_msgs::JointState& js,const unsigned int n_joints,const std::string& robot_name)
+{
+    for(unsigned int j=0; j < n_joints; j++){
+        std::ostringstream ss;
+        ss << j;
+        js.name.push_back(robot_name+"/"+robot_name+"_"+ss.str()+"_joint");
+        js.position.push_back(0.0);
+        js.velocity.push_back(0.0);
+        js.effort.push_back(0.0);
+    }
+}
+void LWRSim::initGains(std::vector< double >& kp, std::vector< double > kd)
+{
+    kp[0] = 450.0;   kd[0] = 1.0;
+    kp[1] = 450.0;   kd[1] = 1.0;
+    kp[2] = 200.0;   kd[2] = 0.7;
+    kp[3] = 200.0;   kd[3] = 0.7;
+    kp[4] = 200.0;   kd[4] = 0.7;
+    kp[5] = 10.0;    kd[5] = 0.1;
+    kp[6] = 10.0;    kd[6] = 0.0;
+    this->setImpedance(kp,kd);
+}
+
 bool LWRSim::configureHook(){
     // Get the rosparam service requester
     boost::shared_ptr<rtt_rosparam::ROSParam> rosparam =
@@ -70,54 +126,30 @@ bool LWRSim::configureHook(){
         return false;
     }
 
-    // Get the ROS parameters
-    rosparam->getAllComponentPrivate();
+    // Set the Robot name (lwr or lwr_sim) For other components to know it
+    rosparam->setPrivate("robot_name");
+    rosparam->getPrivate("root_link");
+    rosparam->getPrivate("tip_link");
 
-    // Parse URDF from string
-    if(!urdf_model_.initString(urdf_str_)) {
-        RTT::log(RTT::Error) << "Could not Init URDF." <<RTT::endlog();
+    RTT::log(RTT::Info)<<"root_link : "<<root_link<<RTT::endlog();
+    RTT::log(RTT::Info)<<"tip_link : "<<tip_link<<RTT::endlog();
+    
+    KDL::Vector gravity_vector(0.,0.,-9.81289);
+    
+    if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,root_link,tip_link,kdl_tree_,kdl_chain_))
         return false;
-    }
-    RTT::log(RTT::Info) << "URDF : "<<urdf_str_ <<RTT::endlog();
-    // Get a KDL tree from the robot URDF
-
-    if (!kdl_parser::treeFromUrdfModel(urdf_model_, kdl_tree_)){
-        ROS_ERROR("Failed to construct kdl tree");
-        return false;
-    }
-
-
-    std::string root_link(robot_name_+"/base_link"); //TODO: Get this from urdf
-    std::string tip_link(robot_name_+"/lwr_7_link");
-
-    // Populate the KDL chain
-    if(!kdl_tree_.getChain(root_link, tip_link, kdl_chain_))
-    {
-        ROS_ERROR_STREAM("Failed to get KDL chain from tree: ");
-        ROS_ERROR_STREAM("  "<<root_link<<" --> "<<tip_link);
-        ROS_ERROR_STREAM("  Tree has "<<kdl_tree_.getNrOfJoints()<<" joints");
-        ROS_ERROR_STREAM("  Tree has "<<kdl_tree_.getNrOfSegments()<<" segments");
-        ROS_ERROR_STREAM("  The segments are:");
-
-        KDL::SegmentMap segment_map = kdl_tree_.getSegments();
-        KDL::SegmentMap::iterator it;
-
-        for( it=segment_map.begin();
-             it != segment_map.end();
-             it++ )
-        {
-            ROS_ERROR_STREAM( "    "<<(*it).first);
-        }
-
-        return false;
-    }
-
-    // Pointeur is not null
+    
+    ik_solver_vel.reset(new KDL::ChainIkSolverVel_pinv_nso(kdl_chain_));
+    id_dyn_solver.reset(new KDL::ChainDynParam(kdl_chain_,gravity_vector));
+    id_rne_solver.reset(new KDL::ChainIdSolver_RNE(kdl_chain_,gravity_vector));
+    fk_vel_solver.reset(new KDL::ChainFkSolverVel_recursive(kdl_chain_));
+    jnt_to_jac_solver.reset(new KDL::ChainJntToJacSolver(kdl_chain_));
+            
+      // Pointeur is not null
     kukaLWR_DHnew = KukaLWR_DHnew();
     // Overwrite kdl_chain_
-    //kdl_chain_ = kukaLWR_DHnew;
-    id_rne_solver = boost::shared_ptr<KDL::ChainIdSolver_RNE>(new KDL::ChainIdSolver_RNE(kdl_chain_,KDL::Vector(0.,0.,-9.81)));
-
+    //kdl_chain_ = kukaLWR_DHnew;  
+        
     // Store the number of degrees of freedom of the chain
     n_joints_ = kdl_chain_.getNrOfJoints();
 
@@ -139,21 +171,26 @@ bool LWRSim::configureHook(){
         port_JointTorqueGazebo.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointTorque"));
 
         // The number of joints is 8 because it counts base_link, even though it's a fixed joint
-        RTT::Attribute<int> njoints = this->peer->getPeer(lwr_gazebo)->getAttribute("n_joints");
-        //n_joints_ = njoints.get();//TODO : fix this
+        RTT::Property<unsigned int> njoints = this->peer->getPeer(lwr_gazebo)->getProperty("n_joints");
         RTT::log(RTT::Debug)<<"LWR njoints GAZEBO : "<<njoints.get()<<RTT::endlog();
-
-        port_JointState.createStream(rtt_roscomm::topic("~"+this->getName()+"/joint_states"));
-        port_JointStateFiltered.createStream(rtt_roscomm::topic("~"+this->getName()+"/joint_states_filtered"));
-        port_JointStateCommand.createStream(rtt_roscomm::topic("~"+this->getName()+"/joint_states_cmd"));
 
     }else{
         RTT::log(RTT::Error)<<"Couldn't find gazebo and lwr_gazebo peer"<<RTT::endlog();
-        //return false;
+        return false;
     }
 
     RTT::log(RTT::Debug)<<"LWR njoints : "<<n_joints_<<RTT::endlog();
-
+    
+    if(n_joints_ != LBR_MNJ)
+    {
+        RTT::log(RTT::Error)<<"Number of joints error : found "<<n_joints_<<" but should be "<<LBR_MNJ<<RTT::endlog();
+        return false;
+    }
+    
+    
+    initGains(kp_,kd_);
+    
+    
     // In from gazebo
     joint_position_gazebo.resize(n_joints_,0.0);
     joint_velocity_gazebo.resize(n_joints_,0.0);
@@ -171,6 +208,7 @@ bool LWRSim::configureHook(){
     jnt_pos_cmd_.resize(n_joints_);
     jnt_trq_cmd_.resize(n_joints_);
     jac_.resize(n_joints_);
+    jac_.data.setZero();
     mass_.resize(n_joints_,n_joints_);
 
     jnt_pos_.setZero();
@@ -180,52 +218,141 @@ bool LWRSim::configureHook(){
     grav_trq_.setZero();
     jnt_pos_cmd_.setZero();
     jnt_trq_cmd_.setZero();
-    mass_ = Eigen::MatrixXd::Zero(n_joints_,n_joints_);
+    mass_.setZero();// = Eigen::MatrixXd::Zero(n_joints_,n_joints_);
 
-    for(unsigned int j=0; j < n_joints_; j++){
-        std::ostringstream ss;
-        ss << j;
-        joint_state_.name.push_back(robot_name_+"/"+robot_name_+"_"+ss.str()+"_joint");
-        joint_state_.position.push_back(0.0);
-        joint_state_.velocity.push_back(0.0);
-        joint_state_.effort.push_back(0.0);
-    }
-    for(unsigned int j=0; j < n_joints_; j++){
-        std::ostringstream ss;
-        ss << j;
-        joint_state_filtered_.name.push_back(robot_name_+"/"+robot_name_+"_"+ss.str()+"_joint");
-        joint_state_filtered_.position.push_back(0.0);
-        joint_state_filtered_.velocity.push_back(0.0);
-        joint_state_filtered_.effort.push_back(0.0);
-    }
-    for(unsigned int j=0; j < n_joints_; j++){
-        std::ostringstream ss;
-        ss << j;
-        joint_state_cmd_.name.push_back(robot_name_+"/"+robot_name_+"_"+ss.str()+"_joint");
-        joint_state_cmd_.position.push_back(0.0);
-        joint_state_cmd_.velocity.push_back(0.0);
-        joint_state_cmd_.effort.push_back(0.0);
-    }
+    initJointStateMsg(joint_state_,n_joints_,robot_name_);
+    initJointStateMsg(joint_state_cmd_,n_joints_,robot_name_);
+    initJointStateMsg(joint_state_filtered_,n_joints_,robot_name_);
+    initJointStateMsg(joint_state_gravity_,n_joints_,robot_name_);
 
     port_JointState.setDataSample(joint_state_);
     port_JointStateFiltered.setDataSample(joint_state_filtered_);
     port_JointStateCommand.setDataSample(joint_state_cmd_);
+    port_JointStateGravity.setDataSample(joint_state_gravity_);
+    
     port_JointPosition.setDataSample(jnt_pos_);
     port_JointVelocity.setDataSample(jnt_vel_);
     port_JointTorque.setDataSample(jnt_trq_);
     port_GravityTorque.setDataSample(grav_trq_);
     port_Jacobian.setDataSample(jac_);
     port_MassMatrix.setDataSample(mass_);
+    
+    port_JointState.createStream(rtt_roscomm::topic("/"+this->getName()+"/joint_states"));
+    port_JointStateFiltered.createStream(rtt_roscomm::topic("/"+this->getName()+"/joint_states_filtered"));
+    port_JointStateCommand.createStream(rtt_roscomm::topic("/"+this->getName()+"/joint_states_cmd"));
+    port_JointStateGravity.createStream(rtt_roscomm::topic("/"+this->getName()+"/joint_states_gravity"));
+        
+    port_CartesianPosition.createStream(rtt_roscomm::topic("/"+this->getName()+"/cartesian_pose"));
+    port_CartesianVelocity.createStream(rtt_roscomm::topic("/"+this->getName()+"/cartesian_twist"));
+    port_CartesianWrench.createStream(rtt_roscomm::topic("/"+this->getName()+"/cartesian_wrench"));
+    
+    q.resize(n_joints_);
+    f_ext.resize(kdl_chain_.getNrOfSegments());
+    G.resize(n_joints_);
+    qdot.resize(n_joints_);
+    qddot.resize(n_joints_);
+    jnt_trq_kdl_.resize(n_joints_);
+    
+    return true;
+}
+
+bool LWRSim::safetyChecks(const std::vector<double>& position,const std::vector<double>& velocity,const std::vector<double>& torque)
+{
+    return positionSafetyCheck(position) &&
+    velocitySafetyCheck(velocity) &&
+    torqueSafetyCheck(torque);
+}
+
+bool LWRSim::positionSafetyCheck(const std::vector<double>& position)
+{
+    if(position.size() != LBR_MNJ)
+    {
+        RTT::log(RTT::Error) << "Vector size error "<<position.size()<<"!="<<LBR_MNJ<<RTT::endlog();
+        return false;
+    }
+    const double limits[] = {170,120,170,120,170,120,170};
+    bool ret=true;
+    for(unsigned i=0;i<position.size();i++)
+    {
+        if(std::abs(position[i]) > limits[i])
+        {
+           RTT::log(RTT::Error) << "Position limit exceded at J"<<i<<" : "<<position[i]<<" / limit "<<limits[i]<<RTT::endlog();
+           ret = false;
+        }
+    }
+    return ret;
+}
+bool LWRSim::velocitySafetyCheck(const std::vector<double>& velocity)
+{
+    if(velocity.size() != LBR_MNJ)
+    {
+        RTT::log(RTT::Error) << "Velocity size error "<<velocity.size()<<"!="<<LBR_MNJ<<RTT::endlog();
+        return false;
+    }
+    const double limits[] = {112.5,112.5,112.5,112.5,180,112.5,112.5};
+    bool ret=true;
+    for(unsigned i=0;i<velocity.size();i++)
+    {
+        if(std::abs(velocity[i]) > limits[i])
+        {
+           RTT::log(RTT::Error) << "Velocity limit exceded at J"<<i<<" : "<<velocity[i]<<" / limit "<<limits[i]<<RTT::endlog();
+           ret = false;
+        }
+    }
+    return ret;
+}
+
+bool LWRSim::torqueSafetyCheck(const std::vector<double>& torque)
+{
+    if(torque.size() != LBR_MNJ)
+    {
+        RTT::log(RTT::Error) << "Torque size error "<<torque.size()<<"!="<<LBR_MNJ<<RTT::endlog();
+        return false;
+    }
+    const double limits[] = {200,200,100,100,100,30,30};
+    bool ret=true;
+    for(unsigned i=0;i<torque.size();i++)
+    {
+        if(std::abs(torque[i]) > limits[i])
+        {
+           RTT::log(RTT::Error) << "Torque limit exceded at J"<<i<<" : "<<torque[i]<<" / limit "<<limits[i]<<RTT::endlog();
+           ret = false;
+        }
+    }
+    return ret;
+}
+bool LWRSim::setImpedance(const std::vector< double >& stiffness, const std::vector< double >& damping)
+{
+    if(! (stiffness.size() == LBR_MNJ && damping.size() == LBR_MNJ))
+    {
+        RTT::log(RTT::Error) << "Size error, not setting impedance (stiff size "
+                            <<stiffness.size()<<" damp size "<<damping.size()
+                            <<", should be "<<LBR_MNJ<<")"<<RTT::endlog();
+        return false;
+    }
+    kd_=damping;
+    kp_=stiffness;
+    /*for(unsigned int i=0;i<stiffness.size() && i<damping.size();++i)
+    {
+        kd_[i] = damping[i];
+        kp_[i] = stiffness[i];
+    }*/
     return true;
 }
 
 void LWRSim::updateHook() {
-    read_start = rtt_rosclock::host_now();
+    read_start = rtt_rosclock::host_now().toSec();
     // Read From gazebo simulation
-    port_JointPositionGazebo.read(joint_position_gazebo);
-    port_JointVelocityGazebo.read(joint_velocity_gazebo);
-    port_JointTorqueGazebo.read(joint_torque_gazebo);
+    RTT::FlowStatus fs_p = port_JointPositionGazebo.read(joint_position_gazebo);
+    RTT::FlowStatus fs_v = port_JointVelocityGazebo.read(joint_velocity_gazebo);
+    RTT::FlowStatus fs_g = port_JointTorqueGazebo.read(joint_torque_gazebo);
 
+
+    if(fs_g != RTT::NewData || fs_p != RTT::NewData || fs_v != RTT::NewData)
+        return;
+    
+    safetyChecks(joint_position_gazebo,joint_velocity_gazebo,joint_torque_gazebo);
+      
     for(unsigned int j=0; j < n_joints_; j++){
         jnt_pos_[j] = joint_position_gazebo[j];
         jnt_vel_[j] = joint_velocity_gazebo[j];
@@ -236,47 +363,90 @@ void LWRSim::updateHook() {
     jnt_pos_fs = port_JointPositionCommand.read(jnt_pos_cmd_);
     port_JointImpedanceCommand.read(jnt_imp_cmd_);
 
-    read_duration = (rtt_rosclock::host_now() - read_start);
+    read_duration = (rtt_rosclock::host_now().toSec() - read_start);
 
-    KDL::JntArray q(kdl_chain_.getNrOfJoints());
-    KDL::Wrenches f_ext(kdl_chain_.getNrOfSegments());
-    KDL::JntArray G(kdl_chain_.getNrOfJoints());
-    KDL::JntArray qdot(kdl_chain_.getNrOfJoints());
-    KDL::JntArray qddot(kdl_chain_.getNrOfJoints());
-
+    
     for(unsigned int j=0; j < n_joints_; j++){
-        q(j) = joint_position_gazebo[j];
+        q.q(j) = joint_position_gazebo[j];
+        q.qdot(j) = joint_velocity_gazebo[j];
         qdot(j) = 0.0;
         qddot(j) = 0.0;
+        jnt_trq_kdl_(j) = joint_torque_gazebo[j];
     }
     for(unsigned int j=0;j<kdl_chain_.getNrOfSegments();++j)
         f_ext[j] = KDL::Wrench::Zero();
 
-    int ret = id_rne_solver->CartToJnt(q,qdot,qddot,f_ext,G);
+    int ret = id_dyn_solver->JntToGravity(q.q,G);
     if(ret<0)
         RTT::log(RTT::Warning)<<"ERROR on cart : "<<ret<<RTT::endlog();
 
-    for(unsigned int j=0; j < n_joints_; j++)
-        grav_trq_[j] = G(j);
+    grav_trq_ = G.data;
 
-    for(unsigned int j=0; j < n_joints_; j++) {
+    jnt_to_jac_solver->JntToJac(this->q.q,jac_);
+    KDL::FrameVel endToBase;
+    fk_vel_solver->JntToCart(q,endToBase);
+    KDL::Twist endTwist = endToBase.GetTwist();
+    KDL::Frame endFrame = endToBase.GetFrame();
+    KDL::Vector endPos = endFrame.p;
+    KDL::Rotation endRot = endFrame.M;
 
-        jnt_trq_cmd_[j] = kp_*(jnt_pos_cmd_[j]-jnt_pos_[j]) - kd_*jnt_vel_[j] + G(j);
-        joint_torque_gazebo_cmd[j] = jnt_trq_cmd_(j);
+    
+    cart_pos_.position.x = endPos[0];
+    cart_pos_.position.y = endPos[1];
+    cart_pos_.position.z = endPos[2];
+    
+    endRot.GetQuaternion(cart_pos_.orientation.x,
+                         cart_pos_.orientation.y,
+                         cart_pos_.orientation.z,
+                         cart_pos_.orientation.w
+                        );
+    
+    cart_twist_.linear.x = endTwist.vel[0];
+    cart_twist_.linear.y = endTwist.vel[1];
+    cart_twist_.linear.z = endTwist.vel[2];
+    
+    cart_twist_.angular.x = endTwist.rot[0];
+    cart_twist_.angular.y = endTwist.rot[1];
+    cart_twist_.angular.z = endTwist.rot[2];
+
+    KDL::MultiplyJacobian(jac_,jnt_trq_kdl_,cart_wrench_kdl_);
+    cart_wrench_.force.x = cart_wrench_kdl_.force.x();
+    cart_wrench_.force.y = cart_wrench_kdl_.force.y();
+    cart_wrench_.force.z = cart_wrench_kdl_.force.z();
+    cart_wrench_.torque.x = cart_wrench_kdl_.torque.x();
+    cart_wrench_.torque.y = cart_wrench_kdl_.torque.y();
+    cart_wrench_.torque.z = cart_wrench_kdl_.torque.z();
+    //cart_wrench_; // TODO: GET DATA FROM ATI SENSOR
+    
+    id_dyn_solver->JntToMass(q.q,H);
+    
+    mass_ = H.data;
+    
+    if(jnt_trq_fs == RTT::NewData || jnt_pos_fs == RTT::NewData)
+    {
+
+        for(unsigned int j=0; j < n_joints_; j++) {
+
+            jnt_trq_cmd_[j] = kp_[j]*(jnt_pos_cmd_[j]-jnt_pos_[j]) - kd_[j]*jnt_vel_[j] +kg_[j]*G(j);
+            joint_torque_gazebo_cmd[j] = jnt_trq_cmd_(j);
+        }
     }
     now = rtt_rosclock::host_now();
-    write_start = now;
+    write_start = now.toNSec();
     //Update status
     joint_state_.header.stamp = now;
     joint_state_filtered_.header.stamp = now;
     joint_state_cmd_.header.stamp = now;
+    joint_state_gravity_.header.stamp = now;
 
-    Eigen::Map<Eigen::VectorXd>(joint_state_.position.data(),n_joints_) = this->jnt_pos_;
-    Eigen::Map<Eigen::VectorXd>(joint_state_.velocity.data(),n_joints_) = this->jnt_vel_;
-    Eigen::Map<Eigen::VectorXd>(joint_state_.effort.data(),n_joints_) = this->jnt_trq_;
+    Eigen::Map<Eigen::VectorXd>(joint_state_gravity_.effort.data(),n_joints_) = grav_trq_;
+    
+    Eigen::Map<Eigen::VectorXd>(joint_state_.position.data(),n_joints_) = jnt_pos_;
+    Eigen::Map<Eigen::VectorXd>(joint_state_.velocity.data(),n_joints_) = jnt_vel_;
+    Eigen::Map<Eigen::VectorXd>(joint_state_.effort.data(),n_joints_) = jnt_trq_;
 
-    Eigen::Map<Eigen::VectorXd>(joint_state_cmd_.position.data(),n_joints_) = this->jnt_pos_cmd_;
-    Eigen::Map<Eigen::VectorXd>(joint_state_cmd_.effort.data(),n_joints_) = this->jnt_trq_cmd_;
+    Eigen::Map<Eigen::VectorXd>(joint_state_cmd_.position.data(),n_joints_) = jnt_pos_cmd_;
+    Eigen::Map<Eigen::VectorXd>(joint_state_cmd_.effort.data(),n_joints_) = jnt_trq_cmd_;
 
     for(unsigned int j=0;j<joint_position_gazebo.size();++j)
     {
@@ -287,12 +457,11 @@ void LWRSim::updateHook() {
 
     }
 
+    
     port_JointState.write(joint_state_);
     port_JointStateFiltered.write(joint_state_filtered_);
-    port_JointStateCommand.write(joint_state_cmd_);
-
-    port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
-
+    port_JointStateGravity.write(joint_state_gravity_);
+    
     port_RobotState.write(m_msr_data.robot);
     port_FRIState.write(m_msr_data.intf);
 
@@ -307,9 +476,12 @@ void LWRSim::updateHook() {
 
     port_Jacobian.write(jac_);
     port_MassMatrix.write(mass_);
-
-    write_duration = (rtt_rosclock::host_now() - write_start);
-    updatehook_duration = (rtt_rosclock::host_now() - read_start);
+    
+    port_JointStateCommand.write(joint_state_cmd_);
+    port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
+    
+    write_duration = (rtt_rosclock::host_now().toSec() - write_start);
+    updatehook_duration = (rtt_rosclock::host_now().toSec() - read_start);
 
 }
 }
