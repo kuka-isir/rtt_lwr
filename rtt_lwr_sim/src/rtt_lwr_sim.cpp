@@ -352,12 +352,11 @@ void LWRSim::updateHook() {
         return;
     
     safetyChecks(joint_position_gazebo,joint_velocity_gazebo,joint_torque_gazebo);
-      
-    for(unsigned int j=0; j < n_joints_; j++){
-        jnt_pos_[j] = joint_position_gazebo[j];
-        jnt_vel_[j] = joint_velocity_gazebo[j];
-        jnt_trq_[j] = joint_torque_gazebo[j];
-    }
+    
+    jnt_pos_ = Eigen::VectorXd::Map(joint_position_gazebo.data(),n_joints_);
+    jnt_vel_ = Eigen::VectorXd::Map(joint_velocity_gazebo.data(),n_joints_);
+    jnt_trq_ = Eigen::VectorXd::Map(joint_torque_gazebo.data(),n_joints_);
+
     // Read Commands from users
     jnt_trq_fs = port_JointTorqueCommand.read(jnt_trq_cmd_);
     jnt_pos_fs = port_JointPositionCommand.read(jnt_pos_cmd_);
@@ -450,13 +449,10 @@ void LWRSim::updateHook() {
 
     for(unsigned int j=0;j<joint_position_gazebo.size();++j)
     {
-
         joint_state_filtered_.velocity[j] = velocity_smoothing_factor_*(jnt_pos_[j]-joint_state_filtered_.position[j])/this->getPeriod() + (1.0-velocity_smoothing_factor_)*joint_state_filtered_.velocity[j];
-        joint_state_filtered_.position[j] = jnt_pos_[j];
-        joint_state_filtered_.effort[j] = jnt_trq_[j];
-
     }
-
+    Eigen::Map<Eigen::VectorXd>(joint_state_filtered_.position.data(),n_joints_) = jnt_pos_;
+    Eigen::Map<Eigen::VectorXd>(joint_state_filtered_.effort.data(),n_joints_) = jnt_trq_;
     
     port_JointState.write(joint_state_);
     port_JointStateFiltered.write(joint_state_filtered_);
