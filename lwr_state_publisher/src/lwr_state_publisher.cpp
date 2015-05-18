@@ -183,8 +183,6 @@ public:
         
         std::vector<double> coeffs_x;
         double coeff_y;
-                
-        //int order = ;// x_states.size()-1;
         
         switch(order){
             case 1:
@@ -223,13 +221,7 @@ public:
             {
                 sum += coeffs_x[k]*x_states[last_idx-k-1][j];
             }
-            xd[j] = sum/(dt*coeff_y);
-            /*if(xd[j] == 0){
-                RTT::log(RTT::Warning) << "sum = "<<sum<<" dt="<<dt<<" coeff_y="<<coeff_y<<RTT::endlog();
-                for(unsigned int i=0;i<x_states.size();i++)
-                    RTT::log(RTT::Warning) << "x_states "<<i<<"= "<<x_states[i].transpose() << RTT::endlog();
-            }*/
-            
+            xd[j] = sum/(dt*coeff_y);            
         }
     }
     
