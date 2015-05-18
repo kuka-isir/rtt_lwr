@@ -6,6 +6,9 @@ language:
   - lua
 python:
   - "2.7"
+
+sudo: required
+
 compiler:
   - gcc
 before_install:
@@ -15,7 +18,7 @@ before_install:
   - export EXTRA_CMAKE_ARGS="-DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB"
   # Bootstrap a minimal ROS installation
   - git clone https://github.com/jhu-lcsr/ros_ci_tools /tmp/ros_ci_tools && export PATH=/tmp/ros_ci_tools:$PATH
-  - ros_ci_bootstrap
+  - ros_ci_bootstrap public
   - source /opt/ros/$ROS_DISTRO/setup.bash
   # Create non-isolated workspace
   - mkdir -p ~/ws/src
