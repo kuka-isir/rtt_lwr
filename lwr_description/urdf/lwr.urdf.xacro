@@ -2,19 +2,19 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro"
       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
    name="lwr" >
-   <xacro:property name="velocity_scale" value="20.0"/>
-   <xacro:property name="effort_scale" value="20.0"/>
+   <xacro:property name="velocity_scale" value="50.0"/>
+   <xacro:property name="effort_scale" value="50.0"/>
 
    <xacro:property name="M_PI" value="3.1415926535897931" />
 
-   <xacro:property name="damping_factor" value="0.5"/>
+   <xacro:property name="damping_factor" value="1.0"/>
 
-   <xacro:property name="d0" value="${damping_factor*1.0}"/>
-   <xacro:property name="d1" value="${damping_factor*1.0}"/>
-   <xacro:property name="d2" value="${damping_factor*0.5}"/>
-   <xacro:property name="d3" value="${damping_factor*0.5}"/>
-   <xacro:property name="d4" value="${damping_factor*0.5}"/>
-   <xacro:property name="d5" value="${damping_factor*0.1}"/>
+   <xacro:property name="d0" value="${damping_factor*5.5}"/>
+   <xacro:property name="d1" value="${damping_factor*5.5}"/>
+   <xacro:property name="d2" value="${damping_factor*3.5}"/>
+   <xacro:property name="d3" value="${damping_factor*3.5}"/>
+   <xacro:property name="d4" value="${damping_factor*3.5}"/>
+   <xacro:property name="d5" value="${damping_factor*1.1}"/>
    <xacro:property name="d6" value="${damping_factor*0.1}"/>
 
   <xacro:macro name="gazebo_reference" params="name">
