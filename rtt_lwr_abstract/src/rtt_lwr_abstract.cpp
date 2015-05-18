@@ -185,16 +185,51 @@ int RTTLWRAbstract::getToolKRL(){
 FRI_STATE RTTLWRAbstract::getFRIMode(){
     port_FromKRL.read(fri_from_krl);
     switch(fri_from_krl.intData[0]){
-        case 1:
+        case FRI_STATE_CMD:
             RTT::log(RTT::Info) << "FRI in Command Mode" << RTT::endlog();
-            return FRI_STATE_CMD;
-        case 2:
+        case FRI_STATE_MON:
             RTT::log(RTT::Info) << "FRI in Monitor Mode" << RTT::endlog();
-            return FRI_STATE_MON;
         default:
-            RTT::log(RTT::Info) << "Cannot read FRI Mode" << RTT::endlog();
-            return FRI_STATE_OFF;
+            RTT::log(RTT::Error) << "Cannot read FRI Mode ("<<fri_from_krl.intData[0]<<")" << RTT::endlog();
         }
+     return static_cast<FRI_STATE>(fri_from_krl.intData[0]);
+}
+
+FRI_QUALITY RTTLWRAbstract::getFRIQuality()
+{
+    port_FRIState.read(fri_state);
+    FRI_QUALITY quality = static_cast<FRI_QUALITY>(fri_state.quality);
+    switch(quality){
+        case FRI_QUALITY_UNACCEPTABLE:
+            RTT::log(RTT::Error) << "FRI Quality Unacceptable" << RTT::endlog();
+        case FRI_QUALITY_BAD:
+            RTT::log(RTT::Warning) << "FRI Quality Bad" << RTT::endlog();
+        case FRI_QUALITY_OK:
+            RTT::log(RTT::Warning) << "FRI Quality OK" << RTT::endlog();
+        case FRI_QUALITY_PERFECT:
+            RTT::log(RTT::Warning) << "FRI Quality Perfect" << RTT::endlog();
+        default:
+            RTT::log(RTT::Info) << "Cannot read FRI Quality (" <<quality<<")"<< RTT::endlog();
+        }
+    return quality;
+}
+FRI_CTRL RTTLWRAbstract::getFRIControlMode()
+{
+    port_RobotState.read(robot_state);
+    FRI_CTRL control_mode = static_cast<FRI_CTRL>(robot_state.control);
+    switch(control_mode){
+        case FRI_CTRL_POSITION:
+            RTT::log(RTT::Error) << "FRI Joint Position Control Mode" << RTT::endlog();
+        case FRI_CTRL_CART_IMP:
+            RTT::log(RTT::Warning) << "FRI Cartesian Impedance Control Mode" << RTT::endlog();
+        case FRI_CTRL_JNT_IMP:
+            RTT::log(RTT::Warning) << "FRI Joint Impedance Control Mode" << RTT::endlog();
+        case FRI_CTRL_OTHER:
+            RTT::log(RTT::Warning) << "FRI Other Control Mode" << RTT::endlog();
+        default:
+            RTT::log(RTT::Info) << "Cannot read FRI Control mode (" <<control_mode<<")"<< RTT::endlog();
+        }
+    return control_mode;
 }
 
 void RTTLWRAbstract::friStop(){
@@ -202,8 +237,6 @@ void RTTLWRAbstract::friStop(){
     //Put 2 in $FRI_FRM_INT[1] to trigger fri_stop()
     fri_to_krl.intData[0]=lwr::FRI_STOP;
     port_ToKRL.write(fri_to_krl);
-
-    return;
 }
 
 void RTTLWRAbstract::friStart(){
@@ -211,8 +244,6 @@ void RTTLWRAbstract::friStart(){
     //Put 1 in $FRI_FRM_INT[1] to trigger fri_start()
     fri_to_krl.intData[0]=lwr::FRI_START;
     port_ToKRL.write(fri_to_krl);
-
-    return;
 }
 
 void RTTLWRAbstract::friReset(){
@@ -221,7 +252,6 @@ void RTTLWRAbstract::friReset(){
         fri_to_krl.intData[i]=0;
         fri_to_krl.realData[i]=0.0;
     }
-
     port_ToKRL.write(fri_to_krl);
 }
 
@@ -278,52 +308,47 @@ void RTTLWRAbstract::initializeCommand(){
     
 }
 
-geometry_msgs::Pose RTTLWRAbstract::getCartesianPosition(){
+bool RTTLWRAbstract::getCartesianPosition(geometry_msgs::Pose& cart_position){
     if (port_CartesianPosition.connected() == false)
         RTT::log(RTT::Warning)<<"port_CartesianPosition not connected"<<RTT::endlog();
 
-    geometry_msgs::Pose  msr_cart_pos;
-    port_CartesianPosition.read(msr_cart_pos);
-    return msr_cart_pos;
+    port_CartesianPosition.read(cart_position)  != RTT::NoData;
 }
-Eigen::VectorXd RTTLWRAbstract::getJointPosition(){
+bool RTTLWRAbstract::getJointPosition(Eigen::VectorXd& joint_position){
     if (port_JointPosition.connected() == false)
         RTT::log(RTT::Warning)<<"port_JointPosition not connected"<<RTT::endlog();
 
-    Eigen::VectorXd joint_position;
-    joint_position.resize(LBR_MNJ);
-    port_JointPosition.read(joint_position);
-    return joint_position;
+    return port_JointPosition.read(joint_position) != RTT::NoData;
 }
 
-void RTTLWRAbstract::getJacobian(KDL::Jacobian& jacobian){
+bool RTTLWRAbstract::getJacobian(KDL::Jacobian& jacobian){
     if (port_Jacobian.connected() == false)
         RTT::log(RTT::Warning)<<"port_Jacobian not connected"<<RTT::endlog();
-    port_Jacobian.read(jacobian);
+    port_Jacobian.read(jacobian) != RTT::NoData;
 }
 
-void RTTLWRAbstract::getMassMatrix(Eigen::MatrixXd& mass_matrix){
+bool RTTLWRAbstract::getMassMatrix(Eigen::MatrixXd& mass_matrix){
     if (port_MassMatrix.connected() == false)
         RTT::log(RTT::Warning)<<"port_MassMatrix not connected"<<RTT::endlog();
-    port_MassMatrix.read(mass_matrix);
+    port_MassMatrix.read(mass_matrix) != RTT::NoData;
 }
 
-void RTTLWRAbstract::getGravityTorque(Eigen::VectorXd& gravity_torque){
+bool RTTLWRAbstract::getGravityTorque(Eigen::VectorXd& gravity_torque){
     if (port_GravityTorque.connected() == false)
         RTT::log(RTT::Warning)<<"port_GravityTorque not connected"<<RTT::endlog();
-    port_GravityTorque.read(gravity_torque);
+    port_GravityTorque.read(gravity_torque) != RTT::NoData;
 }
 
-void RTTLWRAbstract::getJointTorque(Eigen::VectorXd& joint_torque){
+bool RTTLWRAbstract::getJointTorque(Eigen::VectorXd& joint_torque){
     if (port_JointTorque.connected() == false)
         RTT::log(RTT::Warning)<<"port_JointTorque not connected"<<RTT::endlog();
-    port_JointTorque.read(joint_torque);
+    port_JointTorque.read(joint_torque) != RTT::NoData;
 }
 
-void RTTLWRAbstract::getCartesianWrench(geometry_msgs::Wrench& cart_wrench){
+bool RTTLWRAbstract::getCartesianWrench(geometry_msgs::Wrench& cart_wrench){
     if (port_CartesianWrench.connected() == false)
         RTT::log(RTT::Warning)<<"port_CartesianWrench not connected"<<RTT::endlog();
-    port_CartesianWrench.read(cart_wrench);
+    port_CartesianWrench.read(cart_wrench) != RTT::NoData;
 }
 
 bool RTTLWRAbstract::sendJointCommand(RTT::OutputPort< Eigen::VectorXd >& port_cmd, const Eigen::VectorXd& jnt_cmd)
@@ -343,8 +368,8 @@ bool RTTLWRAbstract::sendJointCommand(RTT::OutputPort< Eigen::VectorXd >& port_c
 }
 
 
-void RTTLWRAbstract::sendJointPosition(Eigen::VectorXd& joint_position_cmd){
-    this->sendJointCommand(this->port_JointPositionCommand,joint_position_cmd);
+bool RTTLWRAbstract::sendJointPosition(Eigen::VectorXd& joint_position_cmd){
+    return this->sendJointCommand(this->port_JointPositionCommand,joint_position_cmd);
 }
 
 void RTTLWRAbstract::estimateVelocityBDF(unsigned int order,const double dt,const boost::circular_buffer<Eigen::VectorXd>& x_states,Eigen::VectorXd& xd)

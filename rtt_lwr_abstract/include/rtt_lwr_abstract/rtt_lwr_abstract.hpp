@@ -39,6 +39,7 @@
 #define BDFORDER 6
 
 namespace lwr{
+    // Custom FRI/KRL Cmds
     static const fri_int32_t FRI_START = 1;
     static const fri_int32_t FRI_STOP = 2;
     static const fri_int32_t STOP_KRL_SCRIPT = 3;
@@ -174,7 +175,17 @@ class RTTLWRAbstract : public RTT::TaskContext{
      *  @return : The value of the FRI_STATE enum
      */
     FRI_STATE getFRIMode();
-
+    
+    /** @brief Get the FRI Quality
+     *  @return : The value of the FRI_QUALITY enum
+     */
+    FRI_QUALITY getFRIQuality();
+    
+    /** @brief Get the FRI Control mode
+     *  @return: The current control mode from FRI_CTRL (joint impedance, cartesian impedance or joint position)
+     */
+    FRI_CTRL getFRIControlMode();
+    
     /** @brief Ask KRL script for a friStop()
      */
     void friStop();
@@ -201,39 +212,50 @@ class RTTLWRAbstract : public RTT::TaskContext{
 
     /** @brief Return the cartesian position of the tool center point in the robot base frame
      */
-    geometry_msgs::Pose getCartesianPosition();
+    bool getCartesianPosition(geometry_msgs::Pose& cart_position);
 
     /** @brief Return the Jacobian
      */
-    void getJacobian(KDL::Jacobian& jacobian);
+    bool getJacobian(KDL::Jacobian& jacobian);
 
     /** @brief Return the Mass Matrix
      */
-    void getMassMatrix(Eigen::MatrixXd& mass_matrix);
+    bool getMassMatrix(Eigen::MatrixXd& mass_matrix);
 
     /** @brief Return the gravity torque
      */
-    void getGravityTorque(Eigen::VectorXd& gravity_torque);
+    bool getGravityTorque(Eigen::VectorXd& gravity_torque);
 
     /** @brief Return the current configuration of the robot
      */
-    Eigen::VectorXd getJointPosition();
+    bool getJointPosition(Eigen::VectorXd& joint_position);
 
     /** @brief Return the estimated external joint torque
      */
-    void getJointTorque(Eigen::VectorXd& joint_torque);
+    bool getJointTorque(Eigen::VectorXd& joint_torque);
         /** @brief Return the actuator joint torque
      */
     Eigen::VectorXd getJointTorqueAct();
 
     /** @brief Return the estimated external tool center point wrench
      */
-    void getCartesianWrench(geometry_msgs::Wrench& cart_wrench);
+    bool getCartesianWrench(geometry_msgs::Wrench& cart_wrench);
 
     /** @brief Send Joint position in radians
      */
-    void sendJointPosition(Eigen::VectorXd& joint_position_cmd);
-
+    bool sendJointPosition(Eigen::VectorXd& joint_position_cmd);
+    
+    /** @brief Set the Position Control Mode 10
+     */
+    void setPositionControlMode(){setControlStrategy(10);}
+        
+    /** @brief Set the Impedance Control Mode 10
+     */
+    void setImpedanceControlMode(){setControlStrategy(20);}
+        
+    /** @brief Set the Cartesian Impedance Control Mode 10
+     */
+    void setCartesianImpedanceControlMode(){setControlStrategy(30);}
 };
 }
 #endif
