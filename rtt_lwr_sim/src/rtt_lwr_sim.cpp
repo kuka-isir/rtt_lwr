@@ -161,14 +161,14 @@ bool LWRSim::configureHook(){
         this->peer = this->getPeer("gazebo");
         // Getting information from gazebo
         std::string lwr_gazebo("lwr_gazebo");
+        RTT::ConnPolicy policy = RTT::ConnPolicy::data();
+        port_JointPositionGazeboCommand.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointPositionCommand"),policy);
+        port_JointVelocityGazeboCommand.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointVelocityCommand"),policy);
+        port_JointTorqueGazeboCommand.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointTorqueCommand"),policy);
 
-        port_JointPositionGazeboCommand.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointPositionCommand"));
-        port_JointVelocityGazeboCommand.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointVelocityCommand"));
-        port_JointTorqueGazeboCommand.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointTorqueCommand"));
-
-        port_JointPositionGazebo.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointPosition"));
-        port_JointVelocityGazebo.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointVelocity"));
-        port_JointTorqueGazebo.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointTorque"));
+        port_JointPositionGazebo.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointPosition"),policy);
+        port_JointVelocityGazebo.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointVelocity"),policy);
+        port_JointTorqueGazebo.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointTorque"),policy);
 
         // The number of joints is 8 because it counts base_link, even though it's a fixed joint
         RTT::Property<unsigned int> njoints = this->peer->getPeer(lwr_gazebo)->getProperty("n_joints");
@@ -332,11 +332,6 @@ bool LWRSim::setImpedance(const std::vector< double >& stiffness, const std::vec
     }
     kd_=damping;
     kp_=stiffness;
-    /*for(unsigned int i=0;i<stiffness.size() && i<damping.size();++i)
-    {
-        kd_[i] = damping[i];
-        kp_[i] = stiffness[i];
-    }*/
     return true;
 }
 
@@ -351,7 +346,7 @@ void LWRSim::updateHook() {
     if(fs_g != RTT::NewData || fs_p != RTT::NewData || fs_v != RTT::NewData)
         return;
     
-    safetyChecks(joint_position_gazebo,joint_velocity_gazebo,joint_torque_gazebo);
+    //safetyChecks(joint_position_gazebo,joint_velocity_gazebo,joint_torque_gazebo);
     
     jnt_pos_ = Eigen::VectorXd::Map(joint_position_gazebo.data(),n_joints_);
     jnt_vel_ = Eigen::VectorXd::Map(joint_velocity_gazebo.data(),n_joints_);
@@ -366,11 +361,11 @@ void LWRSim::updateHook() {
 
     
     for(unsigned int j=0; j < n_joints_; j++){
-        q.q(j) = joint_position_gazebo[j];
-        q.qdot(j) = joint_velocity_gazebo[j];
+        q.q(j) = jnt_pos_[j];
+        q.qdot(j) = jnt_vel_[j];
         qdot(j) = 0.0;
         qddot(j) = 0.0;
-        jnt_trq_kdl_(j) = joint_torque_gazebo[j];
+        jnt_trq_kdl_(j) = jnt_trq_[j];
     }
     for(unsigned int j=0;j<kdl_chain_.getNrOfSegments();++j)
         f_ext[j] = KDL::Wrench::Zero();
@@ -421,15 +416,13 @@ void LWRSim::updateHook() {
     
     mass_ = H.data;
     
-    if(jnt_trq_fs == RTT::NewData || jnt_pos_fs == RTT::NewData)
-    {
-
+    if(jnt_pos_fs != RTT::NoData || jnt_trq_fs != RTT::NoData){
+        //Impedance Control
         for(unsigned int j=0; j < n_joints_; j++) {
-
-            jnt_trq_cmd_[j] = kp_[j]*(jnt_pos_cmd_[j]-jnt_pos_[j]) - kd_[j]*jnt_vel_[j] +kg_[j]*G(j);
-            joint_torque_gazebo_cmd[j] = jnt_trq_cmd_(j);
+            joint_torque_gazebo_cmd[j] = kp_[j]*(jnt_pos_cmd_[j]-jnt_pos_[j]) - kd_[j]*jnt_vel_[j] + jnt_trq_cmd_[j] + kg_[j]*G(j);
         }
     }
+    
     now = rtt_rosclock::host_now();
     write_start = now.toNSec();
     //Update status
@@ -445,7 +438,7 @@ void LWRSim::updateHook() {
     Eigen::Map<Eigen::VectorXd>(joint_state_.effort.data(),n_joints_) = jnt_trq_;
 
     Eigen::Map<Eigen::VectorXd>(joint_state_cmd_.position.data(),n_joints_) = jnt_pos_cmd_;
-    Eigen::Map<Eigen::VectorXd>(joint_state_cmd_.effort.data(),n_joints_) = jnt_trq_cmd_;
+    joint_state_cmd_.effort = joint_torque_gazebo_cmd;
 
     for(unsigned int j=0;j<joint_position_gazebo.size();++j)
     {
@@ -474,6 +467,7 @@ void LWRSim::updateHook() {
     port_MassMatrix.write(mass_);
     
     port_JointStateCommand.write(joint_state_cmd_);
+    
     port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
     
     write_duration = (rtt_rosclock::host_now().toSec() - write_start);
