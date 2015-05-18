@@ -8,9 +8,10 @@
 #include <rtt/Logger.hpp>
 
 #include <Eigen/Dense>
+#include <boost/graph/graph_concepts.hpp>
 #include <rtt/os/Timer.hpp>
 #include <rtt_rosclock/rtt_rosclock.h>
-
+#include <boost/thread/mutex.hpp>
 class LWRGazeboComponent : public RTT::TaskContext
 {
 public:
@@ -21,6 +22,10 @@ public:
         steps_rtt_(0),
         steps_gz_(0),
         n_joints_(0),
+        rtt_done(true),
+        gazebo_done(false),
+        new_data(true),
+        cnt_lock_(100),
         last_gz_update_time_(0,0)
     {
         // Add required gazebo interfaces
@@ -44,8 +49,9 @@ public:
         this->provides("debug")->addAttribute("rtt_time",rtt_time_);
         this->provides("debug")->addAttribute("steps_rtt",steps_rtt_);
         this->provides("debug")->addAttribute("steps_gz",steps_gz_);
+        this->provides("debug")->addAttribute("period_sim",period_sim_);
+        this->provides("debug")->addAttribute("period_wall",period_wall_);
         this->addProperty("n_joints",n_joints_);
-
     }
 
     //! Called from gazebo
@@ -106,10 +112,12 @@ public:
         if(model.get() == NULL) {return;}
 
         // Synchronize with update()
-        RTT::os::MutexTryLock trylock(gazebo_mutex_);
 #ifdef XENOMAI
+        //gazebo_mutex_.lock();
         if(rtt_done){
+            gazebo_done=false;
 #else
+        RTT::os::MutexTryLock trylock(gazebo_mutex_);
         if(trylock.isSuccessful()) {
 #endif
             // Increment simulation step counter (debugging)
@@ -139,41 +147,46 @@ public:
 
             if(jnt_trq_fs != RTT::NewData)
             {
+                
                 // Simulates the breaks
-                for(gazebo::physics::Link_V::iterator it = model_links_.begin();
+                /*for(gazebo::physics::Link_V::iterator it = model_links_.begin();
                     it != model_links_.end();++it)
                     (*it)->SetGravityMode(false);
             }else{
                 for(gazebo::physics::Link_V::iterator it = model_links_.begin();
                     it != model_links_.end();++it)
-                    (*it)->SetGravityMode(true);
+                    (*it)->SetGravityMode(true);*/
             }
             // Write command
             if(gazebo_joints_.size())
                 gazebo_joints_[0]->SetForce(0,gazebo_joints_[0]->GetForce(0u));
             for(unsigned int j=0; j < n_joints_; j++)
                 gazebo_joints_[j+1]->SetForce(0,jnt_trq_cmd_[j]);
-            
-
         }else{
             RTT::log(RTT::Error)<< "gazeboUpdateHook locked" <<RTT::endlog();
         }
-
+     #ifdef XENOMAI
+     gazebo_done = true;
+#endif
     }
 
 
     virtual bool configureHook()
     {
-        RTT::log(RTT::Info)<<"Done configuring hook"<<RTT::endlog();
         return true;
     }
 
     virtual void updateHook()
     {
         // Synchronize with gazeboUpdate()
-        //RTT::os::MutexLock lock(gazebo_mutex_);
-        rtt_done = false;
-        
+#ifndef XENOMAI
+       RTT::os::MutexLock lock(gazebo_mutex_);
+#else
+       if(true){
+           rtt_done=false;
+           
+#endif
+
         static double last_update_time_sim;
         period_sim_ = rtt_time_ - last_update_time_sim;
         last_update_time_sim = rtt_time_;
@@ -206,14 +219,22 @@ public:
         port_JointTorque.write(jnt_trq_);
         
         write_duration_ = RTT::os::TimeService::Instance()->secondsSince(write_start);
-        rtt_done = true;
+#ifdef XENOMAI
+        //gazebo_mutex_.unlock();
+        rtt_done=true;
+       }else{
+           RTT::log(RTT::Error)<< "gazeboUpdateHook not done" <<RTT::endlog();
+       }
+#endif
     }
-
 protected:
 
     //! Synchronization
+#ifndef XENOMAI
     RTT::os::MutexRecursive gazebo_mutex_;
-
+#else
+    boost::mutex gazebo_mutex_;
+#endif
     //! The Gazebo Model
     //! The gazebo
     std::vector<gazebo::physics::JointPtr> gazebo_joints_;
@@ -250,10 +271,11 @@ protected:
     int steps_gz_;
     int steps_rtt_;
     unsigned int n_joints_;
+    int cnt_lock_;
     double period_sim_;
     double period_wall_;
-    
-    boost::atomic<bool> rtt_done;
+    boost::atomic<bool> new_data;
+    boost::atomic<bool> rtt_done,gazebo_done;
 };
 
 ORO_LIST_COMPONENT_TYPE(LWRGazeboComponent)
