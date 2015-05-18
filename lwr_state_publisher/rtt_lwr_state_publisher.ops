@@ -3,7 +3,7 @@ import("rtt_ros")
 ros.import("lwr_state_publisher")
 
 loadComponent("LWRStatePublisher","LWRStatePublisher")
-setActivity("LWRStatePublisher",0.001,LowestPriority,ORO_SCHED_OTHER)
+setActivity("LWRStatePublisher",0.01,LowestPriority,ORO_SCHED_RT)
 
 LWRStatePublisher.loadService("rosparam")
 LWRStatePublisher.rosparam.getPrivate("robot_name")
