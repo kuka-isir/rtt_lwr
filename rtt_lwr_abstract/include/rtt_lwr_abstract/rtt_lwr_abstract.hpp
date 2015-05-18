@@ -33,13 +33,10 @@
 #include <fcntl.h>
 #include <arpa/inet.h>
 #include <boost/circular_buffer.hpp>
+#include <boost/foreach.hpp>
+#include <boost/assign.hpp>
 #include <std_msgs/Int32.h>
 #define BDFORDER 6
-
-/*namespace Eigen{
-typedef Matrix<double, LBR_MNJ, LBR_MNJ> MatrixXd;
-typedef Matrix<double, LBR_MNJ, 1> VectorXd;
-}*/
 
 namespace lwr{
     static const fri_int32_t FRI_START = 1;
@@ -108,11 +105,8 @@ class RTTLWRAbstract : public RTT::TaskContext{
     Eigen::VectorXd jnt_vel;
     std::string robot_name;
     // Backward differentiation formula buffer : http://en.wikipedia.org/wiki/Backward_differentiation_formula
-    //std::vector<VectorXd> jnt_pos_bdf_;
-    int BDFi;
     boost::circular_buffer<Eigen::VectorXd> jnt_pos_bdf;
     Eigen::VectorXd jnt_vel_bdf;
-    static const double BDFCoeffs[];
 
     Eigen::VectorXd jnt_pos_cmd;
     Eigen::VectorXd jnt_trq_cmd;
@@ -121,6 +115,7 @@ class RTTLWRAbstract : public RTT::TaskContext{
     KDL::Jacobian J;
     KDL::Frame T_old;
 
+    bool sendJointCommand(RTT::OutputPort<Eigen::VectorXd>& port_cmd,const Eigen::VectorXd& jnt_cmd); 
     int getToolKRL();
     /** @brief Orocos Configure Hook
      * Initialization of the shared array between
@@ -163,11 +158,11 @@ class RTTLWRAbstract : public RTT::TaskContext{
 
     /** @brief Set control strategy
      */
-    void setControlStrategy(int mode);
+    void setControlStrategy(const unsigned int mode);
 
     /** @brief Select the tool defined on the KRC
      */
-    void setToolKRL(int toolNumber);
+    void setToolKRL(const unsigned int toolNumber);
 
     /** @brief Check if the selected control mode is the required one
      *  @param modeRequired : the required mode
@@ -190,19 +185,7 @@ class RTTLWRAbstract : public RTT::TaskContext{
 
     /** @brief Estimate the velocity using the Backward Differentiation Formula
      */
-    void estimateVelocityBDF(const double dt,const std::vector<double>& coeffs,const boost::circular_buffer<Eigen::VectorXd>& x,Eigen::VectorXd& xd)
-    {
-            for(size_t j=0;j<LBR_MNJ;++j)
-            {
-                double sum = 0.0 ;
-                for(size_t i=0; i < coeffs.size(); ++i)
-                {
-                    size_t idx = (this->BDFi - i) % coeffs.size();
-                    sum += coeffs[i]*x[idx][j];
-                }
-                xd[j] = sum/(dt*coeffs[0]);
-            }
-    }
+    static void estimateVelocityBDF(unsigned int order,const double dt,const boost::circular_buffer<Eigen::VectorXd>& x_states,Eigen::VectorXd& xd);
 
     /** @brief Reset the array shared with the KRC
      */
@@ -222,15 +205,15 @@ class RTTLWRAbstract : public RTT::TaskContext{
 
     /** @brief Return the Jacobian
      */
-    KDL::Jacobian getJacobian();
+    void getJacobian(KDL::Jacobian& jacobian);
 
     /** @brief Return the Mass Matrix
      */
-    Eigen::MatrixXd getMassMatrix();
+    void getMassMatrix(Eigen::MatrixXd& mass_matrix);
 
     /** @brief Return the gravity torque
      */
-    Eigen::VectorXd getGravityTorque();
+    void getGravityTorque(Eigen::VectorXd& gravity_torque);
 
     /** @brief Return the current configuration of the robot
      */
@@ -238,77 +221,18 @@ class RTTLWRAbstract : public RTT::TaskContext{
 
     /** @brief Return the estimated external joint torque
      */
-    Eigen::VectorXd getJointTorque();
+    void getJointTorque(Eigen::VectorXd& joint_torque);
         /** @brief Return the actuator joint torque
      */
     Eigen::VectorXd getJointTorqueAct();
 
     /** @brief Return the estimated external tool center point wrench
      */
-    geometry_msgs::Wrench getCartesianWrench();
-
-    bool connectRobotState();
-    bool connectFRIState();
-    bool connectJointPosition();
-    bool connectJointPositionCommand();
-    bool connectICmdJntPosFriOffset();
-    bool connectIMsrCartPos();
-    bool connectICmdCartPos();
-    bool connectICmdCartPosFriOffset();
-    bool connectIMsrJntVel();
-    bool connectIMsrJntTrq();
-    bool connectIEstExtJntTrq();
-    bool connectIEstExtTcpWrench();
-    bool connectIEvents();
-    bool connectIMassMatrix();
-    bool connectIJacobian();
-    bool connectIGravity();
-    
-
-    /** @brief Connect joint position output ports with lwr_fri component
-     */
-    bool connectOJointPosition();
-
-    /** @brief Connect joint velocities output ports with lwr_fri component
-     */
-    bool connectOJointVelocities();
-
-    /** @brief Connect joint torque output ports with lwr_fri component
-     */
-    bool connectOJointTorque();
-
-    /** @brief Connect cartesian pose output ports with lwr_fri component
-     */
-    bool connectOCartesianPose();
-
-    /** @brief Connect cartesian pose output ports with lwr_fri component
-     */
-    bool connectOCartesianTwist();
-
-    bool connectOCartesianWrench();
-    bool connectODesJntImpedance();
-
-    void disconnectPort(std::string portname);
+    void getCartesianWrench(geometry_msgs::Wrench& cart_wrench);
 
     /** @brief Send Joint position in radians
      */
-    void sendJointPosition(Eigen::VectorXd &qdes);
-
-    /** @brief Send Joint velocities in radians/s
-     */
-    void sendJointVelocity(Eigen::VectorXd &qdotdes);
-
-    /** @brief Send additionnal joint torque in Nm
-     */
-    void sendAddJointTorque(Eigen::VectorXd &tau);
-
-    /** @brief Send desired tool center point cartesian pose: x, y, z(m), qw, qx, qy, qz
-     */
-    void sendCartesianPose(Eigen::VectorXd &pose);
-
-    /** @brief Send desired tool center point cartesian twist: vx, vy, vz, wx, wy, wz
-     */
-    void sendCartesianTwist(Eigen::VectorXd &twist);
+    void sendJointPosition(Eigen::VectorXd& joint_position_cmd);
 
 };
 }

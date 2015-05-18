@@ -4,9 +4,7 @@
 #include "rtt_lwr_abstract/rtt_lwr_abstract.hpp"
 using namespace lwr;
 
-const double RTTLWRAbstract::BDFCoeffs[] = {60/147,-360/147,450/147,-400/147,225/147,-72/147,10/147};
-
-RTTLWRAbstract::RTTLWRAbstract(std::string const& name) : RTT::TaskContext(name),jnt_pos_bdf(BDFORDER),BDFi(0),robot_name("lwr"){
+RTTLWRAbstract::RTTLWRAbstract(std::string const& name) : RTT::TaskContext(name),robot_name("lwr"),jnt_pos_bdf(BDFORDER){
     
     //this->addAttribute("fromKRL", m_fromKRL);
     //this->addAttribute("toKRL", m_toKRL);
@@ -50,42 +48,13 @@ RTTLWRAbstract::RTTLWRAbstract(std::string const& name) : RTT::TaskContext(name)
     this->addOperation("getJointTorque", &RTTLWRAbstract::getJointTorque, this, RTT::OwnThread);
     this->addOperation("getCartesianWrench", &RTTLWRAbstract::getCartesianWrench, this, RTT::OwnThread);
     
-  /*  this->addOperation("sendJointPosition", &RTTLWRAbstract::sendJointPosition, this, RTT::OwnThread);
     this->addOperation("sendJointVelocities", &RTTLWRAbstract::sendJointPosition, this, RTT::OwnThread);
-    this->addOperation("sendAddJointTorque", &RTTLWRAbstract::sendAddJointTorque, this, RTT::OwnThread);
-    this->addOperation("sendCartesianPose", &RTTLWRAbstract::sendCartesianPose, this, RTT::OwnThread);
-    this->addOperation("sendCartesianTwist", &RTTLWRAbstract::sendCartesianTwist, this, RTT::OwnThread);
-    this->addOperation("connectOJointPosition", &RTTLWRAbstract::connectOJointPosition, this, RTT::OwnThread);
-    this->addOperation("connectOJointVelocities", &RTTLWRAbstract::connectOJointVelocities, this, RTT::OwnThread);
-    this->addOperation("connectIRobotState", &RTTLWRAbstract::connectIRobotState, this, RTT::OwnThread);
-    this->addOperation("connectIFriState", &RTTLWRAbstract::connectIFriState, this, RTT::OwnThread);
-    this->addOperation("connectIMsrJntPos", &RTTLWRAbstract::connectIMsrJntPos, this, RTT::OwnThread);
-    this->addOperation("connectICmdJntPos", &RTTLWRAbstract::connectICmdJntPos, this, RTT::OwnThread);
-    this->addOperation("connectICmdJntPosFriOffset", &RTTLWRAbstract::connectICmdJntPosFriOffset, this, RTT::OwnThread);
-    this->addOperation("connectIMsrCartPos", &RTTLWRAbstract::connectIMsrCartPos, this, RTT::OwnThread);
-    this->addOperation("connectICmdCartPos", &RTTLWRAbstract::connectICmdCartPos, this, RTT::OwnThread);
-    this->addOperation("connectICmdCartPosFriOffset", &RTTLWRAbstract::connectICmdCartPosFriOffset, this, RTT::OwnThread);
-    this->addOperation("connectIMsrJntVel", &RTTLWRAbstract::connectIMsrJntVel, this, RTT::OwnThread);
-    this->addOperation("connectIMsrJntTrq", &RTTLWRAbstract::connectIMsrJntTrq, this, RTT::OwnThread);
-    this->addOperation("connectIEstExtJntTrq", &RTTLWRAbstract::connectIEstExtJntTrq, this, RTT::OwnThread);
-    this->addOperation("connectIEstExtTcpWrench", &RTTLWRAbstract::connectIEstExtTcpWrench, this, RTT::OwnThread);
-    this->addOperation("connectIEvents", &RTTLWRAbstract::connectIEvents, this, RTT::OwnThread);
-    this->addOperation("connectIMassMatrix", &RTTLWRAbstract::connectIMassMatrix, this, RTT::OwnThread);
-    this->addOperation("connectIJacobian", &RTTLWRAbstract::connectIJacobian, this, RTT::OwnThread);
-    this->addOperation("connectIGravity", &RTTLWRAbstract::connectIGravity, this, RTT::OwnThread);
-    this->addOperation("connectOJointTorque", &RTTLWRAbstract::connectOJointTorque, this, RTT::OwnThread);
-    this->addOperation("connectOCartesianPose", &RTTLWRAbstract::connectOCartesianPose, this, RTT::OwnThread);
-    this->addOperation("connectOCartesianTwist", &RTTLWRAbstract::connectOCartesianTwist, this, RTT::OwnThread);
-
-    this->addOperation("connectOCartesianWrench", &RTTLWRAbstract::connectOCartesianWrench, this, RTT::OwnThread);
-    this->addOperation("connectODesJntImpedance", &RTTLWRAbstract::connectODesJntImpedance, this, RTT::OwnThread);*/
 }
 
 RTTLWRAbstract::~RTTLWRAbstract(){
 }
 
 bool RTTLWRAbstract::configureHook(){
-
     jnt_vel_bdf.resize(LBR_MNJ);
     jnt_pos.resize(LBR_MNJ);
     jnt_pos_old.resize(LBR_MNJ);
@@ -185,19 +154,15 @@ void RTTLWRAbstract::doStop(){
 
 void RTTLWRAbstract::cleanupHook(){}
 
-void RTTLWRAbstract::setControlStrategy(int mode){
+void RTTLWRAbstract::setControlStrategy(const unsigned int mode){
     switch(mode){
-        case 1:
-        case 2:
+        case 10:
             fri_to_krl.intData[1] = fri_int32_t(10);
             break;
-        case 3:
-        case 7:
+        case 30:
             fri_to_krl.intData[1] = fri_int32_t(30);
             break;
-        case 4:
-        case 5:
-        case 6:
+        case 20:
             fri_to_krl.intData[1] = fri_int32_t(20);
             break;
                 
@@ -205,38 +170,9 @@ void RTTLWRAbstract::setControlStrategy(int mode){
             break;
     }
     port_ToKRL.write(fri_to_krl);
-    
-    /*if(mode != 1 && mode != 2 && mode != 3 && mode != 4 && mode != 5 && mode != 6 && mode != 7){
-        std::cout << "Please set a valid control mode: " << std::endl;
-        std::cout << "1: Joint Position" << std::endl;
-        std::cout << "2: Joint Velocity" << std::endl;
-        std::cout << "3: Joint Torque" << std::endl;
-        std::cout << "4: Cartesian Position" << std::endl;
-        std::cout << "5: Cartesian Force" << std::endl;
-        std::cout << "6: Cartesian Twist" << std::endl;
-        std::cout << "7: Joint Impedance" << std::endl; //perform joint impedance control (position + torque compensation of the load)
-        return;
-    }
-    else{
-       if (mode == 1 || mode == 2){
-            this->
-            fri_to_krl.intData[1] = 10;
-            controlMode.data = FRI_CTRL_POSITION; // joint position control
-        }
-        else if (mode == 3 || mode == 7){
-            fri_to_krl.intData[1] = 30;
-            controlMode.data = 30; // joint impedance control
-            control_mode_prop.set(7);
-        }
-        else if (mode == 4 || mode == 5 || mode == 6){
-            fri_to_krl.intData[1] = 20;
-            controlMode.data = 20; // cartesian impedance control
-        }
-        port_ToKRL.write(fri_to_krl);
-    }*/
 }
 
-void RTTLWRAbstract::setToolKRL(int toolNumber){
+void RTTLWRAbstract::setToolKRL(const unsigned int toolNumber){
 	fri_to_krl.intData[2] = toolNumber;
 	port_ToKRL.write(fri_to_krl);
 }
@@ -245,17 +181,6 @@ int RTTLWRAbstract::getToolKRL(){
     port_FromKRL.read(fri_from_krl);
     return fri_from_krl.intData[2];
 }
-
-/*bool RTTLWRAbstract::requiresControlMode(int modeRequired){
-    if (controlMode == modeRequired){
-        return true;
-    }
-    else{
-        std::cout << "Cannot proceed, current control mode is " << controlMode
-            << " required control mode is " << modeRequired << std::endl;
-        return false;
-    }
-}*/
 
 FRI_STATE RTTLWRAbstract::getFRIMode(){
     port_FromKRL.read(fri_from_krl);
@@ -332,13 +257,6 @@ void RTTLWRAbstract::initializeCommand(){
         //Send 0 torque and force
         port_CartesianWrench.read(cart_wrench);
         geometry_msgs::Wrench cart_wrench_command; // Init at 0.0
-        /*cart_wrench_command.force.x = 0.0;
-        cart_wrench_command.force.y = 0.0;
-        cart_wrench_command.force.z = 0.0;
-        cart_wrench_command.torque.x = 0.0;
-        cart_wrench_command.torque.y = 0.0;
-        cart_wrench_command.torque.z = 0.0;*/
-
         port_CartesianWrenchCommand.write(cart_wrench_command);
     }
 
@@ -351,13 +269,13 @@ void RTTLWRAbstract::initializeCommand(){
 
     if (port_JointImpedanceCommand.connected()){
         lwr_fri::FriJointImpedance joint_impedance_command;
-		for(unsigned int i = 0; i < LBR_MNJ; i++){
-            joint_impedance_command.stiffness[i] = 35;
-            joint_impedance_command.damping[i] = 2*std::sqrt(35);
-		}
-
+	for(unsigned int i = 0; i < LBR_MNJ; i++){
+            joint_impedance_command.stiffness[i] = 250; // Defaults in Kuka manual
+            joint_impedance_command.damping[i] = 0.7; // Defaults in Kuka manual
+	}
         port_JointImpedanceCommand.write(joint_impedance_command);
     }
+    
 }
 
 geometry_msgs::Pose RTTLWRAbstract::getCartesianPosition(){
@@ -378,249 +296,101 @@ Eigen::VectorXd RTTLWRAbstract::getJointPosition(){
     return joint_position;
 }
 
-KDL::Jacobian RTTLWRAbstract::getJacobian(){
+void RTTLWRAbstract::getJacobian(KDL::Jacobian& jacobian){
     if (port_Jacobian.connected() == false)
         RTT::log(RTT::Warning)<<"port_Jacobian not connected"<<RTT::endlog();
-
-	KDL::Jacobian  kuka_jacobian_matrix;
-    port_Jacobian.read(kuka_jacobian_matrix);
-    return kuka_jacobian_matrix;
+    port_Jacobian.read(jacobian);
 }
 
-Eigen::MatrixXd RTTLWRAbstract::getMassMatrix(){
+void RTTLWRAbstract::getMassMatrix(Eigen::MatrixXd& mass_matrix){
     if (port_MassMatrix.connected() == false)
         RTT::log(RTT::Warning)<<"port_MassMatrix not connected"<<RTT::endlog();
-
-    Eigen::MatrixXd mass_matrix_eigen;
-    mass_matrix_eigen.resize(LBR_MNJ,LBR_MNJ);
-    port_MassMatrix.read(mass_matrix_eigen);
-    return mass_matrix_eigen;
+    port_MassMatrix.read(mass_matrix);
 }
 
-Eigen::VectorXd RTTLWRAbstract::getGravityTorque(){
+void RTTLWRAbstract::getGravityTorque(Eigen::VectorXd& gravity_torque){
     if (port_GravityTorque.connected() == false)
         RTT::log(RTT::Warning)<<"port_GravityTorque not connected"<<RTT::endlog();
-
-    Eigen::VectorXd gravity_torque;
-    gravity_torque.resize(LBR_MNJ);
     port_GravityTorque.read(gravity_torque);
-    return gravity_torque;
 }
 
-Eigen::VectorXd RTTLWRAbstract::getJointTorque(){
+void RTTLWRAbstract::getJointTorque(Eigen::VectorXd& joint_torque){
     if (port_JointTorque.connected() == false)
         RTT::log(RTT::Warning)<<"port_JointTorque not connected"<<RTT::endlog();
-
-    Eigen::VectorXd joint_torque;
-    joint_torque.resize(LBR_MNJ);
     port_JointTorque.read(joint_torque);
-    return joint_torque;
 }
 
-geometry_msgs::Wrench RTTLWRAbstract::getCartesianWrench(){
+void RTTLWRAbstract::getCartesianWrench(geometry_msgs::Wrench& cart_wrench){
     if (port_CartesianWrench.connected() == false)
         RTT::log(RTT::Warning)<<"port_CartesianWrench not connected"<<RTT::endlog();
-
-    geometry_msgs::Wrench cart_wrench;
     port_CartesianWrench.read(cart_wrench);
-    return cart_wrench;
-}
-/*
-bool RTTLWRAbstract::connectIRobotState(){
-    assert(peer);
-    return iport_robot_state.connectTo(peer->getPort("RobotState"));
 }
 
-bool RTTLWRAbstract::connectIFriState(){
-    assert(peer);
-    return iport_Fri_state.connectTo(peer->getPort("FRIState"));
+bool RTTLWRAbstract::sendJointCommand(RTT::OutputPort< Eigen::VectorXd >& port_cmd, const Eigen::VectorXd& jnt_cmd)
+{
+    if (port_cmd.connected()){
+        if(jnt_cmd.rows() == LBR_MNJ){
+            port_cmd.write(jnt_cmd);
+        }else{
+            RTT::log(RTT::Error)<<"Can\'t write to "<<port_cmd.getName()<<", size error : jnt_cmd.rows="<<jnt_cmd.rows()<<", should be LBR_MNJ="<<LBR_MNJ<<RTT::endlog();
+            return false;
+        }
+    }else{
+        RTT::log(RTT::Error)<<"Port "<<port_cmd.getName()<<" not connected"<<RTT::endlog();
+        return false;
+    }
+    return true;
 }
 
-bool RTTLWRAbstract::connectIMsrJntPos(){
-    assert(peer);
-    return iport_msr_joint_pos.connectTo(peer->getPort("msrJntPos"));
+
+void RTTLWRAbstract::sendJointPosition(Eigen::VectorXd& joint_position_cmd){
+    this->sendJointCommand(this->port_JointPositionCommand,joint_position_cmd);
 }
 
-bool RTTLWRAbstract::connectICmdJntPos(){
-    assert(peer);
-    return iport_cmd_joint_pos.connectTo(peer->getPort("cmdJntPos"));
-}
-
-bool RTTLWRAbstract::connectICmdJntPosFriOffset(){
-    assert(peer);
-    return iport_cmd_joint_pos_fri_offset.connectTo(peer->getPort("cmdJntPosFriOffset"));
-}
-
-bool RTTLWRAbstract::connectIMsrCartPos(){
-    assert(peer);
-    return iport_cart_pos.connectTo(peer->getPort("msrCartPos"));
-}
-
-bool RTTLWRAbstract::connectICmdCartPos(){
-    assert(peer);
-    return iport_cmd_cart_pos.connectTo(peer->getPort("cmdCartPos"));
-}
-
-bool RTTLWRAbstract::connectICmdCartPosFriOffset(){
-    assert(peer);
-    return iport_cmd_cart_pos_fri_offset.connectTo(peer->getPort("cmdCartPosFriOffset"));
-}
-
-bool RTTLWRAbstract::connectIMsrJntVel(){
-    assert(peer);
-    return iport_msr_joint_vel.connectTo(peer->getPort("msrJntVel"));
-}
-
-bool RTTLWRAbstract::connectIMsrJntTrq(){
-    assert(peer);
-    return iport_msr_joint_trq.connectTo(peer->getPort("msrJntTrq"));
-}
-
-bool RTTLWRAbstract::connectIEstExtJntTrq(){
-    assert(peer);
-    return iport_est_ext_joint_trq.connectTo(peer->getPort("estExtJntTrq"));
-}
-
-bool RTTLWRAbstract::connectIEstExtTcpWrench(){
-    assert(peer);
-    return iport_cart_wrench.connectTo(peer->getPort("estExtTcpWrench"));
-}
-
-bool RTTLWRAbstract::connectIEvents(){
-    assert(peer);
-    return iport_events.connectTo(peer->getPort("events"));
-}
-
-bool RTTLWRAbstract::connectIMassMatrix(){
-    assert(peer);
-    return iport_mass_matrix.connectTo(peer->getPort("massMatrix_o"));
-}
-
-bool RTTLWRAbstract::connectIJacobian(){
-    assert(peer);
-    return jacobianPort.connectTo(peer->getPort("Jacobian"));
-}
-
-bool RTTLWRAbstract::connectIGravity(){
-    assert(peer);
-    return gravityPort.connectTo(peer->getPort("gravity_o"));
-}
-
-bool RTTLWRAbstract::connectOJointPosition(){
-    assert(peer);
-    return oport_joint_position.connectTo(peer->getPort("desJntPos"));
-}
-
-bool RTTLWRAbstract::connectOJointVelocities(){
-    assert(peer);
-    return oport_joint_velocities.connectTo(peer->getPort("desJntVel"));
-}
-
-bool RTTLWRAbstract::connectOJointTorque(){
-    assert(peer);
-    return oport_add_joint_trq.connectTo(peer->getPort("desAddJntTrq"));
-}
-
-bool RTTLWRAbstract::connectOCartesianPose(){
-    assert(peer);
-    return oport_cartesian_pose.connectTo(peer->getPort("desCartPos"));
-}
-
-bool RTTLWRAbstract::connectOCartesianTwist(){
-    assert(peer);
-    return oport_cartesian_twist.connectTo(peer->getPort("desCartTwist"));
-}
-
-bool RTTLWRAbstract::connectOCartesianWrench(){
-    assert(peer);
-    return oport_cartesian_wrench.connectTo(peer->getPort("desAddTcpWrench"));
-}
-
-bool RTTLWRAbstract::connectODesJntImpedance(){
-    assert(peer);
-    return oport_joint_impedance.connectTo(peer->getPort("desJntImpedance"));
-}
-*/
-/*
-void RTTLWRAbstract::disconnectPort(std::string portname){
-    RTT::base::PortInterface * p = getPort(portname);
-    if (p != NULL){
-        p->disconnect();
+void RTTLWRAbstract::estimateVelocityBDF(unsigned int order,const double dt,const boost::circular_buffer<Eigen::VectorXd>& x_states,Eigen::VectorXd& xd)
+{
+    using namespace boost::assign;
+    
+    std::vector<double> coeffs_x;
+    double coeff_y;
+    
+    switch(order){
+        case 1:
+            coeffs_x += 1.,-1.;
+            coeff_y = 1.;
+            break;
+        case 2:
+            coeffs_x += 1.,-4./3.,1./3.;
+            coeff_y = 2./3.;
+            break;
+        case 3:
+            coeffs_x += 1.,-18./11.,9./11.,-2./11.;
+            coeff_y = 6./11.;
+            break;
+        case 4:
+            coeffs_x += 1.,-48./25.,36./25.,-16./25.,3./25.;
+            coeff_y = 12./25.;
+            break;
+        case 5:
+            coeffs_x += 1.,-300./137.,300./137.,-200./137.,75./137.,-12./137.;
+            coeff_y = 60./137.;
+            break;
+        case 6:
+            coeffs_x += 1.,-360./147.,450./147.,-400./147.,225./147.,-72./147.,10./147.;
+            coeff_y = 60./147.;
+            break;
+        default:
+            return;
+    }
+            
+    for(unsigned int j = 0; j < x_states[0].size() ; ++j) // For each Joint j
+    {
+        double sum = 0.0;
+        unsigned int last_idx = x_states.size();
+        for(unsigned int k = 0; k < coeffs_x.size() && k < last_idx; ++k) // For each State k
+        {
+            sum += coeffs_x[k]*x_states[last_idx-k-1][j];
+        }
+        xd[j] = sum/(dt*coeff_y);            
     }
 }
-
-void RTTLWRAbstract::sendJointPosition(Eigen::VectorXd &qdes){
-    if (oport_joint_position.connected()){
-        if(qdes.size() == LWRDOF){
-            oport_joint_position.write(qdes);
-        }
-        else{
-            std::cout << "Input wrong qdes vector size, should be 7" << std::endl;
-        }
-    }
-    return;
-}
-
-void RTTLWRAbstract::sendJointVelocities(Eigen::VectorXd &qdotdes){
-    if (oport_joint_velocities.connected()){
-        if(qdotdes.size() == LWRDOF){
-            oport_joint_velocities.write(qdotdes);
-        }
-        else{
-            std::cout << "Input wrong qdotdes vector size, should be 7" << std::endl;
-        }
-    }
-    return;
-}
-
-void RTTLWRAbstract::sendAddJointTorque(Eigen::VectorXd &tau){
-    if (oport_add_joint_trq.connected()){
-        if(tau.size() == LWRDOF){
-            oport_add_joint_trq.write(tau);
-        }
-        else{
-            std::cout << "Input wrong tau vector size, should be 7" << std::endl;
-        }
-    }
-    return;
-}
-
-void RTTLWRAbstract::sendCartesianPose(Eigen::VectorXd &pose){
-    if (oport_add_joint_trq.connected()){
-        if(pose.size() == 7){
-            geometry_msgs::Pose cart_pose;
-            cart_pose.position.x = pose[0];
-            cart_pose.position.y = pose[1];
-            cart_pose.position.z = pose[2];
-            cart_pose.orientation.w = pose[3];
-            cart_pose.orientation.x = pose[4];
-            cart_pose.orientation.y = pose[5];
-            cart_pose.orientation.z = pose[6];
-            oport_cartesian_pose.write(cart_pose);
-        }
-        else{
-            std::cout << "Input wrong tau vector size, should be 7" << std::endl;
-        }
-    }
-    return;
-}
-
-void RTTLWRAbstract::sendCartesianWrenchCommand(Eigen::VectorXd &twist){
-    if (port_CartesianWrenchCommand.connected()){
-        if(twist.size() == 6){
-            geometry_msgs::Twist cart_twist;
-            cart_twist.linear.x = twist[0];
-            cart_twist.linear.y = twist[1];
-            cart_twist.linear.z = twist[2];
-            cart_twist.angular.x = twist[3];
-            cart_twist.angular.y = twist[4];
-            cart_twist.angular.z = twist[5];
-            oport_cartesian_twist.write(cart_twist);
-        }
-        else{
-            std::cout << "Input wrong tau vector size, should be 6" << std::endl;
-        }
-    }
-    return;
-}
-*/
