@@ -41,6 +41,11 @@ include_directories(
 orocos_component(${PROJECT_NAME} src/${PROJECT_NAME}.cpp)
 set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY COMPILE_DEFINITIONS RTT_COMPONENT)
 
+if(${OROCOS_TARGET} STREQUAL "xenomai" )
+  find_package(Xenomai REQUIRED)
+  set_property(DIRECTORY ${PROJECT_SOURCE_DIR} APPEND PROPERTY COMPILE_DEFINITIONS HAVE_RTNET XENOMAI)
+endif()
+
 list(REMOVE_ITEM catkin_LIBRARIES lwr_fri_generate_messages_cpp)
 list(REMOVE_ITEM catkin_LIBRARIES lwr_fri_generate_messages_lisp)
 list(REMOVE_ITEM catkin_LIBRARIES lwr_fri_generate_messages_py)
