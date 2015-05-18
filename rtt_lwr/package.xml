@@ -13,7 +13,6 @@
   <run_depend>lwr_description</run_depend>
   <run_depend>rtt_lwr_gazebo</run_depend>
   <run_depend>rtt_lwr_sim</run_depend>
-  <run_depend>rtt_launch</run_depend>
   <run_depend>rtt_lwr_abstract</run_depend>
   <run_depend>kuka_lwr_fri</run_depend>
   <run_depend>lwr_fri</run_depend>
