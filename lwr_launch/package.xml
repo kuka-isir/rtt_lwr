@@ -11,7 +11,6 @@
   <buildtool_depend>catkin</buildtool_depend>
   <run_depend>lwr_description</run_depend>
   <run_depend>rtt_ros</run_depend>
-  <run_depend>rtt_ros_tools</run_depend>
   <run_depend>rtt_rosparam</run_depend>
   <run_depend>rtt_sensor_msgs</run_depend>
 

@@ -29,6 +29,8 @@ before_install:
   - popd
   - git clone https://github.com/jbohren/rqt_dot.git
   - git clone https://github.com/jhu-lcsr/rtt_ros_control.git
+  - git clone https://github.com/jhu-lcsr/rtt_gazebo
+  - git clone https://github.com/kuka-isir/rtt_ros_kdl_tools
   - popd
   - rosdep install -r --from-paths ~/ws/src --ignore-src --rosdistro $ROS_DISTRO -y > /dev/null
   # Currently waiting for this rosdep rule to be merged
