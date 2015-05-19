@@ -201,9 +201,11 @@ bool LWRSim::configureHook(){
     joint_torque_gazebo_cmd.resize(n_joints_,0.0);
     // Fake LWR
     jnt_pos_.resize(n_joints_);
+    jnt_pos_fri_offset.resize(n_joints_);
     jnt_pos_old_.resize(n_joints_);
     jnt_vel_.resize(n_joints_);
     jnt_trq_.resize(n_joints_);
+    jnt_trq_raw_.resize(n_joints_);
     grav_trq_.resize(n_joints_);
     jnt_pos_cmd_.resize(n_joints_);
     jnt_trq_cmd_.resize(n_joints_);
@@ -212,9 +214,11 @@ bool LWRSim::configureHook(){
     mass_.resize(n_joints_,n_joints_);
 
     jnt_pos_.setZero();
+    jnt_pos_fri_offset.setZero();
     jnt_pos_old_.setZero();
     jnt_vel_.setZero();
     jnt_trq_.setZero();
+    jnt_trq_raw_.setZero();
     grav_trq_.setZero();
     jnt_pos_cmd_.setZero();
     jnt_trq_cmd_.setZero();
@@ -231,8 +235,10 @@ bool LWRSim::configureHook(){
     port_JointStateGravity.setDataSample(joint_state_gravity_);
     
     port_JointPosition.setDataSample(jnt_pos_);
+    port_JointPositionFRIOffset.setDataSample(jnt_pos_fri_offset);
     port_JointVelocity.setDataSample(jnt_vel_);
     port_JointTorque.setDataSample(jnt_trq_);
+    port_JointTorqueRaw.setDataSample(jnt_trq_raw_);
     port_GravityTorque.setDataSample(grav_trq_);
     port_Jacobian.setDataSample(jac_);
     port_MassMatrix.setDataSample(mass_);
@@ -252,6 +258,11 @@ bool LWRSim::configureHook(){
     qdot.resize(n_joints_);
     qddot.resize(n_joints_);
     jnt_trq_kdl_.resize(n_joints_);
+    
+    robot_state.control = static_cast<FRI_CTRL>(FRI_CTRL_POSITION);
+    fri_state.quality = static_cast<FRI_QUALITY>(FRI_QUALITY_PERFECT);
+    fri_to_krl.intData[0] = FRI_STATE_MON;
+    fri_from_krl.intData[0] = FRI_STATE_MON;
     
     return true;
 }
@@ -342,8 +353,45 @@ void LWRSim::updateHook() {
     RTT::FlowStatus fs_v = port_JointVelocityGazebo.read(joint_velocity_gazebo);
     RTT::FlowStatus fs_g = port_JointTorqueGazebo.read(joint_torque_gazebo);
 
+    fri_state.timestamp = read_start;
 
-    if(fs_g != RTT::NewData || fs_p != RTT::NewData || fs_v != RTT::NewData)
+    if(port_ToKRL.read(fri_to_krl) != RTT::NoData)
+    {
+        fri_from_krl = fri_to_krl;
+    }
+    switch(fri_to_krl.intData[1]){
+        case 10:
+            robot_state.control = FRI_CTRL_POSITION;
+            break;
+        case 30:
+            robot_state.control = FRI_CTRL_JNT_IMP;
+            break;
+        case 20:
+            robot_state.control = FRI_CTRL_CART_IMP;
+            break;
+        default:
+            robot_state.control = FRI_CTRL_OTHER;
+            break;
+        }
+    switch(static_cast<FRI_CTRL>(robot_state.control)){
+            case FRI_CTRL_POSITION:
+            case FRI_CTRL_JNT_IMP:
+            case FRI_CTRL_CART_IMP:
+                fri_state.state = fri_from_krl.intData[0] = FRI_STATE_CMD;
+                break;
+            case FRI_CTRL_OTHER:
+                fri_state.state = fri_from_krl.intData[0] = FRI_STATE_MON;
+                break;
+            default:
+                fri_state.state = fri_from_krl.intData[0] = FRI_STATE_OFF;
+                break;
+        }
+    port_FromKRL.write(fri_from_krl);
+    
+    port_RobotState.write(robot_state);
+    port_FRIState.write(fri_state);
+    
+    if(fs_g == RTT::NoData || fs_p == RTT::NoData || fs_v == RTT::NoData)
         return;
     
     //safetyChecks(joint_position_gazebo,joint_velocity_gazebo,joint_torque_gazebo);
@@ -450,9 +498,6 @@ void LWRSim::updateHook() {
     port_JointState.write(joint_state_);
     port_JointStateFiltered.write(joint_state_filtered_);
     port_JointStateGravity.write(joint_state_gravity_);
-    
-    port_RobotState.write(m_msr_data.robot);
-    port_FRIState.write(m_msr_data.intf);
 
     port_JointPosition.write(jnt_pos_);
     port_JointVelocity.write(jnt_vel_);

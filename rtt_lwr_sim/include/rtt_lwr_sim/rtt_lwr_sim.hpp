@@ -35,6 +35,7 @@
 #include <rtt_ros_kdl_tools/tools.hpp>
 #include <boost/scoped_ptr.hpp>
 namespace lwr{
+    
     class LWRSim : public RTT::TaskContext{
     public:
         LWRSim(std::string const& name):RTT::TaskContext(name),
@@ -97,6 +98,8 @@ namespace lwr{
             this->ports()->addPort("JointTorque", port_JointTorque).doc("");
             this->ports()->addPort("GravityTorque", port_GravityTorque).doc("");
             this->ports()->addPort("JointPosition", port_JointPosition).doc("");
+            this->ports()->addPort("JointTorqueRaw", port_JointTorqueRaw).doc("");
+            this->ports()->addPort("JointPositionFRIOffset", port_JointPositionFRIOffset).doc("");
 
             this->ports()->addPort("JointState",port_JointState).doc("");
             this->ports()->addPort("JointStateCommand",port_JointStateCommand).doc("");
@@ -154,6 +157,8 @@ namespace lwr{
         RTT::OutputPort<Eigen::VectorXd > port_JointTorque;
         RTT::OutputPort<Eigen::VectorXd > port_GravityTorque;
         RTT::OutputPort<Eigen::VectorXd > port_JointPosition;
+        RTT::OutputPort<Eigen::VectorXd > port_JointTorqueRaw;
+        RTT::OutputPort<Eigen::VectorXd > port_JointPositionFRIOffset;
 
         int prop_fri_port;
         std::vector<double> prop_joint_offset;
@@ -178,8 +183,10 @@ namespace lwr{
         std::vector<double> joint_torque_gazebo_cmd;
 
         Eigen::VectorXd jnt_pos_;
+        Eigen::VectorXd jnt_pos_fri_offset;
         Eigen::VectorXd jnt_pos_old_;
         Eigen::VectorXd jnt_trq_;
+        Eigen::VectorXd jnt_trq_raw_;
         Eigen::VectorXd grav_trq_;
         Eigen::VectorXd jnt_vel_;
 
@@ -200,10 +207,12 @@ namespace lwr{
         std::string joint_names_prefix;
         uint16_t counter, fri_state_last;
 
-        tFriMsrData m_msr_data;
-        tFriCmdData m_cmd_data;
-        tFriKrlData m_fromKRL;
-        tFriKrlData m_toKRL;
+        tFriIntfState fri_state;
+        tFriRobotState robot_state;
+        
+        tFriKrlData fri_from_krl;
+        tFriKrlData fri_to_krl;
+        
         RTT::TaskContext* peer;
         ros::Time now;
         double read_start,write_start;
@@ -216,11 +225,12 @@ namespace lwr{
         KDL::Chain kdl_chain_;
         KDL::Chain kukaLWR_DHnew;
         
-        boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver;
+        
         boost::scoped_ptr<KDL::ChainFkSolverVel_recursive> fk_vel_solver;
         boost::scoped_ptr<KDL::ChainIkSolverVel_pinv_nso> ik_solver_vel;
         boost::scoped_ptr<KDL::ChainDynParam> id_dyn_solver;
         boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver;
+        boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver;
         
         //! Control gains
         std::vector<double> kp_,kd_,kg_;
