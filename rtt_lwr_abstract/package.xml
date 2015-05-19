@@ -19,8 +19,13 @@
   <build_depend>kdl_conversions</build_depend>
   <build_depend>lwr_fri</build_depend>
   <build_depend>kuka_lwr_fri</build_depend>
-
-
+  <build_depend>rtt_roscomm</build_depend>
+  <build_depend>rtt_rosparam</build_depend>
+  <build_depend>rtt_rosclock</build_depend>
+  
+  <run_depend>rtt_roscomm</run_depend>
+  <run_depend>rtt_rosparam</run_depend>
+  <run_depend>rtt_rosclock</run_depend>
   <run_depend>rtt</run_depend>
   <run_depend>rtt_ros</run_depend>
   <run_depend>std_msgs</run_depend>
@@ -36,6 +41,13 @@
       <plugin_depend>rtt_diagnostic_msgs</plugin_depend>
       <plugin_depend>rtt_geometry_msgs</plugin_depend>
       <plugin_depend>rtt_sensor_msgs</plugin_depend>
+      <plugin_depend>kdl_typekit</plugin_depend>
+      <plugin_depend>eigen_typekit</plugin_depend>
+      <plugin_depend>rtt_rosclock</plugin_depend>
+      <plugin_depend>rtt_tf</plugin_depend>
+      <plugin_depend>rtt_rosparam</plugin_depend>
+      <plugin_depend>rtt_roscomm</plugin_depend>
+      <plugin_depend>rtt_rospack</plugin_depend>
     </rtt_ros>
   </export>
 </package>

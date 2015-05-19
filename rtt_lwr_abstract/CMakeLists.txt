@@ -3,6 +3,9 @@ project(rtt_lwr_abstract)
 
 find_package(catkin REQUIRED COMPONENTS 
     rtt_ros 
+    rtt_rosclock
+    rtt_roscomm
+    rtt_rosparam
     kuka_lwr_fri 
     diagnostic_msgs 
     geometry_msgs 
