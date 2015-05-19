@@ -5,12 +5,18 @@
 #define __RTT_LWR_ABSTRACT_HPP__
 
 #include <rtt/RTT.hpp>
+#include <rtt/Attribute.hpp>
 #include <rtt/Component.hpp>
+#include <rtt_rosparam/rosparam.h>
+#include <rtt_rosclock/rtt_rosclock.h>
+#include <rtt/os/TimeService.hpp>
+#include <rtt/Logger.hpp>
+#include <rtt_roscomm/rtt_rostopic.h>
+
 #include <kdl/frames.hpp>
 #include <kdl/jntarray.hpp>
 #include <kdl/jacobian.hpp>
 #include <kuka_lwr_fri/friComm.h>
-#include <rtt/Attribute.hpp>
 
 #include <lwr_fri/CartesianImpedance.h>
 #include <lwr_fri/FriJointImpedance.h>
@@ -247,15 +253,15 @@ class RTTLWRAbstract : public RTT::TaskContext{
     
     /** @brief Set the Position Control Mode 10
      */
-    void setPositionControlMode(){setControlStrategy(10);}
+    void setJointPositionControlMode(){setControlStrategy(10*FRI_CTRL_POSITION);}
         
-    /** @brief Set the Impedance Control Mode 10
+    /** @brief Set the Impedance Control Mode 30
      */
-    void setImpedanceControlMode(){setControlStrategy(20);}
+    void setJointImpedanceControlMode(){setControlStrategy(10*FRI_CTRL_JNT_IMP);}
         
-    /** @brief Set the Cartesian Impedance Control Mode 10
+    /** @brief Set the Cartesian Impedance Control Mode 20
      */
-    void setCartesianImpedanceControlMode(){setControlStrategy(30);}
+    void setCartesianImpedanceControlMode(){setControlStrategy(10*FRI_CTRL_CART_IMP);}
 };
 }
 #endif

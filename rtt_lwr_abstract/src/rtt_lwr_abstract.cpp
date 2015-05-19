@@ -33,6 +33,11 @@ RTTLWRAbstract::RTTLWRAbstract(std::string const& name) : RTT::TaskContext(name)
     this->ports()->addPort("JointPosition", port_JointPosition).doc("");
 
     this->addOperation("getFRIMode", &RTTLWRAbstract::getFRIMode, this, RTT::OwnThread);
+    this->addOperation("getFRIControlMode", &RTTLWRAbstract::getFRIControlMode, this, RTT::OwnThread);
+    this->addOperation("getFRIQuality", &RTTLWRAbstract::getFRIQuality, this, RTT::OwnThread);
+    this->addOperation("setJointPositionControlMode", &RTTLWRAbstract::setJointPositionControlMode, this, RTT::OwnThread);
+    this->addOperation("setJointImpedanceControlMode", &RTTLWRAbstract::setJointImpedanceControlMode, this, RTT::OwnThread);
+    this->addOperation("setCartesianImpedanceControlMode", &RTTLWRAbstract::setCartesianImpedanceControlMode, this, RTT::OwnThread);
 
     this->addOperation("setControlStrategy", &RTTLWRAbstract::setControlStrategy, this, RTT::OwnThread);
 
@@ -83,12 +88,23 @@ bool RTTLWRAbstract::configureHook(){
         fri_to_krl.intData[i]=0;
         fri_to_krl.realData[i]=0.0;
     }
-    
+    boost::shared_ptr<rtt_rosparam::ROSParam> rosparam =
+        this->getProvider<rtt_rosparam::ROSParam>("rosparam");
+
+    if(!rosparam) {
+        RTT::log(RTT::Error) << "Could not load rosparam service." <<RTT::endlog();
+        return false;
+    }
+
+    // Set the Robot name (lwr or lwr_sim) For other components to know it
+    rosparam->getPrivate("robot_name");
+
     if(!hasPeer(robot_name))
     {
         RTT::log(RTT::Fatal) << robot_name<<" peer could not be found"<<RTT::endlog();
         return false;
     }
+    
     this->peer = getPeer(robot_name);
     RTT::ConnPolicy policy = RTT::ConnPolicy::data();
     port_CartesianWrench.connectTo(this->peer->getPort("CartesianWrench"),policy);
@@ -184,15 +200,19 @@ int RTTLWRAbstract::getToolKRL(){
 
 FRI_STATE RTTLWRAbstract::getFRIMode(){
     port_FromKRL.read(fri_from_krl);
-    switch(fri_from_krl.intData[0]){
+    FRI_STATE state = static_cast<FRI_STATE>(fri_from_krl.intData[0]);
+    switch(state){
         case FRI_STATE_CMD:
             RTT::log(RTT::Info) << "FRI in Command Mode" << RTT::endlog();
+            break;
         case FRI_STATE_MON:
             RTT::log(RTT::Info) << "FRI in Monitor Mode" << RTT::endlog();
+            break;
         default:
             RTT::log(RTT::Error) << "Cannot read FRI Mode ("<<fri_from_krl.intData[0]<<")" << RTT::endlog();
+            break;
         }
-     return static_cast<FRI_STATE>(fri_from_krl.intData[0]);
+     return state;
 }
 
 FRI_QUALITY RTTLWRAbstract::getFRIQuality()
@@ -202,14 +222,19 @@ FRI_QUALITY RTTLWRAbstract::getFRIQuality()
     switch(quality){
         case FRI_QUALITY_UNACCEPTABLE:
             RTT::log(RTT::Error) << "FRI Quality Unacceptable" << RTT::endlog();
+            break;
         case FRI_QUALITY_BAD:
             RTT::log(RTT::Warning) << "FRI Quality Bad" << RTT::endlog();
+            break;
         case FRI_QUALITY_OK:
             RTT::log(RTT::Warning) << "FRI Quality OK" << RTT::endlog();
+            break;
         case FRI_QUALITY_PERFECT:
             RTT::log(RTT::Warning) << "FRI Quality Perfect" << RTT::endlog();
+            break;
         default:
             RTT::log(RTT::Info) << "Cannot read FRI Quality (" <<quality<<")"<< RTT::endlog();
+            break;
         }
     return quality;
 }
@@ -219,15 +244,20 @@ FRI_CTRL RTTLWRAbstract::getFRIControlMode()
     FRI_CTRL control_mode = static_cast<FRI_CTRL>(robot_state.control);
     switch(control_mode){
         case FRI_CTRL_POSITION:
-            RTT::log(RTT::Error) << "FRI Joint Position Control Mode" << RTT::endlog();
+            RTT::log(RTT::Info) << "FRI Joint Position Control Mode" << RTT::endlog();
+            break;
         case FRI_CTRL_CART_IMP:
-            RTT::log(RTT::Warning) << "FRI Cartesian Impedance Control Mode" << RTT::endlog();
+            RTT::log(RTT::Info) << "FRI Cartesian Impedance Control Mode" << RTT::endlog();
+            break;
         case FRI_CTRL_JNT_IMP:
-            RTT::log(RTT::Warning) << "FRI Joint Impedance Control Mode" << RTT::endlog();
+            RTT::log(RTT::Info) << "FRI Joint Impedance Control Mode" << RTT::endlog();
+            break;
         case FRI_CTRL_OTHER:
             RTT::log(RTT::Warning) << "FRI Other Control Mode" << RTT::endlog();
+            break;
         default:
-            RTT::log(RTT::Info) << "Cannot read FRI Control mode (" <<control_mode<<")"<< RTT::endlog();
+            RTT::log(RTT::Error) << "Cannot read FRI Control mode (" <<control_mode<<")"<< RTT::endlog();
+            break;
         }
     return control_mode;
 }
