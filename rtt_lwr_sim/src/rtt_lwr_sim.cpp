@@ -104,8 +104,10 @@ void LWRSim::initJointStateMsg(sensor_msgs::JointState& js,const unsigned int n_
         js.effort.push_back(0.0);
     }
 }
-void LWRSim::initGains(std::vector< double >& kp, std::vector< double > kd)
+void LWRSim::resetImpedanceGains()
 {
+    std::vector< double > kp(LBR_MNJ,0.0);
+    std::vector< double > kd(LBR_MNJ,0.0);
     kp[0] = 450.0;   kd[0] = 1.0;
     kp[1] = 450.0;   kd[1] = 1.0;
     kp[2] = 200.0;   kd[2] = 0.7;
@@ -147,6 +149,7 @@ bool LWRSim::configureHook(){
             
       // Pointeur is not null
     kukaLWR_DHnew = KukaLWR_DHnew();
+    id_rne_solver_add_.reset(new KDL::ChainIdSolver_RNE(kukaLWR_DHnew,gravity_vector));
     // Overwrite kdl_chain_
     //kdl_chain_ = kukaLWR_DHnew;  
         
@@ -179,7 +182,7 @@ bool LWRSim::configureHook(){
         return false;
     }
 
-    RTT::log(RTT::Debug)<<"LWR njoints : "<<n_joints_<<RTT::endlog();
+    RTT::log(RTT::Debug)<<"LWR njoints : "<<n_joints_<<" Segments : "<<kdl_chain_.getNrOfSegments()<<RTT::endlog();
     
     if(n_joints_ != LBR_MNJ)
     {
@@ -188,7 +191,7 @@ bool LWRSim::configureHook(){
     }
     
     
-    initGains(kp_,kd_);
+    resetImpedanceGains();
     
     
     // In from gazebo
@@ -228,11 +231,13 @@ bool LWRSim::configureHook(){
     initJointStateMsg(joint_state_cmd_,n_joints_,robot_name_);
     initJointStateMsg(joint_state_filtered_,n_joints_,robot_name_);
     initJointStateMsg(joint_state_gravity_,n_joints_,robot_name_);
+    initJointStateMsg(joint_state_dyn_,n_joints_,robot_name_);
 
     port_JointState.setDataSample(joint_state_);
     port_JointStateFiltered.setDataSample(joint_state_filtered_);
     port_JointStateCommand.setDataSample(joint_state_cmd_);
     port_JointStateGravity.setDataSample(joint_state_gravity_);
+    port_JointStateDynamics.setDataSample(joint_state_dyn_);
     
     port_JointPosition.setDataSample(jnt_pos_);
     port_JointPositionFRIOffset.setDataSample(jnt_pos_fri_offset);
@@ -247,6 +252,7 @@ bool LWRSim::configureHook(){
     port_JointStateFiltered.createStream(rtt_roscomm::topic("/"+this->getName()+"/joint_states_filtered"));
     port_JointStateCommand.createStream(rtt_roscomm::topic("/"+this->getName()+"/joint_states_cmd"));
     port_JointStateGravity.createStream(rtt_roscomm::topic("/"+this->getName()+"/joint_states_gravity"));
+    port_JointStateDynamics.createStream(rtt_roscomm::topic("/"+this->getName()+"/joint_states_dynamics"));
         
     port_CartesianPosition.createStream(rtt_roscomm::topic("/"+this->getName()+"/cartesian_pose"));
     port_CartesianVelocity.createStream(rtt_roscomm::topic("/"+this->getName()+"/cartesian_twist"));
@@ -258,6 +264,7 @@ bool LWRSim::configureHook(){
     qdot.resize(n_joints_);
     qddot.resize(n_joints_);
     jnt_trq_kdl_.resize(n_joints_);
+    jnt_trq_kdl_add_.resize(n_joints_);
     
     robot_state.control = static_cast<FRI_CTRL>(FRI_CTRL_POSITION);
     fri_state.quality = static_cast<FRI_QUALITY>(FRI_QUALITY_PERFECT);
@@ -411,16 +418,30 @@ void LWRSim::updateHook() {
     for(unsigned int j=0; j < n_joints_; j++){
         q.q(j) = jnt_pos_[j];
         q.qdot(j) = jnt_vel_[j];
-        qdot(j) = 0.0;
+        qdot(j) = jnt_vel_[j];
         qddot(j) = 0.0;
-        jnt_trq_kdl_(j) = jnt_trq_[j];
+        //(j) = jnt_trq_[j];
     }
-    for(unsigned int j=0;j<kdl_chain_.getNrOfSegments();++j)
-        f_ext[j] = KDL::Wrench::Zero();
+    //for(unsigned int j=0;j<kdl_chain_.getNrOfSegments();++j)
+    //    f_ext[j] = KDL::Wrench::Zero();
+    
+    int ret_rne = id_rne_solver->CartToJnt(q.q,qdot,qddot,f_ext,jnt_trq_kdl_);
+    if(ret_rne<0)
+        RTT::log(RTT::Error)<<"ERROR on id_rne_solver : "<<ret_rne<<RTT::endlog();
 
-    int ret = id_dyn_solver->JntToGravity(q.q,G);
-    if(ret<0)
-        RTT::log(RTT::Warning)<<"ERROR on cart : "<<ret<<RTT::endlog();
+    int ret_rne_add = id_rne_solver_add_->CartToJnt(q.q,qdot,qddot,f_ext,jnt_trq_kdl_add_);
+    if(ret_rne_add<0)
+        RTT::log(RTT::Error)<<"ERROR on ret_rne_add : "<<ret_rne_add<<RTT::endlog();
+    
+    int ret_dyn = id_dyn_solver->JntToGravity(q.q,G);
+    if(ret_dyn<0)
+        RTT::log(RTT::Error)<<"ERROR on id_dyn_solver : "<<ret_dyn<<RTT::endlog();
+    
+    Eigen::Map<Eigen::VectorXd>(joint_state_dyn_.position.data(),n_joints_) = jnt_trq_kdl_add_.data;
+    Eigen::Map<Eigen::VectorXd>(joint_state_dyn_.velocity.data(),n_joints_) = G.data;
+    Eigen::Map<Eigen::VectorXd>(joint_state_dyn_.effort.data(),n_joints_) = jnt_trq_kdl_.data;
+    
+
 
     grav_trq_ = G.data;
 
@@ -478,6 +499,7 @@ void LWRSim::updateHook() {
     joint_state_filtered_.header.stamp = now;
     joint_state_cmd_.header.stamp = now;
     joint_state_gravity_.header.stamp = now;
+    joint_state_dyn_.header.stamp = now;
 
     Eigen::Map<Eigen::VectorXd>(joint_state_gravity_.effort.data(),n_joints_) = grav_trq_;
     
@@ -498,6 +520,7 @@ void LWRSim::updateHook() {
     port_JointState.write(joint_state_);
     port_JointStateFiltered.write(joint_state_filtered_);
     port_JointStateGravity.write(joint_state_gravity_);
+    port_JointStateDynamics.write(joint_state_dyn_);
 
     port_JointPosition.write(jnt_pos_);
     port_JointVelocity.write(jnt_vel_);

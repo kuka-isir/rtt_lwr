@@ -113,6 +113,7 @@ namespace lwr{
             this->addProperty("smoothing_factor",velocity_smoothing_factor_);
             this->addOperation("setImpedance",&LWRSim::setImpedance,this,RTT::OwnThread);
             this->addOperation("setGravityMode",&LWRSim::setGravityMode,this,RTT::OwnThread);
+            this->addOperation("resetImpedanceGains",&LWRSim::resetImpedanceGains,this,RTT::OwnThread);
             this->provides("debug")->addAttribute("read_start",this->read_start);
             this->provides("debug")->addAttribute("write_start",this->write_start);
             this->provides("debug")->addAttribute("read_duration",this->read_duration);
@@ -127,6 +128,7 @@ namespace lwr{
         void updateHook();
         ~LWRSim(){};
     public:
+        void resetImpedanceGains();
         bool setGravityMode(){
             return this->setImpedance(std::vector<double>(LBR_MNJ,0),std::vector<double>(LBR_MNJ,0));
         }
@@ -231,24 +233,26 @@ namespace lwr{
         boost::scoped_ptr<KDL::ChainDynParam> id_dyn_solver;
         boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver;
         boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver;
+         boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver_add_;
         
         //! Control gains
         std::vector<double> kp_,kd_,kg_;
         double velocity_smoothing_factor_;
         std::string robot_name_;
-        sensor_msgs::JointState joint_state_filtered_,joint_state_,joint_state_cmd_,joint_state_gravity_;
+        sensor_msgs::JointState joint_state_filtered_,joint_state_,joint_state_cmd_,joint_state_gravity_,joint_state_dyn_;
         RTT::OutputPort<sensor_msgs::JointState> port_JointState;
         RTT::OutputPort<sensor_msgs::JointState> port_JointStateFiltered;
         RTT::OutputPort<sensor_msgs::JointState> port_JointStateCommand;
         RTT::OutputPort<sensor_msgs::JointState> port_JointStateGravity;
+        RTT::OutputPort<sensor_msgs::JointState> port_JointStateDynamics;
         std::string root_link;
         std::string tip_link;
     private:
-    void initGains(std::vector<double>& kp,std::vector<double> kd);
+    
     void initJointStateMsg(sensor_msgs::JointState& js,const unsigned int n_joints,const std::string& robot_name);
         //KDL Stuff
     KDL::Wrenches f_ext;
-    KDL::JntArray G,qdot,qddot,jnt_trq_kdl_;
+    KDL::JntArray G,qdot,qddot,jnt_trq_kdl_,jnt_trq_kdl_add_;
     KDL::Wrench cart_wrench_kdl_;
     KDL::JntArrayVel q;
     KDL::JntSpaceInertiaMatrix H;
