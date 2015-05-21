@@ -149,13 +149,13 @@ public:
             {
                 
                 // Simulates the breaks
-                /*for(gazebo::physics::Link_V::iterator it = model_links_.begin();
+                for(gazebo::physics::Link_V::iterator it = model_links_.begin();
                     it != model_links_.end();++it)
                     (*it)->SetGravityMode(false);
             }else{
                 for(gazebo::physics::Link_V::iterator it = model_links_.begin();
                     it != model_links_.end();++it)
-                    (*it)->SetGravityMode(true);*/
+                    (*it)->SetGravityMode(true);
             }
             // Write command
             if(gazebo_joints_.size())
