@@ -4,7 +4,7 @@
 #include "rtt_lwr_abstract/rtt_lwr_abstract.hpp"
 using namespace lwr;
 
-RTTLWRAbstract::RTTLWRAbstract(std::string const& name) : RTT::TaskContext(name),robot_name("lwr"),jnt_pos_bdf(BDFORDER){
+RTTLWRAbstract::RTTLWRAbstract(std::string const& name) : RTT::TaskContext(name),robot_name("lwr"),jnt_pos_bdf(7){
     
     //this->addAttribute("fromKRL", m_fromKRL);
     //this->addAttribute("toKRL", m_toKRL);
@@ -54,6 +54,11 @@ RTTLWRAbstract::RTTLWRAbstract(std::string const& name) : RTT::TaskContext(name)
     this->addOperation("getCartesianWrench", &RTTLWRAbstract::getCartesianWrench, this, RTT::OwnThread);
     
     this->addOperation("sendJointVelocities", &RTTLWRAbstract::sendJointPosition, this, RTT::OwnThread);
+    
+#ifdef CONMAN
+        conman_hook_ = conman::Hook::GetHook(this);
+        RTT::log(RTT::Info)<<"\nUsing CONMAN\n"<<RTT::endlog();
+#endif
 }
 
 RTTLWRAbstract::~RTTLWRAbstract(){
@@ -72,15 +77,10 @@ bool RTTLWRAbstract::configureHook(){
     jnt_trq_cmd.resize(LBR_MNJ);
     J.resize(LBR_MNJ);
 
-    port_JointPositionCommand.setDataSample(jnt_pos_cmd);
-    port_JointTorqueCommand.setDataSample(jnt_trq_cmd);
-    port_CartesianImpedanceCommand.setDataSample(cart_imp_cmd);
-    port_CartesianWrenchCommand.setDataSample(cart_wrench_cmd);
-    port_CartesianPositionCommand.setDataSample(cart_pos_cmd);
-    port_JointImpedanceCommand.setDataSample(jnt_imp_cmd);
-    port_JointPositionCommand.setDataSample(jnt_pos_cmd);
-    port_JointTorqueCommand.setDataSample(jnt_trq_cmd);
-    port_ToKRL.setDataSample(fri_to_krl);
+    jnt_pos_cmd.setZero();
+    jnt_trq_cmd.setZero();
+    
+
     //port_KRL_CMD.setDataSample();
     
     //initialize the arrays that will be send to KRL
@@ -127,6 +127,21 @@ bool RTTLWRAbstract::configureHook(){
     port_JointPositionFRIOffset.connectTo(this->peer->getPort("JointPositionFRIOffset"),policy);
     
     
+    port_CartesianImpedanceCommand.connectTo(this->peer->getPort("CartesianImpedanceCommand"),policy);
+    port_CartesianPositionCommand.connectTo(this->peer->getPort("CartesianPositionCommand"),policy);
+    port_CartesianWrenchCommand.connectTo(this->peer->getPort("CartesianWrenchCommand"),policy);
+    port_JointImpedanceCommand.connectTo(this->peer->getPort("JointImpedanceCommand"),policy);
+    port_JointPositionCommand.connectTo(this->peer->getPort("JointPositionCommand"),policy);
+    port_JointTorqueCommand.connectTo(this->peer->getPort("JointTorqueCommand"),policy);
+    
+    port_JointPositionCommand.setDataSample(jnt_pos_cmd);
+    port_JointTorqueCommand.setDataSample(jnt_trq_cmd);
+    port_CartesianImpedanceCommand.setDataSample(cart_imp_cmd);
+    port_CartesianWrenchCommand.setDataSample(cart_wrench_cmd);
+    port_CartesianPositionCommand.setDataSample(cart_pos_cmd);
+    port_JointImpedanceCommand.setDataSample(jnt_imp_cmd);
+    port_ToKRL.setDataSample(fri_to_krl);
+    
     bool all_connected = true;
     all_connected &= port_CartesianWrench.connected();
     all_connected &= port_RobotState.connected();
@@ -143,12 +158,19 @@ bool RTTLWRAbstract::configureHook(){
     all_connected &= port_FromKRL.connected();
     all_connected &= port_JointTorqueRaw.connected();
     all_connected &= port_JointPositionFRIOffset.connected();
+    
+    all_connected &= port_CartesianImpedanceCommand.connected();
+    all_connected &= port_CartesianPositionCommand.connected();
+    all_connected &= port_CartesianWrenchCommand.connected();
+    all_connected &= port_JointImpedanceCommand.connected();
+    all_connected &= port_JointPositionCommand.connected();
+    all_connected &= port_JointTorqueCommand.connected();
 
     return all_connected;
 }
 
 bool RTTLWRAbstract::startHook(){
-    initializeCommand();
+    //initializeCommand();
     return doStart();
 }
 
@@ -159,7 +181,7 @@ bool RTTLWRAbstract::doStart(){
 
 void RTTLWRAbstract::stopHook(){
     //Reset all commands sent to the fri
-    initializeCommand();
+    //initializeCommand();
     doStop();
 }
 

@@ -42,7 +42,13 @@
 #include <boost/foreach.hpp>
 #include <boost/assign.hpp>
 #include <std_msgs/Int32.h>
-#define BDFORDER 6
+
+#ifdef CONMAN
+#include <conman/conman.h>
+#include <conman/scheme.h>
+#include <conman/hook.h>
+#endif
+
 
 namespace lwr{
     // Custom FRI/KRL Cmds
@@ -53,7 +59,9 @@ namespace lwr{
 class RTTLWRAbstract : public RTT::TaskContext{
   public:
 	RTT::TaskContext* peer;
-
+#ifdef CONMAN
+    boost::shared_ptr<conman::Hook> conman_hook_;
+#endif
 
     /**
      * @brief Shared arrays from the remote pc to the KRC

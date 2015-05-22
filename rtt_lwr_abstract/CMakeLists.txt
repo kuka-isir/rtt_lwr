@@ -13,7 +13,11 @@ find_package(catkin REQUIRED COMPONENTS
     kdl_conversions
     lwr_fri
     cmake_modules
+    conman
 )
+
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS CONMAN)
+
 
 set(OROCOS_NO_AUTO_LINKING TRUE)
 
