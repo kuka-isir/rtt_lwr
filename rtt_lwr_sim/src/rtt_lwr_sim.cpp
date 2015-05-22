@@ -410,7 +410,7 @@ void LWRSim::updateHook() {
     // Read Commands from users
     jnt_trq_fs = port_JointTorqueCommand.read(jnt_trq_cmd_);
     jnt_pos_fs = port_JointPositionCommand.read(jnt_pos_cmd_);
-    port_JointImpedanceCommand.read(jnt_imp_cmd_);
+    //port_JointImpedanceCommand.read(jnt_imp_cmd_);
 
     read_duration = (rtt_rosclock::host_now().toSec() - read_start);
 
@@ -422,8 +422,8 @@ void LWRSim::updateHook() {
         qddot(j) = 0.0;
         //(j) = jnt_trq_[j];
     }
-    //for(unsigned int j=0;j<kdl_chain_.getNrOfSegments();++j)
-    //    f_ext[j] = KDL::Wrench::Zero();
+    for(unsigned int j=0;j<kdl_chain_.getNrOfSegments();++j)
+        f_ext[j] = KDL::Wrench::Zero();
     
     int ret_rne = id_rne_solver->CartToJnt(q.q,qdot,qddot,f_ext,jnt_trq_kdl_);
     if(ret_rne<0)
@@ -490,6 +490,7 @@ void LWRSim::updateHook() {
         for(unsigned int j=0; j < n_joints_; j++) {
             joint_torque_gazebo_cmd[j] = kp_[j]*(jnt_pos_cmd_[j]-jnt_pos_[j]) - kd_[j]*jnt_vel_[j] + jnt_trq_cmd_[j] + kg_[j]*G(j);
         }
+        port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
     }
     
     now = rtt_rosclock::host_now();
@@ -536,7 +537,6 @@ void LWRSim::updateHook() {
     
     port_JointStateCommand.write(joint_state_cmd_);
     
-    port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
     
     write_duration = (rtt_rosclock::host_now().toSec() - write_start);
     updatehook_duration = (rtt_rosclock::host_now().toSec() - read_start);
