@@ -12,6 +12,7 @@
 #include <lwr_fri/FriJointImpedance.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Wrench.h>
+#include <geometry_msgs/WrenchStamped.h>
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Int32.h>
 
@@ -48,8 +49,9 @@ namespace lwr{
         kg_(LBR_MNJ,1.0),
         robot_name_("lwr_sim"),
         velocity_smoothing_factor_(.95),
-        root_link("lwr/base_link"),
-        tip_link("lwr/lwr_7_link")
+        root_link("lwr_sim/link_0"),
+        tip_link("lwr_sim/link_7"),
+        use_sim_clock(true)
         {
 
             this->addProperty("fri_port", prop_fri_port).doc("");
@@ -57,6 +59,9 @@ namespace lwr{
             
             this->addProperty("root_link", root_link).doc("");
             this->addProperty("tip_link", tip_link).doc("");
+            
+            this->addProperty("use_sim_clock", use_sim_clock).doc("");
+            
             //this->addAttribute("fromKRL", m_fromKRL);
             //this->addAttribute("toKRL", m_toKRL);
             
@@ -88,6 +93,7 @@ namespace lwr{
             this->ports()->addPort("fromKRL",port_FromKRL).doc("");
             
             this->ports()->addPort("CartesianWrench", port_CartesianWrench).doc("");
+            this->ports()->addPort("CartesianWrenchStamped", port_CartesianWrenchStamped).doc("");
             this->ports()->addPort("RobotState", port_RobotState).doc("");
             this->ports()->addPort("FRIState", port_FRIState).doc("");
             this->ports()->addPort("JointVelocity", port_JointVelocity).doc("");
@@ -149,11 +155,13 @@ namespace lwr{
         
         RTT::OutputPort<tFriKrlData > port_FromKRL;
         RTT::OutputPort<geometry_msgs::Wrench > port_CartesianWrench;
+        RTT::OutputPort<geometry_msgs::WrenchStamped > port_CartesianWrenchStamped;
         RTT::OutputPort<tFriRobotState > port_RobotState;
         RTT::OutputPort<tFriIntfState > port_FRIState;
         RTT::OutputPort<Eigen::VectorXd > port_JointVelocity;
         RTT::OutputPort<geometry_msgs::Twist > port_CartesianVelocity;
         RTT::OutputPort<geometry_msgs::Pose > port_CartesianPosition;
+        RTT::OutputPort<geometry_msgs::PoseStamped > port_CartesianPositionStamped;
         RTT::OutputPort<Eigen::MatrixXd > port_MassMatrix;
         RTT::OutputPort<KDL::Jacobian > port_Jacobian;
         RTT::OutputPort<Eigen::VectorXd > port_JointTorque;
@@ -198,8 +206,10 @@ namespace lwr{
         KDL::Jacobian jac_;
 
         KDL::Frame T_old_;
+        geometry_msgs::PoseStamped cart_pos_stamped_;
         geometry_msgs::Pose cart_pos_, cart_pos_cmd_;
         geometry_msgs::Wrench cart_wrench_, cart_wrench_cmd_;
+        geometry_msgs::WrenchStamped cart_wrench_stamped_;
         geometry_msgs::Twist cart_twist_;
         Eigen::MatrixXd mass_;
         lwr_fri::FriJointImpedance jnt_imp_cmd_;
@@ -247,11 +257,13 @@ namespace lwr{
         RTT::OutputPort<sensor_msgs::JointState> port_JointStateDynamics;
         std::string root_link;
         std::string tip_link;
+        bool use_sim_clock;
     private:
     
     void initJointStateMsg(sensor_msgs::JointState& js,const unsigned int n_joints,const std::string& robot_name);
         //KDL Stuff
     KDL::Wrenches f_ext;
+    KDL::Wrenches f_ext_add;
     KDL::JntArray G,qdot,qddot,jnt_trq_kdl_,jnt_trq_kdl_add_;
     KDL::Wrench cart_wrench_kdl_;
     KDL::JntArrayVel q;

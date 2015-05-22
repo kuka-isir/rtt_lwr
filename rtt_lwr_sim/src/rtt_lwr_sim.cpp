@@ -3,6 +3,7 @@
 #include <rtt_lwr_sim/rtt_lwr_sim.hpp>
 #include<Eigen/Core>
 #include<Eigen/SVD>
+#include <Eigen/Dense>
 
 namespace Eigen{
 template<typename _Matrix_Type_>
@@ -98,7 +99,7 @@ void LWRSim::initJointStateMsg(sensor_msgs::JointState& js,const unsigned int n_
     for(unsigned int j=0; j < n_joints; j++){
         std::ostringstream ss;
         ss << j;
-        js.name.push_back(robot_name+"/"+robot_name+"_"+ss.str()+"_joint");
+        js.name.push_back(robot_name+"/"+"joint_"+ss.str());
         js.position.push_back(0.0);
         js.velocity.push_back(0.0);
         js.effort.push_back(0.0);
@@ -132,14 +133,18 @@ bool LWRSim::configureHook(){
     rosparam->setPrivate("robot_name");
     rosparam->getPrivate("root_link");
     rosparam->getPrivate("tip_link");
+    rosparam->getPrivate("use_sim_clock");
 
     RTT::log(RTT::Info)<<"root_link : "<<root_link<<RTT::endlog();
     RTT::log(RTT::Info)<<"tip_link : "<<tip_link<<RTT::endlog();
     
     KDL::Vector gravity_vector(0.,0.,-9.81289);
     
-    if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,root_link,tip_link,kdl_tree_,kdl_chain_))
+    if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,robot_name_,root_link,tip_link,kdl_tree_,kdl_chain_))
+    {
+        RTT::log(RTT::Error) << "Error while loading the URDF with params : "<<robot_name_<<" "<<root_link<<" "<<tip_link <<RTT::endlog();
         return false;
+    }
     
     ik_solver_vel.reset(new KDL::ChainIkSolverVel_pinv_nso(kdl_chain_));
     id_dyn_solver.reset(new KDL::ChainDynParam(kdl_chain_,gravity_vector));
@@ -149,6 +154,7 @@ bool LWRSim::configureHook(){
             
       // Pointeur is not null
     kukaLWR_DHnew = KukaLWR_DHnew();
+    f_ext_add.resize(kukaLWR_DHnew.getNrOfSegments());
     id_rne_solver_add_.reset(new KDL::ChainIdSolver_RNE(kukaLWR_DHnew,gravity_vector));
     // Overwrite kdl_chain_
     //kdl_chain_ = kukaLWR_DHnew;  
@@ -254,9 +260,11 @@ bool LWRSim::configureHook(){
     port_JointStateGravity.createStream(rtt_roscomm::topic("/"+this->getName()+"/joint_states_gravity"));
     port_JointStateDynamics.createStream(rtt_roscomm::topic("/"+this->getName()+"/joint_states_dynamics"));
         
-    port_CartesianPosition.createStream(rtt_roscomm::topic("/"+this->getName()+"/cartesian_pose"));
-    port_CartesianVelocity.createStream(rtt_roscomm::topic("/"+this->getName()+"/cartesian_twist"));
-    port_CartesianWrench.createStream(rtt_roscomm::topic("/"+this->getName()+"/cartesian_wrench"));
+    port_CartesianPositionStamped.createStream(rtt_roscomm::topic("/"+this->getName()+"/cartesian_pose"));
+    //port_CartesianVelocity.createStream(rtt_roscomm::topic("/"+this->getName()+"/cartesian_twist"));
+    //port_CartesianWrench.createStream(rtt_roscomm::topic("/"+this->getName()+"/cartesian_wrench"));
+    
+    port_CartesianWrenchStamped.createStream(rtt_roscomm::topic("/"+this->getName()+"/cartesian_wrench"));
     
     q.resize(n_joints_);
     f_ext.resize(kdl_chain_.getNrOfSegments());
@@ -271,6 +279,11 @@ bool LWRSim::configureHook(){
     fri_to_krl.intData[0] = FRI_STATE_MON;
     fri_from_krl.intData[0] = FRI_STATE_MON;
     
+    
+    if(use_sim_clock){
+        rtt_rosclock::use_ros_clock_topic();
+        rtt_rosclock::enable_sim();
+    }
     return true;
 }
 
@@ -422,6 +435,10 @@ void LWRSim::updateHook() {
         qddot(j) = 0.0;
         //(j) = jnt_trq_[j];
     }
+    
+    id_dyn_solver->JntToMass(q.q,H);
+    mass_ = H.data;
+    
     for(unsigned int j=0;j<kdl_chain_.getNrOfSegments();++j)
         f_ext[j] = KDL::Wrench::Zero();
     
@@ -429,7 +446,11 @@ void LWRSim::updateHook() {
     if(ret_rne<0)
         RTT::log(RTT::Error)<<"ERROR on id_rne_solver : "<<ret_rne<<RTT::endlog();
 
-    int ret_rne_add = id_rne_solver_add_->CartToJnt(q.q,qdot,qddot,f_ext,jnt_trq_kdl_add_);
+    
+    for(unsigned int j=0;j<kukaLWR_DHnew.getNrOfSegments();++j)
+        f_ext_add[j] = KDL::Wrench::Zero();
+    
+    int ret_rne_add = id_rne_solver_add_->CartToJnt(q.q,qdot,qddot,f_ext_add,jnt_trq_kdl_add_);
     if(ret_rne_add<0)
         RTT::log(RTT::Error)<<"ERROR on ret_rne_add : "<<ret_rne_add<<RTT::endlog();
     
@@ -458,6 +479,9 @@ void LWRSim::updateHook() {
     cart_pos_.position.y = endPos[1];
     cart_pos_.position.z = endPos[2];
     
+    cart_pos_stamped_.header.frame_id = root_link;
+    cart_pos_stamped_.pose = cart_pos_;
+    
     endRot.GetQuaternion(cart_pos_.orientation.x,
                          cart_pos_.orientation.y,
                          cart_pos_.orientation.z,
@@ -481,9 +505,8 @@ void LWRSim::updateHook() {
     cart_wrench_.torque.z = cart_wrench_kdl_.torque.z();
     //cart_wrench_; // TODO: GET DATA FROM ATI SENSOR
     
-    id_dyn_solver->JntToMass(q.q,H);
-    
-    mass_ = H.data;
+    cart_wrench_stamped_.header.frame_id = tip_link;
+    cart_wrench_stamped_.wrench = cart_wrench_;
     
     if(jnt_pos_fs != RTT::NoData || jnt_trq_fs != RTT::NoData){
         //Impedance Control
@@ -494,8 +517,11 @@ void LWRSim::updateHook() {
     }
     
     now = rtt_rosclock::host_now();
+       
     write_start = now.toNSec();
     //Update status
+    cart_pos_stamped_.header.stamp = now;
+    cart_wrench_stamped_.header.stamp = now;
     joint_state_.header.stamp = now;
     joint_state_filtered_.header.stamp = now;
     joint_state_cmd_.header.stamp = now;
@@ -516,7 +542,7 @@ void LWRSim::updateHook() {
         joint_state_filtered_.velocity[j] = velocity_smoothing_factor_*(jnt_pos_[j]-joint_state_filtered_.position[j])/this->getPeriod() + (1.0-velocity_smoothing_factor_)*joint_state_filtered_.velocity[j];
     }
     Eigen::Map<Eigen::VectorXd>(joint_state_filtered_.position.data(),n_joints_) = jnt_pos_;
-    Eigen::Map<Eigen::VectorXd>(joint_state_filtered_.effort.data(),n_joints_) = jnt_trq_;
+    //Eigen::Map<Eigen::VectorXd>(joint_state_filtered_.effort.data(),n_joints_) = jnt_trq_;
     
     port_JointState.write(joint_state_);
     port_JointStateFiltered.write(joint_state_filtered_);
@@ -529,9 +555,11 @@ void LWRSim::updateHook() {
     port_GravityTorque.write(grav_trq_);
 
     port_CartesianPosition.write(cart_pos_);
+    port_CartesianPositionStamped.write(cart_pos_stamped_);
     port_CartesianVelocity.write(cart_twist_);
     port_CartesianWrench.write(cart_wrench_);
-
+    port_CartesianWrenchStamped.write(cart_wrench_stamped_);
+    
     port_Jacobian.write(jac_);
     port_MassMatrix.write(mass_);
     
