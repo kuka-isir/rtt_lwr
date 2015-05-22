@@ -129,6 +129,9 @@ class RTTLWRAbstract : public RTT::TaskContext{
     RTT::Attribute<tFriKrlData> m_toKRL;
     KDL::Jacobian J;
     KDL::Frame T_old;
+    unsigned int n_joints_;
+    
+    const unsigned int getNJoints()const{return n_joints_;}
 
     bool sendJointCommand(RTT::OutputPort<Eigen::VectorXd>& port_cmd,const Eigen::VectorXd& jnt_cmd); 
     int getToolKRL();
