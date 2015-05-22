@@ -1,26 +1,26 @@
 <?xml version="1.0"?>
 <launch>
-<arg name="prefix" default="lwr"/>
+<arg name="prefix" default="lwr_sim"/>
 
-<include file="$(find lwr_description)/launch/lwr_upload.launch">
-	<arg name="prefix" value="$(arg prefix)"/>
-</include>
+
 
 <node pkg="rviz" type="rviz" output="screen" name="rviz" />
 
 <group ns="$(arg prefix)">
 
-
-	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen"/>
+        <include file="$(find lwr_description)/launch/lwr_upload.launch">
+                <arg name="prefix" value="$(arg prefix)"/>
+        </include>
+        
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">
+        </node>
 
 	<node pkg="joint_state_publisher" type="joint_state_publisher" output="screen" name="joint_state_publisher">
 		<param name="use_gui" value="true"/>	
 		<param name="publish_default_velocities" value="true"/>
 		<param name="publish_default_efforts" value="true"/>
 		<param name="rate" value="100"/>
-		<remap from="robot_description" to="/robot_description"/>
+		<!--remap from="robot_description" to="/robot_description"/-->
 	</node>
-
-
 </group>
 </launch>

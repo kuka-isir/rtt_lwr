@@ -13,30 +13,24 @@
   <!-- materials for visualization -->
   <xacro:include filename="$(find lwr_description)/urdf/materials.urdf.xacro" />
 
-  <!-- world + base link-->
+  <!-- world-->
   <link name="world"/>
-  <link name="$(arg prefix)/base_link"/>
 
-  <joint name="$(arg prefix)/base_joint" type="fixed">
-    <parent link="world" />
-    <child link="$(arg prefix)/base_link" />
-  </joint>
-
-  <gazebo reference="$(arg prefix)/base_link">
+  <gazebo reference="world">
     <static>true</static>>
   </gazebo>
 
 <xacro:macro name="tool">
-      <link name="$(arg prefix)/kuka_polaris"/>
+      <link name="$(arg prefix)/polaris"/>
       <joint name="$(arg prefix)/tool_joint" type="fixed">
-         <parent link="$(arg prefix)/${name}_7_link" />
-         <child link="$(arg prefix)/kuka_polaris" />
+         <parent link="$(arg prefix)/link_7" />
+         <child link="$(arg prefix)/polaris" />
 	       <origin xyz="0 0 0.055" rpy="0 0 0" />
       </joint>
 </xacro:macro>
 
   <!--lbr-->
-  <xacro:lwr prefix="$(arg prefix)" name="${name}" parent="$(arg prefix)/base_link">
+  <xacro:lwr prefix="$(arg prefix)" name="${name}" parent="world">
     <!-- Position from origin -->
     <origin xyz="0 0 0.01" rpy="0 0 ${2*M_PI/3}" />
   </xacro:lwr>

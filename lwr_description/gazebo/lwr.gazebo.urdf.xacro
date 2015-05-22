@@ -14,42 +14,42 @@
 			</plugin>
   		</gazebo>
 
-		<gazebo reference="${prefix}/${name}_0_link">
+		<gazebo reference="${prefix}/link_0">
 			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
 		</gazebo>
 
-		<gazebo reference="${prefix}/${name}_1_link">
+		<gazebo reference="${prefix}/link_1">
 			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
 		</gazebo>
 
-		<gazebo reference="${prefix}/${name}_2_link">
+		<gazebo reference="${prefix}/link_2">
 			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
 		</gazebo>
 
-		<gazebo reference="${prefix}/${name}_3_link">
+		<gazebo reference="${prefix}/link_3">
 			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
 		</gazebo>
 
-		<gazebo reference="${prefix}/${name}_4_link">
+		<gazebo reference="${prefix}/link_4">
 			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
 		</gazebo>
 
-		<gazebo reference="${prefix}/${name}_5_link">
+		<gazebo reference="${prefix}/link_5">
 			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
 		</gazebo>
 
-		<gazebo reference="${prefix}/${name}_6_link">
+		<gazebo reference="${prefix}/link_6">
 			<gravity>true</gravity>
 			<material>Gazebo/Grey</material>
 		</gazebo>
 
-		<gazebo reference="${prefix}/${name}_7_link">
+		<gazebo reference="${prefix}/link_7">
 			<gravity>true</gravity>
 			<material>Gazebo/Grey</material>
 		</gazebo>

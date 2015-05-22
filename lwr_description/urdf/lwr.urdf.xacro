@@ -30,7 +30,7 @@
 
 
   <!-- Gazebo joint configuration -->
-  <xacro:macro name="gz_joint">
+  <xacro:macro  name="gz_joint">
     <provideFeedback>true</provideFeedback>
     <!--implicitSpringDamper>true</implicitSpringDamper-->
     <!--<kp>0.0</kp>[> CFM <]-->
@@ -42,16 +42,16 @@
    <xacro:macro name="lwr" params="parent name prefix *origin ">
 
       <!-- joint between {parent} and lwr_0_link -->
-      <joint name="${prefix}/${parent}_base" type="fixed">
-        <gazebo reference="${prefix}/${parent}_base">
+      <joint name="${prefix}/joint_base" type="fixed">
+        <gazebo reference="${prefix}/joint_base">
           <xacro:gz_joint/>
         </gazebo>
 
          <xacro:insert_block name="origin" />
          <parent link="${parent}" />
-         <child link="${prefix}/${name}_0_link" />
+         <child link="${prefix}/link_0" />
       </joint>
-      <link name="${prefix}/${name}_0_link">
+      <link name="${prefix}/link_0">
           <inertial>
             <origin
               xyz="-0.000638499331014356 5.02538509694617E-06 0.0482289968116927"
@@ -81,20 +81,20 @@
          </collision>
       </link>
       <!-- joint between lwr_0_link and lwr_1_link -->
-      <joint name="${prefix}/${name}_0_joint" type="revolute">
-        <gazebo reference="${prefix}/${name}_0_joint">
+      <joint name="${prefix}/joint_0" type="revolute">
+        <gazebo reference="${prefix}/joint_0">
           <xacro:gz_joint/>
         </gazebo>
 
-         <parent link="${prefix}/${name}_0_link" />
-         <child link="${prefix}/${name}_1_link" />
+         <parent link="${prefix}/link_0" />
+         <child link="${prefix}/link_1" />
          <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}" effort="${effort_scale * 200}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
 
          <dynamics friction="0" damping="${d0}"/>
          <origin xyz="0 0 0.102" rpy="0 0 0" />
          <axis xyz="0 0 1" />
       </joint>
-      <link name="${prefix}/${name}_1_link">
+      <link name="${prefix}/link_1">
           <inertial>
             <origin
               xyz="-6.33965437334127E-08 0.0233273473346096 0.118146290406178"
@@ -124,20 +124,20 @@
          </collision>
       </link>
       <!-- joint between lwr_1_link and lwr_2_link -->
-      <joint name="${prefix}/${name}_1_joint" type="revolute">
-        <gazebo reference="${prefix}/${name}_1_joint">
+      <joint name="${prefix}/joint_1" type="revolute">
+        <gazebo reference="${prefix}/joint_1">
           <xacro:gz_joint/>
         </gazebo>
 
-         <parent link="${prefix}/${name}_1_link" />
-         <child link="${prefix}/${name}_2_link" />
+         <parent link="${prefix}/link_1" />
+         <child link="${prefix}/link_2" />
          <limit lower="${-120 * M_PI / 180}" upper="${120 * M_PI / 180}" effort="${effort_scale * 200}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
 
          <dynamics friction="0" damping="${d1}"/>
          <origin xyz="0 0.0 0.2085" rpy="0 0 0" />
          <axis xyz="0 -1 0" />
       </joint>
-      <link name="${prefix}/${name}_2_link">
+      <link name="${prefix}/link_2">
     <inertial>
       <origin
         xyz="1.26774962153076E-06 -0.032746486541291 0.0736556727355962"
@@ -175,20 +175,20 @@
          </collision>
       </link>
       <!-- joint between lwr_2_link and lwr_3_link -->
-      <joint name="${prefix}/${name}_2_joint" type="revolute">
-        <gazebo reference="${prefix}/${name}_2_joint">
+      <joint name="${prefix}/joint_2" type="revolute">
+        <gazebo reference="${prefix}/joint_2">
           <xacro:gz_joint/>
         </gazebo>
 
-         <parent link="${prefix}/${name}_2_link" />
-         <child link="${prefix}/${name}_3_link" />
+         <parent link="${prefix}/link_2" />
+         <child link="${prefix}/link_3" />
          <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}" effort="${effort_scale * 100}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
 
          <dynamics friction="0" damping="${d2}"/>
          <origin xyz="0 0 0.1915" rpy="0 0 0" />
          <axis xyz="0 0 1" />
       </joint>
-      <link name="${prefix}/${name}_3_link">
+      <link name="${prefix}/link_3">
     <inertial>
       <origin
         xyz="-1.40921289121243E-06 -0.0233297626126898 0.11815047247629"
@@ -218,20 +218,20 @@
          </collision>
       </link>
       <!-- joint between lwr_3_link and lwr_4_link -->
-      <joint name="${prefix}/${name}_3_joint" type="revolute">
-        <gazebo reference="${prefix}/${name}_3_joint">
+      <joint name="${prefix}/joint_3" type="revolute">
+        <gazebo reference="${prefix}/joint_3">
           <xacro:gz_joint/>
         </gazebo>
 
-         <parent link="${prefix}/${name}_3_link" />
-         <child link="${prefix}/${name}_4_link" />
+         <parent link="${prefix}/link_3" />
+         <child link="${prefix}/link_4" />
          <limit lower="${-120 * M_PI / 180}" upper="${120 * M_PI / 180}" effort="${effort_scale * 100}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
 
          <dynamics friction="0" damping="${d3}"/>
          <origin xyz="0 0 0.2085" rpy="0 0 0" />
          <axis xyz="0 1 0" />
       </joint>
-      <link name="${prefix}/${name}_4_link">
+      <link name="${prefix}/link_4">
     <inertial>
       <origin
         xyz="1.12239473548659E-07 0.0327442387470235 0.073658815701594"
@@ -261,20 +261,20 @@
          </collision>
       </link>
       <!-- joint between lwr_4_link and lwr_5_link -->
-      <joint name="${prefix}/${name}_4_joint" type="revolute">
-        <gazebo reference="${prefix}/${name}_4_joint">
+      <joint name="${prefix}/joint_4" type="revolute">
+        <gazebo reference="${prefix}/joint_4">
           <xacro:gz_joint/>
         </gazebo>
 
-         <parent link="${prefix}/${name}_4_link" />
-         <child link="${prefix}/${name}_5_link" />
+         <parent link="${prefix}/link_4" />
+         <child link="${prefix}/link_5" />
          <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}" effort="${effort_scale * 100}" velocity="${velocity_scale * 180.0 * M_PI / 180}" />
 
          <dynamics friction="0" damping="${d4}"/>
          <origin xyz="0 0.0 0.1915" rpy="0 0 0" />
          <axis xyz="0 0 1" />
       </joint>
-      <link name="${prefix}/${name}_5_link">
+      <link name="${prefix}/link_5">
     <inertial>
       <origin
         xyz="-6.00824789920296E-07 0.0207751869661564 0.0862053948486382"
@@ -304,20 +304,20 @@
          </collision>
       </link>
       <!-- joint between lwr_5_link and lwr_6_link -->
-      <joint name="${prefix}/${name}_5_joint" type="revolute">
-        <gazebo reference="${prefix}/${name}_5_joint">
+      <joint name="${prefix}/joint_5" type="revolute">
+        <gazebo reference="${prefix}/joint_5">
           <xacro:gz_joint/>
         </gazebo>
 
-         <parent link="${prefix}/${name}_5_link" />
-         <child link="${prefix}/${name}_6_link" />
+         <parent link="${prefix}/link_5" />
+         <child link="${prefix}/link_6" />
          <limit lower="${-120 * M_PI / 180}" upper="${120 * M_PI / 180}" effort="${effort_scale * 30}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
 
          <dynamics friction="0" damping="${d5}"/>
          <origin xyz="0 0 0.1985" rpy="0 0 0" />
          <axis xyz="0 -1 0" />
       </joint>
-      <link name="${prefix}/${name}_6_link">
+      <link name="${prefix}/link_6">
     <inertial>
       <origin
         xyz="-2.64519244286276E-08 -0.00451753627467652 -0.00295324741635017"
@@ -347,19 +347,19 @@
          </collision>
       </link>
       <!-- joint between lwr_6_link and lwr_7_link -->
-      <joint name="${prefix}/${name}_6_joint" type="revolute">
-        <gazebo reference="${prefix}/${name}_6_joint">
+      <joint name="${prefix}/joint_6" type="revolute">
+        <gazebo reference="${prefix}/joint_6">
           <xacro:gz_joint/>
         </gazebo>
 
-         <parent link="${prefix}/${name}_6_link" />
-         <child link="${prefix}/${name}_7_link" />
+         <parent link="${prefix}/link_6" />
+         <child link="${prefix}/link_7" />
          <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}" effort="${effort_scale * 30}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
          <dynamics friction="0" damping="${d6}"/>
          <origin xyz="0 0 0.078" rpy="0 0 0" />
          <axis xyz="0 0 1" />
       </joint>
-      <link name="${prefix}/${name}_7_link">
+      <link name="${prefix}/link_7">
     <inertial>
       <origin
         xyz="2.77555756156289E-17 1.11022302462516E-16 -0.015814675599801"
@@ -388,8 +388,5 @@
             </geometry>
          </collision>
       </link>
-      <!-- Tool macro -->
-      <xacro:tool/>
-
    </xacro:macro>
 </robot>
