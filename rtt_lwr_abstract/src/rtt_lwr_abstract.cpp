@@ -4,11 +4,12 @@
 #include "rtt_lwr_abstract/rtt_lwr_abstract.hpp"
 using namespace lwr;
 
-RTTLWRAbstract::RTTLWRAbstract(std::string const& name) : RTT::TaskContext(name),robot_name("lwr"),jnt_pos_bdf(7){
+RTTLWRAbstract::RTTLWRAbstract(std::string const& name) : RTT::TaskContext(name),robot_name("lwr"),jnt_pos_bdf(7),n_joints_(LBR_MNJ){
     
     //this->addAttribute("fromKRL", m_fromKRL);
     //this->addAttribute("toKRL", m_toKRL);
-    this->addAttribute("robot_name",robot_name);
+    this->addProperty("robot_name",robot_name);
+    this->addProperty("n_joints",n_joints_);
     
     this->ports()->addPort("CartesianImpedanceCommand", port_CartesianImpedanceCommand).doc("");
     this->ports()->addPort("CartesianWrenchCommand", port_CartesianWrenchCommand).doc("");
