@@ -37,7 +37,7 @@ before_install:
   - popd
   - wget https://raw.githubusercontent.com/IDSCETHZurich/re_trajectory-generator/master/kuka_IK/include/friComm.h
   - mv friComm.h ~/ws/src/rtt_lwr/lwr_hardware/kuka_lwr_fri/include/kuka_lwr_fri/friComm.h
-#  - rosdep install -r --from-paths ~/ws/src --ignore-src --rosdistro $ROS_DISTRO -y > /dev/null
+  - rosdep install -r --from-paths ~/ws/src --ignore-src --rosdistro $ROS_DISTRO -y
   # Currently waiting for this rosdep rule to be merged
   - sudo apt-get install -qq google-mock lcov
   - sudo pip install cpp-coveralls --use-mirrors
