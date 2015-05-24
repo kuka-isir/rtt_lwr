@@ -50,6 +50,7 @@ before_install:
   - git clone https://github.com/jhu-lcsr/rtt_ros_control.git
   - git clone https://github.com/jhu-lcsr/rtt_gazebo
   - git clone https://github.com/kuka-isir/rtt_ros_kdl_tools
+  - git clone https://github.com/orocos/rtt_geometry.git
   - popd
   - wget https://raw.githubusercontent.com/IDSCETHZurich/re_trajectory-generator/master/kuka_IK/include/friComm.h
   - mv friComm.h ~/ws/src/rtt_lwr/lwr_hardware/kuka_lwr_fri/include/kuka_lwr_fri/friComm.h
