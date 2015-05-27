@@ -23,7 +23,6 @@
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Wrench.h>
 #include <geometry_msgs/Twist.h>
-#include <std_msgs/Int32.h>
 
 #include <tf_conversions/tf_kdl.h>
 
@@ -41,7 +40,6 @@
 #include <boost/circular_buffer.hpp>
 #include <boost/foreach.hpp>
 #include <boost/assign.hpp>
-#include <std_msgs/Int32.h>
 
 #ifdef CONMAN
 #include <conman/conman.h>
@@ -242,6 +240,9 @@ class RTTLWRAbstract : public RTT::TaskContext{
     /** @brief Return the gravity torque
      */
     bool getGravityTorque(Eigen::VectorXd& gravity_torque);
+    /** @brief Return the estimated joint velocity
+     */
+    bool getJointVelocity(Eigen::VectorXd& joint_velocity);
 
     /** @brief Return the current configuration of the robot
      */
@@ -250,9 +251,9 @@ class RTTLWRAbstract : public RTT::TaskContext{
     /** @brief Return the estimated external joint torque
      */
     bool getJointTorque(Eigen::VectorXd& joint_torque);
-        /** @brief Return the actuator joint torque
+        /** @brief Return the actuator joint torque seem by the motor
      */
-    Eigen::VectorXd getJointTorqueAct();
+    bool getJointTorqueRaw(Eigen::VectorXd& joint_torque_raw);
 
     /** @brief Return the estimated external tool center point wrench
      */
@@ -260,10 +261,13 @@ class RTTLWRAbstract : public RTT::TaskContext{
 
     /** @brief Send Joint position in radians
      */
-    bool sendJointPosition(Eigen::VectorXd& joint_position_cmd);
+    bool sendJointPosition(const Eigen::VectorXd& joint_position_cmd);
+    /** @brief Send Joint Impedance gains
+     */
+    bool sendJointImpedance(const lwr_fri::FriJointImpedance& joint_impedance_cmd);
     /** @brief Send Joint Torque in N.m
      */
-    bool sendJointTorque(Eigen::VectorXd& joint_torque_cmd);
+    bool sendJointTorque(const Eigen::VectorXd& joint_torque_cmd);
         
     /** @brief Set the Position Control Mode 10
      */

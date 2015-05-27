@@ -440,6 +440,25 @@ bool RTTLWRAbstract::getCartesianWrench(geometry_msgs::Wrench& cart_wrench){
         RTT::log(RTT::Warning)<<"port_CartesianWrench not connected"<<RTT::endlog();
     port_CartesianWrench.read(cart_wrench) != RTT::NoData;
 }
+bool RTTLWRAbstract::getJointVelocity(Eigen::VectorXd& joint_velocity)
+{
+    if (port_JointVelocity.connected() == false)
+        RTT::log(RTT::Warning)<<"port_JointVelocity not connected"<<RTT::endlog();
+    port_JointVelocity.read(joint_velocity) != RTT::NoData;
+}
+bool RTTLWRAbstract::getJointTorqueRaw(Eigen::VectorXd& joint_torque_raw)
+{
+    if (port_JointTorqueRaw.connected() == false)
+        RTT::log(RTT::Warning)<<"port_JointTorqueRaw not connected"<<RTT::endlog();
+    port_JointTorqueRaw.read(joint_torque_raw) != RTT::NoData;
+}
+bool RTTLWRAbstract::sendJointImpedance(const lwr_fri::FriJointImpedance& joint_impedance_cmd)
+{
+    if(port_JointImpedanceCommand.connected() == false)
+        RTT::log(RTT::Warning)<<"port_JointImpedanceCommand not connected"<<RTT::endlog();
+    port_JointImpedanceCommand.write(joint_impedance_cmd);
+    return true;
+}
 
 bool RTTLWRAbstract::sendJointCommand(RTT::OutputPort< Eigen::VectorXd >& port_cmd, const Eigen::VectorXd& jnt_cmd)
 {
@@ -458,10 +477,10 @@ bool RTTLWRAbstract::sendJointCommand(RTT::OutputPort< Eigen::VectorXd >& port_c
 }
 
 
-bool RTTLWRAbstract::sendJointPosition(Eigen::VectorXd& joint_position_cmd){
+bool RTTLWRAbstract::sendJointPosition(const Eigen::VectorXd& joint_position_cmd){
     return this->sendJointCommand(this->port_JointPositionCommand,joint_position_cmd);
 }
-bool RTTLWRAbstract::sendJointTorque(Eigen::VectorXd& joint_torque_cmd)
+bool RTTLWRAbstract::sendJointTorque(const Eigen::VectorXd& joint_torque_cmd)
 {
     return this->sendJointCommand(this->port_JointTorqueCommand,joint_torque_cmd);
 }
