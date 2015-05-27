@@ -77,6 +77,7 @@ bool RTTLWRAbstract::configureHook(){
     jnt_pos_cmd.resize(LBR_MNJ);
     jnt_trq_cmd.resize(LBR_MNJ);
     J.resize(LBR_MNJ);
+    jnt_grav.resize(LBR_MNJ);
 
     jnt_pos_cmd.setZero();
     jnt_trq_cmd.setZero();
@@ -189,6 +190,21 @@ void RTTLWRAbstract::stopHook(){
 void RTTLWRAbstract::doStop(){
     friStop();
     //stopKrlScript();
+}
+bool RTTLWRAbstract::isCommandMode()
+{
+    port_FRIState.read(fri_state);
+    return static_cast<FRI_STATE>(fri_state.state)==FRI_STATE_CMD;
+}
+bool RTTLWRAbstract::isMonitorMode()
+{
+    port_FRIState.read(fri_state);
+    return static_cast<FRI_STATE>(fri_state.state)==FRI_STATE_MON;
+}
+bool RTTLWRAbstract::isPowerOn()
+{
+    port_RobotState.read(robot_state);
+    return robot_state.power!=0;
 }
 
 void RTTLWRAbstract::cleanupHook(){}
@@ -318,37 +334,37 @@ void RTTLWRAbstract::stopKrlScript(){
 
 void RTTLWRAbstract::initializeCommand(){
     //Get current joint position and set it as desired position
-    if (port_JointPositionCommand.connected()){
+    /*if (port_JointPositionCommand.connected()){
         Eigen::VectorXd measured_jointPosition;
         measured_jointPosition.resize(LBR_MNJ);
         RTT::FlowStatus measured_jointPosition_fs = port_JointPosition.read(measured_jointPosition);
         if (measured_jointPosition_fs == RTT::NewData){
             port_JointPositionCommand.write(measured_jointPosition);
         }
-    }
+    }*/
 
-    if(port_CartesianPositionCommand.connected()){
+    /*if(port_CartesianPositionCommand.connected()){
         //Get cartesian position and set it as desired position
         geometry_msgs::Pose cartPosData;
         RTT::FlowStatus cart_pos_fs = port_CartesianPosition.read(cartPosData);
         if (cart_pos_fs == RTT::NewData){
             port_CartesianPositionCommand.write(cartPosData);
         }
-    }
+    }*/
 
-    if(port_CartesianWrenchCommand.connected()){
+    /*if(port_CartesianWrenchCommand.connected()){
         //Send 0 torque and force
         port_CartesianWrench.read(cart_wrench);
         geometry_msgs::Wrench cart_wrench_command; // Init at 0.0
         port_CartesianWrenchCommand.write(cart_wrench_command);
-    }
+    }*/
 
-    if (port_JointTorqueCommand.connected()){
+    /*if (port_JointTorqueCommand.connected()){
         //Send 0 joint torque
         Eigen::VectorXd joint_eff_command;
         joint_eff_command.resize(LBR_MNJ);
         port_JointTorqueCommand.write(joint_eff_command);
-    }
+    }*/
 
     if (port_JointImpedanceCommand.connected()){
         lwr_fri::FriJointImpedance joint_impedance_command;
@@ -359,6 +375,27 @@ void RTTLWRAbstract::initializeCommand(){
         port_JointImpedanceCommand.write(joint_impedance_command);
     }
     
+    if (port_CartesianImpedanceCommand.connected()){
+        lwr_fri::CartesianImpedance c_imp;
+            // Defaults in Kuka manual
+        c_imp.stiffness.linear.x = 2000;
+        c_imp.stiffness.linear.y = 2000;
+        c_imp.stiffness.linear.z = 2000;
+        
+        c_imp.stiffness.angular.x = 200;
+        c_imp.stiffness.angular.y = 200;
+        c_imp.stiffness.angular.z = 200;
+        
+        c_imp.damping.linear.x = 0.7; 
+        c_imp.damping.linear.y = 0.7;
+        c_imp.damping.linear.z = 0.7;
+        
+        c_imp.damping.angular.x = 0.7; 
+        c_imp.damping.angular.y = 0.7;
+        c_imp.damping.angular.z = 0.7;     
+        
+        port_CartesianImpedanceCommand.write(c_imp);
+    }   
 }
 
 bool RTTLWRAbstract::getCartesianPosition(geometry_msgs::Pose& cart_position){
@@ -423,6 +460,10 @@ bool RTTLWRAbstract::sendJointCommand(RTT::OutputPort< Eigen::VectorXd >& port_c
 
 bool RTTLWRAbstract::sendJointPosition(Eigen::VectorXd& joint_position_cmd){
     return this->sendJointCommand(this->port_JointPositionCommand,joint_position_cmd);
+}
+bool RTTLWRAbstract::sendJointTorque(Eigen::VectorXd& joint_torque_cmd)
+{
+    return this->sendJointCommand(this->port_JointTorqueCommand,joint_torque_cmd);
 }
 
 void RTTLWRAbstract::estimateVelocityBDF(unsigned int order,const double dt,const boost::circular_buffer<Eigen::VectorXd>& x_states,Eigen::VectorXd& xd)

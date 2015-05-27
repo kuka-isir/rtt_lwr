@@ -116,7 +116,7 @@ class RTTLWRAbstract : public RTT::TaskContext{
     Eigen::VectorXd jnt_trq;
     Eigen::VectorXd jnt_trq_raw;
     Eigen::VectorXd jnt_pos_fri_offset;
-    Eigen::VectorXd G;
+    Eigen::VectorXd jnt_grav;
     Eigen::VectorXd jnt_vel;
     std::string robot_name;
     // Backward differentiation formula buffer : http://en.wikipedia.org/wiki/Backward_differentiation_formula
@@ -261,7 +261,10 @@ class RTTLWRAbstract : public RTT::TaskContext{
     /** @brief Send Joint position in radians
      */
     bool sendJointPosition(Eigen::VectorXd& joint_position_cmd);
-    
+    /** @brief Send Joint Torque in N.m
+     */
+    bool sendJointTorque(Eigen::VectorXd& joint_torque_cmd);
+        
     /** @brief Set the Position Control Mode 10
      */
     void setJointPositionControlMode(){setControlStrategy(10*FRI_CTRL_POSITION);}
@@ -273,6 +276,9 @@ class RTTLWRAbstract : public RTT::TaskContext{
     /** @brief Set the Cartesian Impedance Control Mode 20
      */
     void setCartesianImpedanceControlMode(){setControlStrategy(10*FRI_CTRL_CART_IMP);}
+    bool isCommandMode();
+    bool isMonitorMode();
+    bool isPowerOn();
 };
 }
 #endif
