@@ -7,12 +7,13 @@
 <arg name="TAO" default="false"/>
 <arg name="prefix" default="lwr_sim"/>
 <arg name="ops_script" default="$(find rtt_lwr_gazebo)/scripts/lwr_gazebo.ops"/>
+<arg name="use_sim_time" default="true"/>
 <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
 <include file="$(find rtt_lwr_gazebo)/launch/empty_world.launch">
 	<arg name="debug" value="$(arg debug)" />
 	<arg name="gui" value="$(arg gui)" />
 	<arg name="paused" value="false"/>
-	<arg name="use_sim_time" value="true"/>
+	<arg name="use_sim_time" value="$(arg use_sim_time)"/>
 	<arg name="headless" value="false"/>
 </include>
 
