@@ -35,6 +35,15 @@
 
 #include <rtt_ros_kdl_tools/tools.hpp>
 #include <boost/scoped_ptr.hpp>
+
+inline float clamp(float x, float a, float b)
+
+{
+
+    return x < a ? a : (x > b ? b : x);
+
+}
+
 namespace lwr{
     
     class LWRSim : public RTT::TaskContext{
@@ -259,7 +268,7 @@ namespace lwr{
         std::string tip_link;
         bool use_sim_clock;
     private:
-    
+    void updateImpedance(const lwr_fri::FriJointImpedance& impedance);
     void initJointStateMsg(sensor_msgs::JointState& js,const unsigned int n_joints,const std::string& robot_name);
         //KDL Stuff
     KDL::Wrenches f_ext;

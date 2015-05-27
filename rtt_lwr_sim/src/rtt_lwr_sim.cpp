@@ -365,6 +365,17 @@ bool LWRSim::setImpedance(const std::vector< double >& stiffness, const std::vec
     kp_=stiffness;
     return true;
 }
+void LWRSim::updateImpedance(const lwr_fri::FriJointImpedance& impedance)
+{
+    kp_[0] = clamp(impedance.stiffness[0],0.0,450.0);   kd_[0] = clamp(impedance.damping[0],0.0,1.0);
+    kp_[1] = clamp(impedance.stiffness[1],0.0,450.0);   kd_[1] = clamp(impedance.damping[1],0.0,1.0);
+    kp_[2] = clamp(impedance.stiffness[2],0.0,200.0);   kd_[2] = clamp(impedance.damping[2],0.0,0.7);
+    kp_[3] = clamp(impedance.stiffness[3],0.0,200.0);   kd_[3] = clamp(impedance.damping[3],0.0,0.7);
+    kp_[4] = clamp(impedance.stiffness[4],0.0,200.0);   kd_[4] = clamp(impedance.damping[4],0.0,0.7);
+    kp_[5] = clamp(impedance.stiffness[5],0.0,10.0);   kd_[5] = clamp(impedance.damping[5],0.0,0.1);
+    kp_[6] = clamp(impedance.stiffness[6],0.0,10.0);   kd_[6] = clamp(impedance.damping[6],0.0,0.0);
+    
+}
 
 void LWRSim::updateHook() {
     read_start = rtt_rosclock::host_now().toSec();
@@ -398,12 +409,15 @@ void LWRSim::updateHook() {
             case FRI_CTRL_JNT_IMP:
             case FRI_CTRL_CART_IMP:
                 fri_state.state = fri_from_krl.intData[0] = FRI_STATE_CMD;
+                robot_state.power = 1;
                 break;
             case FRI_CTRL_OTHER:
                 fri_state.state = fri_from_krl.intData[0] = FRI_STATE_MON;
+                robot_state.power = 0;
                 break;
             default:
                 fri_state.state = fri_from_krl.intData[0] = FRI_STATE_OFF;
+                robot_state.power = 0;
                 break;
         }
     port_FromKRL.write(fri_from_krl);
@@ -423,7 +437,18 @@ void LWRSim::updateHook() {
     // Read Commands from users
     jnt_trq_fs = port_JointTorqueCommand.read(jnt_trq_cmd_);
     jnt_pos_fs = port_JointPositionCommand.read(jnt_pos_cmd_);
-    //port_JointImpedanceCommand.read(jnt_imp_cmd_);
+    
+    if(jnt_trq_fs != RTT::NewData)
+        jnt_trq_cmd_.setZero();
+
+    if(jnt_pos_fs != RTT::NewData)
+        jnt_pos_cmd_.setZero();
+    
+    if(port_JointImpedanceCommand.read(jnt_imp_cmd_) != RTT::NoData)
+    {
+        updateImpedance(jnt_imp_cmd_);
+    }
+    
 
     read_duration = (rtt_rosclock::host_now().toSec() - read_start);
 
