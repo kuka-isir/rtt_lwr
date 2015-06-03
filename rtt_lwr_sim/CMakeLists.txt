@@ -19,7 +19,13 @@ find_package(catkin REQUIRED COMPONENTS
   kdl_parser
   lwr_fri
   rtt_ros_kdl_tools
+  tf
+  kdl_conversions
+  eigen_conversions
+  conman
 )
+set_property(DIRECTORY ${PROJECT_SOURCE_DIR} APPEND PROPERTY COMPILE_DEFINITIONS CONMAN)
+
 find_package(Eigen REQUIRED)
 find_package(orocos_kdl REQUIRED)
 

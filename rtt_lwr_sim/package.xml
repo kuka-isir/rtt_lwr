@@ -25,11 +25,16 @@
   <build_depend>message_generation</build_depend>
   <build_depend>orocos_kdl</build_depend>
   <build_depend>kdl_conversions</build_depend>
+  <build_depend>eigen_conversions</build_depend>
   <build_depend>kdl_typekit</build_depend>
   <build_depend>eigen_typekit</build_depend>
   <build_depend>lwr_fri</build_depend>
   <build_depend>rtt_ros_kdl_tools</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>conman</build_depend>
   
+  <run_depend>conman</run_depend>
+  <run_depend>tf</run_depend>
   <run_depend>rtt_ros_kdl_tools</run_depend>
   <run_depend>rtt</run_depend>
   <run_depend>kdl_typekit</run_depend>
@@ -44,6 +49,7 @@
   <run_depend>message_runtime</run_depend>
   <run_depend>orocos_kdl</run_depend>
   <run_depend>kdl_conversions</run_depend>
+  <run_depend>eigen_conversions</run_depend>
   <run_depend>rtt_lwr_gazebo</run_depend>
   <run_depend>lwr_fri</run_depend>
 
