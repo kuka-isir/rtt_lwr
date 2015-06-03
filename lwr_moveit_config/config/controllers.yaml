@@ -1,0 +1,6 @@
+controller_list:
+  - name: /deployer_lwr_sim/traj_rml
+    action_ns: action
+    type: FollowJointTrajectory
+    default: true
+    joints: [joint_0,joint_1,joint_2,joint_3,joint_4,joint_5,joint_6]      

@@ -1,0 +1,12 @@
+// Start LWR SIMULATION
+import("rtt_ros")
+
+ros.import("rtt_lwr_example")
+loadComponent("mycontroller","lwr::RTTLWRExample")
+setActivity("mycontroller",0.001,10,ORO_SCHED_RT)
+connectPeers("mycontroller","lwr_sim")
+mycontroller.robot_name = "lwr_sim"
+
+mycontroller.configure()
+mycontroller.start()
+

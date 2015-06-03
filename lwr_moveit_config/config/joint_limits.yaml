@@ -1,36 +1,39 @@
+# joint_limits.yaml allows the dynamics properties specified in the URDF to be overwritten or augmented as needed
+# Specific joint properties can be changed with the keys [max_position, min_position, max_velocity, max_acceleration]
+# Joint limits can be turned off with [has_velocity_limits, has_acceleration_limits]
 joint_limits:
-  lwr/lwr_4_joint:
+  joint_0:
     has_velocity_limits: true
-    max_velocity: 3.14159265359
+    max_velocity: 98.1747704247
     has_acceleration_limits: false
     max_acceleration: 0
-  lwr/lwr_6_joint:
+  joint_1:
     has_velocity_limits: true
-    max_velocity: 1.96349540849
+    max_velocity: 98.1747704247
     has_acceleration_limits: false
     max_acceleration: 0
-  lwr/lwr_3_joint:
+  joint_2:
     has_velocity_limits: true
-    max_velocity: 1.96349540849
+    max_velocity: 98.1747704247
     has_acceleration_limits: false
     max_acceleration: 0
-  lwr/lwr_5_joint:
+  joint_3:
     has_velocity_limits: true
-    max_velocity: 1.96349540849
+    max_velocity: 98.1747704247
     has_acceleration_limits: false
     max_acceleration: 0
-  lwr/lwr_1_joint:
+  joint_4:
     has_velocity_limits: true
-    max_velocity: 1.96349540849
+    max_velocity: 157.079632679
     has_acceleration_limits: false
     max_acceleration: 0
-  lwr/lwr_2_joint:
+  joint_5:
     has_velocity_limits: true
-    max_velocity: 1.96349540849
+    max_velocity: 98.1747704247
     has_acceleration_limits: false
     max_acceleration: 0
-  lwr/lwr_0_joint:
+  joint_6:
     has_velocity_limits: true
-    max_velocity: 1.96349540849
+    max_velocity: 98.1747704247
     has_acceleration_limits: false
     max_acceleration: 0

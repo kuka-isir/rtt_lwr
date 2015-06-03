@@ -10,60 +10,54 @@
     <!--CHAINS: When a chain is specified, all the links along the chain (including endpoints) are included in the group. Additionally, all the joints that are parents to included links are also included. This means that joints along the chain and the parent joint of the base link are included in the group-->
     <!--SUBGROUPS: Groups can also be formed by referencing to already defined group names-->
     <group name="arm">
-        <joint name="lwr/lwr_0_joint" />
-        <joint name="lwr/lwr_1_joint" />
-        <joint name="lwr/lwr_2_joint" />
-        <joint name="lwr/lwr_3_joint" />
-        <joint name="lwr/lwr_4_joint" />
-        <joint name="lwr/lwr_5_joint" />
-        <joint name="lwr/lwr_6_joint" />
+        <joint name="joint_0" />
+        <joint name="joint_1" />
+        <joint name="joint_2" />
+        <joint name="joint_3" />
+        <joint name="joint_4" />
+        <joint name="joint_5" />
+        <joint name="joint_6" />
     </group>
     <!--GROUP STATES: Purpose: Define a named state for a particular group, in terms of joint values. This is useful to define states like 'folded arms'-->
     <group_state name="zero" group="arm">
-        <joint name="lwr/lwr_0_joint" value="0" />
-        <joint name="lwr/lwr_1_joint" value="0" />
-        <joint name="lwr/lwr_2_joint" value="0" />
-        <joint name="lwr/lwr_3_joint" value="0" />
-        <joint name="lwr/lwr_4_joint" value="0" />
-        <joint name="lwr/lwr_5_joint" value="0" />
-        <joint name="lwr/lwr_6_joint" value="0" />
+        <joint name="joint_0" value="0" />
+        <joint name="joint_1" value="0" />
+        <joint name="joint_2" value="0" />
+        <joint name="joint_3" value="0" />
+        <joint name="joint_4" value="0" />
+        <joint name="joint_5" value="0" />
+        <joint name="joint_6" value="0" />
     </group_state>
     <group_state name="start" group="arm">
-        <joint name="lwr/lwr_0_joint" value="-1,1335" />
-        <joint name="lwr/lwr_1_joint" value="-0,4" />
-        <joint name="lwr/lwr_2_joint" value="-0,2" />
-        <joint name="lwr/lwr_3_joint" value="1,8119" />
-        <joint name="lwr/lwr_4_joint" value="0,0333" />
-        <joint name="lwr/lwr_5_joint" value="-1,0589" />
-        <joint name="lwr/lwr_6_joint" value="0" />
+        <joint name="joint_6" value="0" />
     </group_state>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
-    <end_effector name="hand" parent_link="lwr/lwr_7_link" group="arm" />
+    <end_effector name="effector" parent_link="link_7" group="arm" />
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
-    <disable_collisions link1="lwr/lwr_0_link" link2="lwr/lwr_1_link" reason="Adjacent" />
-    <disable_collisions link1="lwr/lwr_0_link" link2="lwr/lwr_2_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_0_link" link2="lwr/lwr_3_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_0_link" link2="lwr/lwr_4_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_0_link" link2="lwr/lwr_6_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_0_link" link2="lwr/lwr_7_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_1_link" link2="lwr/lwr_2_link" reason="Adjacent" />
-    <disable_collisions link1="lwr/lwr_1_link" link2="lwr/lwr_3_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_1_link" link2="lwr/lwr_4_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_1_link" link2="lwr/lwr_5_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_1_link" link2="lwr/lwr_6_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_1_link" link2="lwr/lwr_7_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_2_link" link2="lwr/lwr_3_link" reason="Adjacent" />
-    <disable_collisions link1="lwr/lwr_2_link" link2="lwr/lwr_4_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_2_link" link2="lwr/lwr_5_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_2_link" link2="lwr/lwr_6_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_2_link" link2="lwr/lwr_7_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_3_link" link2="lwr/lwr_4_link" reason="Adjacent" />
-    <disable_collisions link1="lwr/lwr_3_link" link2="lwr/lwr_5_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_3_link" link2="lwr/lwr_6_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_3_link" link2="lwr/lwr_7_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_4_link" link2="lwr/lwr_5_link" reason="Adjacent" />
-    <disable_collisions link1="lwr/lwr_4_link" link2="lwr/lwr_6_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_4_link" link2="lwr/lwr_7_link" reason="Never" />
-    <disable_collisions link1="lwr/lwr_5_link" link2="lwr/lwr_6_link" reason="Adjacent" />
-    <disable_collisions link1="lwr/lwr_6_link" link2="lwr/lwr_7_link" reason="Adjacent" />
+    <disable_collisions link1="link_0" link2="link_1" reason="Adjacent" />
+    <disable_collisions link1="link_0" link2="link_2" reason="Never" />
+    <disable_collisions link1="link_0" link2="link_3" reason="Never" />
+    <disable_collisions link1="link_0" link2="link_4" reason="Never" />
+    <disable_collisions link1="link_0" link2="link_6" reason="Never" />
+    <disable_collisions link1="link_0" link2="link_7" reason="Never" />
+    <disable_collisions link1="link_1" link2="link_2" reason="Adjacent" />
+    <disable_collisions link1="link_1" link2="link_3" reason="Never" />
+    <disable_collisions link1="link_1" link2="link_4" reason="Never" />
+    <disable_collisions link1="link_1" link2="link_5" reason="Never" />
+    <disable_collisions link1="link_1" link2="link_6" reason="Never" />
+    <disable_collisions link1="link_1" link2="link_7" reason="Never" />
+    <disable_collisions link1="link_2" link2="link_3" reason="Adjacent" />
+    <disable_collisions link1="link_2" link2="link_4" reason="Never" />
+    <disable_collisions link1="link_2" link2="link_5" reason="Never" />
+    <disable_collisions link1="link_2" link2="link_6" reason="Never" />
+    <disable_collisions link1="link_2" link2="link_7" reason="Never" />
+    <disable_collisions link1="link_3" link2="link_4" reason="Adjacent" />
+    <disable_collisions link1="link_3" link2="link_5" reason="Never" />
+    <disable_collisions link1="link_3" link2="link_6" reason="Never" />
+    <disable_collisions link1="link_3" link2="link_7" reason="Never" />
+    <disable_collisions link1="link_4" link2="link_5" reason="Adjacent" />
+    <disable_collisions link1="link_4" link2="link_6" reason="Never" />
+    <disable_collisions link1="link_4" link2="link_7" reason="Never" />
+    <disable_collisions link1="link_5" link2="link_6" reason="Adjacent" />
+    <disable_collisions link1="link_6" link2="link_7" reason="Adjacent" />
 </robot>
