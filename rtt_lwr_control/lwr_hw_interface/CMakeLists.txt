@@ -7,6 +7,7 @@ project(lwr_hw_interface)
 find_package(catkin REQUIRED COMPONENTS
   hardware_interface
   roscpp
+  joint_limits_interface
 )
 
 catkin_package(
