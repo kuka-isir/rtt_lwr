@@ -11,9 +11,11 @@ find_package(catkin REQUIRED COMPONENTS
     geometry_msgs 
     std_msgs 
     kdl_conversions
+    eigen_conversions
     lwr_fri
     cmake_modules
     conman
+    rtt_ros_kdl_tools
 )
 
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS CONMAN)
