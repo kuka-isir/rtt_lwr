@@ -39,7 +39,7 @@ public:
         this->ports()->addPort("JointTorque", port_JointTorque).doc("");
         this->ports()->addPort("JointState", port_JointState).doc("");
         this->ports()->addPort("port_JointStateVelocityBDF", port_JointStateVelocityBDF).doc("");
-        this->ports()->addPort("JointTorqueCommand", port_JointTorqueCommand).doc("");
+        //this->ports()->addPort("JointTorqueCommand", port_JointTorqueCommand).doc("");
         this->ports()->addPort("dt", port_dt).doc("");
         this->addAttribute("ks",ks_);
         this->addAttribute("BDFOrder",bdf_order_);
@@ -59,7 +59,7 @@ public:
             robot_name_ = robot_name_prop.get();
             //std::string urdf_str = this->peer->getAttribute<std::string>("robot_description")->get();
             //this->urdf.initString(urdf_str);
-            this->port_JointTorqueCommand.connectTo(this->peer->getPort("JointPositionCommand"),policy);
+            //this->port_JointTorqueCommand.connectTo(this->peer->getPort("JointPositionCommand"),policy);
 
         }else{
             RTT::log(RTT::Warning)<<"Couldn't find "<<robot_name_<<" peer"<<RTT::endlog();
@@ -74,13 +74,13 @@ public:
         this->joint_velocity.resize(n_joints_);
         this->joint_velocity_bdf.resize(n_joints_);
         this->joint_torque.resize(n_joints_);
-        this->joint_torque_command.resize(n_joints_);
+        //this->joint_torque_command.resize(n_joints_);
         jnt_pos_filt.resize(n_joints_);
         this->joint_position.setZero();
         this->joint_velocity.setZero();
         this->joint_velocity_bdf.setZero();
         this->joint_torque.setZero();
-        this->joint_torque_command.setZero();
+        //this->joint_torque_command.setZero();
         jnt_pos_filt.setZero();
         for(unsigned i=0;i<n_joints_;++i)
         {
@@ -152,13 +152,13 @@ public:
         /*for(unsigned i=0;i<jnt_pos_bdf.size();++i)
             RTT::log(RTT::Warning)<<"jnt_pos_bdf "<<i<<" : "<<jnt_pos_bdf[i].transpose()<<RTT::endlog();*/
         
-        for(unsigned i=0;i<n_joints_;++i)
+        /*for(unsigned i=0;i<n_joints_;++i)
         {
             if(i>=0)
                 this->joint_torque_command[i] = 60*3.14/180.0*sin(cnt_*getPeriod()*ks_);//*double(i+1));
             else
                 this->joint_torque_command[i] = 0.0;
-        }
+        }*/
 
         
 
@@ -171,7 +171,7 @@ public:
         this->port_JointState.write(joint_state);
         this->port_JointStateVelocityBDF.write(joint_state_velocity_bdf);
         
-        this->port_JointTorqueCommand.write(joint_torque_command);
+        //this->port_JointTorqueCommand.write(joint_torque_command);
         this->port_dt.write(dt_out);
         this->getActivity()->trigger();
     }
@@ -233,7 +233,7 @@ public:
     RTT::InputPort<Eigen::VectorXd > port_JointVelocity;
     RTT::InputPort<Eigen::VectorXd > port_JointTorque;
 
-    RTT::OutputPort<Eigen::VectorXd > port_JointTorqueCommand;
+    //RTT::OutputPort<Eigen::VectorXd > port_JointTorqueCommand;
 
     RTT::FlowStatus joint_position_fs;
     RTT::FlowStatus joint_velocity_fs;
@@ -243,7 +243,7 @@ public:
     unsigned int current_buff_idx;
     Eigen::VectorXd joint_torque;
 
-    Eigen::VectorXd joint_torque_command;
+    //Eigen::VectorXd joint_torque_command;
 
     RTT::TaskContext* peer;
     ros::Time now;
