@@ -36,6 +36,14 @@
 #include <rtt_ros_kdl_tools/tools.hpp>
 #include <boost/scoped_ptr.hpp>
 
+#include <eigen_conversions/eigen_kdl.h>
+#include <kdl_conversions/kdl_msg.h>
+#include <eigen_conversions/eigen_msg.h>
+
+#ifdef CONMAN
+#include <conman/hook.h>
+#endif
+
 inline float clamp(float x, float a, float b)
 
 {
@@ -53,30 +61,25 @@ namespace lwr{
         peer(NULL),
         prop_joint_offset(LBR_MNJ, 0.0),
         urdf_str_(""),
-        kp_(LBR_MNJ,250.0),
-        kd_(LBR_MNJ,0.7),
-        kg_(LBR_MNJ,1.0),
-        robot_name_("lwr_sim"),
+        robot_name_(""),
         velocity_smoothing_factor_(.95),
-        root_link("lwr_sim/link_0"),
-        tip_link("lwr_sim/link_7"),
+        root_link("link_0"),
+        tip_link("link_7"),
         use_sim_clock(true)
         {
-
+            //this->addAttribute("fromKRL", m_fromKRL);
+            //this->addAttribute("toKRL", m_toKRL);
+            
             this->addProperty("fri_port", prop_fri_port).doc("");
             this->addProperty("joint_offset", prop_joint_offset).doc("");
             
             this->addProperty("root_link", root_link).doc("");
             this->addProperty("tip_link", tip_link).doc("");
-            
-            this->addProperty("use_sim_clock", use_sim_clock).doc("");
-            
-            //this->addAttribute("fromKRL", m_fromKRL);
-            //this->addAttribute("toKRL", m_toKRL);
-            
             this->addProperty("robot_description",urdf_str_)
               .doc("The URDF of the Kuka");
+              
             this->addProperty("n_joints",n_joints_);
+            this->addProperty("use_sim_clock",use_sim_clock);
             
             robot_name_ = this->getName();
             
@@ -125,10 +128,18 @@ namespace lwr{
             this->addProperty("kp",kp_);
             this->addProperty("kd",kd_);
             this->addProperty("kg",kg_);
+            this->addProperty("kc",kc_);
+            this->addProperty("kcd",kcd_);
+            
             this->addProperty("smoothing_factor",velocity_smoothing_factor_);
-            this->addOperation("setImpedance",&LWRSim::setImpedance,this,RTT::OwnThread);
+            this->addOperation("setJointImpedance",&LWRSim::setJointImpedance,this,RTT::OwnThread);
+            this->addOperation("setCartesianImpedance",&LWRSim::setCartesianImpedance,this,RTT::OwnThread);
             this->addOperation("setGravityMode",&LWRSim::setGravityMode,this,RTT::OwnThread);
-            this->addOperation("resetImpedanceGains",&LWRSim::resetImpedanceGains,this,RTT::OwnThread);
+            this->addOperation("resetJointImpedanceGains",&LWRSim::resetJointImpedanceGains,this,RTT::OwnThread);
+            
+            this->addOperation("setJointImpedanceMode",&LWRSim::setJointImpedanceMode,this,RTT::OwnThread);
+            this->addOperation("setCartesianImpedanceMode",&LWRSim::setCartesianImpedanceMode,this,RTT::OwnThread);
+            
             this->provides("debug")->addAttribute("read_start",this->read_start);
             this->provides("debug")->addAttribute("write_start",this->write_start);
             this->provides("debug")->addAttribute("read_duration",this->read_duration);
@@ -137,21 +148,24 @@ namespace lwr{
             this->provides("debug")->addAttribute("ik_duration",this->ik_duration);
             this->provides("debug")->addAttribute("write_duration",this->write_duration);
             this->provides("debug")->addAttribute("updatehook_duration",this->updatehook_duration);
-
+#ifdef CONMAN
+            conman_hook_ = conman::Hook::GetHook(this);
+#endif
         }
         bool configureHook();
         void updateHook();
-        ~LWRSim(){};
+        virtual ~LWRSim(){};
     public:
-        void resetImpedanceGains();
-        bool setGravityMode(){
-            return this->setImpedance(std::vector<double>(LBR_MNJ,0),std::vector<double>(LBR_MNJ,0));
-        }
-        bool setImpedance(const std::vector< double >& stiffness, const std::vector< double >& damping);
-        bool torqueSafetyCheck(const std::vector<double>& torque);
-        bool velocitySafetyCheck(const std::vector<double>& velocity);
-        bool positionSafetyCheck(const std::vector<double>& position);
-        bool safetyChecks(const std::vector<double>& position,const std::vector<double>& velocity,const std::vector<double>& torque);
+        void setJointImpedanceMode();
+        void setCartesianImpedanceMode();
+        void resetJointImpedanceGains();
+        
+        void resetCartesianImpedanceGains();
+        
+        bool setGravityMode();
+        bool setJointImpedance(const Eigen::VectorXd& stiffness, const Eigen::VectorXd& damping);
+        bool setCartesianImpedance(const Eigen::Matrix<double,6,1> & cart_stiffness, const Eigen::Matrix<double,6,1> & cart_damping);
+        
         RTT::InputPort<lwr_fri::CartesianImpedance > port_CartesianImpedanceCommand;
         RTT::InputPort<geometry_msgs::Wrench > port_CartesianWrenchCommand;
         RTT::InputPort<geometry_msgs::Pose > port_CartesianPositionCommand;
@@ -173,45 +187,54 @@ namespace lwr{
         RTT::OutputPort<geometry_msgs::PoseStamped > port_CartesianPositionStamped;
         RTT::OutputPort<Eigen::MatrixXd > port_MassMatrix;
         RTT::OutputPort<KDL::Jacobian > port_Jacobian;
-        RTT::OutputPort<Eigen::VectorXd > port_JointTorque;
-        RTT::OutputPort<Eigen::VectorXd > port_GravityTorque;
-        RTT::OutputPort<Eigen::VectorXd > port_JointPosition;
-        RTT::OutputPort<Eigen::VectorXd > port_JointTorqueRaw;
-        RTT::OutputPort<Eigen::VectorXd > port_JointPositionFRIOffset;
+        RTT::OutputPort<Eigen::VectorXd > port_JointTorque,
+                                          port_GravityTorque,
+                                          port_JointPosition,
+                                          port_JointTorqueRaw,
+                                          port_JointPositionFRIOffset;
 
         int prop_fri_port;
         std::vector<double> prop_joint_offset;
 
-        RTT::InputPort<std::vector<double> > port_JointPositionGazebo;
-        RTT::InputPort<std::vector<double> > port_JointVelocityGazebo;
-        RTT::InputPort<std::vector<double> > port_JointTorqueGazebo;
-        RTT::FlowStatus jnt_pos_fs;
-        RTT::FlowStatus jnt_vel_fs;
-        RTT::FlowStatus jnt_trq_fs;
+        RTT::InputPort<std::vector<double> > port_JointPositionGazebo,
+                                             port_JointVelocityGazebo,
+                                             port_JointTorqueGazebo;
+        RTT::FlowStatus jnt_pos_cmd_fs,
+                        jnt_trq_cmd_fs,
+                        cart_imp_cmd_fs,
+                        cart_wrench_cmd_fs,
+                        cart_pos_cmd_fs;
 
-        RTT::OutputPort<std::vector<double> > port_JointPositionGazeboCommand;
-        RTT::OutputPort<std::vector<double> > port_JointVelocityGazeboCommand;
-        RTT::OutputPort<std::vector<double> > port_JointTorqueGazeboCommand;
+        RTT::OutputPort<std::vector<double> > port_JointPositionGazeboCommand,
+                                              port_JointVelocityGazeboCommand,
+                                              port_JointTorqueGazeboCommand;
 
-        std::vector<double> joint_position_gazebo;
-        std::vector<double> joint_velocity_gazebo;
-        std::vector<double> joint_torque_gazebo;
-
-        std::vector<double> joint_position_gazebo_cmd;
-        std::vector<double> joint_velocity_gazebo_cmd;
-        std::vector<double> joint_torque_gazebo_cmd;
-
-        Eigen::VectorXd jnt_pos_;
-        Eigen::VectorXd jnt_pos_fri_offset;
-        Eigen::VectorXd jnt_pos_old_;
-        Eigen::VectorXd jnt_trq_;
-        Eigen::VectorXd jnt_trq_raw_;
-        Eigen::VectorXd grav_trq_;
-        Eigen::VectorXd jnt_vel_;
-
-        Eigen::VectorXd jnt_pos_cmd_;
-        Eigen::VectorXd jnt_trq_cmd_;
-
+        std::vector<double> joint_position_gazebo,
+                            joint_velocity_gazebo,
+                            joint_torque_gazebo,
+                            joint_position_gazebo_cmd,
+                            joint_velocity_gazebo_cmd,
+                            joint_torque_gazebo_cmd;
+        
+        std::vector<double> pos_limits_,
+                            vel_limits_,
+                            trq_limits_;
+                            
+        Eigen::VectorXd jnt_pos_,
+                        jnt_pos_fri_offset,
+                        jnt_pos_old_,
+                        jnt_trq_,
+                        jnt_trq_raw_,
+                        grav_trq_,
+                        jnt_vel_,
+                        jnt_pos_cmd_,
+                        jnt_trq_cmd_,
+                        jnt_trq_gazebo_cmd_;
+                        
+        Eigen::Matrix<double,6,1>  X_,X_cmd_,Xd_,Xd_cmd_,F_cmd_;
+        tf::Matrix3x3 quat_m;
+        tf::Quaternion quat_tf;
+        double roll, pitch, yaw;
         KDL::Jacobian jac_;
 
         KDL::Frame T_old_;
@@ -221,8 +244,8 @@ namespace lwr{
         geometry_msgs::WrenchStamped cart_wrench_stamped_;
         geometry_msgs::Twist cart_twist_;
         Eigen::MatrixXd mass_;
-        lwr_fri::FriJointImpedance jnt_imp_cmd_;
-        lwr_fri::CartesianImpedance cart_imp_cmd_;
+        lwr_fri::FriJointImpedance jnt_imp_cmd_,jnt_imp_;
+        lwr_fri::CartesianImpedance cart_imp_cmd_,cart_imp_;
 
         int m_control_mode;
         std::string joint_names_prefix;
@@ -252,10 +275,19 @@ namespace lwr{
         boost::scoped_ptr<KDL::ChainDynParam> id_dyn_solver;
         boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver;
         boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver;
-         boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver_add_;
+        boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver_add_;
         
         //! Control gains
-        std::vector<double> kp_,kd_,kg_;
+        Eigen::VectorXd kp_,
+                        kd_,
+                        kg_,
+                        kp_default_,
+                        kd_default_;
+        Eigen::Matrix<double,6,1>   kc_,
+                                    kcd_,
+                                    kc_default_,
+                                    kcd_default_;
+                   
         double velocity_smoothing_factor_;
         std::string robot_name_;
         sensor_msgs::JointState joint_state_filtered_,joint_state_,joint_state_cmd_,joint_state_gravity_,joint_state_dyn_;
@@ -267,9 +299,14 @@ namespace lwr{
         std::string root_link;
         std::string tip_link;
         bool use_sim_clock;
+#ifdef CONMAN
+        boost::shared_ptr<conman::Hook> conman_hook_;
+#endif
     private:
-    void updateImpedance(const lwr_fri::FriJointImpedance& impedance);
-    void initJointStateMsg(sensor_msgs::JointState& js,const unsigned int n_joints,const std::string& robot_name);
+    bool safetyChecks(const std::vector<double>& position,const std::vector<double>& velocity,const std::vector<double>& torque);
+    bool safetyCheck(const std::vector<double>& v, const std::vector<double>& limits,const std::string& name="");
+    void updateJointImpedance(const lwr_fri::FriJointImpedance& impedance);
+    void updateCartesianImpedance(const lwr_fri::CartesianImpedance& cart_impedance);
         //KDL Stuff
     KDL::Wrenches f_ext;
     KDL::Wrenches f_ext_add;
