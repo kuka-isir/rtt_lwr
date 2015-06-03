@@ -12,8 +12,3 @@ setActivity("lwr_sim",0.001,HighestPriority-1,ORO_SCHED_RT)
 connectPeers("gazebo","lwr_sim")
 
 lwr_sim.configure()
-lwr_sim.start()
-
-
-runScript(ros.find("lwr_state_publisher")+"/rtt_lwr_state_publisher.ops")
-

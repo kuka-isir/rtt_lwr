@@ -1,0 +1,4 @@
+import("rtt_ros")
+ros.import("rtt_rospack")
+runScript(ros.find("rtt_lwr_sim")+"/scripts/lwr_sim.ops")
+lwr_sim.start()
