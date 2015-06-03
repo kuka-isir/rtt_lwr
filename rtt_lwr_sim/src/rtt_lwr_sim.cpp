@@ -4,6 +4,7 @@
 #include<Eigen/Core>
 #include<Eigen/SVD>
 #include <Eigen/Dense>
+#include <boost/assign.hpp>
 
 namespace Eigen{
 template<typename _Matrix_Type_>
@@ -37,6 +38,8 @@ namespace KDL{
 }
 
 namespace lwr{
+using namespace boost::assign;
+    
 KDL::Chain KukaLWR_DHnew(){
     using namespace KDL;
     Chain kukaLWR_DHnew;
@@ -94,31 +97,28 @@ KDL::Chain KukaLWR_DHnew(){
                                                       RotationalInertia(0.000001,0.0,0.0001203,0.0,0.0,0.0))));
     return kukaLWR_DHnew;
 }
-void LWRSim::initJointStateMsg(sensor_msgs::JointState& js,const unsigned int n_joints,const std::string& robot_name)
-{
-    for(unsigned int j=0; j < n_joints; j++){
-        std::ostringstream ss;
-        ss << j;
-        js.name.push_back(robot_name+"/"+"joint_"+ss.str());
-        js.position.push_back(0.0);
-        js.velocity.push_back(0.0);
-        js.effort.push_back(0.0);
-    }
-}
-void LWRSim::resetImpedanceGains()
-{
-    std::vector< double > kp(LBR_MNJ,0.0);
-    std::vector< double > kd(LBR_MNJ,0.0);
-    kp[0] = 450.0;   kd[0] = 1.0;
-    kp[1] = 450.0;   kd[1] = 1.0;
-    kp[2] = 200.0;   kd[2] = 0.7;
-    kp[3] = 200.0;   kd[3] = 0.7;
-    kp[4] = 200.0;   kd[4] = 0.7;
-    kp[5] = 10.0;    kd[5] = 0.1;
-    kp[6] = 10.0;    kd[6] = 0.0;
-    this->setImpedance(kp,kd);
-}
 
+void LWRSim::resetJointImpedanceGains()
+{
+    kp_default_[0] = 450.0;   kd_default_[0] = 1.0;
+    kp_default_[1] = 450.0;   kd_default_[1] = 1.0;
+    kp_default_[2] = 200.0;   kd_default_[2] = 0.7;
+    kp_default_[3] = 200.0;   kd_default_[3] = 0.7;
+    kp_default_[4] = 200.0;   kd_default_[4] = 0.7;
+    kp_default_[5] = 20.0;    kd_default_[5] = 0.1;
+    kp_default_[6] = 10.0;    kd_default_[6] = 0.0;
+    this->setJointImpedance(kp_default_,kd_default_);
+}
+void LWRSim::resetCartesianImpedanceGains()
+{
+    kc_default_[0] = 1000.0;   kcd_default_[0] = 0.7;
+    kc_default_[1] = 1000.0;   kcd_default_[1] = 0.7;
+    kc_default_[2] = 1000.0;   kcd_default_[2] = 0.7;
+    kc_default_[3] = 200.0;   kcd_default_[3] = 0.7;
+    kc_default_[4] = 200.0;   kcd_default_[4] = 0.7;
+    kc_default_[5] = 200.0;    kcd_default_[5] = 0.7;
+    this->setCartesianImpedance(kc_default_,kcd_default_);
+}
 bool LWRSim::configureHook(){
     // Get the rosparam service requester
     boost::shared_ptr<rtt_rosparam::ROSParam> rosparam =
@@ -130,17 +130,26 @@ bool LWRSim::configureHook(){
     }
 
     // Set the Robot name (lwr or lwr_sim) For other components to know it
-    rosparam->setPrivate("robot_name");
-    rosparam->getPrivate("root_link");
-    rosparam->getPrivate("tip_link");
-    rosparam->getPrivate("use_sim_clock");
-
+    rosparam->setComponentPrivate("robot_name");
+    rosparam->getComponentPrivate("root_link");
+    rosparam->getComponentPrivate("tip_link");
+    //rosparam->getParam(getName()+"/"+"use_sim_clock",use_sim_clock);
+    
+    rosparam->setComponentPrivate("root_link");
+    rosparam->setComponentPrivate("tip_link");
+    
     RTT::log(RTT::Info)<<"root_link : "<<root_link<<RTT::endlog();
     RTT::log(RTT::Info)<<"tip_link : "<<tip_link<<RTT::endlog();
     
     KDL::Vector gravity_vector(0.,0.,-9.81289);
     
-    if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,robot_name_,root_link,tip_link,kdl_tree_,kdl_chain_))
+    if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,
+                                                     root_link,
+                                                     tip_link,
+                                                     kdl_tree_,
+                                                     kdl_chain_,
+                                                     getName()+"/"+"robot_description"
+                                                    ))
     {
         RTT::log(RTT::Error) << "Error while loading the URDF with params : "<<robot_name_<<" "<<root_link<<" "<<tip_link <<RTT::endlog();
         return false;
@@ -196,10 +205,6 @@ bool LWRSim::configureHook(){
         return false;
     }
     
-    
-    resetImpedanceGains();
-    
-    
     // In from gazebo
     joint_position_gazebo.resize(n_joints_,0.0);
     joint_velocity_gazebo.resize(n_joints_,0.0);
@@ -221,7 +226,9 @@ bool LWRSim::configureHook(){
     jac_.resize(n_joints_);
     jac_.data.setZero();
     mass_.resize(n_joints_,n_joints_);
-
+    jnt_trq_gazebo_cmd_.resize(n_joints_);
+    
+    jnt_trq_gazebo_cmd_.setZero();
     jnt_pos_.setZero();
     jnt_pos_fri_offset.setZero();
     jnt_pos_old_.setZero();
@@ -232,12 +239,22 @@ bool LWRSim::configureHook(){
     jnt_pos_cmd_.setZero();
     jnt_trq_cmd_.setZero();
     mass_.setZero();// = Eigen::MatrixXd::Zero(n_joints_,n_joints_);
-
-    initJointStateMsg(joint_state_,n_joints_,robot_name_);
-    initJointStateMsg(joint_state_cmd_,n_joints_,robot_name_);
-    initJointStateMsg(joint_state_filtered_,n_joints_,robot_name_);
-    initJointStateMsg(joint_state_gravity_,n_joints_,robot_name_);
-    initJointStateMsg(joint_state_dyn_,n_joints_,robot_name_);
+    
+    kp_.resize(n_joints_);
+    kd_.resize(n_joints_);
+    kg_.resize(n_joints_);
+    kp_default_.resize(n_joints_);
+    kd_default_.resize(n_joints_);
+    kc_.resize(6);
+    kcd_.resize(6);
+    kc_default_.resize(6);
+    kcd_default_.resize(6);
+     
+    rtt_ros_kdl_tools::initJointStateFromKDLCHain(kdl_chain_,joint_state_);
+    rtt_ros_kdl_tools::initJointStateFromKDLCHain(kdl_chain_,joint_state_cmd_);
+    rtt_ros_kdl_tools::initJointStateFromKDLCHain(kdl_chain_,joint_state_filtered_);
+    rtt_ros_kdl_tools::initJointStateFromKDLCHain(kdl_chain_,joint_state_gravity_);
+    rtt_ros_kdl_tools::initJointStateFromKDLCHain(kdl_chain_,joint_state_dyn_);
 
     port_JointState.setDataSample(joint_state_);
     port_JointStateFiltered.setDataSample(joint_state_filtered_);
@@ -279,6 +296,13 @@ bool LWRSim::configureHook(){
     fri_to_krl.intData[0] = FRI_STATE_MON;
     fri_from_krl.intData[0] = FRI_STATE_MON;
     
+    pos_limits_ += 170,120,170,120,170,120,170;
+    vel_limits_ += 112.5,112.5,112.5,112.5,180,112.5,112.5;
+    trq_limits_ += 200,200,100,100,100,30,30;
+    
+       
+    resetJointImpedanceGains();
+    resetCartesianImpedanceGains();
     
     if(use_sim_clock){
         rtt_rosclock::use_ros_clock_topic();
@@ -289,70 +313,32 @@ bool LWRSim::configureHook(){
 
 bool LWRSim::safetyChecks(const std::vector<double>& position,const std::vector<double>& velocity,const std::vector<double>& torque)
 {
-    return positionSafetyCheck(position) &&
-    velocitySafetyCheck(velocity) &&
-    torqueSafetyCheck(torque);
+    return safetyCheck(position,pos_limits_,"Position") &&
+    safetyCheck(velocity,vel_limits_,"Velocity") &&
+    safetyCheck(torque,trq_limits_,"Torque");
 }
 
-bool LWRSim::positionSafetyCheck(const std::vector<double>& position)
+bool LWRSim::safetyCheck(const std::vector<double>& v, const std::vector<double>& limits,const std::string& name)
 {
-    if(position.size() != LBR_MNJ)
+    if(v.size() != LBR_MNJ)
     {
-        RTT::log(RTT::Error) << "Vector size error "<<position.size()<<"!="<<LBR_MNJ<<RTT::endlog();
+        RTT::log(RTT::Error) << name<<" vector size error "<<v.size()<<"!="<<LBR_MNJ<<RTT::endlog();
         return false;
     }
-    const double limits[] = {170,120,170,120,170,120,170};
+    
     bool ret=true;
-    for(unsigned i=0;i<position.size();i++)
+    for(unsigned i=0;i<v.size();i++)
     {
-        if(std::abs(position[i]) > limits[i])
+        if(std::abs(v[i]) > limits[i])
         {
-           RTT::log(RTT::Error) << "Position limit exceded at J"<<i<<" : "<<position[i]<<" / limit "<<limits[i]<<RTT::endlog();
-           ret = false;
-        }
-    }
-    return ret;
-}
-bool LWRSim::velocitySafetyCheck(const std::vector<double>& velocity)
-{
-    if(velocity.size() != LBR_MNJ)
-    {
-        RTT::log(RTT::Error) << "Velocity size error "<<velocity.size()<<"!="<<LBR_MNJ<<RTT::endlog();
-        return false;
-    }
-    const double limits[] = {112.5,112.5,112.5,112.5,180,112.5,112.5};
-    bool ret=true;
-    for(unsigned i=0;i<velocity.size();i++)
-    {
-        if(std::abs(velocity[i]) > limits[i])
-        {
-           RTT::log(RTT::Error) << "Velocity limit exceded at J"<<i<<" : "<<velocity[i]<<" / limit "<<limits[i]<<RTT::endlog();
+           RTT::log(RTT::Error) << name<<" limit exceded at J"<<i<<" : "<<v[i]<<" / limit "<<limits[i]<<RTT::endlog();
            ret = false;
         }
     }
     return ret;
 }
 
-bool LWRSim::torqueSafetyCheck(const std::vector<double>& torque)
-{
-    if(torque.size() != LBR_MNJ)
-    {
-        RTT::log(RTT::Error) << "Torque size error "<<torque.size()<<"!="<<LBR_MNJ<<RTT::endlog();
-        return false;
-    }
-    const double limits[] = {200,200,100,100,100,30,30};
-    bool ret=true;
-    for(unsigned i=0;i<torque.size();i++)
-    {
-        if(std::abs(torque[i]) > limits[i])
-        {
-           RTT::log(RTT::Error) << "Torque limit exceded at J"<<i<<" : "<<torque[i]<<" / limit "<<limits[i]<<RTT::endlog();
-           ret = false;
-        }
-    }
-    return ret;
-}
-bool LWRSim::setImpedance(const std::vector< double >& stiffness, const std::vector< double >& damping)
+bool LWRSim::setJointImpedance(const Eigen::VectorXd& stiffness, const Eigen::VectorXd& damping)
 {
     if(! (stiffness.size() == LBR_MNJ && damping.size() == LBR_MNJ))
     {
@@ -361,11 +347,60 @@ bool LWRSim::setImpedance(const std::vector< double >& stiffness, const std::vec
                             <<", should be "<<LBR_MNJ<<")"<<RTT::endlog();
         return false;
     }
-    kd_=damping;
-    kp_=stiffness;
+    
+    for(unsigned j=0;j<LBR_MNJ;++j)
+    {
+        jnt_imp_.stiffness[j] = stiffness[j];
+        jnt_imp_.damping[j] = damping[j];
+    }
+    
+    kp_ = stiffness;
+    kd_ = damping;
+    
     return true;
 }
-void LWRSim::updateImpedance(const lwr_fri::FriJointImpedance& impedance)
+bool LWRSim::setGravityMode()
+{
+    Eigen::VectorXd s(LBR_MNJ);
+    s.setZero();
+    Eigen::VectorXd d(LBR_MNJ);
+    d.setZero();
+    return this->setJointImpedance(s,d);
+}
+
+bool LWRSim::setCartesianImpedance(const Eigen::Matrix< double, 6, 1 >& cart_stiffness, const Eigen::Matrix< double, 6, 1 >& cart_damping)
+{
+    if(cart_damping.size() != 6 || cart_damping.size() != 6)
+    {
+        RTT::log(RTT::Error) << "Size error, not setting cartesian impedance (stiff size "
+                            <<cart_stiffness.size()<<" damp size "<<cart_damping.size()
+                            <<", should be 6 and 6)"<<RTT::endlog();
+        return false;
+    }
+
+    cart_imp_.stiffness.linear.x = cart_stiffness[0];
+    cart_imp_.stiffness.linear.y = cart_stiffness[1];
+    cart_imp_.stiffness.linear.z = cart_stiffness[2];
+    
+    cart_imp_.stiffness.angular.x = cart_stiffness[3];
+    cart_imp_.stiffness.angular.y = cart_stiffness[4];
+    cart_imp_.stiffness.angular.z = cart_stiffness[5];
+    
+    cart_imp_.damping.linear.x = cart_damping[0];
+    cart_imp_.damping.linear.y = cart_damping[1];
+    cart_imp_.damping.linear.z = cart_damping[2];
+    
+    cart_imp_.damping.angular.x = cart_damping[3];
+    cart_imp_.damping.angular.y = cart_damping[4];
+    cart_imp_.damping.angular.z = cart_damping[5];
+    
+    kc_ = cart_stiffness;
+    kcd_ = cart_damping;
+    
+    return true;
+}
+
+void LWRSim::updateJointImpedance(const lwr_fri::FriJointImpedance& impedance)
 {
     kp_[0] = clamp(impedance.stiffness[0],0.0,450.0);   kd_[0] = clamp(impedance.damping[0],0.0,1.0);
     kp_[1] = clamp(impedance.stiffness[1],0.0,450.0);   kd_[1] = clamp(impedance.damping[1],0.0,1.0);
@@ -377,6 +412,37 @@ void LWRSim::updateImpedance(const lwr_fri::FriJointImpedance& impedance)
     
 }
 
+void LWRSim::updateCartesianImpedance(const lwr_fri::CartesianImpedance& cart_impedance)
+{
+    kc_[0] = cart_impedance.stiffness.linear.x;
+    kc_[1] = cart_impedance.stiffness.linear.y;
+    kc_[2] = cart_impedance.stiffness.linear.z;
+    
+    kc_[3] = cart_impedance.stiffness.angular.x;
+    kc_[4] = cart_impedance.stiffness.angular.y;
+    kc_[5] = cart_impedance.stiffness.angular.z;
+    
+    kcd_[0] = cart_impedance.damping.linear.x;
+    kcd_[1] = cart_impedance.damping.linear.y;
+    kcd_[2] = cart_impedance.damping.linear.z;
+    
+    kcd_[3] = cart_impedance.damping.angular.x;
+    kcd_[4] = cart_impedance.damping.angular.y;
+    kcd_[5] = cart_impedance.damping.angular.z;
+    
+    cart_imp_ = cart_impedance;
+}
+
+
+void LWRSim::setJointImpedanceMode()
+{
+    fri_to_krl.intData[1] = 10*FRI_CTRL_JNT_IMP;
+}
+void LWRSim::setCartesianImpedanceMode()
+{
+    fri_to_krl.intData[1] = 10*FRI_CTRL_CART_IMP;
+}
+
 void LWRSim::updateHook() {
     read_start = rtt_rosclock::host_now().toSec();
     // Read From gazebo simulation
@@ -386,7 +452,7 @@ void LWRSim::updateHook() {
 
     fri_state.timestamp = read_start;
 
-    if(port_ToKRL.read(fri_to_krl) != RTT::NoData)
+    if(port_ToKRL.read(fri_to_krl) == RTT::NewData)
     {
         fri_from_krl = fri_to_krl;
     }
@@ -428,27 +494,34 @@ void LWRSim::updateHook() {
     if(fs_g == RTT::NoData || fs_p == RTT::NoData || fs_v == RTT::NoData)
         return;
     
-    //safetyChecks(joint_position_gazebo,joint_velocity_gazebo,joint_torque_gazebo);
+    safetyChecks(joint_position_gazebo,joint_velocity_gazebo,joint_torque_gazebo);
     
     jnt_pos_ = Eigen::VectorXd::Map(joint_position_gazebo.data(),n_joints_);
     jnt_vel_ = Eigen::VectorXd::Map(joint_velocity_gazebo.data(),n_joints_);
     jnt_trq_ = Eigen::VectorXd::Map(joint_torque_gazebo.data(),n_joints_);
 
     // Read Commands from users
-    jnt_trq_fs = port_JointTorqueCommand.read(jnt_trq_cmd_);
-    jnt_pos_fs = port_JointPositionCommand.read(jnt_pos_cmd_);
+    jnt_trq_cmd_fs = port_JointTorqueCommand.read(jnt_trq_cmd_);
+    jnt_pos_cmd_fs = port_JointPositionCommand.read(jnt_pos_cmd_);
+    cart_pos_cmd_fs = port_CartesianPositionCommand.read(cart_pos_cmd_);
+    cart_wrench_cmd_fs = port_CartesianWrenchCommand.read(cart_wrench_cmd_);
     
-    if(jnt_trq_fs != RTT::NewData)
+    
+    
+    // Waiting for JointVelocityCommand
+    Xd_cmd_.setZero();
+    
+    /*if(jnt_trq_cmd_fs != RTT::NewData)
         jnt_trq_cmd_.setZero();
 
-    if(jnt_pos_fs != RTT::NewData)
-        jnt_pos_cmd_.setZero();
+    if(jnt_pos_cmd_fs != RTT::NewData)
+        jnt_pos_cmd_.setZero();*/
     
-    if(port_JointImpedanceCommand.read(jnt_imp_cmd_) != RTT::NoData)
-    {
-        updateImpedance(jnt_imp_cmd_);
-    }
+    if(port_JointImpedanceCommand.read(jnt_imp_cmd_) == RTT::NewData)
+        updateJointImpedance(jnt_imp_cmd_);
     
+    if(port_CartesianImpedanceCommand.read(cart_imp_cmd_) == RTT::NewData)
+        updateCartesianImpedance(cart_imp_cmd_);
 
     read_duration = (rtt_rosclock::host_now().toSec() - read_start);
 
@@ -499,7 +572,6 @@ void LWRSim::updateHook() {
     KDL::Vector endPos = endFrame.p;
     KDL::Rotation endRot = endFrame.M;
 
-    
     cart_pos_.position.x = endPos[0];
     cart_pos_.position.y = endPos[1];
     cart_pos_.position.z = endPos[2];
@@ -520,7 +592,7 @@ void LWRSim::updateHook() {
     cart_twist_.angular.x = endTwist.rot[0];
     cart_twist_.angular.y = endTwist.rot[1];
     cart_twist_.angular.z = endTwist.rot[2];
-
+    
     KDL::MultiplyJacobian(jac_,jnt_trq_kdl_,cart_wrench_kdl_);
     cart_wrench_.force.x = cart_wrench_kdl_.force.x();
     cart_wrench_.force.y = cart_wrench_kdl_.force.y();
@@ -530,16 +602,94 @@ void LWRSim::updateHook() {
     cart_wrench_.torque.z = cart_wrench_kdl_.torque.z();
     //cart_wrench_; // TODO: GET DATA FROM ATI SENSOR
     
+    quat_tf.setX(cart_pos_.orientation.x);
+    quat_tf.setY(cart_pos_.orientation.y);
+    quat_tf.setZ(cart_pos_.orientation.z);
+    quat_tf.setW(cart_pos_.orientation.w);
+    
+    quat_m.setRotation(quat_tf);
+    quat_m.getRPY(roll, pitch, yaw);
+    
+    X_[0] = cart_pos_.position.x;
+    X_[1] = cart_pos_.position.y;
+    X_[2] = cart_pos_.position.z;
+    X_[3] = roll;
+    X_[4] = pitch;
+    X_[5] = yaw;
+    
+    X_cmd_.setZero();
+    if(cart_pos_cmd_fs == RTT::NewData){
+        quat_tf.setX(cart_pos_cmd_.orientation.x);
+        quat_tf.setY(cart_pos_cmd_.orientation.y);
+        quat_tf.setZ(cart_pos_cmd_.orientation.z);
+        quat_tf.setW(cart_pos_cmd_.orientation.w);
+        
+        quat_m.setRotation(quat_tf);
+        quat_m.getRPY(roll, pitch, yaw);
+        
+        X_cmd_[0] = cart_pos_cmd_.position.x;
+        X_cmd_[1] = cart_pos_cmd_.position.y;
+        X_cmd_[2] = cart_pos_cmd_.position.z;
+        X_cmd_[3] = roll;
+        X_cmd_[4] = pitch;
+        X_cmd_[5] = yaw;
+    }
+    
+    tf::twistMsgToEigen(cart_twist_,Xd_);
+    
+    F_cmd_.setZero();
+    if(cart_wrench_cmd_fs == RTT::NewData)
+        tf::wrenchMsgToEigen(cart_wrench_cmd_,F_cmd_);
+    
+    
     cart_wrench_stamped_.header.frame_id = tip_link;
     cart_wrench_stamped_.wrench = cart_wrench_;
     
-    if(jnt_pos_fs != RTT::NoData || jnt_trq_fs != RTT::NoData){
-        //Impedance Control
-        for(unsigned int j=0; j < n_joints_; j++) {
-            joint_torque_gazebo_cmd[j] = kp_[j]*(jnt_pos_cmd_[j]-jnt_pos_[j]) - kd_[j]*jnt_vel_[j] + jnt_trq_cmd_[j] + kg_[j]*G(j);
-        }
-        port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
-    }
+    
+      switch(static_cast<FRI_CTRL>(robot_state.control)){
+            case FRI_CTRL_JNT_IMP:
+                // Joint Impedance Control
+                
+                // If no new command received, then don't send additional torque
+                if(jnt_trq_cmd_fs != RTT::NewData)
+                    jnt_trq_cmd_.setZero();
+                
+                if(jnt_pos_cmd_fs == RTT::NewData){
+                    //Impedance Control
+                    jnt_trq_gazebo_cmd_ = kp_.asDiagonal()*(jnt_pos_cmd_ - jnt_pos_) - kd_.asDiagonal()*jnt_vel_ + jnt_trq_cmd_ + G.data;
+                }else 
+                    ////////////////////////////// TODO : remove that
+                    if(jnt_pos_cmd_fs != RTT::NewData && jnt_trq_cmd_fs == RTT::NewData)
+                            jnt_trq_gazebo_cmd_ = jnt_trq_cmd_ + G.data;
+                    
+                    Eigen::Map<Eigen::VectorXd>(joint_torque_gazebo_cmd.data(),n_joints_) = jnt_trq_gazebo_cmd_;
+                    port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
+                
+                break;
+            case FRI_CTRL_POSITION:
+                if(jnt_pos_cmd_fs == RTT::NewData){
+                    //Position Control
+                    jnt_trq_gazebo_cmd_ = kp_default_.asDiagonal()*(jnt_pos_cmd_-jnt_pos_) - kd_default_.asDiagonal()*jnt_vel_ + G.data;
+                    
+                    Eigen::Map<Eigen::VectorXd>(joint_torque_gazebo_cmd.data(),n_joints_) = jnt_trq_gazebo_cmd_;
+                    port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
+                }
+                break;
+            case FRI_CTRL_CART_IMP:
+                if(cart_pos_cmd_fs == RTT::NewData){
+                    //Cartesian Impedance Control
+                    jnt_trq_gazebo_cmd_ = jac_.data.transpose()*(kc_.asDiagonal()*(X_cmd_-X_) + F_cmd_ + kcd_.asDiagonal()*(Xd_cmd_ - Xd_)) + G.data;
+                    
+                    RTT::log(RTT::Debug) << kc_<<(X_cmd_-X_) << kcd_<<(Xd_cmd_ - Xd_) << F_cmd_<<RTT::endlog();
+                    
+                    
+                    Eigen::Map<Eigen::VectorXd>(joint_torque_gazebo_cmd.data(),n_joints_) = jnt_trq_gazebo_cmd_;
+                    port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
+                }
+                break;
+            default:
+                break;
+      }
     
     now = rtt_rosclock::host_now();
        
