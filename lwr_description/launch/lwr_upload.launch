@@ -1,13 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-	<arg name="prefix" default="lwr" />
-	<arg name="ops_script" default="none" />
 
 <param name="robot_description" command="
-	$(find xacro)/xacro.py '$(find lwr_description)/robots/kuka_lwr.urdf.xacro'
-
-	prefix:=$(arg prefix)
-	ops_script:=$(arg ops_script)
-
-	" />
+	$(find xacro)/xacro.py '$(find lwr_description)/robots/kuka_lwr.urdf.xacro'" />
 </launch>

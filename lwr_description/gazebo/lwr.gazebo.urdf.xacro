@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
-	<xacro:macro name="lwr_gazebo" params="name prefix">
+	<xacro:macro name="lwr_gazebo">
 		<gazebo>
 			<plugin name="rtt_gazebo" filename="librtt_gazebo_deployer.so">
 				<robotNamespace>~</robotNamespace>
@@ -10,46 +10,46 @@
 			    <type>LWRGazeboComponent</type>
 			    <name>lwr_gazebo</name>
 			  </component>
-			    <orocosScript><filename>$(arg ops_script)</filename></orocosScript>
+			    <orocosScript><filename>$(find rtt_lwr_gazebo)/scripts/lwr_gazebo.ops</filename></orocosScript>
 			</plugin>
   		</gazebo>
 
-		<gazebo reference="${prefix}/link_0">
+		<gazebo reference="link_0">
 			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
 		</gazebo>
 
-		<gazebo reference="${prefix}/link_1">
+		<gazebo reference="link_1">
 			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
 		</gazebo>
 
-		<gazebo reference="${prefix}/link_2">
+		<gazebo reference="link_2">
 			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
 		</gazebo>
 
-		<gazebo reference="${prefix}/link_3">
+		<gazebo reference="link_3">
 			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
 		</gazebo>
 
-		<gazebo reference="${prefix}/link_4">
+		<gazebo reference="link_4">
 			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
 		</gazebo>
 
-		<gazebo reference="${prefix}/link_5">
+		<gazebo reference="link_5">
 			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
 		</gazebo>
 
-		<gazebo reference="${prefix}/link_6">
+		<gazebo reference="link_6">
 			<gravity>true</gravity>
 			<material>Gazebo/Grey</material>
 		</gazebo>
 
-		<gazebo reference="${prefix}/link_7">
+		<gazebo reference="link_7">
 			<gravity>true</gravity>
 			<material>Gazebo/Grey</material>
 		</gazebo>

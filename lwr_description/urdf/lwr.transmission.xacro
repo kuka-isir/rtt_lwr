@@ -2,73 +2,73 @@
 
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
-    <xacro:macro name="lwr_transmission" params="name prefix">
+    <xacro:macro name="lwr_transmission">
 
-	    <transmission name="${prefix}/trans_0">
+	    <transmission name="trans_0">
 	    	
 			<type>transmission_interface/SimpleTransmission</type>
-			<joint name="${prefix}/joint_0"/>
-			<actuator name="${prefix}/motor_0">
+			<joint name="joint_0"/>
+			<actuator name="motor_0">
 				<hardwareInterface>EffortJointInterface</hardwareInterface>
 				<mechanicalReduction>1</mechanicalReduction>
 			</actuator>
 	    </transmission>
 
-		<transmission name="${prefix}/trans_1">
+		<transmission name="trans_1">
 			
 			<type>transmission_interface/SimpleTransmission</type>
-			<joint name="${prefix}/joint_1"/>
-			<actuator name="${prefix}/motor_1">
+			<joint name="joint_1"/>
+			<actuator name="motor_1">
 				<hardwareInterface>EffortJointInterface</hardwareInterface>
 				<mechanicalReduction>1</mechanicalReduction>
 			</actuator>
 		</transmission>
 
-		<transmission name="${prefix}/trans_2">
+		<transmission name="trans_2">
 			
 			<type>transmission_interface/SimpleTransmission</type>
-			<joint name="${prefix}/joint_2"/>
-			<actuator name="${prefix}/motor_2">
+			<joint name="joint_2"/>
+			<actuator name="motor_2">
 				<hardwareInterface>EffortJointInterface</hardwareInterface>
 				<mechanicalReduction>1</mechanicalReduction>
 			</actuator>
 		</transmission>
 
-		<transmission name="${prefix}/trans_3">
+		<transmission name="trans_3">
 			
 			<type>transmission_interface/SimpleTransmission</type>
-			<joint name="${prefix}/joint_3"/>
-			<actuator name="${prefix}/motor_3">
+			<joint name="joint_3"/>
+			<actuator name="motor_3">
 				<hardwareInterface>EffortJointInterface</hardwareInterface>
 				<mechanicalReduction>1</mechanicalReduction>
 			</actuator>
 		</transmission>
 
-		<transmission name="${prefix}/trans_4">
+		<transmission name="trans_4">
 			
 			<type>transmission_interface/SimpleTransmission</type>
-			<joint name="${prefix}/joint_4"/>
-			<actuator name="${prefix}/motor_4">
+			<joint name="joint_4"/>
+			<actuator name="motor_4">
 				<hardwareInterface>EffortJointInterface</hardwareInterface>
 				<mechanicalReduction>1</mechanicalReduction>
 			</actuator>
 		</transmission>
 
-		<transmission name="${prefix}/trans_5">
+		<transmission name="trans_5">
 			
 			<type>transmission_interface/SimpleTransmission</type>
-			<joint name="${prefix}/joint_5"/>
-			<actuator name="${prefix}/motor_5">
+			<joint name="joint_5"/>
+			<actuator name="motor_5">
 				<hardwareInterface>EffortJointInterface</hardwareInterface>
 				<mechanicalReduction>1</mechanicalReduction>
 			</actuator>
 		</transmission>
 
-		<transmission name="${prefix}/trans_6">
+		<transmission name="trans_6">
 			
 			<type>transmission_interface/SimpleTransmission</type>
-			<joint name="${prefix}/joint_6"/>
-			<actuator name="${prefix}/motor_6">
+			<joint name="joint_6"/>
+			<actuator name="motor_6">
 				<hardwareInterface>EffortJointInterface</hardwareInterface>
 				<mechanicalReduction>1</mechanicalReduction>
 			</actuator>

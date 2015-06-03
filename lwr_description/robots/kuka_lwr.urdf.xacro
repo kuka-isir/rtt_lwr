@@ -3,7 +3,6 @@
        name="lwr" >
 
   <property name="M_PI" value="3.1415926535897931" />
-  <property name="name" value="lwr" />
   <!-- lbr-->
   <xacro:include filename="$(find lwr_description)/urdf/lwr.urdf.xacro" />
 
@@ -16,26 +15,35 @@
   <!-- world-->
   <link name="world"/>
 
-  <gazebo reference="world">
+
+  <link name="base_link"/>
+  <joint name="base_joint" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <gazebo reference="base_link">
     <static>true</static>>
   </gazebo>
 
-<xacro:macro name="tool">
-      <link name="$(arg prefix)/polaris"/>
-      <joint name="$(arg prefix)/tool_joint" type="fixed">
-         <parent link="$(arg prefix)/link_7" />
-         <child link="$(arg prefix)/polaris" />
-	       <origin xyz="0 0 0.055" rpy="0 0 0" />
-      </joint>
-</xacro:macro>
+  <xacro:macro name="tool">
+    <link name="ati_link"/>
+    <joint name="ati_joint" type="fixed">
+       <parent link="link_7" />
+       <child link="ati_link" />
+       <origin xyz="0 0 0.049" rpy="0 0 0" />
+    </joint>
+  </xacro:macro>
 
   <!--lbr-->
-  <xacro:lwr prefix="$(arg prefix)" name="${name}" parent="world">
+  <xacro:lwr parent="base_link">
     <!-- Position from origin -->
     <origin xyz="0 0 0.01" rpy="0 0 ${2*M_PI/3}" />
   </xacro:lwr>
 
-   <xacro:lwr_gazebo prefix="$(arg prefix)" name="${name}"/>
-   <xacro:lwr_transmission prefix="$(arg prefix)" name="${name}"/>
+   <xacro:lwr_gazebo/>
+   <xacro:lwr_transmission/>
+   <xacro:tool/>
 
 </robot>
