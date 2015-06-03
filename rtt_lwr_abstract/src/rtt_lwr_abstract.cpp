@@ -4,12 +4,22 @@
 #include "rtt_lwr_abstract/rtt_lwr_abstract.hpp"
 using namespace lwr;
 
-RTTLWRAbstract::RTTLWRAbstract(std::string const& name) : RTT::TaskContext(name),robot_name("lwr"),jnt_pos_bdf(7),n_joints_(LBR_MNJ){
+RTTLWRAbstract::RTTLWRAbstract(std::string const& name) : 
+RTT::TaskContext(name),
+robot_name("lwr"),
+jnt_pos_bdf(7),
+n_joints(LBR_MNJ),
+root_link("link_0"),
+tip_link("link_7")
+{
     
     //this->addAttribute("fromKRL", m_fromKRL);
     //this->addAttribute("toKRL", m_toKRL);
     this->addProperty("robot_name",robot_name);
-    this->addProperty("n_joints",n_joints_);
+    this->addProperty("root_link", root_link).doc("");
+    this->addProperty("tip_link", tip_link).doc("");
+    this->addProperty("robot_description",robot_description).doc("The URDF of the Kuka");
+    this->addProperty("n_joints",n_joints);
     
     this->ports()->addPort("CartesianImpedanceCommand", port_CartesianImpedanceCommand).doc("");
     this->ports()->addPort("CartesianWrenchCommand", port_CartesianWrenchCommand).doc("");
@@ -56,10 +66,6 @@ RTTLWRAbstract::RTTLWRAbstract(std::string const& name) : RTT::TaskContext(name)
     
     this->addOperation("sendJointVelocities", &RTTLWRAbstract::sendJointPosition, this, RTT::OwnThread);
     
-#ifdef CONMAN
-        conman_hook_ = conman::Hook::GetHook(this);
-        RTT::log(RTT::Info)<<"\nUsing CONMAN\n"<<RTT::endlog();
-#endif
 }
 
 RTTLWRAbstract::~RTTLWRAbstract(){
@@ -73,7 +79,7 @@ bool RTTLWRAbstract::configureHook(){
     jnt_trq.resize(LBR_MNJ);
     jnt_trq_raw.resize(LBR_MNJ);
     jnt_pos_fri_offset.resize(LBR_MNJ);
-    M.resize(LBR_MNJ,LBR_MNJ);
+    mass.resize(LBR_MNJ,LBR_MNJ);
     jnt_pos_cmd.resize(LBR_MNJ);
     jnt_trq_cmd.resize(LBR_MNJ);
     J.resize(LBR_MNJ);
@@ -106,6 +112,24 @@ bool RTTLWRAbstract::configureHook(){
         RTT::log(RTT::Fatal) << robot_name<<" peer could not be found"<<RTT::endlog();
         return false;
     }
+    rosparam->getPrivate("root_link");
+    rosparam->getPrivate("tip_link");
+
+    RTT::log(RTT::Info)<<"root_link : "<<root_link<<RTT::endlog();
+    RTT::log(RTT::Info)<<"tip_link : "<<tip_link<<RTT::endlog();
+    
+    KDL::Vector gravity_vector(0.,0.,-9.81289);
+    
+    if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,root_link,tip_link,kdl_tree,kdl_chain,robot_name+"/"+"robot_description"))
+    {
+        RTT::log(RTT::Error) << "Error while loading the URDF with params : "<<robot_name<<" "<<root_link<<" "<<tip_link <<RTT::endlog();
+        return false;
+    }
+        
+    ik_solver_vel.reset(new KDL::ChainIkSolverVel_pinv_nso(kdl_chain));
+    id_dyn_solver.reset(new KDL::ChainDynParam(kdl_chain,gravity_vector));
+    id_rne_solver.reset(new KDL::ChainIdSolver_RNE(kdl_chain,gravity_vector));
+    fk_vel_solver.reset(new KDL::ChainFkSolverVel_recursive(kdl_chain));
     
     this->peer = getPeer(robot_name);
     RTT::ConnPolicy policy = RTT::ConnPolicy::data();
@@ -331,71 +355,33 @@ void RTTLWRAbstract::stopKrlScript(){
     port_ToKRL.write(fri_to_krl);
 }
 
+bool RTTLWRAbstract::sendCartesianPosition(const geometry_msgs::Pose& cartesian_pose)
+{
+    port_CartesianPositionCommand.write(cartesian_pose);
+    return true;
+}
+bool RTTLWRAbstract::sendCartesianWrench(const geometry_msgs::Wrench& cartesian_wrench)
+{
+    port_CartesianWrenchCommand.write(cartesian_wrench);
+    return true;
+}
 
 void RTTLWRAbstract::initializeCommand(){
     //Get current joint position and set it as desired position
-    /*if (port_JointPositionCommand.connected()){
-        Eigen::VectorXd measured_jointPosition;
-        measured_jointPosition.resize(LBR_MNJ);
-        RTT::FlowStatus measured_jointPosition_fs = port_JointPosition.read(measured_jointPosition);
-        if (measured_jointPosition_fs == RTT::NewData){
-            port_JointPositionCommand.write(measured_jointPosition);
-        }
-    }*/
-
-    /*if(port_CartesianPositionCommand.connected()){
-        //Get cartesian position and set it as desired position
-        geometry_msgs::Pose cartPosData;
-        RTT::FlowStatus cart_pos_fs = port_CartesianPosition.read(cartPosData);
-        if (cart_pos_fs == RTT::NewData){
-            port_CartesianPositionCommand.write(cartPosData);
-        }
-    }*/
-
-    /*if(port_CartesianWrenchCommand.connected()){
-        //Send 0 torque and force
-        port_CartesianWrench.read(cart_wrench);
-        geometry_msgs::Wrench cart_wrench_command; // Init at 0.0
-        port_CartesianWrenchCommand.write(cart_wrench_command);
-    }*/
-
-    /*if (port_JointTorqueCommand.connected()){
-        //Send 0 joint torque
-        Eigen::VectorXd joint_eff_command;
-        joint_eff_command.resize(LBR_MNJ);
-        port_JointTorqueCommand.write(joint_eff_command);
-    }*/
-
-    if (port_JointImpedanceCommand.connected()){
-        lwr_fri::FriJointImpedance joint_impedance_command;
-	for(unsigned int i = 0; i < LBR_MNJ; i++){
-            joint_impedance_command.stiffness[i] = 250; // Defaults in Kuka manual
-            joint_impedance_command.damping[i] = 0.7; // Defaults in Kuka manual
-	}
-        port_JointImpedanceCommand.write(joint_impedance_command);
-    }
+    getJointPosition(jnt_pos_cmd);
+    sendJointPosition(jnt_pos_cmd);
     
-    if (port_CartesianImpedanceCommand.connected()){
-        lwr_fri::CartesianImpedance c_imp;
-            // Defaults in Kuka manual
-        c_imp.stiffness.linear.x = 2000;
-        c_imp.stiffness.linear.y = 2000;
-        c_imp.stiffness.linear.z = 2000;
-        
-        c_imp.stiffness.angular.x = 200;
-        c_imp.stiffness.angular.y = 200;
-        c_imp.stiffness.angular.z = 200;
-        
-        c_imp.damping.linear.x = 0.7; 
-        c_imp.damping.linear.y = 0.7;
-        c_imp.damping.linear.z = 0.7;
-        
-        c_imp.damping.angular.x = 0.7; 
-        c_imp.damping.angular.y = 0.7;
-        c_imp.damping.angular.z = 0.7;     
-        
-        port_CartesianImpedanceCommand.write(c_imp);
-    }   
+    getCartesianPosition(cart_pos_cmd);
+    sendCartesianPosition(cart_pos_cmd);
+    
+
+    /*lwr_fri::FriJointImpedance joint_impedance_command;
+	for(unsigned int i = 0; i < LBR_MNJ; i++){
+            joint_impedance_command.stiffness[i] = 1000.0; // Defaults in Kuka manual
+            joint_impedance_command.damping[i] = 0.7; // Defaults in Kuka manual
+        }
+    sendJointImpedance(joint_impedance_command);*/
+   
 }
 
 bool RTTLWRAbstract::getCartesianPosition(geometry_msgs::Pose& cart_position){

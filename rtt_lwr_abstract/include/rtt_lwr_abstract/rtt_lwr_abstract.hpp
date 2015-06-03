@@ -40,13 +40,9 @@
 #include <boost/circular_buffer.hpp>
 #include <boost/foreach.hpp>
 #include <boost/assign.hpp>
-
-#ifdef CONMAN
-#include <conman/conman.h>
-#include <conman/scheme.h>
-#include <conman/hook.h>
-#endif
-
+#include <rtt_ros_kdl_tools/tools.hpp>
+#include <boost/scoped_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace lwr{
     // Custom FRI/KRL Cmds
@@ -56,10 +52,11 @@ namespace lwr{
     
 class RTTLWRAbstract : public RTT::TaskContext{
   public:
-	RTT::TaskContext* peer;
-#ifdef CONMAN
-    boost::shared_ptr<conman::Hook> conman_hook_;
-#endif
+      /**
+     * @brief lwr or lwr_sim peer
+     */
+      RTT::TaskContext* peer;
+
 
     /**
      * @brief Shared arrays from the remote pc to the KRC
@@ -106,7 +103,7 @@ class RTTLWRAbstract : public RTT::TaskContext{
     geometry_msgs::Pose cart_pos, cart_pos_cmd;
     geometry_msgs::Wrench cart_wrench, cart_wrench_cmd;
     geometry_msgs::Twist cart_twist;
-    Eigen::MatrixXd M;
+    Eigen::MatrixXd mass;
     lwr_fri::FriJointImpedance jnt_imp_cmd;
     lwr_fri::CartesianImpedance cart_imp_cmd;
     Eigen::VectorXd jnt_pos;
@@ -116,7 +113,6 @@ class RTTLWRAbstract : public RTT::TaskContext{
     Eigen::VectorXd jnt_pos_fri_offset;
     Eigen::VectorXd jnt_grav;
     Eigen::VectorXd jnt_vel;
-    std::string robot_name;
     // Backward differentiation formula buffer : http://en.wikipedia.org/wiki/Backward_differentiation_formula
     boost::circular_buffer<Eigen::VectorXd> jnt_pos_bdf;
     Eigen::VectorXd jnt_vel_bdf;
@@ -127,9 +123,20 @@ class RTTLWRAbstract : public RTT::TaskContext{
     RTT::Attribute<tFriKrlData> m_toKRL;
     KDL::Jacobian J;
     KDL::Frame T_old;
-    unsigned int n_joints_;
+    unsigned int n_joints;
     
-    const unsigned int getNJoints()const{return n_joints_;}
+    std::string root_link,tip_link,robot_name,robot_description;
+    urdf::Model urdf_model;
+    KDL::Tree kdl_tree;
+    KDL::Chain kdl_chain;        
+        
+    boost::scoped_ptr<KDL::ChainFkSolverVel_recursive> fk_vel_solver;
+    boost::scoped_ptr<KDL::ChainIkSolverVel_pinv_nso> ik_solver_vel;
+    boost::scoped_ptr<KDL::ChainDynParam> id_dyn_solver;
+    boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver;
+    boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver;
+    
+    const unsigned int getNJoints()const{return n_joints;}
 
     bool sendJointCommand(RTT::OutputPort<Eigen::VectorXd>& port_cmd,const Eigen::VectorXd& jnt_cmd); 
     int getToolKRL();
@@ -268,7 +275,12 @@ class RTTLWRAbstract : public RTT::TaskContext{
     /** @brief Send Joint Torque in N.m
      */
     bool sendJointTorque(const Eigen::VectorXd& joint_torque_cmd);
-        
+    /** @brief Send Cartesian position Command
+     */
+    bool sendCartesianPosition(const geometry_msgs::Pose& cartesian_pose);
+    /** @brief Send Cartesian Wrench Command
+     */
+    bool sendCartesianWrench(const geometry_msgs::Wrench& cartesian_wrench);
     /** @brief Set the Position Control Mode 10
      */
     void setJointPositionControlMode(){setControlStrategy(10*FRI_CTRL_POSITION);}
