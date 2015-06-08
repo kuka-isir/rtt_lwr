@@ -16,6 +16,7 @@
   <run_depend>rtt_lwr_abstract</run_depend>
   <run_depend>kuka_lwr_fri</run_depend>
   <run_depend>lwr_fri</run_depend>
+  <run_depend>lwr_scripts</run_depend>
 
   <export>
   </export>
