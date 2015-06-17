@@ -105,22 +105,22 @@ bool RTTLWRAbstract::configureHook(){
     }
 
     // Set the Robot name (lwr or lwr_sim) For other components to know it
-    rosparam->getPrivate("robot_name");
+    rosparam->getRelative("robot_name");
 
     if(!hasPeer(robot_name))
     {
         RTT::log(RTT::Fatal) << robot_name<<" peer could not be found"<<RTT::endlog();
         return false;
     }
-    rosparam->getPrivate("root_link");
-    rosparam->getPrivate("tip_link");
+    rosparam->getRelative("root_link");
+    rosparam->getRelative("tip_link");
 
     RTT::log(RTT::Info)<<"root_link : "<<root_link<<RTT::endlog();
     RTT::log(RTT::Info)<<"tip_link : "<<tip_link<<RTT::endlog();
     
     KDL::Vector gravity_vector(0.,0.,-9.81289);
     
-    if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,root_link,tip_link,kdl_tree,kdl_chain,robot_name+"/"+"robot_description"))
+    if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,root_link,tip_link,kdl_tree,kdl_chain,"robot_description"))
     {
         RTT::log(RTT::Error) << "Error while loading the URDF with params : "<<robot_name<<" "<<root_link<<" "<<tip_link <<RTT::endlog();
         return false;
