@@ -24,6 +24,7 @@ SLAVES="192.168.100.102 192.168.100.103"
 SLAVES_NAMES="Kuka ATISensor"
 ### Xenomai 2+RTNET
 prefix="/usr/local/rtnet"
+prefix_bin="${prefix}/sbin"
 modules_dir="modules"
 RTNETCFG="${prefix}/etc/rtnet.conf"
 
@@ -37,8 +38,8 @@ bringup_slave()
         rc=0
         count=$max_trials                   # Maximum number to try.
         while [ $count -ne 0 ] ; do
-        	sudo ./rtroute solicit $slave dev rteth$slave_number
-            sudo ./rtping -c 1 $slave              # Try once.
+        	${prefix_bin}/rtroute solicit $slave dev rteth$slave_number
+            ${prefix_bin}/rtping -c 1 $slave              # Try once.
             rc=$?
             if [ $rc -eq 0 ] ; then
                 count=1                      # If okay, flag to exit loop.
@@ -69,16 +70,16 @@ do_start()
    fi
 
 
-   cd ${prefix}/sbin/
-   sudo ./rtnet start
+   #cd ${prefix}/sbin/
+   ${prefix_bin}/rtnet start
    sleep 0.5
 
    # Bring up connection
    i=0
    rc=0
    for SLAVE in $SLAVES; do
-   		sudo ./rtifconfig rteth$i up $IPADDR netmask $NETMASK
-   		#sudo ./rtroute solicit $SLAVE dev rteth$i
+   		${prefix_bin}/rtifconfig rteth$i up $IPADDR netmask $NETMASK
+   		#${prefix_bin}/rtroute solicit $SLAVE dev rteth$i
    		i=$((i+1))
    	done
 
@@ -86,7 +87,7 @@ do_start()
    i=0
    names=($SLAVES_NAMES)
    for SLAVE in $SLAVES; do
-   		   #echo "sudo ./rtroute solicit $SLAVE dev rteth$i"
+   		   #echo "${prefix_bin}/rtroute solicit $SLAVE dev rteth$i"
 	       
            bringup_slave $SLAVE ${names[$i]} $i &
            i=$((i+1))
@@ -98,7 +99,7 @@ do_stop()
 {
    echo "Stoping RealTime Network";
    cd ${prefix}/sbin/
-   sudo ./rtnet stop
+   ${prefix_bin}/rtnet stop
 }
 
 
