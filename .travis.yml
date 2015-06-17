@@ -57,7 +57,7 @@ before_install:
   - popd
   - git clone https://github.com/jbohren/rqt_dot.git
   - git clone https://github.com/jhu-lcsr/rtt_ros_control.git
-  - git clone https://github.com/jhu-lcsr/rtt_gazebo
+  - git clone https://github.com/ahoarau/rtt_gazebo
   - git clone https://github.com/kuka-isir/rtt_ros_kdl_tools
   - git clone https://github.com/orocos/rtt_geometry.git
   - git clone https://github.com/jbohren/conman.git
