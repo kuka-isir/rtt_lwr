@@ -1,6 +1,12 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
+	<xacro:macro  name="gz_joint" params="joint_name">
+		<gazebo reference="${joint_name}">
+			<implicitSpringDamper>false</implicitSpringDamper>
+		</gazebo>
+	</xacro:macro>
+
 	<xacro:macro name="lwr_gazebo">
 		<gazebo>
 			<plugin name="rtt_gazebo" filename="librtt_gazebo_deployer.so">
@@ -13,6 +19,14 @@
 			    <orocosScript><filename>$(find rtt_lwr_gazebo)/scripts/lwr_gazebo.ops</filename></orocosScript>
 			</plugin>
   		</gazebo>
+
+  		<xacro:gz_joint joint_name="joint_0"/>
+  		<xacro:gz_joint joint_name="joint_1"/>
+  		<xacro:gz_joint joint_name="joint_2"/>
+  		<xacro:gz_joint joint_name="joint_3"/>
+  		<xacro:gz_joint joint_name="joint_4"/>
+  		<xacro:gz_joint joint_name="joint_5"/>
+  		<xacro:gz_joint joint_name="joint_6"/>
 
 		<gazebo reference="link_0">
 			<gravity>true</gravity>
