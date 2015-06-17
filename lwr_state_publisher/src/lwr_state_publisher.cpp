@@ -21,7 +21,7 @@ class LWRStatePublisher : public RTT::TaskContext{
 public:
     LWRStatePublisher(std::string const& name):
         robot_name_("lwr"),
-        robot_namespace_("lwr"),
+        robot_namespace_("/"),
         link_prefix_("lwr"),
         n_joints_(7),
         peer(NULL),
@@ -66,9 +66,9 @@ public:
             //return false;
         }
 
-        this->port_JointState.createStream(rtt_roscomm::topic(robot_namespace_+"/joint_states"));
-        this->port_JointStateVelocityBDF.createStream(rtt_roscomm::topic(robot_namespace_+"/joint_states_velocity_bdf"));
-        this->port_dt.createStream(rtt_roscomm::topic(robot_namespace_+"/dt"));
+        this->port_JointState.createStream(rtt_roscomm::topic(robot_namespace_+"joint_states"));
+        this->port_JointStateVelocityBDF.createStream(rtt_roscomm::topic(robot_namespace_+"joint_states_velocity_bdf"));
+        this->port_dt.createStream(rtt_roscomm::topic("~"+getName()+"/dt"));
 
         this->joint_position.resize(n_joints_);
         this->joint_velocity.resize(n_joints_);
@@ -86,12 +86,12 @@ public:
         {
             std::ostringstream ss;
             ss << i;
-            this->joint_state.name.push_back(robot_namespace_+"/"+link_prefix_+"_"+ss.str()+"_joint");
+            this->joint_state.name.push_back("joint_"+ss.str());
             this->joint_state.position.push_back(0.0);
             this->joint_state.velocity.push_back(0.0);
             this->joint_state.effort.push_back(0.0);
 
-            this->joint_state_velocity_bdf.name.push_back(robot_namespace_+"/"+link_prefix_+"_"+ss.str()+"_joint");
+            this->joint_state_velocity_bdf.name.push_back("joint_"+ss.str());
             this->joint_state_velocity_bdf.position.push_back(0.0);
             this->joint_state_velocity_bdf.velocity.push_back(0.0);
             this->joint_state_velocity_bdf.effort.push_back(0.0);
