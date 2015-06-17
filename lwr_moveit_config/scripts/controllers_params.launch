@@ -1,6 +1,6 @@
 <launch>
   <arg name="oro_prefix" default="" doc="This prefix is used for orocos component names"/>
-  <arg name="tf_prefix" default="lwr" doc="This prefix is used for TF frames"/>
+  <arg name="tf_prefix" default="" doc="This prefix is used for TF frames"/>
   <arg name="ee_empty" default="true" doc="(bool) True if there is no end-effector"/>
   <arg name="ee_ball" default="false" doc="(bool) True if there is no end-effector"/>
   <arg name="ee_hand" default="false" doc="(bool) True if there is no end-effector"/>
@@ -10,7 +10,7 @@
     <rosparam subst_value="true">
       root_link: link_0
       tip_link: link_7
-      robot_description_param: $(arg tf_prefix)/robot_description
+      robot_description_param: robot_description
       # friction
       static_deadband: [0.001, 0.001, 0.001, 0.01, 0.01, 0.01, 0.01]
       static_effort: [4.0, 1.0, 2.0, 1.0, 0.2, 0.2, 0.05]
@@ -21,8 +21,8 @@
       verbose: true
     </rosparam>
     <rosparam if="$(arg ee_empty)" subst_value="true">
-      p_gains: [450.0, 450.0, 200.0, 200.0, 200.0, 20.0, 10.0]
-      d_gains: [1.0, 1.0, 0.7, 0.7, 0.7, 0.1, 0.0]
+      p_gains: [250.0, 250.0, 250.0, 250.0, 150.0, 40.0, 40.0]
+      d_gains: [31.6, 31.6, 31.6, 31.6, 24.5, 12.6, 12.6]
       position_tolerance: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
       velocity_tolerance: [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
     </rosparam>
@@ -44,7 +44,7 @@
     <rosparam subst_value="true">
       root_link: link_0
       tip_link: link_7
-      robot_description_param: $(arg tf_prefix)/robot_description
+      robot_description_param: robot_description
       sampling_resolution: 0.002
       #note: absolute max joint velocity: 2.0 rad/s
       #note: safe joint velocity: 0.5 rad/s
@@ -60,7 +60,7 @@
       velocity_tolerance: [3.2, 3.2, 3.2, 3.2, 3.0, 3.0, 3.0]
       max_velocities: [1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5]
       max_accelerations: [4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5]
-      max_jerks: [2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5]
+      max_jerks: [5.5, 5.5, 5.5, 5.5, 5.5, 5.5, 5.5]
     </rosparam>
     <rosparam if="$(arg ee_ball)" subst_value="true">
       position_tolerance: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]

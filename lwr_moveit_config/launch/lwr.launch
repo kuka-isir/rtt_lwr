@@ -1,8 +1,8 @@
 <launch>
-<arg name="robot_name" default="lwr_sim"/>
+<arg name="robot_ns" default="/"/>
 
-<group ns="$(arg robot_name)">
-  <param name="tf_prefix" value="$(arg robot_name)"/>
+<group ns="$(arg robot_ns)">
+  <param name="tf_prefix" value="$(arg robot_ns)"/>
   <!-- By default, we do not start a database (it can be large) -->
   <arg name="db" default="false" />
 

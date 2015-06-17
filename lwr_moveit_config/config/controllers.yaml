@@ -1,5 +1,5 @@
 controller_list:
-  - name: /deployer_lwr_sim/traj_rml
+  - name: /deployer_lwr/traj_rml
     action_ns: action
     type: FollowJointTrajectory
     default: true
