@@ -21,22 +21,11 @@
 
 
   <!-- Gazebo joint configuration -->
-  <xacro:macro  name="gz_joint">
-    <provideFeedback>true</provideFeedback>
-    <!--implicitSpringDamper>true</implicitSpringDamper-->
-    <!--<kp>0.0</kp>[> CFM <]-->
-    <!--<kd>0.0</kd>[> ERP <]-->
-    <!--<cfmDamping>true</cfmDamping>-->
-    <!--<dynamics damping="5.5" friction="1"/>-->
-  </xacro:macro>
 
    <xacro:macro name="lwr" params="parent *origin ">
 
       <!-- joint between {parent} and lwr_0_link -->
       <joint name="joint_base" type="fixed">
-        <gazebo reference="joint_base">
-          <xacro:gz_joint/>
-        </gazebo>
 
          <xacro:insert_block name="origin" />
          <parent link="${parent}" />
@@ -73,9 +62,6 @@
       </link>
       <!-- joint between lwr_0_link and lwr_1_link -->
       <joint name="joint_0" type="revolute">
-        <gazebo reference="joint_0">
-          <xacro:gz_joint/>
-        </gazebo>
 
          <parent link="link_0" />
          <child link="link_1" />
@@ -116,9 +102,6 @@
       </link>
       <!-- joint between lwr_1_link and lwr_2_link -->
       <joint name="joint_1" type="revolute">
-        <gazebo reference="joint_1">
-          <xacro:gz_joint/>
-        </gazebo>
 
          <parent link="link_1" />
          <child link="link_2" />
@@ -167,9 +150,6 @@
       </link>
       <!-- joint between lwr_2_link and lwr_3_link -->
       <joint name="joint_2" type="revolute">
-        <gazebo reference="joint_2">
-          <xacro:gz_joint/>
-        </gazebo>
 
          <parent link="link_2" />
          <child link="link_3" />
@@ -210,9 +190,6 @@
       </link>
       <!-- joint between lwr_3_link and lwr_4_link -->
       <joint name="joint_3" type="revolute">
-        <gazebo reference="joint_3">
-          <xacro:gz_joint/>
-        </gazebo>
 
          <parent link="link_3" />
          <child link="link_4" />
@@ -253,9 +230,6 @@
       </link>
       <!-- joint between lwr_4_link and lwr_5_link -->
       <joint name="joint_4" type="revolute">
-        <gazebo reference="joint_4">
-          <xacro:gz_joint/>
-        </gazebo>
 
          <parent link="link_4" />
          <child link="link_5" />
@@ -296,9 +270,6 @@
       </link>
       <!-- joint between lwr_5_link and lwr_6_link -->
       <joint name="joint_5" type="revolute">
-        <gazebo reference="joint_5">
-          <xacro:gz_joint/>
-        </gazebo>
 
          <parent link="link_5" />
          <child link="link_6" />
@@ -339,9 +310,6 @@
       </link>
       <!-- joint between lwr_6_link and lwr_7_link -->
       <joint name="joint_6" type="revolute">
-        <gazebo reference="joint_6">
-          <xacro:gz_joint/>
-        </gazebo>
 
          <parent link="link_6" />
          <child link="link_7" />
