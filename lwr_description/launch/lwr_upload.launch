@@ -3,4 +3,9 @@
 
 <param name="robot_description" command="
 	$(find xacro)/xacro.py '$(find lwr_description)/robots/kuka_lwr.urdf.xacro'" />
+
+<param name="root_link" type="str" value="link_0"/>
+<param name="tip_link" type="str" value="link_7"/>
+
 </launch>
+
