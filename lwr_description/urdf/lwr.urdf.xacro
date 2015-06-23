@@ -56,7 +56,7 @@
          <collision>
             <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
             <geometry>
-               <mesh filename="package://lwr_description/meshes/lwr/link0.dae" />
+               <mesh filename="package://lwr_description/meshes/lwr/link0_c2.stl" />
             </geometry>
          </collision>
       </link>
@@ -96,7 +96,7 @@
          <collision>
             <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
             <geometry>
-               <mesh filename="package://lwr_description/meshes/lwr/link1.dae" />
+               <mesh filename="package://lwr_description/meshes/lwr/link1_c2.stl" />
             </geometry>
          </collision>
       </link>
@@ -136,7 +136,7 @@
          <collision>
             <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
             <geometry>
-               <mesh filename="package://lwr_description/meshes/lwr/link2.dae" />
+               <mesh filename="package://lwr_description/meshes/lwr/link2_c2.stl" />
             </geometry>
            <surface>
             <friction>
@@ -184,7 +184,7 @@
          <collision>
             <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
             <geometry>
-               <mesh filename="package://lwr_description/meshes/lwr/link3.dae" />
+               <mesh filename="package://lwr_description/meshes/lwr/link3_c2.stl" />
             </geometry>
          </collision>
       </link>
@@ -224,7 +224,7 @@
          <collision>
             <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
             <geometry>
-               <mesh filename="package://lwr_description/meshes/lwr/link4.dae" />
+               <mesh filename="package://lwr_description/meshes/lwr/link4_c2.stl" />
             </geometry>
          </collision>
       </link>
@@ -264,7 +264,7 @@
          <collision>
             <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
             <geometry>
-               <mesh filename="package://lwr_description/meshes/lwr/link5.dae" />
+               <mesh filename="package://lwr_description/meshes/lwr/link5_c2.stl" />
             </geometry>
          </collision>
       </link>
@@ -304,7 +304,7 @@
          <collision>
             <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
             <geometry>
-               <mesh filename="package://lwr_description/meshes/lwr/link6.dae" />
+               <mesh filename="package://lwr_description/meshes/lwr/link6_c2.stl" />
             </geometry>
          </collision>
       </link>
@@ -343,7 +343,7 @@
          <collision>
             <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
             <geometry>
-               <mesh filename="package://lwr_description/meshes/lwr/link7.dae" />
+               <mesh filename="package://lwr_description/meshes/lwr/link7_c2.stl" />
             </geometry>
          </collision>
       </link>
