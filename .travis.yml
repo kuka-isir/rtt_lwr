@@ -72,7 +72,7 @@ before_install:
 install:
   # build the normal catkin workspace
   - pushd ~/ws
-  - catkin_make -j1 -DCATKIN_ENABLE_TESTING=OFF
+  - catkin_make -j2 -DCATKIN_ENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Debug
     # -DENABLE_COVERAGE=On 
 
 script:
