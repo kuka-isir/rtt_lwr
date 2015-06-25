@@ -1,0 +1,4 @@
+#!/bin/bash
+prefix=/usr/local/rtnet
+prefix_bin=${prefix}/sbin
+sudo ${prefix_bin}/rtping $1
