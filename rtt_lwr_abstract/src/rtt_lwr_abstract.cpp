@@ -130,7 +130,16 @@ bool RTTLWRAbstract::configureHook(){
     id_dyn_solver.reset(new KDL::ChainDynParam(kdl_chain,gravity_vector));
     id_rne_solver.reset(new KDL::ChainIdSolver_RNE(kdl_chain,gravity_vector));
     fk_vel_solver.reset(new KDL::ChainFkSolverVel_recursive(kdl_chain));
+    jnt_to_jac_solver.reset(new KDL::ChainJntToJacSolver(kdl_chain));
     
+    jnt_pos_kdl.resize(kdl_chain.getNrOfJoints());
+    jnt_vel_kdl.resize(kdl_chain.getNrOfJoints());
+    jnt_pos_vel_kdl.resize(kdl_chain.getNrOfSegments());
+    jnt_trq_kdl.resize(kdl_chain.getNrOfJoints());
+    gravity_kdl.resize(kdl_chain.getNrOfJoints());
+    coriolis_kdl.resize(kdl_chain.getNrOfJoints());
+    f_ext_kdl.resize(kdl_chain.getNrOfSegments());
+
     this->peer = getPeer(robot_name);
     RTT::ConnPolicy policy = RTT::ConnPolicy::data();
     port_CartesianWrench.connectTo(this->peer->getPort("CartesianWrench"),policy);

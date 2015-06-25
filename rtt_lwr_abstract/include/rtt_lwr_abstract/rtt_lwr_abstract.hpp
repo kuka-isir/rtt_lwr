@@ -106,23 +106,36 @@ class RTTLWRAbstract : public RTT::TaskContext{
     Eigen::MatrixXd mass;
     lwr_fri::FriJointImpedance jnt_imp_cmd;
     lwr_fri::CartesianImpedance cart_imp_cmd;
-    Eigen::VectorXd jnt_pos;
-    Eigen::VectorXd jnt_pos_old;
-    Eigen::VectorXd jnt_trq;
-    Eigen::VectorXd jnt_trq_raw;
-    Eigen::VectorXd jnt_pos_fri_offset;
-    Eigen::VectorXd jnt_grav;
-    Eigen::VectorXd jnt_vel;
+
+    Eigen::VectorXd jnt_pos,
+                    jnt_pos_old,
+                    jnt_trq,
+                    jnt_trq_raw,
+                    jnt_pos_fri_offset,
+                    jnt_grav,
+                    jnt_vel,
+                    jnt_pos_cmd,
+                    jnt_trq_cmd,
+                    jnt_vel_bdf;
+
+    KDL::JntArray   jnt_pos_kdl,
+                    jnt_vel_kdl,
+                    coriolis_kdl,
+                    gravity_kdl,
+                    jnt_trq_kdl;
+                    
+    KDL::JntArrayVel jnt_pos_vel_kdl;
+    KDL::Frame tool_in_base_frame;
+
+    KDL::Wrenches f_ext_kdl;
+
     // Backward differentiation formula buffer : http://en.wikipedia.org/wiki/Backward_differentiation_formula
     boost::circular_buffer<Eigen::VectorXd> jnt_pos_bdf;
-    Eigen::VectorXd jnt_vel_bdf;
 
-    Eigen::VectorXd jnt_pos_cmd;
-    Eigen::VectorXd jnt_trq_cmd;
     RTT::Attribute<tFriKrlData> m_fromKRL;
     RTT::Attribute<tFriKrlData> m_toKRL;
     KDL::Jacobian J;
-    KDL::Frame T_old;
+    KDL::FrameVel tool_in_base_framevel;
     unsigned int n_joints;
     
     std::string root_link,tip_link,robot_name,robot_description;
@@ -295,6 +308,16 @@ class RTTLWRAbstract : public RTT::TaskContext{
     bool isCommandMode();
     bool isMonitorMode();
     bool isPowerOn();
+    bool updateState(){
+        bool res=true;
+        res &= getJointPosition(jnt_pos);
+        res &= getJointVelocity(jnt_vel);
+        jnt_pos_kdl.data = jnt_pos;
+        jnt_vel_kdl.data = jnt_vel;
+        jnt_pos_vel_kdl.q.data = jnt_pos;
+        jnt_pos_vel_kdl.qdot.data = jnt_vel;
+        return res;
+    }
 };
 }
 #endif
