@@ -12,6 +12,7 @@
 
 VERT="\\033[1;32m"
 NORMAL="\\033[0;39m"
+NC='\033[0m'
 ROUGE="\\033[1;31m"
 ROSE="\\033[1;35m"
 BLEU="\\033[1;34m"
@@ -44,16 +45,16 @@ bringup_slave()
             if [ $rc -eq 0 ] ; then
                 count=1                      # If okay, flag to exit loop.
             else
-                echo -e "$BLANC" "Remaining trials $count for $slave_name"
+                echo -e "$BLANC" "Remaining trials $count for $slave_name ${NC}"
             fi
             count=$((count - 1))                  # So we don't go forever.
             sleep $sleep_time_s
         done
 
         if [ $rc -eq 0 ] ; then                  # Make final determination.
-            echo -e "$VERT" "$slave_name is connected."
+            echo -e "$VERT" "$slave_name is connected. ${NC}"
         else
-            echo -e "$ROUGE" "$slave_name timed out. Please start again if $slave_name is plugged in."
+            echo -e "$ROUGE" "$slave_name timed out. Please start again if $slave_name is plugged in. ${NC}"
         fi
 }
 
@@ -65,7 +66,7 @@ do_start()
    if [ -r $RTNETCFG ]; then
        . $RTNETCFG
    else
-       echo -e "$ROUGE" "Could not read $RTNETCFG"
+       echo -e "$ROUGE" "Could not read $RTNETCFG ${NC}"
        exit 1
    fi
 
@@ -88,7 +89,7 @@ do_start()
    names=($SLAVES_NAMES)
    for SLAVE in $SLAVES; do
    		   #echo "${prefix_bin}/rtroute solicit $SLAVE dev rteth$i"
-	       
+
            bringup_slave $SLAVE ${names[$i]} $i &
            i=$((i+1))
    done
