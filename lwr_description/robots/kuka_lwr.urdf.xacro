@@ -28,11 +28,23 @@
   </gazebo>
 
   <xacro:macro name="tool">
-    <link name="ati_link"/>
+    <link name="ati_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="0.730" />
+        <inertia
+          ixx="0.0001"
+          ixy="0.0"
+          ixz="0.0"
+          iyy="0.0001"
+          iyz="0.0"
+          izz="0.0001" />
+      </inertial>
+    </link>
     <joint name="ati_joint" type="fixed">
        <parent link="link_7" />
        <child link="ati_link" />
-       <origin xyz="0 0 0.049" rpy="0 0 0" />
+       <origin xyz="0 0 0.049" rpy="0 0 ${20.0*M_PI/180.0}" />
     </joint>
   </xacro:macro>
 

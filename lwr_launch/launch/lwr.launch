@@ -1,0 +1,34 @@
+<launch>
+<arg name="debug" default="false"/>
+<arg name="rviz" default="false"/>
+<arg name="gui" default="false"/>
+<arg name="TAO" default="false"/>
+<arg name="robot_name" default="lwr"/>
+<arg name="robot_ns" default="/" />
+<arg name="use_sim_time" default="false"/>
+
+<param if="$(arg use_sim_time)" name="use_sim_time" value="true" />
+
+<!--include file="$(find rtt_lwr_gazebo)/launch/empty_world.launch">
+	<arg name="debug" value="$(arg debug)" />
+	<arg name="gui" value="$(arg gui)" />
+	<arg name="paused" value="false"/>
+	<arg name="use_sim_time" value="$(arg use_sim_time)"/>
+	<arg name="headless" value="false"/>
+</include-->
+
+<group ns="$(arg robot_ns)">
+    <param name="tf_prefix" value="$(arg robot_ns)" />
+    <param name="robot_name" value="$(arg robot_name)" />
+    
+    <include file="$(find lwr_description)/launch/lwr_upload.launch"/>
+    
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen"/>
+    
+    <!--node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model $(arg robot_name)"  respawn="false" output="screen" /-->
+    <!-- Launch the CORBA TO naming service -->
+    <!--node if="$(arg TAO)" name="corba_naming_service" pkg="rtt_ros" type="corba-naming-service" args="-m 1"/-->
+  
+</group>
+
+</launch>

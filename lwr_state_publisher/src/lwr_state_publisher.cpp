@@ -22,7 +22,7 @@ public:
     LWRStatePublisher(std::string const& name):
         robot_name_("lwr"),
         robot_namespace_("/"),
-        link_prefix_("lwr"),
+        link_prefix_(""),
         n_joints_(7),
         peer(NULL),
         cnt_(0),

@@ -1,9 +1,9 @@
-// RunScript(ros.find("lwr_state_publisher")+"/run.ops")
+// runScript(ros.find("lwr_state_publisher")+"/run_hw.ops")
 import("rtt_ros")
 ros.import("lwr_state_publisher")
 
 loadComponent("state_pub","LWRStatePublisher")
-setActivity("state_pub",0.01,LowestPriority,ORO_SCHED_RT)
+setActivity("state_pub",0.01,LowestPriority,ORO_SCHED_OTHER)
 
 connectPeers("state_pub","lwr")
 
