@@ -104,10 +104,17 @@ class RTTLWRAbstract : public RTT::TaskContext{
     geometry_msgs::Pose cart_pos, cart_pos_cmd;
     geometry_msgs::Wrench cart_wrench, cart_wrench_cmd;
     geometry_msgs::Twist cart_twist;
+    KDL::Twist cart_twist_kdl;
     Eigen::MatrixXd mass;
     lwr_fri::FriJointImpedance jnt_imp_cmd;
     lwr_fri::CartesianImpedance cart_imp_cmd;
-
+    
+    Eigen::Matrix<double,6,1> X,Xd,Xdd,X_cmd,Xd_cmd,Xdd_cmd;
+    Eigen::Affine3d X_aff,Xd_aff;
+    Eigen::VectorXd kp,kd;
+    Eigen::Matrix<double,6,1> kp_cart,kd_cart;
+    KDL::Frame X_kdl,Xd_kdl;
+    
     Eigen::VectorXd jnt_pos,
                     jnt_pos_old,
                     jnt_trq,
@@ -330,6 +337,12 @@ class RTTLWRAbstract : public RTT::TaskContext{
             return RTT::NoData;
         }
         return port.read(data);
+    }
+    void setJointTorqueControlMode(){
+        setJointImpedanceControlMode();
+        std::fill(jnt_imp_cmd.stiffness.begin(),jnt_imp_cmd.stiffness.end(),0.0);
+        std::fill(jnt_imp_cmd.damping.begin(),jnt_imp_cmd.damping.end(),0.0);
+        sendJointImpedance(jnt_imp_cmd);
     }
 };
 }
