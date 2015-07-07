@@ -382,22 +382,13 @@ void RTTLWRAbstract::initializeCommand(){
     
     getCartesianPosition(cart_pos_cmd);
     sendCartesianPosition(cart_pos_cmd);
-    
-
-    /*lwr_fri::FriJointImpedance joint_impedance_command;
-	for(unsigned int i = 0; i < LBR_MNJ; i++){
-            joint_impedance_command.stiffness[i] = 1000.0; // Defaults in Kuka manual
-            joint_impedance_command.damping[i] = 0.7; // Defaults in Kuka manual
-        }
-    sendJointImpedance(joint_impedance_command);*/
-   
 }
 
 bool RTTLWRAbstract::getCartesianPosition(geometry_msgs::Pose& cart_position){
     if (port_CartesianPosition.connected() == false)
         RTT::log(RTT::Warning)<<"port_CartesianPosition not connected"<<RTT::endlog();
 
-    port_CartesianPosition.read(cart_position)  != RTT::NoData;
+    return port_CartesianPosition.read(cart_position)  != RTT::NoData;
 }
 bool RTTLWRAbstract::getJointPosition(Eigen::VectorXd& joint_position){
     if (port_JointPosition.connected() == false)
@@ -409,43 +400,49 @@ bool RTTLWRAbstract::getJointPosition(Eigen::VectorXd& joint_position){
 bool RTTLWRAbstract::getJacobian(KDL::Jacobian& jacobian){
     if (port_Jacobian.connected() == false)
         RTT::log(RTT::Warning)<<"port_Jacobian not connected"<<RTT::endlog();
-    port_Jacobian.read(jacobian) != RTT::NoData;
+    return port_Jacobian.read(jacobian) != RTT::NoData;
 }
 
 bool RTTLWRAbstract::getMassMatrix(Eigen::MatrixXd& mass_matrix){
     if (port_MassMatrix.connected() == false)
         RTT::log(RTT::Warning)<<"port_MassMatrix not connected"<<RTT::endlog();
-    port_MassMatrix.read(mass_matrix) != RTT::NoData;
+    return port_MassMatrix.read(mass_matrix) != RTT::NoData;
 }
 
 bool RTTLWRAbstract::getGravityTorque(Eigen::VectorXd& gravity_torque){
     if (port_GravityTorque.connected() == false)
         RTT::log(RTT::Warning)<<"port_GravityTorque not connected"<<RTT::endlog();
-    port_GravityTorque.read(gravity_torque) != RTT::NoData;
+    return port_GravityTorque.read(gravity_torque) != RTT::NoData;
 }
 
 bool RTTLWRAbstract::getJointTorque(Eigen::VectorXd& joint_torque){
     if (port_JointTorque.connected() == false)
         RTT::log(RTT::Warning)<<"port_JointTorque not connected"<<RTT::endlog();
-    port_JointTorque.read(joint_torque) != RTT::NoData;
+    return port_JointTorque.read(joint_torque) != RTT::NoData;
+}
+
+bool RTTLWRAbstract::getCartesianVelocity(geometry_msgs::Twist& cart_twist){
+    if (port_CartesianVelocity.connected() == false)
+        RTT::log(RTT::Warning)<<port_CartesianVelocity.getName()<<" not connected"<<RTT::endlog();
+    return port_CartesianVelocity.read(cart_twist) != RTT::NoData;
 }
 
 bool RTTLWRAbstract::getCartesianWrench(geometry_msgs::Wrench& cart_wrench){
     if (port_CartesianWrench.connected() == false)
         RTT::log(RTT::Warning)<<"port_CartesianWrench not connected"<<RTT::endlog();
-    port_CartesianWrench.read(cart_wrench) != RTT::NoData;
+    return port_CartesianWrench.read(cart_wrench) != RTT::NoData;
 }
 bool RTTLWRAbstract::getJointVelocity(Eigen::VectorXd& joint_velocity)
 {
     if (port_JointVelocity.connected() == false)
         RTT::log(RTT::Warning)<<"port_JointVelocity not connected"<<RTT::endlog();
-    port_JointVelocity.read(joint_velocity) != RTT::NoData;
+    return port_JointVelocity.read(joint_velocity) != RTT::NoData;
 }
 bool RTTLWRAbstract::getJointTorqueRaw(Eigen::VectorXd& joint_torque_raw)
 {
     if (port_JointTorqueRaw.connected() == false)
         RTT::log(RTT::Warning)<<"port_JointTorqueRaw not connected"<<RTT::endlog();
-    port_JointTorqueRaw.read(joint_torque_raw) != RTT::NoData;
+    return port_JointTorqueRaw.read(joint_torque_raw) != RTT::NoData;
 }
 bool RTTLWRAbstract::sendJointImpedance(const lwr_fri::FriJointImpedance& joint_impedance_cmd)
 {
