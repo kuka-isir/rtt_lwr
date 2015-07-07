@@ -43,6 +43,9 @@
 #include <rtt_ros_kdl_tools/tools.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
+#include <eigen_conversions/eigen_kdl.h>
+#include <eigen_conversions/eigen_msg.h>
+#include <kdl_conversions/kdl_msg.h>
 
 namespace lwr{
     // Custom FRI/KRL Cmds
@@ -68,8 +71,6 @@ class RTTLWRAbstract : public RTT::TaskContext{
      */
     tFriKrlData fri_from_krl;
 
-
-
     RTT::OutputPort<lwr_fri::CartesianImpedance > port_CartesianImpedanceCommand;
     RTT::OutputPort<geometry_msgs::Wrench > port_CartesianWrenchCommand;
     RTT::OutputPort<geometry_msgs::Pose > port_CartesianPositionCommand;
@@ -78,7 +79,7 @@ class RTTLWRAbstract : public RTT::TaskContext{
     RTT::OutputPort<Eigen::VectorXd > port_JointTorqueCommand;
     //RTT::OutputPort<std_msgs::Int32 > port_KRL_CMD;
     RTT::InputPort<tFriKrlData > port_FromKRL;
-        //RTT::InputPort<std_msgs::Int32 > port_KRL_CMD;
+    //RTT::InputPort<std_msgs::Int32 > port_KRL_CMD;
         
     RTT::OutputPort<tFriKrlData > port_ToKRL;
     RTT::InputPort<geometry_msgs::Wrench > port_CartesianWrench;
@@ -132,8 +133,6 @@ class RTTLWRAbstract : public RTT::TaskContext{
     // Backward differentiation formula buffer : http://en.wikipedia.org/wiki/Backward_differentiation_formula
     boost::circular_buffer<Eigen::VectorXd> jnt_pos_bdf;
 
-    RTT::Attribute<tFriKrlData> m_fromKRL;
-    RTT::Attribute<tFriKrlData> m_toKRL;
     KDL::Jacobian J;
     KDL::FrameVel tool_in_base_framevel;
     unsigned int n_joints;
@@ -274,7 +273,11 @@ class RTTLWRAbstract : public RTT::TaskContext{
         /** @brief Return the actuator joint torque seem by the motor
      */
     bool getJointTorqueRaw(Eigen::VectorXd& joint_torque_raw);
-
+    
+    /** @brief Return the cartesian velocity of the Tooltip (Twist)
+     */
+    bool getCartesianVelocity(geometry_msgs::Twist& cart_twist);
+    
     /** @brief Return the estimated external tool center point wrench
      */
     bool getCartesianWrench(geometry_msgs::Wrench& cart_wrench);
@@ -317,6 +320,16 @@ class RTTLWRAbstract : public RTT::TaskContext{
         jnt_pos_vel_kdl.q.data = jnt_pos;
         jnt_pos_vel_kdl.qdot.data = jnt_vel;
         return res;
+    }
+    template<class T>
+    RTT::FlowStatus getData(RTT::InputPort<T>& port,T& data)
+    {
+        if(port.connected() == false)
+        {
+            RTT::log(RTT::Error) << port.getName() << " not connected "<< RTT::endlog();
+            return RTT::NoData;
+        }
+        return port.read(data);
     }
 };
 }
