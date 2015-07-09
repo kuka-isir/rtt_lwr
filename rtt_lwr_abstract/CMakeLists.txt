@@ -43,4 +43,5 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 add_dependencies(${PROJECT_NAME} lwr_fri_generate_messages_cpp)
+orocos_install_headers(include/${PROJECT_NAME}/${PROJECT_NAME}.hpp)
 orocos_generate_package(INCLUDE_DIRS include)
