@@ -104,14 +104,6 @@ bool RTTLWRAbstract::configureHook(){
         return false;
     }
 
-    // Set the Robot name (lwr or lwr_sim) For other components to know it
-    rosparam->getRelative("robot_name");
-
-    if(!hasPeer(robot_name))
-    {
-        RTT::log(RTT::Fatal) << robot_name<<" peer could not be found"<<RTT::endlog();
-        return false;
-    }
     rosparam->getRelative("root_link");
     rosparam->getRelative("tip_link");
 
@@ -121,10 +113,7 @@ bool RTTLWRAbstract::configureHook(){
     KDL::Vector gravity_vector(0.,0.,-9.81289);
     
     if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,root_link,tip_link,kdl_tree,kdl_chain,"robot_description"))
-    {
-        RTT::log(RTT::Error) << "Error while loading the URDF with params : "<<robot_name<<" "<<root_link<<" "<<tip_link <<RTT::endlog();
         return false;
-    }
         
     ik_solver_vel.reset(new KDL::ChainIkSolverVel_pinv_nso(kdl_chain));
     id_dyn_solver.reset(new KDL::ChainDynParam(kdl_chain,gravity_vector));
@@ -140,6 +129,18 @@ bool RTTLWRAbstract::configureHook(){
     coriolis_kdl.resize(kdl_chain.getNrOfJoints());
     f_ext_kdl.resize(kdl_chain.getNrOfSegments());
 
+    // Set the Robot name (lwr or lwr_sim) For other components to know it
+    rosparam->getRelative("robot_name");
+    
+    return connectAllPorts(robot_name);
+}
+bool RTTLWRAbstract::connectAllPorts(const std::string& robot_name)
+{
+    if(!hasPeer(robot_name))
+    {
+        RTT::log(RTT::Fatal) << robot_name<<" peer could not be found, can't connect all ports"<<RTT::endlog();
+        return false;
+    }
     this->peer = getPeer(robot_name);
     RTT::ConnPolicy policy = RTT::ConnPolicy::data();
     port_CartesianWrench.connectTo(this->peer->getPort("CartesianWrench"),policy);
@@ -200,7 +201,6 @@ bool RTTLWRAbstract::configureHook(){
     all_connected &= port_JointImpedanceCommand.connected();
     all_connected &= port_JointPositionCommand.connected();
     all_connected &= port_JointTorqueCommand.connected();
-
     return all_connected;
 }
 

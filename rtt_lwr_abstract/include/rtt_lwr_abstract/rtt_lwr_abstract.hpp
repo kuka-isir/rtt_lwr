@@ -46,7 +46,7 @@
 #include <eigen_conversions/eigen_kdl.h>
 #include <eigen_conversions/eigen_msg.h>
 #include <kdl_conversions/kdl_msg.h>
-
+#include <tf_conversions/tf_eigen.h>
 namespace lwr{
     // Custom FRI/KRL Cmds
     static const fri_int32_t FRI_START = 1;
@@ -194,10 +194,6 @@ class RTTLWRAbstract : public RTT::TaskContext{
      */
     virtual void cleanupHook();
 
-    /** @brief define the lwr_fri peer name to share attributes toKrl and fromKrl
-     * */
-    void setPeer(std::string name);
-
     /** @brief Set control strategy
      */
     void setControlStrategy(const unsigned int mode);
@@ -205,12 +201,6 @@ class RTTLWRAbstract : public RTT::TaskContext{
     /** @brief Select the tool defined on the KRC
      */
     void setToolKRL(const unsigned int toolNumber);
-
-    /** @brief Check if the selected control mode is the required one
-     *  @param modeRequired : the required mode
-     *  @return True : if the current mode match the required one
-     */
-    bool requiresControlMode(int modeRequired);
 
     /** @brief Get the FRI Mode
      *  @return : The value of the FRI_STATE enum
@@ -318,6 +308,9 @@ class RTTLWRAbstract : public RTT::TaskContext{
     bool isCommandMode();
     bool isMonitorMode();
     bool isPowerOn();
+    bool isJointImpedanceMode(){ return getFRIControlMode() == FRI_CTRL_JNT_IMP;}
+    bool isCartesianImpedanceControlMode(){ return getFRIControlMode() == FRI_CTRL_CART_IMP;}
+    bool isJointPositionControlMode(){ return getFRIControlMode() == FRI_CTRL_POSITION;}
     bool updateState(){
         bool res=true;
         res &= getJointPosition(jnt_pos);
@@ -344,6 +337,7 @@ class RTTLWRAbstract : public RTT::TaskContext{
         std::fill(jnt_imp_cmd.damping.begin(),jnt_imp_cmd.damping.end(),0.0);
         sendJointImpedance(jnt_imp_cmd);
     }
+    bool connectAllPorts(const std::string& robot_name="lwr");
 };
 }
 #endif
