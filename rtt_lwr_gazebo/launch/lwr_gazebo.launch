@@ -5,7 +5,9 @@
 <arg name="debug" default="false"/>
 <arg name="gui" default="true"/>
 <arg name="TAO" default="false"/>
+<arg name="robot_ns" default="/"/>
 <arg name="robot_name" default="lwr_sim"/>
+
 <arg name="use_sim_time" default="true"/>
 <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
 <include file="$(find rtt_lwr_gazebo)/launch/empty_world.launch">
@@ -16,8 +18,9 @@
 	<arg name="headless" value="false"/>
 </include>
 
-<group ns="$(arg robot_name)">
-    <param name="tf_prefix" value="$(arg robot_name)" />
+<group ns="$(arg robot_ns)">
+    <param name="tf_prefix" value="$(arg robot_ns)" />
+    <param name="robot_name" value="$(arg robot_name)"/>
     
     <include file="$(find lwr_description)/launch/lwr_upload.launch"/>
     
