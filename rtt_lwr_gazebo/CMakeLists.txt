@@ -7,8 +7,6 @@ find_package(catkin REQUIRED COMPONENTS rtt_ros cmake_modules kuka_lwr_fri)
 
 # Depend on system install of Gazebo 
 find_package(gazebo REQUIRED)
-#find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
-#include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake )
 find_package(orocos_kdl REQUIRED)
 find_package(Eigen REQUIRED)
 find_package(Boost COMPONENTS thread REQUIRED)
@@ -38,9 +36,10 @@ if(${OROCOS_TARGET} STREQUAL "xenomai" )
   find_package(Xenomai REQUIRED)
   set_property(DIRECTORY ${PROJECT_SOURCE_DIR} APPEND PROPERTY COMPILE_DEFINITIONS HAVE_RTNET XENOMAI)
 endif()
+
 ## Default component
 orocos_component(lwr_gazebo src/lwr_gazebo_component.cpp)
-set_target_properties(lwr_gazebo PROPERTIES COMPILE_FLAGS -DRTT_COMPONENT)
+set_target_properties(lwr_gazebo PROPERTIES COMPILE_DEFINITIONS RTT_COMPONENT)
 target_link_libraries(lwr_gazebo ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES} ${GAZEBO_LIBRARIES})
 
 orocos_generate_package()
