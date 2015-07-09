@@ -40,10 +40,6 @@
 #include <kdl_conversions/kdl_msg.h>
 #include <eigen_conversions/eigen_msg.h>
 
-#ifdef CONMAN
-#include <conman/hook.h>
-#endif
-
 inline float clamp(float x, float a, float b)
 
 {
@@ -59,13 +55,13 @@ namespace lwr{
         LWRSim(std::string const& name):RTT::TaskContext(name),
         n_joints_(0),
         peer(NULL),
-        prop_joint_offset(LBR_MNJ, 0.0),
         urdf_str_(""),
         robot_name_(""),
         velocity_smoothing_factor_(.95),
         root_link("link_0"),
         tip_link("link_7"),
-        use_sim_clock(true)
+        use_sim_clock(true),
+        safety_checks_(false)
         {
             //this->addAttribute("fromKRL", m_fromKRL);
             //this->addAttribute("toKRL", m_toKRL);
@@ -80,9 +76,7 @@ namespace lwr{
               
             this->addProperty("n_joints",n_joints_);
             this->addProperty("use_sim_clock",use_sim_clock);
-            
-            robot_name_ = this->getName();
-            
+            this->addProperty("safety_checks",safety_checks_);
             this->addProperty("robot_name",robot_name_).doc("The name of the robot lwr/lwr_sim");
 
             this->ports()->addPort("JointPositionGazeboCommand", port_JointPositionGazeboCommand).doc("");
@@ -148,9 +142,6 @@ namespace lwr{
             this->provides("debug")->addAttribute("ik_duration",this->ik_duration);
             this->provides("debug")->addAttribute("write_duration",this->write_duration);
             this->provides("debug")->addAttribute("updatehook_duration",this->updatehook_duration);
-#ifdef CONMAN
-            conman_hook_ = conman::Hook::GetHook(this);
-#endif
         }
         bool configureHook();
         void updateHook();
@@ -231,7 +222,22 @@ namespace lwr{
                         jnt_trq_cmd_,
                         jnt_trq_gazebo_cmd_;
                         
-        Eigen::Matrix<double,6,1>  X_,X_cmd_,Xd_,Xd_cmd_,F_cmd_;
+        Eigen::Matrix<double,6,1>  X_,
+                                   X_cmd_,
+                                   Xd_,
+                                   Xd_cmd_,
+                                   X_err_,
+                                   Xd_err_,
+                                   F_cmd_;
+        KDL::Twist ee_twist_kdl_,
+                   ee_twist_des_kdl_,
+                   ee_twist_diff_kdl_,
+                   ee_frame_diff_kdl_;
+        
+        KDL::Frame ee_frame_kdl_,
+                   ee_frame_des_kdl_;
+                   
+        KDL::FrameVel ee_framevel_kdl_;           
         tf::Matrix3x3 quat_m;
         tf::Quaternion quat_tf;
         double roll, pitch, yaw;
@@ -277,31 +283,41 @@ namespace lwr{
         boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver;
         boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver_add_;
         
+        bool safety_checks_;
         //! Control gains
         Eigen::VectorXd kp_,
                         kd_,
                         kg_,
                         kp_default_,
                         kd_default_;
+                        
         Eigen::Matrix<double,6,1>   kc_,
                                     kcd_,
                                     kc_default_,
                                     kcd_default_;
                    
         double velocity_smoothing_factor_;
+        
         std::string robot_name_;
-        sensor_msgs::JointState joint_state_filtered_,joint_state_,joint_state_cmd_,joint_state_gravity_,joint_state_dyn_;
-        RTT::OutputPort<sensor_msgs::JointState> port_JointState;
-        RTT::OutputPort<sensor_msgs::JointState> port_JointStateFiltered;
-        RTT::OutputPort<sensor_msgs::JointState> port_JointStateCommand;
-        RTT::OutputPort<sensor_msgs::JointState> port_JointStateGravity;
-        RTT::OutputPort<sensor_msgs::JointState> port_JointStateDynamics;
+        
+        sensor_msgs::JointState joint_state_filtered_,
+                                joint_state_,
+                                joint_state_cmd_,
+                                joint_state_gravity_,
+                                joint_state_dyn_;
+                                
+        RTT::OutputPort<sensor_msgs::JointState> port_JointState,
+                                                 port_JointStateFiltered,
+                                                 port_JointStateCommand,
+                                                 port_JointStateGravity,
+                                                 port_JointStateDynamics;
+                                                 
         std::string root_link;
+        
         std::string tip_link;
+        
         bool use_sim_clock;
-#ifdef CONMAN
-        boost::shared_ptr<conman::Hook> conman_hook_;
-#endif
+
     private:
     bool safetyChecks(const std::vector<double>& position,const std::vector<double>& velocity,const std::vector<double>& torque);
     bool safetyCheck(const std::vector<double>& v, const std::vector<double>& limits,const std::string& name="");
