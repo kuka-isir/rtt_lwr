@@ -1,4 +1,4 @@
-// RunScript(ros.find("lwr_state_publisher")+"/run.ops")
+// import("rtt_rospack");runScript(ros.find("lwr_state_publisher")+"/run_sim.ops");
 import("rtt_ros")
 ros.import("lwr_state_publisher")
 
