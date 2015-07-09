@@ -163,7 +163,7 @@ public:
             for(unsigned int j=0; j < n_joints_; j++)
                 gazebo_joints_[j+1]->SetForce(0,jnt_trq_cmd_[j]);
         }else{
-            RTT::log(RTT::Error)<< "gazeboUpdateHook locked" <<RTT::endlog();
+            //RTT::log(RTT::Error)<< "gazeboUpdateHook locked" <<RTT::endlog();
         }
      #ifdef XENOMAI
      gazebo_done = true;
@@ -223,7 +223,7 @@ public:
         //gazebo_mutex_.unlock();
         rtt_done=true;
        }else{
-           RTT::log(RTT::Error)<< "gazeboUpdateHook not done" <<RTT::endlog();
+           //RTT::log(RTT::Error)<< "gazeboUpdateHook not done" <<RTT::endlog();
        }
 #endif
     }
