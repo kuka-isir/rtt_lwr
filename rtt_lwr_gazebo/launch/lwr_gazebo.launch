@@ -21,18 +21,15 @@
 <group ns="$(arg robot_ns)">
     <param name="tf_prefix" value="$(arg robot_ns)" />
     <param name="robot_name" value="$(arg robot_name)"/>
-    
+
     <include file="$(find lwr_description)/launch/lwr_upload.launch"/>
-    
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen"/>
-    
+
     <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model $(arg robot_name)"  respawn="false" output="screen" />
     <!-- Launch the CORBA TO naming service -->
     <node if="$(arg TAO)" name="corba_naming_service" pkg="rtt_ros" type="corba-naming-service" args="-m 1"/>
-  
+
 </group>
 
 
 
 </launch>
-
