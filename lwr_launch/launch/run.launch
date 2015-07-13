@@ -1,0 +1,22 @@
+<launch>
+    <arg name="sim" default="true" />
+    <arg name="ops_script" />
+    <arg name="robot_name" default="lwr_sim"/>
+    <arg name="robot_ns" default="/"/>
+    <arg name="deployer_name" default=""/>
+    <arg name="tip_link" default="link_7"/>
+
+    <include file="$(find lwr_launch)/launch/lwr.launch">
+    	<arg name="robot_name" value="$(arg robot_name)"/>
+    	<arg name="robot_ns" value="$(arg robot_ns)"/>
+      <arg name="sim" value="$(arg sim)"/>
+    </include>
+
+    <param name="tip_link" value="$(arg tip_link)"/>
+
+    <include if="$(arg sim)" file="$(find lwr_launch)/launch/deployer.launch">
+    	<arg name="CORBA" value="true"/>
+    	<arg name="DEPLOYER_ARGS" value="-s $(arg ops_script)"/>
+    	<arg name="NAME" value="$(arg deployer_name)"/>
+    </include>
+</launch>
