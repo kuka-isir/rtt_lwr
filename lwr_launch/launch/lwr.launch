@@ -3,7 +3,6 @@
 <arg name="rviz" default="false"/>
 <arg name="gui" default="false"/>
 <arg name="TAO" default="false"/>
-<arg name="robot_name" default="lwr"/>
 <arg name="robot_ns" default="/" />
 <arg name="sim" default="false"/>
 
@@ -11,13 +10,16 @@
 
 <!--include if="$(arg sim)" file="$(find rtt_lwr_gazebo)/launch/lwr_gazebo.launch">
 	<arg name="robot_ns" value="$(arg robot_ns)"/>
-  <arg name="robot_name" value="$(arg robot_name)"/>
+        <arg name="robot_name" value="lwr_sim" if="$(arg sim)"/>
+        <arg name="robot_name" value="lwr" unless="$(arg sim)"/>
 </include-->
 
 <group ns="$(arg robot_ns)">
     <param name="tf_prefix" value="$(arg robot_ns)" />
-    <param name="robot_name" value="$(arg robot_name)" />
-
+    
+    <param name="robot_name" value="lwr_sim" if="$(arg sim)" />
+    <param name="robot_name" value="lwr" unless="$(arg sim)" />
+    
     <include file="$(find lwr_description)/launch/lwr_upload.launch"/>
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen"/>
