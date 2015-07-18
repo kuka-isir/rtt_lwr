@@ -26,6 +26,7 @@ public:
         gazebo_done(false),
         new_data(true),
         cnt_lock_(100),
+        set_new_pos(false),
         last_gz_update_time_(0,0)
     {
         // Add required gazebo interfaces
@@ -144,19 +145,35 @@ public:
                 //jnt_trq_[j] = jnt_trq_cmd_[j];
             }
 
-
+            /// Set Initial Joint Positions
+            if(set_new_pos)
+            {
+                if(gazebo_joints_.size())
+                    gazebo_joints_[0]->GetAngle(0).Radian();
+                for(unsigned int j=0; j < n_joints_; j++)
+                    gazebo_joints_[j+1]->SetAngle(0,jnt_pos_cmd_[j]);
+                set_new_pos = false;
+            }else{
+                if(gazebo_joints_.size())
+                    gazebo_joints_[0]->GetAngle(0).Radian();
+                for(unsigned int j=0; j < n_joints_; j++)
+                    gazebo_joints_[j+1]->SetAngle(0,gazebo_joints_[j+1]->GetAngle(0).Radian());
+            }
+            
+            // Simulates breaks
             if(jnt_trq_fs != RTT::NewData)
             {
-                
                 // Simulates the breaks
                 for(gazebo::physics::Link_V::iterator it = model_links_.begin();
                     it != model_links_.end();++it)
                     (*it)->SetGravityMode(false);
+
             }else{
                 for(gazebo::physics::Link_V::iterator it = model_links_.begin();
                     it != model_links_.end();++it)
                     (*it)->SetGravityMode(true);
             }
+            
             // Write command
             if(gazebo_joints_.size())
                 gazebo_joints_[0]->SetForce(0,gazebo_joints_[0]->GetForce(0u));
@@ -204,8 +221,10 @@ public:
 
         RTT::os::TimeService::ticks read_start = RTT::os::TimeService::Instance()->getTicks();
 
-        //jnt_pos_fs = port_JointPositionCommand.read(jnt_pos_cmd_);
-        //jnt_vel_fs = port_JointVelocityCommand.read(jnt_vel_cmd_);
+        jnt_pos_fs = port_JointPositionCommand.read(jnt_pos_cmd_);
+        if(jnt_pos_fs == RTT::NewData)
+            set_new_pos = true;
+        jnt_vel_fs = port_JointVelocityCommand.read(jnt_vel_cmd_);
         // Our only input is Torque on Kuka LWR
         jnt_trq_fs = port_JointTorqueCommand.read(jnt_trq_cmd_);
 
@@ -274,7 +293,7 @@ protected:
     int cnt_lock_;
     double period_sim_;
     double period_wall_;
-    boost::atomic<bool> new_data;
+    boost::atomic<bool> new_data,set_new_pos;
     boost::atomic<bool> rtt_done,gazebo_done;
 };
 
