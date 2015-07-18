@@ -582,9 +582,9 @@ void LWRSim::updateHook() {
         tf::poseMsgToKDL(cart_pos_cmd_,ee_frame_des_kdl_);
         ee_frame_diff_kdl_ = KDL::diff(ee_frame_kdl_,ee_frame_des_kdl_);
         
-        ee_frame_diff_kdl_.rot = dr_max_ * (ee_frame_des_kdl_.M.UnitX() * ee_frame_kdl_.M.UnitX() +
+        /*ee_frame_diff_kdl_.rot = dr_max_ * (ee_frame_des_kdl_.M.UnitX() * ee_frame_kdl_.M.UnitX() +
                                             ee_frame_des_kdl_.M.UnitY() * ee_frame_kdl_.M.UnitY() +
-                                            ee_frame_des_kdl_.M.UnitZ() * ee_frame_kdl_.M.UnitZ());
+                                            ee_frame_des_kdl_.M.UnitZ() * ee_frame_kdl_.M.UnitZ());*/
 
         tf::twistKDLToEigen(ee_frame_diff_kdl_,X_err_);
     }
