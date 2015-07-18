@@ -119,6 +119,15 @@ void LWRSim::resetCartesianImpedanceGains()
     kc_default_[5] = 200.0;    kcd_default_[5] = 0.7;
     this->setCartesianImpedance(kc_default_,kcd_default_);
 }
+void LWRSim::setInitialJointPosition(const std::vector< double > j_init)
+{
+    if(!j_init.size() == n_joints_){
+        RTT::log(RTT::Error) << "Invalid size (should be " << n_joints_ << ")" << RTT::endlog();
+        return;
+    }
+    port_JointPositionGazeboCommand.write(j_init);
+}
+
 bool LWRSim::configureHook(){
     // Get the rosparam service requester
     boost::shared_ptr<rtt_rosparam::ROSParam> rosparam =
@@ -224,6 +233,7 @@ bool LWRSim::configureHook(){
     jac_.resize(n_joints_);
     jac_.data.setZero();
     mass_.resize(n_joints_,n_joints_);
+    H.resize(n_joints_);
     jnt_trq_gazebo_cmd_.resize(n_joints_);
     prop_joint_offset.resize(n_joints_);
     std::fill(prop_joint_offset.begin(),prop_joint_offset.end(),0.0);
@@ -571,6 +581,11 @@ void LWRSim::updateHook() {
     if(cart_pos_cmd_fs == RTT::NewData){
         tf::poseMsgToKDL(cart_pos_cmd_,ee_frame_des_kdl_);
         ee_frame_diff_kdl_ = KDL::diff(ee_frame_kdl_,ee_frame_des_kdl_);
+        
+        ee_frame_diff_kdl_.rot = dr_max_ * (ee_frame_des_kdl_.M.UnitX() * ee_frame_kdl_.M.UnitX() +
+                                            ee_frame_des_kdl_.M.UnitY() * ee_frame_kdl_.M.UnitY() +
+                                            ee_frame_des_kdl_.M.UnitZ() * ee_frame_kdl_.M.UnitZ());
+
         tf::twistKDLToEigen(ee_frame_diff_kdl_,X_err_);
     }
     
@@ -579,48 +594,52 @@ void LWRSim::updateHook() {
     if(cart_wrench_cmd_fs == RTT::NewData)
         tf::wrenchMsgToEigen(cart_wrench_cmd_,F_cmd_);
     
+    if(jnt_trq_cmd_fs != RTT::NewData)
+        jnt_trq_cmd_.setZero();    
     
     cart_wrench_stamped_.header.frame_id = tip_link;
     cart_wrench_stamped_.wrench = cart_wrench_;
     
+    // Send at least Gravity
     
       switch(static_cast<FRI_CTRL>(robot_state.control)){
             case FRI_CTRL_JNT_IMP:
                 // Joint Impedance Control
-                
-                // If no new command received, then don't send additional torque
-                if(jnt_trq_cmd_fs != RTT::NewData)
-                    jnt_trq_cmd_.setZero();
+                jnt_trq_gazebo_cmd_ = G.data;
                 
                 if(jnt_pos_cmd_fs == RTT::NewData){
-                    //Impedance Control
-                    jnt_trq_gazebo_cmd_ = kp_.asDiagonal()*(jnt_pos_cmd_ - jnt_pos_) - kd_.asDiagonal()*jnt_vel_ + jnt_trq_cmd_ + G.data;
-                }else 
-                    ////////////////////////////// TODO : remove that
-                    if(jnt_pos_cmd_fs != RTT::NewData && jnt_trq_cmd_fs == RTT::NewData)
-                            jnt_trq_gazebo_cmd_ = jnt_trq_cmd_ + G.data;
+                    jnt_trq_gazebo_cmd_ += kp_.asDiagonal()*(jnt_pos_cmd_ - jnt_pos_) - kd_.asDiagonal()*jnt_vel_ ;
+                }
+                if(jnt_trq_cmd_fs == RTT::NewData)
+                    jnt_trq_gazebo_cmd_ += jnt_trq_cmd_;
                     
-                    Eigen::Map<Eigen::VectorXd>(joint_torque_gazebo_cmd.data(),n_joints_) = jnt_trq_gazebo_cmd_;
-                    port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
+                Eigen::Map<Eigen::VectorXd>(joint_torque_gazebo_cmd.data(),n_joints_) = jnt_trq_gazebo_cmd_;
+                
+                if(jnt_trq_cmd_fs == RTT::NewData || jnt_trq_cmd_fs == RTT::NewData)
+                port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
                 
                 break;
             case FRI_CTRL_POSITION:
+                //Position Control
+                jnt_trq_gazebo_cmd_ = G.data;
+                
                 if(jnt_pos_cmd_fs == RTT::NewData){
-                    //Position Control
-                    jnt_trq_gazebo_cmd_ = kp_default_.asDiagonal()*(jnt_pos_cmd_-jnt_pos_) - kd_default_.asDiagonal()*jnt_vel_ + G.data;
-                    
-                    Eigen::Map<Eigen::VectorXd>(joint_torque_gazebo_cmd.data(),n_joints_) = jnt_trq_gazebo_cmd_;
-                    port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
+                    jnt_trq_gazebo_cmd_ += kp_default_.asDiagonal()*(jnt_pos_cmd_-jnt_pos_) - kd_default_.asDiagonal()*jnt_vel_ ;
                 }
+                
+                Eigen::Map<Eigen::VectorXd>(joint_torque_gazebo_cmd.data(),n_joints_) = jnt_trq_gazebo_cmd_;
+                port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
                 break;
             case FRI_CTRL_CART_IMP:
+                //Cartesian Impedance Control
+                jnt_trq_gazebo_cmd_ = G.data;
+                
                 if(cart_pos_cmd_fs == RTT::NewData){
-                    //Cartesian Impedance Control
-                    jnt_trq_gazebo_cmd_ = jac_.data.transpose()*(kc_.asDiagonal()*(X_err_) + F_cmd_ + kcd_.asDiagonal()*(Xd_err_)) + G.data;
-
-                    Eigen::Map<Eigen::VectorXd>(joint_torque_gazebo_cmd.data(),n_joints_) = jnt_trq_gazebo_cmd_;
-                    port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
+                    jnt_trq_gazebo_cmd_ += jac_.data.transpose()*(kc_.asDiagonal()*(X_err_) + F_cmd_ + kcd_.asDiagonal()*(Xd_err_));
                 }
+                
+                Eigen::Map<Eigen::VectorXd>(joint_torque_gazebo_cmd.data(),n_joints_) = jnt_trq_gazebo_cmd_;
+                port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
                 break;
             default:
                 break;
