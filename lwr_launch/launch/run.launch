@@ -3,6 +3,7 @@
     <arg name="ops_script" />
     <arg name="robot_ns" default="/"/>
     <arg name="debug" default="false" />
+    <arg name="rviz" default="false" />
     
     <!-- The end effector Frame -->
     <arg name="tip_link" default="link_7"/>
@@ -13,18 +14,19 @@
     <include file="$(find lwr_launch)/launch/lwr.launch">
         <arg name="robot_ns" value="$(arg robot_ns)"/>
         <arg name="sim" value="$(arg sim)"/>
+        <arg name="rviz" value="$(arg rviz)"/>
     </include>
 
     <group ns="$(arg robot_ns)">
         <param name="tip_link" value="$(arg tip_link)"/>
     </group>
     
-    <include if="$(arg sim)" file="$(find lwr_launch)/launch/deployer.launch">
+    <include file="$(find lwr_launch)/launch/deployer.launch">
         <arg name="CORBA" value="true" if="$(arg sim)"/>
         <arg name="DEPLOYER_ARGS" value="-s $(arg ops_script)"/>
         <arg name="NAME" value="lwr_sim" if="$(arg sim)"/>
         <arg name="NAME" value="lwr" unless="$(arg sim)"/>
-	<arg name="LOG_LEVEL" value="$(arg log_level)"/>
-	<arg name="DEBUG" default="$(arg debug)"/>
+        <arg name="LOG_LEVEL" value="$(arg log_level)"/>
+        <arg name="DEBUG" default="$(arg debug)"/>
     </include>
 </launch>

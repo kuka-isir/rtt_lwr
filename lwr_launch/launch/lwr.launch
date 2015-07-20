@@ -8,6 +8,9 @@
 
 <param if="$(arg sim)" name="use_sim_time" value="true" />
 
+<node if="$(arg rviz)" name="rviz" pkg="rviz" type="rviz"/>
+
+<!-- Commented out because we need to wait for gazebo to be up to run our components TODO-->
 <!--include if="$(arg sim)" file="$(find rtt_lwr_gazebo)/launch/lwr_gazebo.launch">
 	<arg name="robot_ns" value="$(arg robot_ns)"/>
         <arg name="robot_name" value="lwr_sim" if="$(arg sim)"/>
