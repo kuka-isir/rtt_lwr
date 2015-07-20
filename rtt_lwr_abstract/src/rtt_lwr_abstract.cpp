@@ -115,6 +115,12 @@ bool RTTLWRAbstract::configureHook(){
     if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,root_link,tip_link,kdl_tree,kdl_chain,"robot_description"))
         return false;
         
+    for(unsigned int i=0;i<kdl_chain.getNrOfSegments();++i)
+    {
+        seg_names_idx[kdl_chain.getSegment(i).getName()] = i;
+    }
+    
+    
     ik_solver_vel.reset(new KDL::ChainIkSolverVel_pinv_nso(kdl_chain));
     id_dyn_solver.reset(new KDL::ChainDynParam(kdl_chain,gravity_vector));
     id_rne_solver.reset(new KDL::ChainIdSolver_RNE(kdl_chain,gravity_vector));

@@ -155,6 +155,8 @@ class RTTLWRAbstract : public RTT::TaskContext{
     boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver;
     boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver;
     
+    std::map<std::string,unsigned int> seg_names_idx;
+    
     const unsigned int getNJoints()const{return n_joints;}
 
     bool sendJointCommand(RTT::OutputPort<Eigen::VectorXd>& port_cmd,const Eigen::VectorXd& jnt_cmd); 
