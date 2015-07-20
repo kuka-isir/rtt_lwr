@@ -61,6 +61,7 @@ namespace lwr{
         root_link("link_0"),
         tip_link("link_7"),
         use_sim_clock(true),
+        dr_max_(0.1),
         safety_checks_(false)
         {
             //this->addAttribute("fromKRL", m_fromKRL);
@@ -73,7 +74,7 @@ namespace lwr{
             this->addProperty("tip_link", tip_link).doc("");
             this->addProperty("robot_description",urdf_str_)
               .doc("The URDF of the Kuka");
-              
+            this->addProperty("dr_max",dr_max_).doc("The max rot angle cmd beetween two frames");
             this->addProperty("n_joints",n_joints_);
             this->addProperty("use_sim_clock",use_sim_clock);
             this->addProperty("safety_checks",safety_checks_);
@@ -134,6 +135,8 @@ namespace lwr{
             this->addOperation("setJointImpedanceMode",&LWRSim::setJointImpedanceMode,this,RTT::OwnThread);
             this->addOperation("setCartesianImpedanceMode",&LWRSim::setCartesianImpedanceMode,this,RTT::OwnThread);
             
+            this->addOperation("setInitialJointPosition",&LWRSim::setInitialJointPosition,this,RTT::OwnThread);
+            
             this->provides("debug")->addAttribute("read_start",this->read_start);
             this->provides("debug")->addAttribute("write_start",this->write_start);
             this->provides("debug")->addAttribute("read_duration",this->read_duration);
@@ -150,7 +153,7 @@ namespace lwr{
         void setJointImpedanceMode();
         void setCartesianImpedanceMode();
         void resetJointImpedanceGains();
-        
+        void setInitialJointPosition(const std::vector<double> j_init);
         void resetCartesianImpedanceGains();
         
         bool setGravityMode();
@@ -185,6 +188,7 @@ namespace lwr{
                                           port_JointPositionFRIOffset;
 
         int prop_fri_port;
+        double dr_max_;
         std::vector<double> prop_joint_offset;
 
         RTT::InputPort<std::vector<double> > port_JointPositionGazebo,

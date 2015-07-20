@@ -1,22 +1,30 @@
 <launch>
-    <arg name="sim" default="true" />
+    <arg name="sim" default="false" />
     <arg name="ops_script" />
-    <arg name="robot_name" default="lwr_sim"/>
     <arg name="robot_ns" default="/"/>
-    <arg name="deployer_name" default=""/>
+    <arg name="debug" default="false" />
+    
+    <!-- The end effector Frame -->
     <arg name="tip_link" default="link_7"/>
-
+    
+    <!-- Orocos log level (never, fatal, critical, error, warning, info, debug, realtime) -->
+    <arg name="log_level" default="warning"/>
+    
     <include file="$(find lwr_launch)/launch/lwr.launch">
-    	<arg name="robot_name" value="$(arg robot_name)"/>
-    	<arg name="robot_ns" value="$(arg robot_ns)"/>
-      <arg name="sim" value="$(arg sim)"/>
+        <arg name="robot_ns" value="$(arg robot_ns)"/>
+        <arg name="sim" value="$(arg sim)"/>
     </include>
 
-    <param name="tip_link" value="$(arg tip_link)"/>
-
+    <group ns="$(arg robot_ns)">
+        <param name="tip_link" value="$(arg tip_link)"/>
+    </group>
+    
     <include if="$(arg sim)" file="$(find lwr_launch)/launch/deployer.launch">
-    	<arg name="CORBA" value="true"/>
-    	<arg name="DEPLOYER_ARGS" value="-s $(arg ops_script)"/>
-    	<arg name="NAME" value="$(arg deployer_name)"/>
+        <arg name="CORBA" value="true" if="$(arg sim)"/>
+        <arg name="DEPLOYER_ARGS" value="-s $(arg ops_script)"/>
+        <arg name="NAME" value="lwr_sim" if="$(arg sim)"/>
+        <arg name="NAME" value="lwr" unless="$(arg sim)"/>
+	<arg name="LOG_LEVEL" value="$(arg log_level)"/>
+	<arg name="DEBUG" default="$(arg debug)"/>
     </include>
 </launch>

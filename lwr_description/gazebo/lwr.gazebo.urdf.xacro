@@ -3,7 +3,7 @@
 
 	<xacro:macro  name="gz_joint" params="joint_name">
 		<gazebo reference="${joint_name}">
-			<implicitSpringDamper>false</implicitSpringDamper>
+			<implicitSpringDamper>true</implicitSpringDamper>
 		</gazebo>
 	</xacro:macro>
 
