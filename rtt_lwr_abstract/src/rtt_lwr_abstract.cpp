@@ -10,15 +10,25 @@ robot_name("lwr"),
 jnt_pos_bdf(7),
 n_joints(LBR_MNJ),
 root_link("link_0"),
-tip_link("link_7")
+tip_link("link_7"),
+gravity_vector(0.,0.,-9.81289),
+jnt_vel_bdf(LBR_MNJ),
+jnt_pos(LBR_MNJ),
+jnt_pos_old(LBR_MNJ),
+jnt_vel(LBR_MNJ),
+jnt_trq(LBR_MNJ),
+jnt_trq_raw(LBR_MNJ),
+jnt_pos_fri_offset(LBR_MNJ),
+mass(LBR_MNJ,LBR_MNJ),
+jnt_pos_cmd(LBR_MNJ),
+jnt_trq_cmd(LBR_MNJ),
+J(LBR_MNJ),
+jnt_grav(LBR_MNJ)
 {
-    
-    //this->addAttribute("fromKRL", m_fromKRL);
-    //this->addAttribute("toKRL", m_toKRL);
     this->addProperty("robot_name",robot_name);
     this->addProperty("root_link", root_link).doc("");
     this->addProperty("tip_link", tip_link).doc("");
-    this->addProperty("robot_description",robot_description).doc("The URDF of the Kuka");
+    this->addProperty("robot_description",robot_description).doc("The URDF description");
     this->addProperty("n_joints",n_joints);
     
     this->ports()->addPort("CartesianImpedanceCommand", port_CartesianImpedanceCommand).doc("");
@@ -27,7 +37,7 @@ tip_link("link_7")
     this->ports()->addPort("JointImpedanceCommand", port_JointImpedanceCommand).doc("");
     this->ports()->addPort("JointPositionCommand", port_JointPositionCommand).doc("");
     this->ports()->addPort("JointTorqueCommand", port_JointTorqueCommand).doc("");
-    //this->ports()->addPort("KRL_CMD", port_KRL_CMD).doc("");
+
     this->ports()->addPort("toKRL",port_ToKRL).doc("");
     this->ports()->addPort("fromKRL",port_FromKRL).doc("");
     
@@ -49,22 +59,14 @@ tip_link("link_7")
     this->addOperation("setJointPositionControlMode", &RTTLWRAbstract::setJointPositionControlMode, this, RTT::OwnThread);
     this->addOperation("setJointImpedanceControlMode", &RTTLWRAbstract::setJointImpedanceControlMode, this, RTT::OwnThread);
     this->addOperation("setCartesianImpedanceControlMode", &RTTLWRAbstract::setCartesianImpedanceControlMode, this, RTT::OwnThread);
-
-    this->addOperation("setControlStrategy", &RTTLWRAbstract::setControlStrategy, this, RTT::OwnThread);
+    this->addOperation("isJointPositionControlMode",&RTTLWRAbstract::isJointPositionControlMode, this, RTT::OwnThread);
+    this->addOperation("isJointImpedanceControlMode",&RTTLWRAbstract::isJointImpedanceControlMode, this, RTT::OwnThread);
+    this->addOperation("isCartesianImpedanceControlMode",&RTTLWRAbstract::isCartesianImpedanceControlMode, this, RTT::OwnThread);
 
     this->addOperation("friStart", &RTTLWRAbstract::friStart, this, RTT::OwnThread);
     this->addOperation("friStop", &RTTLWRAbstract::friStop, this, RTT::OwnThread);
     this->addOperation("friReset", &RTTLWRAbstract::friReset, this, RTT::OwnThread);
     this->addOperation("stopKrlScript", &RTTLWRAbstract::stopKrlScript, this, RTT::OwnThread);
-    this->addOperation("getCartesianPosition", &RTTLWRAbstract::getCartesianPosition, this, RTT::OwnThread);
-    this->addOperation("getJointPosition", &RTTLWRAbstract::getJointPosition, this, RTT::OwnThread);
-    this->addOperation("getJacobian", &RTTLWRAbstract::getJacobian, this, RTT::OwnThread);
-    this->addOperation("getMassMatrix", &RTTLWRAbstract::getMassMatrix, this, RTT::OwnThread);
-    this->addOperation("getGravityTorque", &RTTLWRAbstract::getGravityTorque, this, RTT::OwnThread);
-    this->addOperation("getJointTorque", &RTTLWRAbstract::getJointTorque, this, RTT::OwnThread);
-    this->addOperation("getCartesianWrench", &RTTLWRAbstract::getCartesianWrench, this, RTT::OwnThread);
-    
-    this->addOperation("sendJointVelocities", &RTTLWRAbstract::sendJointPosition, this, RTT::OwnThread);
     
 }
 
@@ -72,52 +74,23 @@ RTTLWRAbstract::~RTTLWRAbstract(){
 }
 
 bool RTTLWRAbstract::configureHook(){
-    jnt_vel_bdf.resize(LBR_MNJ);
-    jnt_pos.resize(LBR_MNJ);
-    jnt_pos_old.resize(LBR_MNJ);
-    jnt_vel.resize(LBR_MNJ);
-    jnt_trq.resize(LBR_MNJ);
-    jnt_trq_raw.resize(LBR_MNJ);
-    jnt_pos_fri_offset.resize(LBR_MNJ);
-    mass.resize(LBR_MNJ,LBR_MNJ);
-    jnt_pos_cmd.resize(LBR_MNJ);
-    jnt_trq_cmd.resize(LBR_MNJ);
-    J.resize(LBR_MNJ);
-    jnt_grav.resize(LBR_MNJ);
-
     jnt_pos_cmd.setZero();
     jnt_trq_cmd.setZero();
-    
-
-    //port_KRL_CMD.setDataSample();
-    
+        
     //initialize the arrays that will be send to KRL
     for(int i=0; i<FRI_USER_SIZE; ++i){
         fri_to_krl.intData[i]=0;
         fri_to_krl.realData[i]=0.0;
     }
-    boost::shared_ptr<rtt_rosparam::ROSParam> rosparam =
-        this->getProvider<rtt_rosparam::ROSParam>("rosparam");
-
-    if(!rosparam) {
-        RTT::log(RTT::Error) << "Could not load rosparam service." <<RTT::endlog();
-        return false;
-    }
-
-    rosparam->getRelative("root_link");
-    rosparam->getRelative("tip_link");
-
-    RTT::log(RTT::Info)<<"root_link : "<<root_link<<RTT::endlog();
-    RTT::log(RTT::Info)<<"tip_link : "<<tip_link<<RTT::endlog();
     
-    KDL::Vector gravity_vector(0.,0.,-9.81289);
-    
-    if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,root_link,tip_link,kdl_tree,kdl_chain,"robot_description"))
+    if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,kdl_tree,kdl_chain))
         return false;
         
     for(unsigned int i=0;i<kdl_chain.getNrOfSegments();++i)
     {
-        seg_names_idx[kdl_chain.getSegment(i).getName()] = i;
+        const std::string name = kdl_chain.getSegment(i).getName();
+        seg_names_idx[name] = i+1;
+        RTT::log(RTT::Warning) << "Segment " << i << "-> " << name << " idx -> "<< seg_names_idx[name] <<RTT::endlog();
     }
     
     
@@ -136,6 +109,8 @@ bool RTTLWRAbstract::configureHook(){
     f_ext_kdl.resize(kdl_chain.getNrOfSegments());
 
     // Set the Robot name (lwr or lwr_sim) For other components to know it
+    boost::shared_ptr<rtt_rosparam::ROSParam> rosparam =
+        this->getProvider<rtt_rosparam::ROSParam>("rosparam");
     rosparam->getRelative("robot_name");
     
     return connectAllPorts(robot_name);
@@ -379,15 +354,6 @@ bool RTTLWRAbstract::sendCartesianWrench(const geometry_msgs::Wrench& cartesian_
 {
     port_CartesianWrenchCommand.write(cartesian_wrench);
     return true;
-}
-
-void RTTLWRAbstract::initializeCommand(){
-    //Get current joint position and set it as desired position
-    getJointPosition(jnt_pos_cmd);
-    sendJointPosition(jnt_pos_cmd);
-    
-    getCartesianPosition(cart_pos_cmd);
-    sendCartesianPosition(cart_pos_cmd);
 }
 
 bool RTTLWRAbstract::getCartesianPosition(geometry_msgs::Pose& cart_position){

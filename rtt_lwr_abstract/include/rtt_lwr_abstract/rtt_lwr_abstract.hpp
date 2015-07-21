@@ -154,7 +154,7 @@ class RTTLWRAbstract : public RTT::TaskContext{
     boost::scoped_ptr<KDL::ChainDynParam> id_dyn_solver;
     boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver;
     boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver;
-    
+    KDL::Vector gravity_vector;
     std::map<std::string,unsigned int> seg_names_idx;
     
     const unsigned int getNJoints()const{return n_joints;}
@@ -239,10 +239,6 @@ class RTTLWRAbstract : public RTT::TaskContext{
      */
     void stopKrlScript();
 
-    /** @brief Initialize the command that will be send to the robot
-     */
-    void initializeCommand();
-
     /** @brief Return the cartesian position of the tool center point in the robot base frame
      */
     bool getCartesianPosition(geometry_msgs::Pose& cart_position);
@@ -310,7 +306,7 @@ class RTTLWRAbstract : public RTT::TaskContext{
     bool isCommandMode();
     bool isMonitorMode();
     bool isPowerOn();
-    bool isJointImpedanceMode(){ return getFRIControlMode() == FRI_CTRL_JNT_IMP;}
+    bool isJointImpedanceControlMode(){ return getFRIControlMode() == FRI_CTRL_JNT_IMP;}
     bool isCartesianImpedanceControlMode(){ return getFRIControlMode() == FRI_CTRL_CART_IMP;}
     bool isJointPositionControlMode(){ return getFRIControlMode() == FRI_CTRL_POSITION;}
     bool updateState(){
@@ -323,8 +319,9 @@ class RTTLWRAbstract : public RTT::TaskContext{
         jnt_pos_vel_kdl.qdot.data = jnt_vel;
         return res;
     }
+    
     template<class T>
-    RTT::FlowStatus getData(RTT::InputPort<T>& port,T& data)
+    RTT::FlowStatus readData(RTT::InputPort<T>& port,T& data)
     {
         if(port.connected() == false)
         {
@@ -333,6 +330,19 @@ class RTTLWRAbstract : public RTT::TaskContext{
         }
         return port.read(data);
     }
+    
+    template<class T>
+    RTT::FlowStatus writeData(RTT::InputPort<T>& port,const T& data)
+    {
+        if(port.connected() == false)
+        {
+            RTT::log(RTT::Error) << port.getName() << " not connected "<< RTT::endlog();
+            return false;
+        }
+        port.write(data);
+        return true;
+    }
+    
     void setJointTorqueControlMode(){
         setJointImpedanceControlMode();
         std::fill(jnt_imp_cmd.stiffness.begin(),jnt_imp_cmd.stiffness.end(),0.0);

@@ -150,11 +150,8 @@ bool LWRSim::configureHook(){
     KDL::Vector gravity_vector(0.,0.,-9.81289);
     
     if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,
-                                                     root_link,
-                                                     tip_link,
                                                      kdl_tree_,
-                                                     kdl_chain_,
-                                                     "robot_description"
+                                                     kdl_chain_
                                                     ))
     {
         RTT::log(RTT::Error) << "Error while loading the URDF with params : "<<robot_name_<<" "<<root_link<<" "<<tip_link <<RTT::endlog();
