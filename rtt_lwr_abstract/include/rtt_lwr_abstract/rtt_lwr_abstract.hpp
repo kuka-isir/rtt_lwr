@@ -343,6 +343,8 @@ class RTTLWRAbstract : public RTT::TaskContext{
         return true;
     }
     
+    bool getAllComponentRelative();
+    
     void setJointTorqueControlMode(){
         setJointImpedanceControlMode();
         std::fill(jnt_imp_cmd.stiffness.begin(),jnt_imp_cmd.stiffness.end(),0.0);

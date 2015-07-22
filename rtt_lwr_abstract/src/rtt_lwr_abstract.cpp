@@ -115,6 +115,26 @@ bool RTTLWRAbstract::configureHook(){
     
     return connectAllPorts(robot_name);
 }
+bool RTTLWRAbstract::getAllComponentRelative()
+{
+    // Get RosParameters if available
+    boost::shared_ptr<rtt_rosparam::ROSParam> rosparam =
+        this->getProvider<rtt_rosparam::ROSParam>("rosparam");
+        
+    if(rosparam) {
+        const RTT::PropertyBag::Properties &properties =  this->properties()->getProperties();
+        for(RTT::PropertyBag::Properties::const_iterator it = properties.begin();
+            it != properties.end();++it)
+        {
+            if(rosparam->getParam(getName() +"/"+(*it)->getName(),(*it)->getName()))
+                RTT::log(RTT::Info) << getName() +"/"+(*it)->getName() << " => "<< this->getProperty((*it)->getName())<< RTT::endlog();
+        }
+    }else{ 
+        return false;
+    }
+    return true;
+}
+
 bool RTTLWRAbstract::connectAllPorts(const std::string& robot_name)
 {
     if(!hasPeer(robot_name))
