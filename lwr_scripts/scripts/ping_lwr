@@ -2,4 +2,4 @@
 echo "Ping Kuka LWR 4+"
 here="$(dirname "$0")"
 echo $here
-$here/rtping 192.168.100.103
+$here/rtping 192.168.100.102
