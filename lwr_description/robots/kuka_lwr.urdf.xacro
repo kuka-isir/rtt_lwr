@@ -50,7 +50,7 @@
     <joint name="ati_polaris_joint" type="fixed">
        <parent link="ati_link" />
        <child link="ati_polaris_link" />
-       <origin xyz="0 0 0.0584" rpy="0 0 0" />
+       <origin xyz="0 0 0.0584" rpy="0 0 ${-M_PI/2}" />
     </joint>
   </xacro:macro>
 
