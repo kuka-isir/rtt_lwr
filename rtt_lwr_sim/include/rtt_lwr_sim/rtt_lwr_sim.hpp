@@ -62,7 +62,8 @@ namespace lwr{
         tip_link("link_7"),
         use_sim_clock(true),
         dr_max_(0.1),
-        safety_checks_(false)
+        safety_checks_(false),
+        gravity_vector(0.,0.,-9.81289)
         {
             //this->addAttribute("fromKRL", m_fromKRL);
             //this->addAttribute("toKRL", m_toKRL);
@@ -111,8 +112,8 @@ namespace lwr{
             this->ports()->addPort("JointTorque", port_JointTorque).doc("");
             this->ports()->addPort("GravityTorque", port_GravityTorque).doc("");
             this->ports()->addPort("JointPosition", port_JointPosition).doc("");
-            this->ports()->addPort("JointTorqueRaw", port_JointTorqueRaw).doc("");
-            this->ports()->addPort("JointPositionFRIOffset", port_JointPositionFRIOffset).doc("");
+            //this->ports()->addPort("JointTorqueRaw", port_JointTorqueRaw).doc("");
+            //this->ports()->addPort("JointPositionFRIOffset", port_JointPositionFRIOffset).doc("");
 
             this->ports()->addPort("JointState",port_JointState).doc("");
             this->ports()->addPort("JointStateCommand",port_JointStateCommand).doc("");
@@ -281,13 +282,14 @@ namespace lwr{
         
         
         boost::scoped_ptr<KDL::ChainFkSolverVel_recursive> fk_vel_solver;
-        boost::scoped_ptr<KDL::ChainIkSolverVel_pinv_nso> ik_solver_vel;
         boost::scoped_ptr<KDL::ChainDynParam> id_dyn_solver;
         boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver;
         boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver;
         boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver_add_;
         
         bool safety_checks_;
+
+        KDL::Vector gravity_vector;
         //! Control gains
         Eigen::VectorXd kp_,
                         kd_,
@@ -322,7 +324,6 @@ namespace lwr{
         
         bool use_sim_clock;
 
-    private:
     bool safetyChecks(const std::vector<double>& position,const std::vector<double>& velocity,const std::vector<double>& torque);
     bool safetyCheck(const std::vector<double>& v, const std::vector<double>& limits,const std::string& name="");
     void updateJointImpedance(const lwr_fri::FriJointImpedance& impedance);
