@@ -1,0 +1,8 @@
+
+<launch>
+    <include file="$(find lwr_launch)/launch/lwr.launch"/>
+    
+    <node name="deployer" pkg="rtt_ros" type="deployer" args="-s $(find lwr_state_publisher)/run_hw_standalone.ops --" output="screen">
+    </node>
+</launch>
+
