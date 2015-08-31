@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(rtt_lwr_gazebo)
-
+set(CMAKE_BUILD_TYPE Release)
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS rtt_ros cmake_modules kuka_lwr_fri)
 
@@ -30,8 +30,6 @@ orocos_use_package( ocl-deployment )
 orocos_use_package( ocl-logging )
 orocos_use_package( orocos-rtt-corba )
 orocos_use_package( rtt-typekit )
-
-set(CMAKE_BUILD_TYPE ReleaseWithDebugInfo)
 
 if(${OROCOS_TARGET} STREQUAL "xenomai" )
   find_package(Xenomai REQUIRED)

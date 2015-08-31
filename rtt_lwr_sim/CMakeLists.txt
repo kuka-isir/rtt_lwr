@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(rtt_lwr_sim)
 
-set(CMAKE_BUILD_TYPE ReleaseWithDebugInfo)
+set(CMAKE_BUILD_TYPE Release)
 
 find_package(catkin REQUIRED COMPONENTS
   rtt_ros
@@ -37,6 +37,11 @@ target_link_libraries(
     ${orocos_kdl_LIBRARIES}
     ${kdl_conversions_LIBRARIES}
 )
+
+# Just for Hydro compatibility
+list(REMOVE_ITEM catkin_LIBRARIES lwr_fri_generate_messages_cpp)
+list(REMOVE_ITEM catkin_LIBRARIES lwr_fri_generate_messages_lisp)
+list(REMOVE_ITEM catkin_LIBRARIES lwr_fri_generate_messages_py)
 
 add_dependencies(${PROJECT_NAME} lwr_fri_generate_messages_cpp)
 orocos_generate_package(INCLUDE_DIRS include

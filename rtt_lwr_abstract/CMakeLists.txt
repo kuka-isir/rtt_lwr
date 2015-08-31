@@ -1,11 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(rtt_lwr_abstract)
 
+set(CMAKE_BUILD_TYPE Release)
+
 find_package(catkin REQUIRED COMPONENTS 
     rtt_ros 
-#    rtt_rosclock
-#    rtt_roscomm
-#    rtt_rosparam
     kuka_lwr_fri 
     diagnostic_msgs 
     geometry_msgs 
@@ -14,8 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
     eigen_conversions
     lwr_fri
     cmake_modules
-#    conman
-#    rtt_ros_kdl_tools
 )
 
 find_package(Eigen REQUIRED)
@@ -33,6 +30,10 @@ include_directories(
 orocos_library(${PROJECT_NAME} src/${PROJECT_NAME}.cpp)
 set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY COMPILE_DEFINITIONS RTT_COMPONENT)
 
+# Just for Hydro compatibility
+list(REMOVE_ITEM catkin_LIBRARIES lwr_fri_generate_messages_cpp)
+list(REMOVE_ITEM catkin_LIBRARIES lwr_fri_generate_messages_lisp)
+list(REMOVE_ITEM catkin_LIBRARIES lwr_fri_generate_messages_py)
 
 target_link_libraries(${PROJECT_NAME} 
     ${orocos_kdl_LIBRARIES} 

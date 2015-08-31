@@ -21,6 +21,11 @@ orocos_component(${PROJECT_NAME} src/${PROJECT_NAME}.cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS -DRTT_COMPONENT)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
+# Just for Hydro compatibility
+list(REMOVE_ITEM catkin_LIBRARIES lwr_fri_generate_messages_cpp)
+list(REMOVE_ITEM catkin_LIBRARIES lwr_fri_generate_messages_lisp)
+list(REMOVE_ITEM catkin_LIBRARIES lwr_fri_generate_messages_py)
+
 orocos_generate_package(
 DEPENDS rtt_ros rtt_sensor_msgs
 )
