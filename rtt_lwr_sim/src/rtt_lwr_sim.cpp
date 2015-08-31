@@ -146,9 +146,7 @@ bool LWRSim::configureHook(){
     
     RTT::log(RTT::Info)<<"root_link : "<<root_link<<RTT::endlog();
     RTT::log(RTT::Info)<<"tip_link : "<<tip_link<<RTT::endlog();
-    
-    KDL::Vector gravity_vector(0.,0.,-9.81289);
-    
+        
     if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,
                                                      kdl_tree_,
                                                      kdl_chain_
@@ -158,7 +156,6 @@ bool LWRSim::configureHook(){
         return false;
     }
     
-    ik_solver_vel.reset(new KDL::ChainIkSolverVel_pinv_nso(kdl_chain_));
     id_dyn_solver.reset(new KDL::ChainDynParam(kdl_chain_,gravity_vector));
     id_rne_solver.reset(new KDL::ChainIdSolver_RNE(kdl_chain_,gravity_vector));
     fk_vel_solver.reset(new KDL::ChainFkSolverVel_recursive(kdl_chain_));
@@ -193,8 +190,8 @@ bool LWRSim::configureHook(){
         port_JointTorqueGazebo.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointTorque"),policy);
 
         // The number of joints is 8 because it counts base_link, even though it's a fixed joint
-        RTT::Property<unsigned int> njoints = this->peer->getPeer(lwr_gazebo)->getProperty("n_joints");
-        RTT::log(RTT::Debug)<<"LWR njoints GAZEBO : "<<njoints.get()<<RTT::endlog();
+        /*RTT::Property<unsigned int> njoints = this->peer->getPeer(lwr_gazebo)->getProperty("n_joints");
+        RTT::log(RTT::Debug)<<"LWR njoints GAZEBO : "<<njoints.get()<<RTT::endlog();*/
 
     }else{
         RTT::log(RTT::Error)<<"Couldn't find gazebo and lwr_gazebo peer"<<RTT::endlog();
@@ -217,6 +214,10 @@ bool LWRSim::configureHook(){
     joint_position_gazebo_cmd.resize(n_joints_,0.0);
     joint_velocity_gazebo_cmd.resize(n_joints_,0.0);
     joint_torque_gazebo_cmd.resize(n_joints_,0.0);
+
+    port_JointPositionGazeboCommand.setDataSample(joint_position_gazebo_cmd);
+    port_JointVelocityGazeboCommand.setDataSample(joint_velocity_gazebo_cmd);
+    port_JointTorqueGazeboCommand.setDataSample(joint_torque_gazebo_cmd);
     // Fake LWR
     jnt_pos_.resize(n_joints_);
     jnt_pos_fri_offset.resize(n_joints_);
@@ -257,6 +258,14 @@ bool LWRSim::configureHook(){
     kc_default_.resize(6);
     kcd_default_.resize(6);
      
+    for(int i=0;i<FRI_USER_SIZE;i++)
+    {
+        fri_from_krl.realData[i]=0;
+        fri_from_krl.intData[i]=0;
+    }
+    fri_from_krl.boolData=0;
+    fri_from_krl.fill=0;
+
     rtt_ros_kdl_tools::initJointStateFromKDLCHain(kdl_chain_,joint_state_);
     rtt_ros_kdl_tools::initJointStateFromKDLCHain(kdl_chain_,joint_state_cmd_);
     rtt_ros_kdl_tools::initJointStateFromKDLCHain(kdl_chain_,joint_state_filtered_);
@@ -270,14 +279,16 @@ bool LWRSim::configureHook(){
     port_JointStateDynamics.setDataSample(joint_state_dyn_);
     
     port_JointPosition.setDataSample(jnt_pos_);
-    port_JointPositionFRIOffset.setDataSample(jnt_pos_fri_offset);
+    //port_JointPositionFRIOffset.setDataSample(jnt_pos_fri_offset);
     port_JointVelocity.setDataSample(jnt_vel_);
     port_JointTorque.setDataSample(jnt_trq_);
-    port_JointTorqueRaw.setDataSample(jnt_trq_raw_);
+    //port_JointTorqueRaw.setDataSample(jnt_trq_raw_);
     port_GravityTorque.setDataSample(grav_trq_);
     port_Jacobian.setDataSample(jac_);
     port_MassMatrix.setDataSample(mass_);
-    
+    port_FromKRL.setDataSample(fri_from_krl);
+
+
     port_JointState.createStream(rtt_roscomm::topic(/*"~"+this->getName()+"/*/"joint_states"));
     port_JointStateFiltered.createStream(rtt_roscomm::topic("~"+this->getName()+"/joint_states_filtered"));
     port_JointStateCommand.createStream(rtt_roscomm::topic("~"+this->getName()+"/joint_states_cmd"));
@@ -310,11 +321,16 @@ bool LWRSim::configureHook(){
        
     resetJointImpedanceGains();
     resetCartesianImpedanceGains();
-    
+
+    // This is necessary to plot the data as gazebo sets the clock
+    // Note: Connections are still made and working, it's again just for plotting/recording
     if(use_sim_clock){
+        RTT::log(RTT::Warning) << "Using ROS Sim Clock" << RTT::endlog();
         rtt_rosclock::use_ros_clock_topic();
         rtt_rosclock::enable_sim();
     }
+
+
     return true;
 }
 
@@ -451,17 +467,36 @@ void LWRSim::setCartesianImpedanceMode()
 }
 
 void LWRSim::updateHook() {
+
     read_start = rtt_rosclock::host_now().toSec();
     // Read From gazebo simulation
     RTT::FlowStatus fs_p = port_JointPositionGazebo.read(joint_position_gazebo);
     RTT::FlowStatus fs_v = port_JointVelocityGazebo.read(joint_velocity_gazebo);
     RTT::FlowStatus fs_g = port_JointTorqueGazebo.read(joint_torque_gazebo);
-
+    
+    if(fs_g == RTT::NoData || fs_p == RTT::NoData || fs_v == RTT::NoData){
+        RTT::log(RTT::Warning)  << getName() << ": NoData" << RTT::endlog();
+        return;
+    }
+    
+    jnt_trq_cmd_fs = port_JointTorqueCommand.read(jnt_trq_cmd_);
+    jnt_pos_cmd_fs = port_JointPositionCommand.read(jnt_pos_cmd_);
+    cart_pos_cmd_fs = port_CartesianPositionCommand.read(cart_pos_cmd_);
+    cart_wrench_cmd_fs = port_CartesianWrenchCommand.read(cart_wrench_cmd_);
+    RTT::FlowStatus fs_fri_to_krl = port_ToKRL.read(fri_to_krl);
+    RTT::FlowStatus fs_jnt_imp_cmd = port_JointImpedanceCommand.read(jnt_imp_cmd_);
+    RTT::FlowStatus fs_cart_imp_cmd = port_CartesianImpedanceCommand.read(cart_imp_cmd_);
+    
     fri_state.timestamp = read_start;
 
-    if(port_ToKRL.read(fri_to_krl) == RTT::NewData)
+    if(fs_fri_to_krl == RTT::NewData)
     {
-        fri_from_krl = fri_to_krl;
+        for(int i=0;i<FRI_USER_SIZE;i++)
+        {
+            fri_from_krl.realData[i]=fri_to_krl.realData[i];
+            fri_from_krl.intData[i]=fri_to_krl.intData[i];
+        }
+        fri_from_krl.boolData=fri_to_krl.boolData;
     }
     switch(fri_to_krl.intData[1]){
         case 10:
@@ -493,13 +528,6 @@ void LWRSim::updateHook() {
                 robot_state.power = 0;
                 break;
         }
-    port_FromKRL.write(fri_from_krl);
-    
-    port_RobotState.write(robot_state);
-    port_FRIState.write(fri_state);
-    
-    if(fs_g == RTT::NoData || fs_p == RTT::NoData || fs_v == RTT::NoData)
-        return;
     
     if(safety_checks_)
         safetyChecks(joint_position_gazebo,joint_velocity_gazebo,joint_torque_gazebo);
@@ -508,21 +536,13 @@ void LWRSim::updateHook() {
     jnt_vel_ = Eigen::VectorXd::Map(joint_velocity_gazebo.data(),n_joints_);
     jnt_trq_ = Eigen::VectorXd::Map(joint_torque_gazebo.data(),n_joints_);
 
-    // Read Commands from users
-    jnt_trq_cmd_fs = port_JointTorqueCommand.read(jnt_trq_cmd_);
-    jnt_pos_cmd_fs = port_JointPositionCommand.read(jnt_pos_cmd_);
-    cart_pos_cmd_fs = port_CartesianPositionCommand.read(cart_pos_cmd_);
-    cart_wrench_cmd_fs = port_CartesianWrenchCommand.read(cart_wrench_cmd_);
-    
-    
-    
     // Waiting for CartesianVelocityCommand
     Xd_cmd_.setZero();
     
-    if(port_JointImpedanceCommand.read(jnt_imp_cmd_) == RTT::NewData)
+    if(fs_jnt_imp_cmd == RTT::NewData)
         updateJointImpedance(jnt_imp_cmd_);
     
-    if(port_CartesianImpedanceCommand.read(cart_imp_cmd_) == RTT::NewData)
+    if(fs_cart_imp_cmd == RTT::NewData)
         updateCartesianImpedance(cart_imp_cmd_);
 
     read_duration = (rtt_rosclock::host_now().toSec() - read_start);
@@ -537,20 +557,13 @@ void LWRSim::updateHook() {
     
     std::fill(f_ext.begin(),f_ext.end(),KDL::Wrench::Zero());
     
-    int ret_rne = id_rne_solver->CartToJnt(q.q,qdot,qddot,f_ext,jnt_trq_kdl_);
-    if(ret_rne<0)
-        RTT::log(RTT::Error)<<"ERROR on id_rne_solver : "<<ret_rne<<RTT::endlog();
-
+    id_rne_solver->CartToJnt(q.q,qdot,qddot,f_ext,jnt_trq_kdl_);
     
     std::fill(f_ext_add.begin(),f_ext_add.end(),KDL::Wrench::Zero());
     
-    int ret_rne_add = id_rne_solver_add_->CartToJnt(q.q,qdot,qddot,f_ext_add,jnt_trq_kdl_add_);
-    if(ret_rne_add<0)
-        RTT::log(RTT::Error)<<"ERROR on ret_rne_add : "<<ret_rne_add<<RTT::endlog();
+    id_rne_solver_add_->CartToJnt(q.q,qdot,qddot,f_ext_add,jnt_trq_kdl_add_);
     
-    int ret_dyn = id_dyn_solver->JntToGravity(q.q,G);
-    if(ret_dyn<0)
-        RTT::log(RTT::Error)<<"ERROR on id_dyn_solver : "<<ret_dyn<<RTT::endlog();
+    id_dyn_solver->JntToGravity(q.q,G);
     
     Eigen::Map<Eigen::VectorXd>(joint_state_dyn_.position.data(),n_joints_) = jnt_trq_kdl_add_.data;
     Eigen::Map<Eigen::VectorXd>(joint_state_dyn_.velocity.data(),n_joints_) = G.data;
@@ -578,11 +591,6 @@ void LWRSim::updateHook() {
     if(cart_pos_cmd_fs == RTT::NewData){
         tf::poseMsgToKDL(cart_pos_cmd_,ee_frame_des_kdl_);
         ee_frame_diff_kdl_ = KDL::diff(ee_frame_kdl_,ee_frame_des_kdl_);
-        
-        /*ee_frame_diff_kdl_.rot = dr_max_ * (ee_frame_des_kdl_.M.UnitX() * ee_frame_kdl_.M.UnitX() +
-                                            ee_frame_des_kdl_.M.UnitY() * ee_frame_kdl_.M.UnitY() +
-                                            ee_frame_des_kdl_.M.UnitZ() * ee_frame_kdl_.M.UnitZ());*/
-
         tf::twistKDLToEigen(ee_frame_diff_kdl_,X_err_);
     }
     
@@ -598,21 +606,21 @@ void LWRSim::updateHook() {
     cart_wrench_stamped_.wrench = cart_wrench_;
     
     // Send at least Gravity
-    
+
       switch(static_cast<FRI_CTRL>(robot_state.control)){
             case FRI_CTRL_JNT_IMP:
                 // Joint Impedance Control
                 jnt_trq_gazebo_cmd_ = G.data;
                 
+                // Joint Impedance part
                 if(jnt_pos_cmd_fs == RTT::NewData){
                     jnt_trq_gazebo_cmd_ += kp_.asDiagonal()*(jnt_pos_cmd_ - jnt_pos_) - kd_.asDiagonal()*jnt_vel_ ;
                 }
-                if(jnt_trq_cmd_fs == RTT::NewData)
+                // Additional torque
+                if(jnt_trq_cmd_fs != RTT::NoData)
                     jnt_trq_gazebo_cmd_ += jnt_trq_cmd_;
                     
                 Eigen::Map<Eigen::VectorXd>(joint_torque_gazebo_cmd.data(),n_joints_) = jnt_trq_gazebo_cmd_;
-                
-                if(jnt_trq_cmd_fs == RTT::NewData || jnt_trq_cmd_fs == RTT::NewData)
                 port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
                 
                 break;
@@ -643,7 +651,6 @@ void LWRSim::updateHook() {
       }
     
     now = rtt_rosclock::host_now();
-       
     write_start = now.toNSec();
     //Update status
     cart_pos_stamped_.header.stamp = now;
@@ -690,7 +697,10 @@ void LWRSim::updateHook() {
     port_MassMatrix.write(mass_);
     
     port_JointStateCommand.write(joint_state_cmd_);
+    port_FromKRL.write(fri_from_krl);
     
+    port_RobotState.write(robot_state);
+    port_FRIState.write(fri_state);
     
     write_duration = (rtt_rosclock::host_now().toSec() - write_start);
     updatehook_duration = (rtt_rosclock::host_now().toSec() - read_start);
