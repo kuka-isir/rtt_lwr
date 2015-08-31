@@ -7,12 +7,9 @@ using namespace lwr;
 RTTLWRAbstract::RTTLWRAbstract(std::string const& name) : 
 RTT::TaskContext(name),
 robot_name("lwr"),
-jnt_pos_bdf(7),
-n_joints(LBR_MNJ),
 root_link("link_0"),
 tip_link("link_7"),
 gravity_vector(0.,0.,-9.81289),
-jnt_vel_bdf(LBR_MNJ),
 jnt_pos(LBR_MNJ),
 jnt_pos_old(LBR_MNJ),
 jnt_vel(LBR_MNJ),
@@ -22,15 +19,16 @@ jnt_pos_fri_offset(LBR_MNJ),
 mass(LBR_MNJ,LBR_MNJ),
 jnt_pos_cmd(LBR_MNJ),
 jnt_trq_cmd(LBR_MNJ),
-J(LBR_MNJ),
-jnt_grav(LBR_MNJ)
+J_tip_base(LBR_MNJ),
+jnt_grav(LBR_MNJ),
+connect_all_ports_at_startup(true)
 {
     this->addProperty("robot_name",robot_name);
     this->addProperty("root_link", root_link).doc("");
     this->addProperty("tip_link", tip_link).doc("");
     this->addProperty("robot_description",robot_description).doc("The URDF description");
-    this->addProperty("n_joints",n_joints);
-    
+    this->addProperty("connect_all_ports_at_startup",connect_all_ports_at_startup);
+
     this->ports()->addPort("CartesianImpedanceCommand", port_CartesianImpedanceCommand).doc("");
     this->ports()->addPort("CartesianWrenchCommand", port_CartesianWrenchCommand).doc("");
     this->ports()->addPort("CartesianPositionCommand", port_CartesianPositionCommand).doc("");
@@ -62,7 +60,8 @@ jnt_grav(LBR_MNJ)
     this->addOperation("isJointPositionControlMode",&RTTLWRAbstract::isJointPositionControlMode, this, RTT::OwnThread);
     this->addOperation("isJointImpedanceControlMode",&RTTLWRAbstract::isJointImpedanceControlMode, this, RTT::OwnThread);
     this->addOperation("isCartesianImpedanceControlMode",&RTTLWRAbstract::isCartesianImpedanceControlMode, this, RTT::OwnThread);
-
+    
+    this->addOperation("connectAllPorts", &RTTLWRAbstract::connectAllPorts, this, RTT::OwnThread);
     this->addOperation("friStart", &RTTLWRAbstract::friStart, this, RTT::OwnThread);
     this->addOperation("friStop", &RTTLWRAbstract::friStop, this, RTT::OwnThread);
     this->addOperation("friReset", &RTTLWRAbstract::friReset, this, RTT::OwnThread);
@@ -73,7 +72,7 @@ jnt_grav(LBR_MNJ)
 RTTLWRAbstract::~RTTLWRAbstract(){
 }
 
-bool RTTLWRAbstract::configureHook(){
+bool RTTLWRAbstract::init(bool connect_all_ports){
     jnt_pos_cmd.setZero();
     jnt_trq_cmd.setZero();
         
@@ -83,9 +82,14 @@ bool RTTLWRAbstract::configureHook(){
         fri_to_krl.realData[i]=0.0;
     }
     
+    std::fill(jnt_imp_cmd.stiffness.begin(),jnt_imp_cmd.stiffness.end(),0.0);
+    std::fill(jnt_imp_cmd.damping.begin(),jnt_imp_cmd.damping.end(),0.0);
+    
     if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,kdl_tree,kdl_chain))
         return false;
-        
+
+    rtt_ros_kdl_tools::printChain(kdl_chain);
+    
     for(unsigned int i=0;i<kdl_chain.getNrOfSegments();++i)
     {
         const std::string name = kdl_chain.getSegment(i).getName();
@@ -94,7 +98,6 @@ bool RTTLWRAbstract::configureHook(){
     }
     
     
-    ik_solver_vel.reset(new KDL::ChainIkSolverVel_pinv_nso(kdl_chain));
     id_dyn_solver.reset(new KDL::ChainDynParam(kdl_chain,gravity_vector));
     id_rne_solver.reset(new KDL::ChainIdSolver_RNE(kdl_chain,gravity_vector));
     fk_vel_solver.reset(new KDL::ChainFkSolverVel_recursive(kdl_chain));
@@ -107,13 +110,26 @@ bool RTTLWRAbstract::configureHook(){
     gravity_kdl.resize(kdl_chain.getNrOfJoints());
     coriolis_kdl.resize(kdl_chain.getNrOfJoints());
     f_ext_kdl.resize(kdl_chain.getNrOfSegments());
+    
+    std::fill(f_ext_kdl.begin(),f_ext_kdl.end(),KDL::Wrench::Zero());
+    SetToZero(jnt_pos_kdl);
+    SetToZero(jnt_vel_kdl);
+    SetToZero(jnt_pos_vel_kdl);
+    SetToZero(gravity_kdl);
+    SetToZero(coriolis_kdl);
 
     // Set the Robot name (lwr or lwr_sim) For other components to know it
     boost::shared_ptr<rtt_rosparam::ROSParam> rosparam =
         this->getProvider<rtt_rosparam::ROSParam>("rosparam");
     rosparam->getRelative("robot_name");
     
-    return connectAllPorts(robot_name);
+
+    RTT::log(RTT::Warning) << "KDL Chain Joints : " << kdl_chain.getNrOfJoints()<< RTT::endlog();
+    RTT::log(RTT::Warning) << "KDL Chain Segments : " << kdl_chain.getNrOfSegments()<< RTT::endlog();
+
+    if(connect_all_ports)
+        return connectAllPorts(robot_name);
+    return true;
 }
 bool RTTLWRAbstract::getAllComponentRelative()
 {
@@ -144,6 +160,9 @@ bool RTTLWRAbstract::connectAllPorts(const std::string& robot_name)
     }
     this->peer = getPeer(robot_name);
     RTT::ConnPolicy policy = RTT::ConnPolicy::data();
+
+
+    RTT::log(RTT::Info) << "Connectings all ports ..." << RTT::endlog();
     port_CartesianWrench.connectTo(this->peer->getPort("CartesianWrench"),policy);
     port_RobotState.connectTo(this->peer->ports()->getPort("RobotState"),policy);
     port_FRIState.connectTo(this->peer->getPort("FRIState"),policy);
@@ -158,10 +177,9 @@ bool RTTLWRAbstract::connectAllPorts(const std::string& robot_name)
     
     //m_toKRL = peer->attributes()->getAttribute("toKRL");
     //m_fromKRL= peer->attributes()->getAttribute("fromKRL");
-    port_ToKRL.connectTo(this->peer->getPort("toKRL"),policy);
-    port_FromKRL.connectTo(this->peer->getPort("fromKRL"),policy);
-    port_JointTorqueRaw.connectTo(this->peer->getPort("JointTorqueRaw"),policy);
-    port_JointPositionFRIOffset.connectTo(this->peer->getPort("JointPositionFRIOffset"),policy);
+
+    //port_JointTorqueRaw.connectTo(this->peer->getPort("JointTorqueRaw"),policy);
+    //port_JointPositionFRIOffset.connectTo(this->peer->getPort("JointPositionFRIOffset"),policy);
     
     
     port_CartesianImpedanceCommand.connectTo(this->peer->getPort("CartesianImpedanceCommand"),policy);
@@ -170,7 +188,11 @@ bool RTTLWRAbstract::connectAllPorts(const std::string& robot_name)
     port_JointImpedanceCommand.connectTo(this->peer->getPort("JointImpedanceCommand"),policy);
     port_JointPositionCommand.connectTo(this->peer->getPort("JointPositionCommand"),policy);
     port_JointTorqueCommand.connectTo(this->peer->getPort("JointTorqueCommand"),policy);
-    
+    port_ToKRL.connectTo(this->peer->getPort("toKRL"),policy);
+    port_FromKRL.connectTo(this->peer->getPort("fromKRL"),policy);
+
+    RTT::log(RTT::Info) << "Setting data samples" << RTT::endlog();
+
     port_JointPositionCommand.setDataSample(jnt_pos_cmd);
     port_JointTorqueCommand.setDataSample(jnt_trq_cmd);
     port_CartesianImpedanceCommand.setDataSample(cart_imp_cmd);
@@ -179,6 +201,7 @@ bool RTTLWRAbstract::connectAllPorts(const std::string& robot_name)
     port_JointImpedanceCommand.setDataSample(jnt_imp_cmd);
     port_ToKRL.setDataSample(fri_to_krl);
     
+    RTT::log(RTT::Info) << "Verifying connections " << RTT::endlog();
     bool all_connected = true;
     all_connected &= port_CartesianWrench.connected();
     all_connected &= port_RobotState.connected();
@@ -193,8 +216,8 @@ bool RTTLWRAbstract::connectAllPorts(const std::string& robot_name)
     all_connected &= port_JointPosition.connected();
     all_connected &= port_ToKRL.connected();
     all_connected &= port_FromKRL.connected();
-    all_connected &= port_JointTorqueRaw.connected();
-    all_connected &= port_JointPositionFRIOffset.connected();
+    //all_connected &= port_JointTorqueRaw.connected();
+    //all_connected &= port_JointPositionFRIOffset.connected();
     
     all_connected &= port_CartesianImpedanceCommand.connected();
     all_connected &= port_CartesianPositionCommand.connected();
@@ -202,9 +225,19 @@ bool RTTLWRAbstract::connectAllPorts(const std::string& robot_name)
     all_connected &= port_JointImpedanceCommand.connected();
     all_connected &= port_JointPositionCommand.connected();
     all_connected &= port_JointTorqueCommand.connected();
+    RTT::log(RTT::Info) << "OK!" <<all_connected<< RTT::endlog();
     return all_connected;
 }
-
+bool RTTLWRAbstract::updateState(){
+    bool res=true;
+    res &= getJointPosition(jnt_pos);
+    res &= getJointVelocity(jnt_vel);
+    jnt_pos_kdl.data = jnt_pos;
+    jnt_vel_kdl.data = jnt_vel;
+    jnt_pos_vel_kdl.q.data = jnt_pos;
+    jnt_pos_vel_kdl.qdot.data = jnt_vel;
+    return res;
+}
 bool RTTLWRAbstract::startHook(){
     //initializeCommand();
     return doStart();
@@ -227,17 +260,17 @@ void RTTLWRAbstract::doStop(){
 }
 bool RTTLWRAbstract::isCommandMode()
 {
-    port_FRIState.read(fri_state);
+    port_FRIState.readNewest(fri_state);
     return static_cast<FRI_STATE>(fri_state.state)==FRI_STATE_CMD;
 }
 bool RTTLWRAbstract::isMonitorMode()
 {
-    port_FRIState.read(fri_state);
+    port_FRIState.readNewest(fri_state);
     return static_cast<FRI_STATE>(fri_state.state)==FRI_STATE_MON;
 }
 bool RTTLWRAbstract::isPowerOn()
 {
-    port_RobotState.read(robot_state);
+    port_RobotState.readNewest(robot_state);
     return robot_state.power!=0;
 }
 
@@ -267,12 +300,16 @@ void RTTLWRAbstract::setToolKRL(const unsigned int toolNumber){
 }
 
 int RTTLWRAbstract::getToolKRL(){
-    port_FromKRL.read(fri_from_krl);
+    return 0;
+    if(/*port_FromKRL.connected() == false ||*/ port_FromKRL.readNewest(fri_from_krl) == RTT::NoData)
+        return 0;
     return fri_from_krl.intData[2];
 }
 
 FRI_STATE RTTLWRAbstract::getFRIMode(){
-    port_FromKRL.read(fri_from_krl);
+    return FRI_STATE_CMD;
+    if(/*port_FromKRL.connected() == false || */ port_FromKRL.readNewest(fri_from_krl) == RTT::NoData)
+        return FRI_STATE_MON;
     FRI_STATE state = static_cast<FRI_STATE>(fri_from_krl.intData[0]);
     switch(state){
         case FRI_STATE_CMD:
@@ -283,14 +320,15 @@ FRI_STATE RTTLWRAbstract::getFRIMode(){
             break;
         default:
             RTT::log(RTT::Error) << "Cannot read FRI Mode ("<<fri_from_krl.intData[0]<<")" << RTT::endlog();
-            break;
+            return FRI_STATE_MON;
         }
      return state;
 }
 
 FRI_QUALITY RTTLWRAbstract::getFRIQuality()
 {
-    port_FRIState.read(fri_state);
+    if(port_FRIState.readNewest(fri_state)==RTT::NoData)
+        return FRI_QUALITY_UNACCEPTABLE;
     FRI_QUALITY quality = static_cast<FRI_QUALITY>(fri_state.quality);
     switch(quality){
         case FRI_QUALITY_UNACCEPTABLE:
@@ -307,13 +345,14 @@ FRI_QUALITY RTTLWRAbstract::getFRIQuality()
             break;
         default:
             RTT::log(RTT::Info) << "Cannot read FRI Quality (" <<quality<<")"<< RTT::endlog();
-            break;
+            return FRI_QUALITY_UNACCEPTABLE;
         }
     return quality;
 }
 FRI_CTRL RTTLWRAbstract::getFRIControlMode()
 {
-    port_RobotState.read(robot_state);
+    if(port_RobotState.readNewest(robot_state)==RTT::NoData)
+        return FRI_CTRL_OTHER;
     FRI_CTRL control_mode = static_cast<FRI_CTRL>(robot_state.control);
     switch(control_mode){
         case FRI_CTRL_POSITION:
@@ -330,7 +369,7 @@ FRI_CTRL RTTLWRAbstract::getFRIControlMode()
             break;
         default:
             RTT::log(RTT::Error) << "Cannot read FRI Control mode (" <<control_mode<<")"<< RTT::endlog();
-            break;
+            return FRI_CTRL_OTHER;
         }
     return control_mode;
 }
@@ -365,154 +404,75 @@ void RTTLWRAbstract::stopKrlScript(){
     port_ToKRL.write(fri_to_krl);
 }
 
-bool RTTLWRAbstract::sendCartesianPosition(const geometry_msgs::Pose& cartesian_pose)
-{
-    port_CartesianPositionCommand.write(cartesian_pose);
-    return true;
-}
-bool RTTLWRAbstract::sendCartesianWrench(const geometry_msgs::Wrench& cartesian_wrench)
-{
-    port_CartesianWrenchCommand.write(cartesian_wrench);
-    return true;
-}
-
 bool RTTLWRAbstract::getCartesianPosition(geometry_msgs::Pose& cart_position){
-    if (port_CartesianPosition.connected() == false)
-        RTT::log(RTT::Warning)<<"port_CartesianPosition not connected"<<RTT::endlog();
-
-    return port_CartesianPosition.read(cart_position)  != RTT::NoData;
+    return readData(port_CartesianPosition,cart_position);
 }
 bool RTTLWRAbstract::getJointPosition(Eigen::VectorXd& joint_position){
-    if (port_JointPosition.connected() == false)
-        RTT::log(RTT::Warning)<<"port_JointPosition not connected"<<RTT::endlog();
-
-    return port_JointPosition.read(joint_position) != RTT::NoData;
+    return readData(port_JointPosition,joint_position);
 }
 
 bool RTTLWRAbstract::getJacobian(KDL::Jacobian& jacobian){
-    if (port_Jacobian.connected() == false)
-        RTT::log(RTT::Warning)<<"port_Jacobian not connected"<<RTT::endlog();
-    return port_Jacobian.read(jacobian) != RTT::NoData;
+    return readData(port_Jacobian,jacobian);
 }
 
 bool RTTLWRAbstract::getMassMatrix(Eigen::MatrixXd& mass_matrix){
-    if (port_MassMatrix.connected() == false)
-        RTT::log(RTT::Warning)<<"port_MassMatrix not connected"<<RTT::endlog();
-    return port_MassMatrix.read(mass_matrix) != RTT::NoData;
+    return readData(port_MassMatrix,mass_matrix);
 }
 
 bool RTTLWRAbstract::getGravityTorque(Eigen::VectorXd& gravity_torque){
-    if (port_GravityTorque.connected() == false)
-        RTT::log(RTT::Warning)<<"port_GravityTorque not connected"<<RTT::endlog();
-    return port_GravityTorque.read(gravity_torque) != RTT::NoData;
+    return readData(port_GravityTorque,gravity_torque);
 }
 
 bool RTTLWRAbstract::getJointTorque(Eigen::VectorXd& joint_torque){
-    if (port_JointTorque.connected() == false)
-        RTT::log(RTT::Warning)<<"port_JointTorque not connected"<<RTT::endlog();
-    return port_JointTorque.read(joint_torque) != RTT::NoData;
+    return readData(port_JointTorque,joint_torque);
 }
 
 bool RTTLWRAbstract::getCartesianVelocity(geometry_msgs::Twist& cart_twist){
-    if (port_CartesianVelocity.connected() == false)
-        RTT::log(RTT::Warning)<<port_CartesianVelocity.getName()<<" not connected"<<RTT::endlog();
-    return port_CartesianVelocity.read(cart_twist) != RTT::NoData;
+    return readData(port_CartesianVelocity,cart_twist);
 }
 
 bool RTTLWRAbstract::getCartesianWrench(geometry_msgs::Wrench& cart_wrench){
-    if (port_CartesianWrench.connected() == false)
-        RTT::log(RTT::Warning)<<"port_CartesianWrench not connected"<<RTT::endlog();
-    return port_CartesianWrench.read(cart_wrench) != RTT::NoData;
+    return readData(port_CartesianWrench,cart_wrench);
 }
-bool RTTLWRAbstract::getJointVelocity(Eigen::VectorXd& joint_velocity)
-{
-    if (port_JointVelocity.connected() == false)
-        RTT::log(RTT::Warning)<<"port_JointVelocity not connected"<<RTT::endlog();
-    return port_JointVelocity.read(joint_velocity) != RTT::NoData;
+bool RTTLWRAbstract::getJointVelocity(Eigen::VectorXd& joint_velocity){
+    return readData(port_JointVelocity,joint_velocity);
 }
-bool RTTLWRAbstract::getJointTorqueRaw(Eigen::VectorXd& joint_torque_raw)
-{
-    if (port_JointTorqueRaw.connected() == false)
-        RTT::log(RTT::Warning)<<"port_JointTorqueRaw not connected"<<RTT::endlog();
-    return port_JointTorqueRaw.read(joint_torque_raw) != RTT::NoData;
+bool RTTLWRAbstract::getJointTorqueRaw(Eigen::VectorXd& joint_torque_raw){
+    return readData(port_JointTorqueRaw,joint_torque_raw);
 }
-bool RTTLWRAbstract::sendJointImpedance(const lwr_fri::FriJointImpedance& joint_impedance_cmd)
-{
-    if(port_JointImpedanceCommand.connected() == false)
-        RTT::log(RTT::Warning)<<"port_JointImpedanceCommand not connected"<<RTT::endlog();
+void RTTLWRAbstract::sendJointImpedance(const lwr_fri::FriJointImpedance& joint_impedance_cmd){
     port_JointImpedanceCommand.write(joint_impedance_cmd);
-    return true;
 }
 
-bool RTTLWRAbstract::sendJointCommand(RTT::OutputPort< Eigen::VectorXd >& port_cmd, const Eigen::VectorXd& jnt_cmd)
+void RTTLWRAbstract::sendJointPosition(const Eigen::VectorXd& joint_position_cmd){
+    port_JointPositionCommand.write(joint_position_cmd);
+}
+
+void RTTLWRAbstract::sendJointTorque(const Eigen::VectorXd& joint_torque_cmd){
+    port_JointTorqueCommand.write(joint_torque_cmd);
+}
+
+void RTTLWRAbstract::setJointTorqueControlMode(){
+        setJointImpedanceControlMode();
+        std::fill(jnt_imp_cmd.stiffness.begin(),jnt_imp_cmd.stiffness.end(),0.0);
+        std::fill(jnt_imp_cmd.damping.begin(),jnt_imp_cmd.damping.end(),0.0);
+        sendJointImpedance(jnt_imp_cmd);
+}
+
+void RTTLWRAbstract::sendCartesianPosition(const geometry_msgs::Pose& cartesian_pose)
 {
-    if (port_cmd.connected()){
-        if(jnt_cmd.rows() == LBR_MNJ){
-            port_cmd.write(jnt_cmd);
-        }else{
-            RTT::log(RTT::Error)<<"Can\'t write to "<<port_cmd.getName()<<", size error : jnt_cmd.rows="<<jnt_cmd.rows()<<", should be LBR_MNJ="<<LBR_MNJ<<RTT::endlog();
-            return false;
-        }
-    }else{
-        RTT::log(RTT::Error)<<"Port "<<port_cmd.getName()<<" not connected"<<RTT::endlog();
-        return false;
-    }
-    return true;
+    port_CartesianPositionCommand.write(cartesian_pose);
 }
 
-
-bool RTTLWRAbstract::sendJointPosition(const Eigen::VectorXd& joint_position_cmd){
-    return this->sendJointCommand(this->port_JointPositionCommand,joint_position_cmd);
-}
-bool RTTLWRAbstract::sendJointTorque(const Eigen::VectorXd& joint_torque_cmd)
+void RTTLWRAbstract::sendCartesianWrench(const geometry_msgs::Wrench& cartesian_wrench)
 {
-    return this->sendJointCommand(this->port_JointTorqueCommand,joint_torque_cmd);
+    port_CartesianWrenchCommand.write(cartesian_wrench);
 }
 
-void RTTLWRAbstract::estimateVelocityBDF(unsigned int order,const double dt,const boost::circular_buffer<Eigen::VectorXd>& x_states,Eigen::VectorXd& xd)
-{
-    using namespace boost::assign;
-    
-    std::vector<double> coeffs_x;
-    double coeff_y;
-    
-    switch(order){
-        case 1:
-            coeffs_x += 1.,-1.;
-            coeff_y = 1.;
-            break;
-        case 2:
-            coeffs_x += 1.,-4./3.,1./3.;
-            coeff_y = 2./3.;
-            break;
-        case 3:
-            coeffs_x += 1.,-18./11.,9./11.,-2./11.;
-            coeff_y = 6./11.;
-            break;
-        case 4:
-            coeffs_x += 1.,-48./25.,36./25.,-16./25.,3./25.;
-            coeff_y = 12./25.;
-            break;
-        case 5:
-            coeffs_x += 1.,-300./137.,300./137.,-200./137.,75./137.,-12./137.;
-            coeff_y = 60./137.;
-            break;
-        case 6:
-            coeffs_x += 1.,-360./147.,450./147.,-400./147.,225./147.,-72./147.,10./147.;
-            coeff_y = 60./147.;
-            break;
-        default:
-            return;
-    }
-            
-    for(unsigned int j = 0; j < x_states[0].size() ; ++j) // For each Joint j
-    {
-        double sum = 0.0;
-        unsigned int last_idx = x_states.size();
-        for(unsigned int k = 0; k < coeffs_x.size() && k < last_idx; ++k) // For each State k
-        {
-            sum += coeffs_x[k]*x_states[last_idx-k-1][j];
-        }
-        xd[j] = sum/(dt*coeff_y);            
-    }
-}
+void RTTLWRAbstract::setJointPositionControlMode(){setControlStrategy(10*FRI_CTRL_POSITION);}
+void RTTLWRAbstract::setJointImpedanceControlMode(){setControlStrategy(10*FRI_CTRL_JNT_IMP);}
+void RTTLWRAbstract::setCartesianImpedanceControlMode(){setControlStrategy(10*FRI_CTRL_CART_IMP);}
+bool RTTLWRAbstract::isJointImpedanceControlMode(){ return getFRIControlMode() == FRI_CTRL_JNT_IMP;}
+bool RTTLWRAbstract::isCartesianImpedanceControlMode(){ return getFRIControlMode() == FRI_CTRL_CART_IMP;}
+bool RTTLWRAbstract::isJointPositionControlMode(){ return getFRIControlMode() == FRI_CTRL_POSITION;}
+const unsigned int RTTLWRAbstract::getNrOfJoints()const{return n_joints;}

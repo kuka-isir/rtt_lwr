@@ -55,120 +55,15 @@ namespace lwr{
     
 class RTTLWRAbstract : public RTT::TaskContext{
   public:
-      /**
-     * @brief lwr or lwr_sim peer
-     */
-      RTT::TaskContext* peer;
-
-
-    /**
-     * @brief Shared arrays from the remote pc to the KRC
-     */
-    tFriKrlData fri_to_krl;
-
-    /**
-     * @brief Shared arrays from the KRC to the remote pc
-     */
-    tFriKrlData fri_from_krl;
-
-    RTT::OutputPort<lwr_fri::CartesianImpedance > port_CartesianImpedanceCommand;
-    RTT::OutputPort<geometry_msgs::Wrench > port_CartesianWrenchCommand;
-    RTT::OutputPort<geometry_msgs::Pose > port_CartesianPositionCommand;
-    RTT::OutputPort<lwr_fri::FriJointImpedance > port_JointImpedanceCommand;
-    RTT::OutputPort<Eigen::VectorXd > port_JointPositionCommand;
-    RTT::OutputPort<Eigen::VectorXd > port_JointTorqueCommand;
-    //RTT::OutputPort<std_msgs::Int32 > port_KRL_CMD;
-    RTT::InputPort<tFriKrlData > port_FromKRL;
-    //RTT::InputPort<std_msgs::Int32 > port_KRL_CMD;
-        
-    RTT::OutputPort<tFriKrlData > port_ToKRL;
-    RTT::InputPort<geometry_msgs::Wrench > port_CartesianWrench;
-    RTT::InputPort<tFriRobotState > port_RobotState;
-    RTT::InputPort<tFriIntfState > port_FRIState;
-    RTT::InputPort<Eigen::VectorXd > port_JointVelocity;
-    RTT::InputPort<geometry_msgs::Twist > port_CartesianVelocity;
-    RTT::InputPort<geometry_msgs::Pose > port_CartesianPosition;
-    RTT::InputPort<Eigen::MatrixXd > port_MassMatrix;
-    RTT::InputPort<KDL::Jacobian > port_Jacobian;
-    RTT::InputPort<Eigen::VectorXd> port_JointTorque;
-    RTT::InputPort<Eigen::VectorXd> port_GravityTorque;
-    RTT::InputPort<Eigen::VectorXd> port_JointPosition;
-    RTT::InputPort<Eigen::VectorXd> port_JointTorqueRaw;
-    RTT::InputPort<Eigen::VectorXd> port_JointPositionFRIOffset;
-
-
-    RTTLWRAbstract(std::string const& name);
-    ~RTTLWRAbstract();
-    tFriRobotState robot_state;
-    tFriIntfState fri_state;
-    geometry_msgs::Pose cart_pos, cart_pos_cmd;
-    geometry_msgs::Wrench cart_wrench, cart_wrench_cmd;
-    geometry_msgs::Twist cart_twist;
-    KDL::Twist cart_twist_kdl;
-    Eigen::MatrixXd mass;
-    lwr_fri::FriJointImpedance jnt_imp_cmd;
-    lwr_fri::CartesianImpedance cart_imp_cmd;
-    
-    Eigen::Matrix<double,6,1> X,Xd,Xdd,X_cmd,Xd_cmd,Xdd_cmd;
-    Eigen::Affine3d X_aff,Xd_aff;
-    Eigen::VectorXd kp,kd;
-    Eigen::Matrix<double,6,1> kp_cart,kd_cart;
-    KDL::Frame X_kdl,Xd_kdl;
-    
-    Eigen::VectorXd jnt_pos,
-                    jnt_pos_old,
-                    jnt_trq,
-                    jnt_trq_raw,
-                    jnt_pos_fri_offset,
-                    jnt_grav,
-                    jnt_vel,
-                    jnt_pos_cmd,
-                    jnt_trq_cmd,
-                    jnt_vel_bdf;
-
-    KDL::JntArray   jnt_pos_kdl,
-                    jnt_vel_kdl,
-                    coriolis_kdl,
-                    gravity_kdl,
-                    jnt_trq_kdl;
-                    
-    KDL::JntArrayVel jnt_pos_vel_kdl;
-    KDL::Frame tool_in_base_frame;
-
-    KDL::Wrenches f_ext_kdl;
-
-    // Backward differentiation formula buffer : http://en.wikipedia.org/wiki/Backward_differentiation_formula
-    boost::circular_buffer<Eigen::VectorXd> jnt_pos_bdf;
-
-    KDL::Jacobian J;
-    KDL::FrameVel tool_in_base_framevel;
-    unsigned int n_joints;
-    
-    std::string root_link,tip_link,robot_name,robot_description;
-    urdf::Model urdf_model;
-    KDL::Tree kdl_tree;
-    KDL::Chain kdl_chain;        
-        
-    boost::scoped_ptr<KDL::ChainFkSolverVel_recursive> fk_vel_solver;
-    boost::scoped_ptr<KDL::ChainIkSolverVel_pinv_nso> ik_solver_vel;
-    boost::scoped_ptr<KDL::ChainDynParam> id_dyn_solver;
-    boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver;
-    boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver;
-    KDL::Vector gravity_vector;
-    std::map<std::string,unsigned int> seg_names_idx;
-    
-    const unsigned int getNJoints()const{return n_joints;}
-
-    bool sendJointCommand(RTT::OutputPort<Eigen::VectorXd>& port_cmd,const Eigen::VectorXd& jnt_cmd); 
-    int getToolKRL();
-    /** @brief Orocos Configure Hook
+      RTTLWRAbstract(std::string const& name);
+      virtual ~RTTLWRAbstract();
+     /** @brief Orocos Configure Hook
      * Initialization of the shared array between
      * KRC and remote pc
      * We choose by convention to trigger fri_start() in
      * the KRL program if $FRI_FRM_INT[1] == 1
      */
-    bool configureHook();
-
+    virtual bool configureHook(){this->init(true);}
     /** @brief Orocos Start Hook
      * Send arrays to KRC and call doStart()
      */
@@ -180,13 +75,13 @@ class RTTLWRAbstract : public RTT::TaskContext{
 
     /** @brief Orocos Update hook
      */
-    virtual void updateHook() = 0;
+    //virtual void updateHook() = 0;
 
     /** @brief Orocos stop hook
      * Call doStop(), then put 2 in $FRI_FRM_INT[1]
      * which by our convention trigger fri_stop() in KRL program
      */
-    void stopHook();
+    virtual void stopHook();
 
     /** @brief To implement if specific things have to be done when stoping the component
      */
@@ -195,6 +90,12 @@ class RTTLWRAbstract : public RTT::TaskContext{
     /** @brief Orocos Cleanup hook
      */
     virtual void cleanupHook();
+    
+    const unsigned int getNrOfJoints() const;
+
+    bool sendJointCommand(RTT::OutputPort<Eigen::VectorXd>& port_cmd,const Eigen::VectorXd& jnt_cmd); 
+
+    int getToolKRL();
 
     /** @brief Set control strategy
      */
@@ -226,10 +127,6 @@ class RTTLWRAbstract : public RTT::TaskContext{
     /** @brief Ask KRL script for a friStart()
      */
     void friStart();
-
-    /** @brief Estimate the velocity using the Backward Differentiation Formula
-     */
-    static void estimateVelocityBDF(unsigned int order,const double dt,const boost::circular_buffer<Eigen::VectorXd>& x_states,Eigen::VectorXd& xd);
 
     /** @brief Reset the array shared with the KRC
      */
@@ -279,46 +176,37 @@ class RTTLWRAbstract : public RTT::TaskContext{
 
     /** @brief Send Joint position in radians
      */
-    bool sendJointPosition(const Eigen::VectorXd& joint_position_cmd);
+    void sendJointPosition(const Eigen::VectorXd& joint_position_cmd);
     /** @brief Send Joint Impedance gains
      */
-    bool sendJointImpedance(const lwr_fri::FriJointImpedance& joint_impedance_cmd);
+    void sendJointImpedance(const lwr_fri::FriJointImpedance& joint_impedance_cmd);
     /** @brief Send Joint Torque in N.m
      */
-    bool sendJointTorque(const Eigen::VectorXd& joint_torque_cmd);
+    void sendJointTorque(const Eigen::VectorXd& joint_torque_cmd);
     /** @brief Send Cartesian position Command
      */
-    bool sendCartesianPosition(const geometry_msgs::Pose& cartesian_pose);
+    void sendCartesianPosition(const geometry_msgs::Pose& cartesian_pose);
     /** @brief Send Cartesian Wrench Command
      */
-    bool sendCartesianWrench(const geometry_msgs::Wrench& cartesian_wrench);
+    void sendCartesianWrench(const geometry_msgs::Wrench& cartesian_wrench);
     /** @brief Set the Position Control Mode 10
      */
-    void setJointPositionControlMode(){setControlStrategy(10*FRI_CTRL_POSITION);}
+    void setJointPositionControlMode();
         
     /** @brief Set the Impedance Control Mode 30
      */
-    void setJointImpedanceControlMode(){setControlStrategy(10*FRI_CTRL_JNT_IMP);}
+    void setJointImpedanceControlMode();
         
     /** @brief Set the Cartesian Impedance Control Mode 20
      */
-    void setCartesianImpedanceControlMode(){setControlStrategy(10*FRI_CTRL_CART_IMP);}
+    void setCartesianImpedanceControlMode();
     bool isCommandMode();
     bool isMonitorMode();
     bool isPowerOn();
-    bool isJointImpedanceControlMode(){ return getFRIControlMode() == FRI_CTRL_JNT_IMP;}
-    bool isCartesianImpedanceControlMode(){ return getFRIControlMode() == FRI_CTRL_CART_IMP;}
-    bool isJointPositionControlMode(){ return getFRIControlMode() == FRI_CTRL_POSITION;}
-    bool updateState(){
-        bool res=true;
-        res &= getJointPosition(jnt_pos);
-        res &= getJointVelocity(jnt_vel);
-        jnt_pos_kdl.data = jnt_pos;
-        jnt_vel_kdl.data = jnt_vel;
-        jnt_pos_vel_kdl.q.data = jnt_pos;
-        jnt_pos_vel_kdl.qdot.data = jnt_vel;
-        return res;
-    }
+    bool isJointImpedanceControlMode();
+    bool isCartesianImpedanceControlMode();
+    bool isJointPositionControlMode();
+    bool updateState();
     
     template<class T>
     RTT::FlowStatus readData(RTT::InputPort<T>& port,T& data)
@@ -332,7 +220,7 @@ class RTTLWRAbstract : public RTT::TaskContext{
     }
     
     template<class T>
-    RTT::FlowStatus writeData(RTT::InputPort<T>& port,const T& data)
+    void writeData(RTT::InputPort<T>& port,const T& data)
     {
         if(port.connected() == false)
         {
@@ -340,18 +228,111 @@ class RTTLWRAbstract : public RTT::TaskContext{
             return false;
         }
         port.write(data);
-        return true;
     }
     
     bool getAllComponentRelative();
     
-    void setJointTorqueControlMode(){
-        setJointImpedanceControlMode();
-        std::fill(jnt_imp_cmd.stiffness.begin(),jnt_imp_cmd.stiffness.end(),0.0);
-        std::fill(jnt_imp_cmd.damping.begin(),jnt_imp_cmd.damping.end(),0.0);
-        sendJointImpedance(jnt_imp_cmd);
-    }
+    void setJointTorqueControlMode();
+
     bool connectAllPorts(const std::string& robot_name="lwr");
+private:
+    /**
+     * @brief lwr or lwr_sim peer (used to connect ports)
+     */
+      RTT::TaskContext* peer;
+protected:
+    static const unsigned int n_joints = LBR_MNJ;
+
+    bool init(bool connect_all_ports=true);
+    /**
+     * @brief Shared arrays from the remote pc to the KRC
+     */
+    tFriKrlData fri_to_krl;
+
+    /**
+     * @brief Shared arrays from the KRC to the remote pc
+     */
+    tFriKrlData fri_from_krl;
+
+    RTT::OutputPort<lwr_fri::CartesianImpedance > port_CartesianImpedanceCommand;
+    RTT::OutputPort<geometry_msgs::Wrench > port_CartesianWrenchCommand;
+    RTT::OutputPort<geometry_msgs::Pose > port_CartesianPositionCommand;
+    RTT::OutputPort<lwr_fri::FriJointImpedance > port_JointImpedanceCommand;
+    RTT::OutputPort<Eigen::VectorXd > port_JointPositionCommand;
+    RTT::OutputPort<Eigen::VectorXd > port_JointTorqueCommand;
+    //RTT::OutputPort<std_msgs::Int32 > port_KRL_CMD;
+    RTT::InputPort<tFriKrlData > port_FromKRL;
+    //RTT::InputPort<std_msgs::Int32 > port_KRL_CMD;
+        
+    RTT::OutputPort<tFriKrlData > port_ToKRL;
+    RTT::InputPort<geometry_msgs::Wrench > port_CartesianWrench;
+    RTT::InputPort<tFriRobotState > port_RobotState;
+    RTT::InputPort<tFriIntfState > port_FRIState;
+    RTT::InputPort<Eigen::VectorXd > port_JointVelocity;
+    RTT::InputPort<geometry_msgs::Twist > port_CartesianVelocity;
+    RTT::InputPort<geometry_msgs::Pose > port_CartesianPosition;
+    RTT::InputPort<Eigen::MatrixXd > port_MassMatrix;
+    RTT::InputPort<KDL::Jacobian > port_Jacobian;
+    RTT::InputPort<Eigen::VectorXd> port_JointTorque;
+    RTT::InputPort<Eigen::VectorXd> port_GravityTorque;
+    RTT::InputPort<Eigen::VectorXd> port_JointPosition;
+    RTT::InputPort<Eigen::VectorXd> port_JointTorqueRaw;
+    RTT::InputPort<Eigen::VectorXd> port_JointPositionFRIOffset;
+
+    tFriRobotState robot_state;
+    tFriIntfState fri_state;
+    geometry_msgs::Pose cart_pos, cart_pos_cmd;
+    geometry_msgs::Wrench cart_wrench, cart_wrench_cmd;
+    geometry_msgs::Twist cart_twist;
+    KDL::Twist cart_twist_kdl;
+    Eigen::MatrixXd mass;
+    lwr_fri::FriJointImpedance jnt_imp_cmd;
+    lwr_fri::CartesianImpedance cart_imp_cmd;
+    
+    Eigen::Matrix<double,6,1> X,Xd,Xdd,X_cmd,Xd_cmd,Xdd_cmd;
+    Eigen::Affine3d X_aff,Xd_aff;
+    Eigen::VectorXd kp,kd;
+    Eigen::Matrix<double,6,1> kp_cart,kd_cart;
+    KDL::Frame X_kdl,Xd_kdl;
+    
+    Eigen::VectorXd jnt_pos,
+                    jnt_pos_old,
+                    jnt_trq,
+                    jnt_trq_raw,
+                    jnt_pos_fri_offset,
+                    jnt_grav,
+                    jnt_vel,
+                    jnt_pos_cmd,
+                    jnt_trq_cmd;
+
+    KDL::JntArray   jnt_pos_kdl,
+                    jnt_vel_kdl,
+                    coriolis_kdl,
+                    gravity_kdl,
+                    jnt_trq_kdl;
+                    
+    KDL::JntArrayVel jnt_pos_vel_kdl;
+    KDL::Frame tool_in_base_frame;
+
+    KDL::Wrenches f_ext_kdl;
+
+    KDL::Jacobian J_tip_base;
+    KDL::FrameVel tool_in_base_framevel;
+    
+    std::string root_link,tip_link,robot_name,robot_description;
+    urdf::Model urdf_model;
+    KDL::Tree kdl_tree;
+    KDL::Chain kdl_chain;        
+        
+    boost::scoped_ptr<KDL::ChainFkSolverVel_recursive> fk_vel_solver;
+    boost::scoped_ptr<KDL::ChainDynParam> id_dyn_solver;
+    boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver;
+    boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver;
+
+    KDL::Vector gravity_vector;
+    std::map<std::string,unsigned int> seg_names_idx;
+
+    bool connect_all_ports_at_startup;
 };
 }
 #endif
