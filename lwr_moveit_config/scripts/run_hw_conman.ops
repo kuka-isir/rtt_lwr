@@ -2,7 +2,8 @@
 import("rtt_ros")
 ros.import("rtt_rospack")
 runScript(ros.find("lwr_fri")+"/runfridiag.ops")
-runScript(ros.find("lwr_state_publisher")+"/run_hw.ops")
+runScript(ros.find("rtt_state_publisher")+"/scripts/run_hw.ops")
+state_pub.start()
 
 ros.import("conman")
 ros.import("conman_ros")

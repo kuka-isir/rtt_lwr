@@ -289,7 +289,7 @@ bool LWRSim::configureHook(){
     port_FromKRL.setDataSample(fri_from_krl);
 
 
-    port_JointState.createStream(rtt_roscomm::topic(/*"~"+this->getName()+"/*/"joint_states"));
+    port_JointState.createStream(rtt_roscomm::topic("~"+this->getName()+"/joint_states"));
     port_JointStateFiltered.createStream(rtt_roscomm::topic("~"+this->getName()+"/joint_states_filtered"));
     port_JointStateCommand.createStream(rtt_roscomm::topic("~"+this->getName()+"/joint_states_cmd"));
     port_JointStateGravity.createStream(rtt_roscomm::topic("~"+this->getName()+"/joint_states_gravity"));
