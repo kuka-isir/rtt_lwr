@@ -40,6 +40,19 @@
           iyz="0.0"
           izz="0.0001" />
       </inertial>
+      <visual>
+	<origin rpy="${M_PI/2.0} 0 ${20.0*M_PI/180.0}" xyz="0.0 0.0 -0.0388"/>
+	<geometry>
+	  <mesh filename="package://lwr_description/meshes/ati/ati.stl" scale="0.001 0.001 0.001"/>
+	</geometry>
+	<material name="color_j7"/>
+      </visual>
+      <collision>
+	<origin rpy="${M_PI/2.0} 0 ${20.0*M_PI/180.0}" xyz="0.0 0.0 -0.0388"/>
+	<geometry>
+	  <mesh filename="package://lwr_description/meshes/ati/ati.stl" scale="0.001 0.001 0.001"/>
+	</geometry>
+      </collision>
     </link>
     <joint name="ati_joint" type="fixed">
        <parent link="link_7" />
@@ -53,6 +66,38 @@
        <origin xyz="0 0 0.0584" rpy="0 0 ${-M_PI/2}" />
     </joint>
   </xacro:macro>
+
+  <!-- calib_tool -->
+  <link name="calib_link">
+    <visual>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0"/>
+      <geometry>
+	<mesh filename="package://lwr_description/meshes/calib_tool/calib_tool.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="color_j2"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0"/>
+      <geometry>
+	<mesh filename="package://lwr_description/meshes/calib_tool/calib_tool.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="color_j2"/>
+    </collision>
+  </link>
+
+  <joint name="ati_rot_joint" type="fixed">
+       <parent link="ati_link" />
+       <child link="ati_rot_link" />
+       <origin rpy="0 0 -${45.0*M_PI/180.0}" xyz="0 0 0"  />
+  </joint>
+  
+  <link name="ati_rot_link"/>
+  
+  <joint name="balls_joint" type="fixed">
+       <parent link="ati_rot_link" />
+       <child link="calib_link" />
+       <origin rpy="0 0 0" xyz="0.071 0 -0.0288"  />
+  </joint>
 
   <!--lbr-->
   <xacro:lwr parent="base_link">
