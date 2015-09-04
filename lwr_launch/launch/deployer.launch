@@ -13,6 +13,8 @@
   <arg name="CORBA" default="false"/>
   <!-- Set DEBUG to true to run in GDB (don't forget to build in Debug mode) -->
   <arg name="DEBUG" default="false"/>
+  <!-- Respawn the node if it creashes (not recommended) -->
+  <arg name="respawn" default="false"/>
   <arg if="$(arg DEBUG)" name="SUFFIX" value="-debug"/>
   <arg unless="$(arg DEBUG)" name="SUFFIX" value=""/>
 
@@ -21,7 +23,7 @@
     name="$(arg NAME)"
     pkg="rtt_ros" type="deployer$(arg SUFFIX)" 
     args="-l $(arg LOG_LEVEL) $(arg DEPLOYER_ARGS) --"
-    output="screen">
+    output="screen" respawn="$(arg respawn)">
     <env name="OROCOS_TARGET" value="$(arg OROCOS_TARGET)"/>
     <env name="RTT_COMPONENT_PATH" value="$(arg RTT_COMPONENT_PATH)"/>
   </node>
@@ -30,7 +32,7 @@
     name="$(arg NAME)"
     pkg="lwr_scripts" type="deployer-corba$(arg SUFFIX)" 
     args="-l $(arg LOG_LEVEL) $(arg DEPLOYER_ARGS) --"
-    output="screen">
+    output="screen" respawn="$(arg respawn)">
     <env name="OROCOS_TARGET" value="$(arg OROCOS_TARGET)"/>
     <env name="RTT_COMPONENT_PATH" value="$(arg RTT_COMPONENT_PATH)"/>
   </node>

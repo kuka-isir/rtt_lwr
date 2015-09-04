@@ -4,7 +4,8 @@
     <arg name="robot_ns" default="/"/>
     <arg name="debug" default="false" />
     <arg name="rviz" default="false" />
-    
+    <arg name="respawn" default="false" />
+
     <!-- The end effector Frame -->
     <arg name="tip_link" default="link_7"/>
     
@@ -28,5 +29,6 @@
         <arg name="NAME" value="lwr" unless="$(arg sim)"/>
         <arg name="LOG_LEVEL" value="$(arg log_level)"/>
         <arg name="DEBUG" default="$(arg debug)"/>
+        <arg name="respawn" default="$(arg respawn)"/>
     </include>
 </launch>
