@@ -19,14 +19,15 @@
 
     <group ns="$(arg robot_ns)">
         <param name="tip_link" value="$(arg tip_link)"/>
-    </group>
     
-    <include file="$(find lwr_launch)/launch/deployer.launch">
-        <arg name="CORBA" value="true" if="$(arg sim)"/>
-        <arg name="DEPLOYER_ARGS" value="-s $(arg ops_script)"/>
-        <arg name="NAME" value="lwr_sim" if="$(arg sim)"/>
-        <arg name="NAME" value="lwr" unless="$(arg sim)"/>
-        <arg name="LOG_LEVEL" value="$(arg log_level)"/>
-        <arg name="DEBUG" default="$(arg debug)"/>
-    </include>
+    
+        <include file="$(find lwr_launch)/launch/deployer.launch">
+            <arg name="CORBA" value="true" if="$(arg sim)"/>
+            <arg name="DEPLOYER_ARGS" value="-s $(arg ops_script)"/>
+            <arg name="NAME" value="lwr_sim" if="$(arg sim)"/>
+            <arg name="NAME" value="lwr" unless="$(arg sim)"/>
+            <arg name="LOG_LEVEL" value="$(arg log_level)"/>
+            <arg name="DEBUG" default="$(arg debug)"/>
+        </include>
+    </group>
 </launch>
