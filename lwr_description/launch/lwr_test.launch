@@ -1,17 +1,19 @@
 <?xml version="1.0"?>
 <launch>
-<arg name="robot_name" default="/"/>
-
-
+<arg name="robot_ns" default="/"/>
 
 <node pkg="rviz" type="rviz" output="screen" name="rviz" />
 
-<group ns="$(arg robot_name)">
-	<param name="tf_prefix" value="$(arg robot_name)" />
+
+
+<group ns="$(arg robot_ns)">
+	<param name="tf_prefix" value="$(arg robot_ns)" />
+        
+        <node pkg="tf" type="static_transform_publisher" name="world_ns_connector" args="0 0 0 0 0 0 /world $(arg robot_ns)/world 100"/>
+        
 	<include file="$(find lwr_description)/launch/lwr_upload.launch"/>
         
-	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">
-        </node>
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 
 	<node pkg="joint_state_publisher" type="joint_state_publisher" output="screen" name="joint_state_publisher">
 		<param name="use_gui" value="true"/>	
