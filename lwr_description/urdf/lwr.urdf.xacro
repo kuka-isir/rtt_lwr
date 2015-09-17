@@ -7,7 +7,7 @@
 
    <xacro:property name="M_PI" value="3.1415926535897931" />
 
-   <xacro:property name="damping_factor" value="1.0"/>
+   <xacro:property name="damping_factor" value="0.2"/>
 
    <xacro:property name="d0" value="${damping_factor*5.5}"/>
    <xacro:property name="d1" value="${damping_factor*5.5}"/>
@@ -16,7 +16,16 @@
    <xacro:property name="d4" value="${damping_factor*3.5}"/>
    <xacro:property name="d5" value="${damping_factor*1.1}"/>
    <xacro:property name="d6" value="${damping_factor*0.1}"/>
+   
+   <xacro:property name="friction_factor" value="2.0"/>
 
+   <xacro:property name="f0" value="${friction_factor*1.0}"/>
+   <xacro:property name="f1" value="${friction_factor*1.0}"/>
+   <xacro:property name="f2" value="${friction_factor*1.0}"/>
+   <xacro:property name="f3" value="${friction_factor*1.0}"/>
+   <xacro:property name="f4" value="${friction_factor*1.0}"/>
+   <xacro:property name="f5" value="${friction_factor*1.0}"/>
+   <xacro:property name="f6" value="${friction_factor*1.0}"/>
 
 
 
@@ -67,7 +76,7 @@
          <child link="link_1" />
          <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}" effort="${effort_scale * 200}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
 
-         <dynamics friction="0" damping="${d0}"/>
+         <dynamics friction="${f0}" damping="${d0}"/>
          <origin xyz="0 0 0.102" rpy="0 0 0" />
          <axis xyz="0 0 1" />
       </joint>
@@ -107,7 +116,7 @@
          <child link="link_2" />
          <limit lower="${-120 * M_PI / 180}" upper="${120 * M_PI / 180}" effort="${effort_scale * 200}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
 
-         <dynamics friction="0" damping="${d1}"/>
+         <dynamics friction="${f1}" damping="${d1}"/>
          <origin xyz="0 0.0 0.2085" rpy="0 0 0" />
          <axis xyz="0 -1 0" />
       </joint>
@@ -155,7 +164,7 @@
          <child link="link_3" />
          <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}" effort="${effort_scale * 100}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
 
-         <dynamics friction="0" damping="${d2}"/>
+         <dynamics friction="${f2}" damping="${d2}"/>
          <origin xyz="0 0 0.1915" rpy="0 0 0" />
          <axis xyz="0 0 1" />
       </joint>
@@ -195,7 +204,7 @@
          <child link="link_4" />
          <limit lower="${-120 * M_PI / 180}" upper="${120 * M_PI / 180}" effort="${effort_scale * 100}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
 
-         <dynamics friction="0" damping="${d3}"/>
+         <dynamics friction="${f3}" damping="${d3}"/>
          <origin xyz="0 0 0.2085" rpy="0 0 0" />
          <axis xyz="0 1 0" />
       </joint>
@@ -235,7 +244,7 @@
          <child link="link_5" />
          <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}" effort="${effort_scale * 100}" velocity="${velocity_scale * 180.0 * M_PI / 180}" />
 
-         <dynamics friction="0" damping="${d4}"/>
+         <dynamics friction="${f4}" damping="${d4}"/>
          <origin xyz="0 0.0 0.1915" rpy="0 0 0" />
          <axis xyz="0 0 1" />
       </joint>
@@ -275,7 +284,7 @@
          <child link="link_6" />
          <limit lower="${-120 * M_PI / 180}" upper="${120 * M_PI / 180}" effort="${effort_scale * 30}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
 
-         <dynamics friction="0" damping="${d5}"/>
+         <dynamics friction="${f5}" damping="${d5}"/>
          <origin xyz="0 0 0.1985" rpy="0 0 0" />
          <axis xyz="0 -1 0" />
       </joint>
@@ -314,7 +323,7 @@
          <parent link="link_6" />
          <child link="link_7" />
          <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}" effort="${effort_scale * 30}" velocity="${velocity_scale * 112.5 * M_PI / 180}" />
-         <dynamics friction="0" damping="${d6}"/>
+         <dynamics friction="${f6}" damping="${d6}"/>
          <origin xyz="0 0 0.078" rpy="0 0 0" />
          <axis xyz="0 0 1" />
       </joint>
