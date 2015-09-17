@@ -2,15 +2,15 @@ cmake_minimum_required(VERSION 2.8.3)
 project(rtt_lwr_gazebo)
 set(CMAKE_BUILD_TYPE Release)
 ## Find catkin macros and libraries
-find_package(catkin REQUIRED COMPONENTS rtt_ros cmake_modules kuka_lwr_fri)
+find_package(catkin REQUIRED COMPONENTS rtt_ros cmake_modules sensor_msgs)
 
 catkin_package()
 
 # Depend on system install of Gazebo 
 find_package(gazebo REQUIRED)
-find_package(orocos_kdl REQUIRED)
-find_package(Eigen REQUIRED)
-find_package(Boost COMPONENTS thread REQUIRED)
+#find_package(orocos_kdl REQUIRED)
+#find_package(Eigen REQUIRED)
+#find_package(Boost COMPONENTS thread REQUIRED)
 
 link_directories(
   ${GAZEBO_LIBRARY_DIRS}
