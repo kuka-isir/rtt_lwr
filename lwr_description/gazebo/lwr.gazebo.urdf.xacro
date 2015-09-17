@@ -28,6 +28,10 @@
   		<xacro:gz_joint joint_name="joint_5"/>
   		<xacro:gz_joint joint_name="joint_6"/>
 
+                <gazebo reference="base_link">
+                    <static>true</static>
+                </gazebo>
+  
 		<gazebo reference="link_0">
 			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
