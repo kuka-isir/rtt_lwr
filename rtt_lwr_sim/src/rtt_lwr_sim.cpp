@@ -121,14 +121,20 @@ void LWRSim::resetCartesianImpedanceGains()
 }
 void LWRSim::setInitialJointPosition(const std::vector< double > j_init)
 {
-    if(!j_init.size() == n_joints_){
-        RTT::log(RTT::Error) << "Invalid size (should be " << n_joints_ << ")" << RTT::endlog();
+    if(!j_init.size() == LBR_MNJ){
+        RTT::log(RTT::Error) << "Invalid size (should be " << LBR_MNJ << ")" << RTT::endlog();
         return;
     }
-    port_JointPositionGazeboCommand.write(j_init);
+    if(port_JointPositionGazeboCommand.connected())
+        port_JointPositionGazeboCommand.write(j_init);
+    joint_state_cmd_.position = j_init;
+    init_pos_requested = true;
 }
 
 bool LWRSim::configureHook(){
+    if(connect_to_rtt_gazebo_at_configure)
+        if(!connectToRTTGazebo(gazebo_deployer_name, gazebo_robot_comp_name))
+            return false;
     // Get the rosparam service requester
     boost::shared_ptr<rtt_rosparam::ROSParam> rosparam =
             this->getProvider<rtt_rosparam::ROSParam>("rosparam");
@@ -143,7 +149,6 @@ bool LWRSim::configureHook(){
     rosparam->getRelative("root_link");
     rosparam->getRelative("tip_link");
 
-    
     RTT::log(RTT::Info)<<"root_link : "<<root_link<<RTT::endlog();
     RTT::log(RTT::Info)<<"tip_link : "<<tip_link<<RTT::endlog();
         
@@ -170,70 +175,43 @@ bool LWRSim::configureHook(){
         
     // Store the number of degrees of freedom of the chain
     n_joints_ = kdl_chain_.getNrOfJoints();
-    
-    PeerList lpeers = this->getPeerList();
-    RTT::log(RTT::Debug)<<"Available Peers "<<RTT::endlog();
-    for(PeerList::iterator p=lpeers.begin();p!=lpeers.end();++p)
-        RTT::log(RTT::Debug)<<"- "<<(*p)<<RTT::endlog();
 
-    if(this->hasPeer("gazebo")){
-        this->peer = this->getPeer("gazebo");
-        // Getting information from gazebo
-        std::string lwr_gazebo("lwr_gazebo");
-        RTT::ConnPolicy policy = RTT::ConnPolicy::data();
-        port_JointPositionGazeboCommand.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointPositionCommand"),policy);
-        port_JointVelocityGazeboCommand.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointVelocityCommand"),policy);
-        port_JointTorqueGazeboCommand.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointTorqueCommand"),policy);
-
-        port_JointPositionGazebo.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointPosition"),policy);
-        port_JointVelocityGazebo.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointVelocity"),policy);
-        port_JointTorqueGazebo.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointTorque"),policy);
-
-        // The number of joints is 8 because it counts base_link, even though it's a fixed joint
-        /*RTT::Property<unsigned int> njoints = this->peer->getPeer(lwr_gazebo)->getProperty("n_joints");
-        RTT::log(RTT::Debug)<<"LWR njoints GAZEBO : "<<njoints.get()<<RTT::endlog();*/
-
-    }else{
-        RTT::log(RTT::Error)<<"Couldn't find gazebo and lwr_gazebo peer"<<RTT::endlog();
-        return false;
-    }
-
-    RTT::log(RTT::Debug)<<"LWR njoints : "<<n_joints_<<" Segments : "<<kdl_chain_.getNrOfSegments()<<RTT::endlog();
+    RTT::log(RTT::Debug)<<"LWR njoints : "<<LBR_MNJ<<" Segments : "<<kdl_chain_.getNrOfSegments()<<RTT::endlog();
     
     if(n_joints_ == 0)
     {
-        RTT::log(RTT::Error)<<"Number of joints error : found "<<n_joints_<<RTT::endlog();
+        RTT::log(RTT::Error)<<"Number of joints error : found "<<LBR_MNJ<<RTT::endlog();
         return false;
     }
     
     // In from gazebo
-    joint_position_gazebo.resize(n_joints_,0.0);
-    joint_velocity_gazebo.resize(n_joints_,0.0);
-    joint_torque_gazebo.resize(n_joints_,0.0);
+    joint_position_gazebo.resize(LBR_MNJ,0.0);
+    joint_velocity_gazebo.resize(LBR_MNJ,0.0);
+    joint_torque_gazebo.resize(LBR_MNJ,0.0);
     // Out to gazebo
-    joint_position_gazebo_cmd.resize(n_joints_,0.0);
-    joint_velocity_gazebo_cmd.resize(n_joints_,0.0);
-    joint_torque_gazebo_cmd.resize(n_joints_,0.0);
+    joint_position_gazebo_cmd.resize(LBR_MNJ,0.0);
+    joint_velocity_gazebo_cmd.resize(LBR_MNJ,0.0);
+    joint_torque_gazebo_cmd.resize(LBR_MNJ,0.0);
 
     port_JointPositionGazeboCommand.setDataSample(joint_position_gazebo_cmd);
     port_JointVelocityGazeboCommand.setDataSample(joint_velocity_gazebo_cmd);
     port_JointTorqueGazeboCommand.setDataSample(joint_torque_gazebo_cmd);
     // Fake LWR
-    jnt_pos_.resize(n_joints_);
-    jnt_pos_fri_offset.resize(n_joints_);
-    jnt_pos_old_.resize(n_joints_);
-    jnt_vel_.resize(n_joints_);
-    jnt_trq_.resize(n_joints_);
-    jnt_trq_raw_.resize(n_joints_);
-    grav_trq_.resize(n_joints_);
-    jnt_pos_cmd_.resize(n_joints_);
-    jnt_trq_cmd_.resize(n_joints_);
-    jac_.resize(n_joints_);
+    jnt_pos_.resize(LBR_MNJ);
+    jnt_pos_fri_offset.resize(LBR_MNJ);
+    jnt_pos_old_.resize(LBR_MNJ);
+    jnt_vel_.resize(LBR_MNJ);
+    jnt_trq_.resize(LBR_MNJ);
+    jnt_trq_raw_.resize(LBR_MNJ);
+    grav_trq_.resize(LBR_MNJ);
+    jnt_pos_cmd_.resize(LBR_MNJ);
+    jnt_trq_cmd_.resize(LBR_MNJ);
+    jac_.resize(LBR_MNJ);
     jac_.data.setZero();
-    mass_.resize(n_joints_,n_joints_);
-    H.resize(n_joints_);
-    jnt_trq_gazebo_cmd_.resize(n_joints_);
-    prop_joint_offset.resize(n_joints_);
+    mass_.resize(LBR_MNJ,LBR_MNJ);
+    H.resize(LBR_MNJ);
+    jnt_trq_gazebo_cmd_.resize(LBR_MNJ);
+    prop_joint_offset.resize(LBR_MNJ);
     std::fill(prop_joint_offset.begin(),prop_joint_offset.end(),0.0);
     
     jnt_trq_gazebo_cmd_.setZero();
@@ -246,13 +224,13 @@ bool LWRSim::configureHook(){
     grav_trq_.setZero();
     jnt_pos_cmd_.setZero();
     jnt_trq_cmd_.setZero();
-    mass_.setZero();// = Eigen::MatrixXd::Zero(n_joints_,n_joints_);
+    mass_.setZero();// = Eigen::MatrixXd::Zero(LBR_MNJ,LBR_MNJ);
     
-    kp_.resize(n_joints_);
-    kd_.resize(n_joints_);
-    kg_.resize(n_joints_);
-    kp_default_.resize(n_joints_);
-    kd_default_.resize(n_joints_);
+    kp_.resize(LBR_MNJ);
+    kd_.resize(LBR_MNJ);
+    kg_.resize(LBR_MNJ);
+    kp_default_.resize(LBR_MNJ);
+    kd_default_.resize(LBR_MNJ);
     kc_.resize(6);
     kcd_.resize(6);
     kc_default_.resize(6);
@@ -289,25 +267,28 @@ bool LWRSim::configureHook(){
     port_FromKRL.setDataSample(fri_from_krl);
 
 
-    port_JointState.createStream(rtt_roscomm::topic("~"+this->getName()+"/joint_states"));
-    port_JointStateFiltered.createStream(rtt_roscomm::topic("~"+this->getName()+"/joint_states_filtered"));
-    port_JointStateCommand.createStream(rtt_roscomm::topic("~"+this->getName()+"/joint_states_cmd"));
-    port_JointStateGravity.createStream(rtt_roscomm::topic("~"+this->getName()+"/joint_states_gravity"));
-    port_JointStateDynamics.createStream(rtt_roscomm::topic("~"+this->getName()+"/joint_states_dynamics"));
+    port_JointState.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states"));
+    port_JointStateFiltered.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states_filtered"));
+
+    port_JointStateCommand.createStream(rtt_roscomm::topic(/*"~"+*/gazebo_robot_comp_name+"/joint_states_cmd"));
+    port_JointStateGazebo.createStream(rtt_roscomm::topic(/*"~"+*/gazebo_robot_comp_name+"/joint_states"));
+    
+    port_JointStateGravity.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states_gravity"));
+    port_JointStateDynamics.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states_dynamics"));
         
-    port_CartesianPositionStamped.createStream(rtt_roscomm::topic("~"+this->getName()+"/cartesian_pose"));
+    port_CartesianPositionStamped.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/cartesian_pose"));
     //port_CartesianVelocity.createStream(rtt_roscomm::topic("/"+this->getName()+"/cartesian_twist"));
     //port_CartesianWrench.createStream(rtt_roscomm::topic("/"+this->getName()+"/cartesian_wrench"));
     
-    port_CartesianWrenchStamped.createStream(rtt_roscomm::topic("~"+this->getName()+"/cartesian_wrench"));
+    port_CartesianWrenchStamped.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/cartesian_wrench"));
     
-    q.resize(n_joints_);
+    q.resize(LBR_MNJ);
     f_ext.resize(kdl_chain_.getNrOfSegments());
-    G.resize(n_joints_);
-    qdot.resize(n_joints_);
-    qddot.resize(n_joints_);
-    jnt_trq_kdl_.resize(n_joints_);
-    jnt_trq_kdl_add_.resize(n_joints_);
+    G.resize(LBR_MNJ);
+    qdot.resize(LBR_MNJ);
+    qddot.resize(LBR_MNJ);
+    jnt_trq_kdl_.resize(LBR_MNJ);
+    jnt_trq_kdl_add_.resize(LBR_MNJ);
     
     robot_state.control = static_cast<fri_uint16_t>(FRI_CTRL_POSITION);
     fri_state.quality = static_cast<fri_uint16_t>(FRI_QUALITY_PERFECT);
@@ -332,6 +313,26 @@ bool LWRSim::configureHook(){
 
 
     return true;
+}
+bool LWRSim::connectToRTTGazebo(const std::string& gazebo_deployer_name, const std::string& gazebo_robot_comp_name)
+{
+    if(this->hasPeer(gazebo_deployer_name)){
+            this->peer = this->getPeer(gazebo_deployer_name);
+            // Getting information from gazebo
+            std::string lwr_gazebo(gazebo_robot_comp_name);
+            RTT::ConnPolicy policy = RTT::ConnPolicy::data();
+            port_JointPositionGazeboCommand.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointPositionCommand"),policy);
+            port_JointVelocityGazeboCommand.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointVelocityCommand"),policy);
+            port_JointTorqueGazeboCommand.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointTorqueCommand"),policy);
+
+            port_JointPositionGazebo.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointPosition"),policy);
+            port_JointVelocityGazebo.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointVelocity"),policy);
+            port_JointTorqueGazebo.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointTorque"),policy);
+
+        }else{
+            RTT::log(RTT::Error)<<"Couldn't find "<<gazebo_deployer_name<<" deployer name"<<RTT::endlog();
+            return false;
+        }
 }
 
 bool LWRSim::safetyChecks(const std::vector<double>& position,const std::vector<double>& velocity,const std::vector<double>& torque)
@@ -470,13 +471,24 @@ void LWRSim::updateHook() {
 
     read_start = rtt_rosclock::host_now().toSec();
     // Read From gazebo simulation
-    RTT::FlowStatus fs_p = port_JointPositionGazebo.read(joint_position_gazebo);
-    RTT::FlowStatus fs_v = port_JointVelocityGazebo.read(joint_velocity_gazebo);
-    RTT::FlowStatus fs_g = port_JointTorqueGazebo.read(joint_torque_gazebo);
-    
-    if(fs_g == RTT::NoData || fs_p == RTT::NoData || fs_v == RTT::NoData){
-        RTT::log(RTT::Warning)  << getName() << ": NoData" << RTT::endlog();
-        return;
+    if(port_JointPositionGazebo.connected() || port_JointVelocityGazebo.connected() || port_JointTorqueGazebo.connected())
+    {
+        RTT::FlowStatus fs_p = port_JointPositionGazebo.read(joint_position_gazebo);
+        RTT::FlowStatus fs_v = port_JointVelocityGazebo.read(joint_velocity_gazebo);
+        RTT::FlowStatus fs_g = port_JointTorqueGazebo.read(joint_torque_gazebo);
+        
+        if(fs_g == RTT::NoData || fs_p == RTT::NoData || fs_v == RTT::NoData){
+            RTT::log(RTT::Warning)  << getName() << ": NoData" << RTT::endlog();
+            return;
+        }
+    }else{// NOTE: Using ROS instead
+        if(RTT::NoData != port_JointStateGazebo.read(joint_state_))
+        {
+            joint_position_gazebo = joint_state_.position;
+            joint_velocity_gazebo = joint_state_.velocity;
+            joint_torque_gazebo = joint_state_.effort;
+        }
+        
     }
     
     jnt_trq_cmd_fs = port_JointTorqueCommand.read(jnt_trq_cmd_);
@@ -532,9 +544,9 @@ void LWRSim::updateHook() {
     if(safety_checks_)
         safetyChecks(joint_position_gazebo,joint_velocity_gazebo,joint_torque_gazebo);
     
-    jnt_pos_ = Eigen::VectorXd::Map(joint_position_gazebo.data(),n_joints_);
-    jnt_vel_ = Eigen::VectorXd::Map(joint_velocity_gazebo.data(),n_joints_);
-    jnt_trq_ = Eigen::VectorXd::Map(joint_torque_gazebo.data(),n_joints_);
+    jnt_pos_ = Eigen::VectorXd::Map(joint_position_gazebo.data(),LBR_MNJ);
+    jnt_vel_ = Eigen::VectorXd::Map(joint_velocity_gazebo.data(),LBR_MNJ);
+    jnt_trq_ = Eigen::VectorXd::Map(joint_torque_gazebo.data(),LBR_MNJ);
 
     // Waiting for CartesianVelocityCommand
     Xd_cmd_.setZero();
@@ -565,9 +577,9 @@ void LWRSim::updateHook() {
     
     id_dyn_solver->JntToGravity(q.q,G);
     
-    Eigen::Map<Eigen::VectorXd>(joint_state_dyn_.position.data(),n_joints_) = jnt_trq_kdl_add_.data;
-    Eigen::Map<Eigen::VectorXd>(joint_state_dyn_.velocity.data(),n_joints_) = G.data;
-    Eigen::Map<Eigen::VectorXd>(joint_state_dyn_.effort.data(),n_joints_) = jnt_trq_kdl_.data;
+    Eigen::Map<Eigen::VectorXd>(joint_state_dyn_.position.data(),LBR_MNJ) = jnt_trq_kdl_add_.data;
+    Eigen::Map<Eigen::VectorXd>(joint_state_dyn_.velocity.data(),LBR_MNJ) = G.data;
+    Eigen::Map<Eigen::VectorXd>(joint_state_dyn_.effort.data(),LBR_MNJ) = jnt_trq_kdl_.data;
 
     grav_trq_ = G.data;
 
@@ -620,8 +632,9 @@ void LWRSim::updateHook() {
                 if(jnt_trq_cmd_fs != RTT::NoData)
                     jnt_trq_gazebo_cmd_ += jnt_trq_cmd_;
                     
-                Eigen::Map<Eigen::VectorXd>(joint_torque_gazebo_cmd.data(),n_joints_) = jnt_trq_gazebo_cmd_;
+                Eigen::Map<Eigen::VectorXd>(joint_torque_gazebo_cmd.data(),LBR_MNJ) = jnt_trq_gazebo_cmd_;
                 port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
+                joint_state_cmd_.header.frame_id = "EFFORT_CMD";
                 
                 break;
             case FRI_CTRL_POSITION:
@@ -632,8 +645,10 @@ void LWRSim::updateHook() {
                     jnt_trq_gazebo_cmd_ += kp_default_.asDiagonal()*(jnt_pos_cmd_-jnt_pos_) - kd_default_.asDiagonal()*jnt_vel_ ;
                 }
                 
-                Eigen::Map<Eigen::VectorXd>(joint_torque_gazebo_cmd.data(),n_joints_) = jnt_trq_gazebo_cmd_;
+                Eigen::Map<Eigen::VectorXd>(joint_torque_gazebo_cmd.data(),LBR_MNJ) = jnt_trq_gazebo_cmd_;
                 port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
+                joint_state_cmd_.header.frame_id = "EFFORT_CMD";
+                
                 break;
             case FRI_CTRL_CART_IMP:
                 //Cartesian Impedance Control
@@ -643,8 +658,10 @@ void LWRSim::updateHook() {
                     jnt_trq_gazebo_cmd_ += jac_.data.transpose()*(kc_.asDiagonal()*(X_err_) + F_cmd_ + kcd_.asDiagonal()*(Xd_err_));
                 }
                 
-                Eigen::Map<Eigen::VectorXd>(joint_torque_gazebo_cmd.data(),n_joints_) = jnt_trq_gazebo_cmd_;
+                Eigen::Map<Eigen::VectorXd>(joint_torque_gazebo_cmd.data(),LBR_MNJ) = jnt_trq_gazebo_cmd_;
                 port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
+                joint_state_cmd_.header.frame_id = "EFFORT_CMD";
+                
                 break;
             default:
                 break;
@@ -657,25 +674,28 @@ void LWRSim::updateHook() {
     cart_wrench_stamped_.header.stamp = now;
     joint_state_.header.stamp = now;
     joint_state_filtered_.header.stamp = now;
+    
     joint_state_cmd_.header.stamp = now;
     joint_state_gravity_.header.stamp = now;
     joint_state_dyn_.header.stamp = now;
 
-    Eigen::Map<Eigen::VectorXd>(joint_state_gravity_.effort.data(),n_joints_) = grav_trq_;
+    Eigen::Map<Eigen::VectorXd>(joint_state_gravity_.effort.data(),LBR_MNJ) = grav_trq_;
     
-    Eigen::Map<Eigen::VectorXd>(joint_state_.position.data(),n_joints_) = jnt_pos_;
-    Eigen::Map<Eigen::VectorXd>(joint_state_.velocity.data(),n_joints_) = jnt_vel_;
-    Eigen::Map<Eigen::VectorXd>(joint_state_.effort.data(),n_joints_) = jnt_trq_;
+    Eigen::Map<Eigen::VectorXd>(joint_state_.position.data(),LBR_MNJ) = jnt_pos_;
+    Eigen::Map<Eigen::VectorXd>(joint_state_.velocity.data(),LBR_MNJ) = jnt_vel_;
+    Eigen::Map<Eigen::VectorXd>(joint_state_.effort.data(),LBR_MNJ) = jnt_trq_;
 
-    Eigen::Map<Eigen::VectorXd>(joint_state_cmd_.position.data(),n_joints_) = jnt_pos_cmd_;
+    if(jnt_pos_cmd_fs == RTT::NewData && init_pos_requested==false)
+        Eigen::Map<Eigen::VectorXd>(joint_state_cmd_.position.data(),LBR_MNJ) = jnt_pos_cmd_;
+    
     joint_state_cmd_.effort = joint_torque_gazebo_cmd;
 
     for(unsigned int j=0;j<joint_position_gazebo.size();++j)
     {
         joint_state_filtered_.velocity[j] = velocity_smoothing_factor_*(jnt_pos_[j]-joint_state_filtered_.position[j])/this->getPeriod() + (1.0-velocity_smoothing_factor_)*joint_state_filtered_.velocity[j];
     }
-    Eigen::Map<Eigen::VectorXd>(joint_state_filtered_.position.data(),n_joints_) = jnt_pos_;
-    //Eigen::Map<Eigen::VectorXd>(joint_state_filtered_.effort.data(),n_joints_) = jnt_trq_;
+    Eigen::Map<Eigen::VectorXd>(joint_state_filtered_.position.data(),LBR_MNJ) = jnt_pos_;
+    //Eigen::Map<Eigen::VectorXd>(joint_state_filtered_.effort.data(),LBR_MNJ) = jnt_trq_;
     
     port_JointState.write(joint_state_);
     port_JointStateFiltered.write(joint_state_filtered_);
@@ -696,6 +716,11 @@ void LWRSim::updateHook() {
     port_Jacobian.write(jac_);
     port_MassMatrix.write(mass_);
     
+    if(init_pos_requested){
+        joint_state_cmd_.header.frame_id="POSITION_CMD";
+        RTT::log(RTT::Info) <<"Initial Position Requested"<<joint_state_cmd_ << RTT::endlog();
+        init_pos_requested=false;
+    }
     port_JointStateCommand.write(joint_state_cmd_);
     port_FromKRL.write(fri_from_krl);
     

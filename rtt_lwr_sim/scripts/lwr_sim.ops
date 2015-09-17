@@ -1,11 +1,13 @@
 // Launching LWR SIM
-loadComponent("gazebo","CORBA")
+loadComponent("gazebo","CORBA");
 
 import("rtt_ros")
 import("rtt_rosnode")
 ros.import("rtt_lwr_sim")
 
 loadComponent("lwr_sim","lwr::LWRSim")
+
+lwr_sim.connect_to_rtt_gazebo_at_configure = false
 
 setActivity("lwr_sim",0.001,HighestPriority-1,ORO_SCHED_RT)
 

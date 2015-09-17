@@ -60,13 +60,19 @@ namespace lwr{
         velocity_smoothing_factor_(.95),
         root_link("link_0"),
         tip_link("link_7"),
+        gazebo_deployer_name("gazebo"),
+        gazebo_robot_comp_name("lwr_gazebo"),
         use_sim_clock(true),
         dr_max_(0.1),
         safety_checks_(false),
+        connect_to_rtt_gazebo_at_configure(true),
         gravity_vector(0.,0.,-9.81289)
         {
             //this->addAttribute("fromKRL", m_fromKRL);
             //this->addAttribute("toKRL", m_toKRL);
+            this->addProperty("connect_to_rtt_gazebo_at_configure", connect_to_rtt_gazebo_at_configure).doc("");
+            this->addProperty("gazebo_deployer_name", gazebo_deployer_name).doc("");
+            this->addProperty("gazebo_robot_comp_name", gazebo_robot_comp_name).doc("");
             
             this->addProperty("fri_port", prop_fri_port).doc("");
             this->addProperty("joint_offset", prop_joint_offset).doc("");
@@ -88,6 +94,7 @@ namespace lwr{
             this->ports()->addPort("JointPositionGazebo", port_JointPositionGazebo).doc("");
             this->ports()->addPort("JointVelocityGazebo", port_JointVelocityGazebo).doc("");
             this->ports()->addPort("JointTorqueGazebo", port_JointTorqueGazebo).doc("");
+            this->ports()->addPort("JointStatesGazebo", port_JointStateGazebo).doc("");
 
             this->ports()->addPort("CartesianImpedanceCommand", port_CartesianImpedanceCommand).doc("");
             this->ports()->addPort("CartesianWrenchCommand", port_CartesianWrenchCommand).doc("");
@@ -129,6 +136,7 @@ namespace lwr{
             
             this->addProperty("smoothing_factor",velocity_smoothing_factor_);
             this->addOperation("setJointImpedance",&LWRSim::setJointImpedance,this,RTT::OwnThread);
+            this->addOperation("connectToRTTGazebo",&LWRSim::connectToRTTGazebo,this,RTT::OwnThread);
             this->addOperation("setCartesianImpedance",&LWRSim::setCartesianImpedance,this,RTT::OwnThread);
             this->addOperation("setGravityMode",&LWRSim::setGravityMode,this,RTT::OwnThread);
             this->addOperation("resetJointImpedanceGains",&LWRSim::resetJointImpedanceGains,this,RTT::OwnThread);
@@ -150,6 +158,7 @@ namespace lwr{
         bool configureHook();
         void updateHook();
         virtual ~LWRSim(){};
+        bool connectToRTTGazebo(const std::string& gazebo_deployer_name,const std::string& gazebo_robot_comp_name);
     public:
         void setJointImpedanceMode();
         void setCartesianImpedanceMode();
@@ -187,7 +196,7 @@ namespace lwr{
                                           port_JointPosition,
                                           port_JointTorqueRaw,
                                           port_JointPositionFRIOffset;
-
+        bool connect_to_rtt_gazebo_at_configure;
         int prop_fri_port;
         double dr_max_;
         std::vector<double> prop_joint_offset;
@@ -204,7 +213,8 @@ namespace lwr{
         RTT::OutputPort<std::vector<double> > port_JointPositionGazeboCommand,
                                               port_JointVelocityGazeboCommand,
                                               port_JointTorqueGazeboCommand;
-
+        RTT::InputPort<sensor_msgs::JointState > port_JointStateGazebo;
+        
         std::vector<double> joint_position_gazebo,
                             joint_velocity_gazebo,
                             joint_torque_gazebo,
@@ -322,6 +332,9 @@ namespace lwr{
         
         std::string tip_link;
         
+        std::string gazebo_deployer_name, 
+                    gazebo_robot_comp_name;
+        
         bool use_sim_clock;
 
     bool safetyChecks(const std::vector<double>& position,const std::vector<double>& velocity,const std::vector<double>& torque);
@@ -335,6 +348,7 @@ namespace lwr{
     KDL::Wrench cart_wrench_kdl_;
     KDL::JntArrayVel q;
     KDL::JntSpaceInertiaMatrix H;
+    bool init_pos_requested;
     };
 }
 ORO_CREATE_COMPONENT(lwr::LWRSim)
