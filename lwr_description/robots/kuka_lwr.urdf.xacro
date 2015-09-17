@@ -23,10 +23,6 @@
     <origin xyz="0 0 0"/>
   </joint>
 
-  <gazebo reference="base_link">
-    <static>true</static>>
-  </gazebo>
-
   <xacro:macro name="tool">
     <link name="ati_link">
       <inertial>
