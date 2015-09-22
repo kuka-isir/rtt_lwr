@@ -3,9 +3,21 @@
        name="lwr" >
 
   <property name="M_PI" value="3.1415926535897931" />
-  <!-- lbr-->
-  <xacro:include filename="$(find lwr_description)/urdf/lwr.urdf.xacro" />
+  <property name="load_base" value="true" />
+  <property name="load_ati_sensor" value="true" />
+  <property name="load_calib_tool" value="true" />
+  <property name="load_handle" value="true" />
 
+  <!-- lwr-->
+  <xacro:include filename="$(find lwr_description)/urdf/lwr.urdf.xacro" />
+  <!-- lwr_base -->
+  <xacro:include filename="$(find lwr_description)/urdf/lwr_base.urdf.xacro" />
+  <!-- ati_sensor -->
+  <xacro:include filename="$(find lwr_description)/urdf/ati_sensor.urdf.xacro" />
+  <!-- calib_tool -->
+  <xacro:include filename="$(find lwr_description)/urdf/calib_tool.urdf.xacro" />
+  <!-- handle -->
+  <xacro:include filename="$(find lwr_description)/urdf/handle.urdf.xacro" />
   <!-- generic simulator_gazebo plugins -->
   <xacro:include filename="$(find lwr_description)/gazebo/lwr.gazebo.urdf.xacro"/>
   <xacro:include filename="$(find lwr_description)/urdf/lwr.transmission.xacro"/>
@@ -15,94 +27,40 @@
   <!-- world-->
   <link name="world"/>
 
-
-  <link name="base_link"/>
+  <!-- lbr -->
   <joint name="base_joint" type="fixed">
     <parent link="world"/>
     <child link="base_link"/>
     <origin xyz="0 0 0"/>
   </joint>
-
-  <xacro:macro name="tool">
-    <link name="ati_link">
-      <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="0.730" />
-        <inertia
-          ixx="0.0001"
-          ixy="0.0"
-          ixz="0.0"
-          iyy="0.0001"
-          iyz="0.0"
-          izz="0.0001" />
-      </inertial>
-      <visual>
-	<origin rpy="${M_PI/2.0} 0 ${20.0*M_PI/180.0}" xyz="0.0 0.0 -0.0388"/>
-	<geometry>
-	  <mesh filename="package://lwr_description/meshes/ati/ati.stl" scale="0.001 0.001 0.001"/>
-	</geometry>
-	<material name="color_j7"/>
-      </visual>
-      <collision>
-	<origin rpy="${M_PI/2.0} 0 ${20.0*M_PI/180.0}" xyz="0.0 0.0 -0.0388"/>
-	<geometry>
-	  <mesh filename="package://lwr_description/meshes/ati/ati.stl" scale="0.001 0.001 0.001"/>
-	</geometry>
-      </collision>
-    </link>
-    <joint name="ati_joint" type="fixed">
-       <parent link="link_7" />
-       <child link="ati_link" />
-       <origin xyz="0 0 0.0488" rpy="0 0 ${20.0*M_PI/180.0}" />
-    </joint>
-    <link name="ati_polaris_link"/>
-    <joint name="ati_polaris_joint" type="fixed">
-       <parent link="ati_link" />
-       <child link="ati_polaris_link" />
-       <origin xyz="0 0 0.0584" rpy="0 0 ${-M_PI/2}" />
-    </joint>
-  </xacro:macro>
-
-  <!-- calib_tool -->
-  <link name="calib_link">
-    <visual>
-      <origin rpy="0 0 0" xyz="0.0 0.0 0"/>
-      <geometry>
-	<mesh filename="package://lwr_description/meshes/calib_tool/calib_tool.stl" scale="0.001 0.001 0.001"/>
-      </geometry>
-      <material name="color_j2"/>
-    </visual>
-    <collision>
-      <origin rpy="0 0 0" xyz="0.0 0.0 0"/>
-      <geometry>
-	<mesh filename="package://lwr_description/meshes/calib_tool/calib_tool.stl" scale="0.001 0.001 0.001"/>
-      </geometry>
-      <material name="color_j2"/>
-    </collision>
-  </link>
-
-  <joint name="ati_rot_joint" type="fixed">
-       <parent link="ati_link" />
-       <child link="ati_rot_link" />
-       <origin rpy="0 0 -${45.0*M_PI/180.0}" xyz="0 0 0"  />
-  </joint>
-  
-  <link name="ati_rot_link"/>
-  
-  <joint name="balls_joint" type="fixed">
-       <parent link="ati_rot_link" />
-       <child link="calib_link" />
-       <origin rpy="0 0 0" xyz="0.071 0 -0.0288"  />
-  </joint>
-
-  <!--lbr-->
   <xacro:lwr parent="base_link">
-    <!-- Position from origin -->
     <origin xyz="0 0 0.01" rpy="0 0 ${2*M_PI/3}" />
   </xacro:lwr>
 
+  <!-- lbr_base -->
+  <xacro:if value="${load_base}">
+    <xacro:lwr_base/>
+  </xacro:if>
+  <xacro:unless value="${load_base}">
+    <link name="base_link"/>
+  </xacro:unless>
+
+  <!-- ati_sensor -->
+  <xacro:if value="${load_ati_sensor}">
+    <xacro:ati_sensor/>
+
+    <!-- calib_tool -->
+    <xacro:if value="${load_calib_tool}">
+      <xacro:calib_tool/>
+    </xacro:if>
+
+    <!-- handle -->
+    <xacro:if value="${load_handle}">
+      <xacro:handle/>
+    </xacro:if>
+  </xacro:if>
+
    <xacro:lwr_gazebo/>
    <xacro:lwr_transmission/>
-   <xacro:tool/>
 
 </robot>

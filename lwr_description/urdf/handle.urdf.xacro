@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+   
+   <xacro:macro name="handle">
+	  <link name="handle_link">
+	    <inertial>
+	      <origin
+		xyz="-1.05305026599362E-05 0.0306221837161532 0.00261872427259377"
+		rpy="0 0 0" />
+	      <mass value="0.066495361381441" />
+	      <inertia
+		ixx="0.000102858534792815"
+		ixy="2.88055447241143E-08"
+		ixz="1.8394730422362E-09"
+		iyy="3.30498062898091E-05"
+		iyz="-2.67158575490928E-07"
+		izz="0.000131901382840434" />
+	    </inertial>
+	    <visual>
+	      <origin xyz="0 0 0" rpy="0 0 0" />
+	      <geometry>
+		<mesh filename="package://lwr_description/meshes/handle/handle.stl" />
+	      </geometry>
+	      <material name="">
+		<color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+	      </material>
+	    </visual>
+	    <collision>
+	      <origin xyz="0 0 0" rpy="0 0 0" />
+	      <geometry>
+		<mesh filename="package://lwr_description/meshes/handle/handle.stl" />
+	      </geometry>
+	    </collision>
+	  </link>
+	  <joint name="ati_to_handle_joint" type="fixed">
+	    <origin
+	      xyz="0 -0.0438 ${0.0075-0.0488}"
+	      rpy="0 0 ${-M_PI}" />
+	    <parent link="ati_link" />
+	    <child link="handle_link" />
+	  </joint>
+   </xacro:macro>
+
+</robot>

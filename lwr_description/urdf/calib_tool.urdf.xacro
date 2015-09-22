@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+   
+   <xacro:macro name="calib_tool">
+	  <link name="calib_link">
+	    <inertial>
+	      <origin
+		xyz="-0.00289334578157395 3.88856796242065E-07 -0.00147855262054228"
+		rpy="0 0 0" />
+	      <mass value="0.0304913733578414" />
+	      <inertia
+		ixx="8.75764054795742E-06"
+		ixy="-1.75527752453532E-13"
+		ixz="1.19829336546713E-06"
+		iyy="1.00163087822364E-05"
+		iyz="1.28086171915617E-12"
+		izz="1.30065425971888E-05" />
+	    </inertial>
+	    <visual>
+	      <origin xyz="0 0 0" rpy="0 0 0" />
+	      <geometry>
+		<mesh filename="package://lwr_description/meshes/calib_tool/calib_tool.stl" />
+	      </geometry>
+	      <material name="">
+		<color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+	      </material>
+	    </visual>
+	    <collision>
+	      <origin xyz="0 0 0" rpy="0 0 0" />
+	      <geometry>
+		<mesh filename="package://lwr_description/meshes/calib_tool/calib_tool.stl" />
+	      </geometry>
+	    </collision>
+	  </link>
+	  <joint name="ati_to_calib_joint" type="fixed">
+	    <origin
+		rpy="0 0 0"
+		xyz="0.0688 0 ${0.0195-0.0488}" />
+	    <parent link="ati_link" />
+	    <child link="calib_link" />
+	  </joint>
+   </xacro:macro>
+
+</robot>

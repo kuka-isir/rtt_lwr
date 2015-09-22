@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+   
+   <xacro:macro name="ati_sensor">
+
+	  <joint name="ati_joint" type="fixed">
+	    <origin xyz="0 0 0.0488" rpy="0 0 ${(20.0)*M_PI/180.0}" />
+	    <parent link="link_7" />
+	    <child link="ati_link" />
+	  </joint>
+
+	  <link name="ati_link">
+	    <inertial>
+	      <origin
+		xyz="-0.00178553387370124 -0.000310330841277809 0.0197116137003042"
+		rpy="0 0 0" />
+	      <mass
+		value="0.316951020394394" />
+	      <inertia
+		ixx="0.000196894344101305"
+		ixy="4.02893385807679E-06"
+		ixz="-6.2186338186242E-06"
+		iyy="0.000219267703175818"
+		iyz="-1.08082570436843E-06"
+		izz="0.000295322983266294" />
+	    </inertial>
+	    <visual>
+	      <origin xyz="0 0 -0.0488" rpy="0 0 ${-45*M_PI/180.0}" />
+	      <geometry>
+		<mesh filename="package://lwr_description/meshes/ati_sensor/ati_sensor.stl" />
+	      </geometry>
+      	      <material name="color_j7"/>
+	    </visual>
+	    <collision>
+	      <origin xyz="0 0 -0.0488" rpy="0 0 ${-45*M_PI/180.0}" />
+	      <geometry>
+		<mesh filename="package://lwr_description/meshes/ati_sensor/ati_sensor.stl" />
+	      </geometry>
+	    </collision>
+	  </link>
+
+   </xacro:macro>
+
+</robot>
