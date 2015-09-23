@@ -34,7 +34,7 @@
 	    <collision>
 	      <origin xyz="0 0 -0.0488" rpy="0 0 ${-45*M_PI/180.0}" />
 	      <geometry>
-		<mesh filename="package://lwr_description/meshes/ati_sensor/ati_sensor.stl" />
+		<mesh filename="package://lwr_description/meshes/ati_sensor/ati_sensor_collision.stl" />
 	      </geometry>
 	    </collision>
 	  </link>

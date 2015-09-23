@@ -28,7 +28,7 @@
 	    <collision>
 	      <origin xyz="0 0 0" rpy="0 0 0" />
 	      <geometry>
-		<mesh filename="package://lwr_description/meshes/calib_tool/calib_tool.stl" />
+		<mesh filename="package://lwr_description/meshes/calib_tool/calib_tool_collision.stl" />
 	      </geometry>
 	    </collision>
 	  </link>
