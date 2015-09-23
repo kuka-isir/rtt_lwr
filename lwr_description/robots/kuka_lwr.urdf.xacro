@@ -3,10 +3,11 @@
        name="lwr" >
 
   <property name="M_PI" value="3.1415926535897931" />
-  <property name="load_base" value="true" />
-  <property name="load_ati_sensor" value="true" />
-  <property name="load_calib_tool" value="true" />
-  <property name="load_handle" value="true" />
+
+  <xacro:arg name="load_base" default="false"/>
+  <xacro:arg name="load_ati_sensor" default="false"/>
+  <xacro:arg name="load_calib_tool" default="false"/>
+  <xacro:arg name="load_handle" default="false"/>
 
   <!-- lwr-->
   <xacro:include filename="$(find lwr_description)/urdf/lwr.urdf.xacro" />
@@ -38,24 +39,24 @@
   </xacro:lwr>
 
   <!-- lbr_base -->
-  <xacro:if value="${load_base}">
+  <xacro:if value="$(arg load_base)">
     <xacro:lwr_base/>
   </xacro:if>
-  <xacro:unless value="${load_base}">
+  <xacro:unless value="$(arg load_base)">
     <link name="base_link"/>
   </xacro:unless>
 
   <!-- ati_sensor -->
-  <xacro:if value="${load_ati_sensor}">
+  <xacro:if value="$(arg load_ati_sensor)">
     <xacro:ati_sensor/>
 
     <!-- calib_tool -->
-    <xacro:if value="${load_calib_tool}">
+    <xacro:if value="$(arg load_calib_tool)">
       <xacro:calib_tool/>
     </xacro:if>
 
     <!-- handle -->
-    <xacro:if value="${load_handle}">
+    <xacro:if value="$(arg load_handle)">
       <xacro:handle/>
     </xacro:if>
   </xacro:if>
