@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
+    <xacro:arg name="load_ati_sensor" default="false"/>
+    
 	<xacro:macro  name="gz_joint" params="joint_name">
 		<gazebo reference="${joint_name}">
 			<implicitSpringDamper>true</implicitSpringDamper>
@@ -10,7 +12,7 @@
 	<xacro:macro name="lwr_gazebo">
 		<gazebo>
 			<plugin name="rtt_gazebo" filename="librtt_gazebo_deployer.so">
-				<robotNamespace>~</robotNamespace>
+				<!--robotNamespace>~</robotNamespace-->
 			  <component>
 			    <package>rtt_lwr_gazebo</package>
 			    <type>LWRGazeboComponent</type>
@@ -19,7 +21,17 @@
 			    <orocosScript><filename>$(find rtt_lwr_gazebo)/scripts/lwr_gazebo.ops</filename></orocosScript>
 			</plugin>
   		</gazebo>
-
+                
+		<!-- ati_sensor NOT YET WORKING (need gazebo >4.0, see ati_sensor.urdf.xacro) -->
+		<!--xacro:if value="$(arg load_ati_sensor)">
+		            <gazebo>
+		                    <plugin name="ati_ft_sensor" filename="libgazebo_ros_ft_sensor.so">
+		                            <jointName>joint_6</jointName>
+		                            <topicName>ft_sensor/FTData</topicName>
+		                    </plugin>
+		            </gazebo>
+		</xacro:if-->
+    
   		<xacro:gz_joint joint_name="joint_0"/>
   		<xacro:gz_joint joint_name="joint_1"/>
   		<xacro:gz_joint joint_name="joint_2"/>
@@ -28,9 +40,9 @@
   		<xacro:gz_joint joint_name="joint_5"/>
   		<xacro:gz_joint joint_name="joint_6"/>
 
-                <gazebo reference="base_link">
-                    <static>true</static>
-                </gazebo>
+        <gazebo reference="base_link">
+            <static>true</static>
+        </gazebo>
   
 		<gazebo reference="link_0">
 			<gravity>true</gravity>
@@ -69,7 +81,7 @@
 
 		<gazebo reference="link_7">
 			<gravity>true</gravity>
-			<material>Gazebo/Grey</material>
+			<material>Gazebo/DarkGrey</material>
 		</gazebo>
 
 	</xacro:macro>
