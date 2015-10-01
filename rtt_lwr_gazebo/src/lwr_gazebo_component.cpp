@@ -14,6 +14,9 @@
 #include <boost/thread/mutex.hpp>
 #include <sensor_msgs/JointState.h>
 #include <rtt_roscomm/rtt_rostopic.h>
+#include <std_srvs/Empty.h>
+#include <rtt_roscomm/rosservice.h>
+
 class LWRGazeboComponent : public RTT::TaskContext
 {
 public:
@@ -39,6 +42,7 @@ public:
         // Add required gazebo interfaces
         this->provides("gazebo")->addOperation("configure",&LWRGazeboComponent::gazeboConfigureHook,this,RTT::ClientThread);
         this->provides("gazebo")->addOperation("update",&LWRGazeboComponent::gazeboUpdateHook,this,RTT::ClientThread);
+        this->addOperation("ready",&LWRGazeboComponent::readyService,this,RTT::ClientThread);
 
         this->ports()->addPort("JointPositionCommand", port_JointPositionCommand).doc("");
         this->ports()->addPort("JointTorqueCommand", port_JointTorqueCommand).doc("");
@@ -47,8 +51,8 @@ public:
         this->ports()->addPort("JointStatesCommand", port_JointStatesCommand).doc("");
         this->ports()->addPort("JointStates", port_JointStates).doc("");
         
-        port_JointStates.createStream(rtt_roscomm::topic(getName()+"/joint_states"));
-        port_JointStatesCommand.createStream(rtt_roscomm::topic(getName()+"/joint_states_cmd"));
+        port_JointStates.createStream(rtt_roscomm::topic("/"+getName()+"/joint_states"));
+        port_JointStatesCommand.createStream(rtt_roscomm::topic("/"+getName()+"/joint_states_cmd"));
         
         this->ports()->addPort("JointVelocity", port_JointVelocity).doc("");
         this->ports()->addPort("JointTorque", port_JointTorque).doc("");
@@ -69,8 +73,17 @@ public:
         this->provides("debug")->addAttribute("period_wall",period_wall_);
         
         this->addProperty("n_joints",n_joints_);
+        
+
+          
     }
 
+    // Let everyone know that rtt_gazebo is loaded
+    bool readyService(std_srvs::EmptyRequest& req,std_srvs::EmptyResponse& res)
+    {
+        return true;
+    }
+    
     //! Called from gazebo
     virtual bool gazeboConfigureHook(gazebo::physics::ModelPtr model)
     {
@@ -154,6 +167,18 @@ public:
         
         RTT::log(RTT::Info)<<"Done configuring gazebo"<<RTT::endlog();
         last_update_time_ = rtt_rosclock::rtt_now();
+        
+        boost::shared_ptr<rtt_rosservice::ROSService> rosservice =
+        this->getProvider<rtt_rosservice::ROSService>("rosservice");
+        if(rosservice)
+        {
+            std::cout << "Trying to set the ROSService" << std::endl;
+            bool ret = rosservice->connect("ready","/"+this->getName()+"/ready","std_srvs/Empty");
+            std::cout << "We get "<<ret << RTT::endlog();
+        }else{
+            std::cerr << "Could not load rosservice" << std::endl;
+        }
+        
         return true;
     }
 
@@ -198,6 +223,7 @@ public:
             /// Set Initial Joint Positions
             if(set_new_pos && data_timestamp == new_pos_timestamp)
             {
+                RTT::log(RTT::Warning) << "Setting Joint Position : \n"<<js_cmd<<RTT::endlog();
                 if(gazebo_joints_.size())
                     gazebo_joints_[0]->GetAngle(0).Radian();
                 for(unsigned j=0; j<n_joints_; j++)
@@ -304,8 +330,8 @@ public:
         if(using_ros_topics)
         {
             data_fs = port_JointStatesCommand.read(js_cmd);
-            if(data_fs == RTT::NoData)
-                return;
+            //if(data_fs == RTT::NoData)
+            //    return;
             data_timestamp = js_cmd.header.stamp;
             if(data_fs==RTT::NewData && js_cmd.header.frame_id == "POSITION_CMD")
             {

@@ -17,6 +17,7 @@
   <build_depend>rtt_gazebo_deployer</build_depend>
   <build_depend>cmake_modules</build_depend>
   <build_depend>sensor_msgs</build_depend>
+  <build_depend>message_generation</build_depend>
 
   <run_depend>gazebo</run_depend>
   <run_depend>rtt_roscomm</run_depend>
@@ -24,10 +25,12 @@
   <run_depend>rtt_rosclock</run_depend>
   <run_depend>rtt_gazebo_deployer</run_depend>
   <run_depend>sensor_msgs</run_depend>
+  <run_depend>message_runtime</run_depend>
 
   <export>
       <rtt_ros>
       <plugin_depend>rtt_std_msgs</plugin_depend>
+      <plugin_depend>rtt_std_srvs</plugin_depend>
       <plugin_depend>rtt_diagnostic_msgs</plugin_depend>
       <plugin_depend>rtt_geometry_msgs</plugin_depend>
       <plugin_depend>rtt_sensor_msgs</plugin_depend>

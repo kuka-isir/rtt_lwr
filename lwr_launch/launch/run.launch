@@ -5,9 +5,17 @@
     <arg name="debug" default="false" />
     <arg name="rviz" default="false" />
     <arg name="respawn" default="false" />
+    <arg name="gazebo_gui" default="true"/>
+    <arg name="launch_gazebo" default="true"/>
+    <!-- Tools -->
+    <arg name="load_base" default="false" />
+    <arg name="load_ati_sensor" default="true" />
+    <arg name="load_calib_tool" default="false" />
+    <arg name="load_handle" default="false" />
 
     <!-- The end effector Frame -->
     <arg name="tip_link" default="link_7"/>
+    <arg name="root_link" default="link_0"/>
     
     <!-- Orocos log level (never, fatal, critical, error, warning, info, debug, realtime) -->
     <arg name="log_level" default="warning"/>
@@ -16,11 +24,17 @@
         <arg name="robot_ns" value="$(arg robot_ns)"/>
         <arg name="sim" value="$(arg sim)"/>
         <arg name="rviz" value="$(arg rviz)"/>
+        <arg name="gazebo_gui" value="$(arg gazebo_gui)"/>
+        <arg name="load_base" value="$(arg load_base)" />
+        <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
+        <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
+        <arg name="load_handle" value="$(arg load_handle)" />
+        <arg name="root_link" value="$(arg root_link)"/>
+        <arg name="tip_link" value="$(arg tip_link)"/>
+        <arg name="launch_gazebo" value="$(arg launch_gazebo)"/>
     </include>
 
-    <group ns="$(arg robot_ns)">
-        <param name="tip_link" value="$(arg tip_link)"/>
-        
+    <group ns="$(arg robot_ns)">       
             <include file="$(find lwr_launch)/launch/deployer.launch">
                 <arg name="CORBA" value="true" if="$(arg sim)"/>
                 <arg name="DEPLOYER_ARGS" value="-s $(arg ops_script)"/>

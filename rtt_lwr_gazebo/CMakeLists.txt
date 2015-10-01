@@ -2,7 +2,13 @@ cmake_minimum_required(VERSION 2.8.3)
 project(rtt_lwr_gazebo)
 set(CMAKE_BUILD_TYPE Release)
 ## Find catkin macros and libraries
-find_package(catkin REQUIRED COMPONENTS rtt_ros cmake_modules sensor_msgs)
+find_package(catkin REQUIRED COMPONENTS 
+    rtt_ros 
+    cmake_modules 
+    sensor_msgs 
+    message_generation 
+    std_msgs
+)
 
 catkin_package()
 
@@ -24,6 +30,7 @@ include_directories(include
   ${orocos_kdl_INCLUDE_DIRS}
   ${Eigen_INCLUDE_DIR}
   )
+
 
 orocos_use_package( ocl-taskbrowser )
 orocos_use_package( ocl-deployment )

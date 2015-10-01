@@ -1,33 +1,54 @@
 <launch>
 <arg name="debug" default="false"/>
 <arg name="rviz" default="false"/>
-<arg name="gui" default="false"/>
+<arg name="gazebo_gui" default="false"/>
 <arg name="TAO" default="false"/>
 <arg name="robot_ns" default="/" />
 <arg name="sim" default="false"/>
+
+<arg name="root_link" default="link_0"/>
+<arg name="tip_link" default="link_7"/>
+
+<!-- Tools -->
+<arg name="load_base" default="false" />
+<arg name="load_ati_sensor" default="true" />
+<arg name="load_calib_tool" default="false" />
+<arg name="load_handle" default="false" />
+<!-- Start Gazebo here or start it elsewhere and leave it open -->
+<arg name="launch_gazebo" default="true" />
 
 <param if="$(arg sim)" name="use_sim_time" value="true" />
 
 <node if="$(arg rviz)" name="rviz" pkg="rviz" type="rviz"/>
 
-<!-- Commented out because we need to wait for gazebo to be up to run our components TODO-->
-<!--include if="$(arg sim)" file="$(find rtt_lwr_gazebo)/launch/lwr_gazebo.launch">
-	<arg name="robot_ns" value="$(arg robot_ns)"/>
-        <arg name="robot_name" value="lwr_sim" if="$(arg sim)"/>
-        <arg name="robot_name" value="lwr" unless="$(arg sim)"/>
-</include-->
-
 <group ns="$(arg robot_ns)">
     <param name="tf_prefix" value="$(arg robot_ns)" />
-    
-    <node pkg="tf" type="static_transform_publisher" name="world_ns_connector" args="0 0 0 0 0 0 /world $(arg robot_ns)/world 100"/>
-    
+    <param name="root_link" type="str" value="$(arg root_link)"/>
+    <param name="tip_link" type="str" value="$(arg tip_link)"/>
     <param name="robot_name" value="lwr_sim" if="$(arg sim)" />
     <param name="robot_name" value="lwr" unless="$(arg sim)" />
     
-    <include file="$(find lwr_description)/launch/lwr_upload.launch"/>
+    <!-- world is in the urdf, but sometime we want everything in a different namespace, so we'll have /sub/world. This connects /world to /sub/world-->
+    <node pkg="tf" type="static_transform_publisher" name="world_ns_connector" args="0 0 0 0 0 0 /world $(arg robot_ns)/world 100"/>
+    <!-- Gazebo launches it -->
+    <!--include file="$(find lwr_description)/launch/lwr_upload.launch">
+        <arg name="load_base" value="$(arg load_base)" />
+        <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
+        <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
+        <arg name="load_handle" value="$(arg load_handle)" />
+    </include-->
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 </group>
+
+<include if="$(arg launch_gazebo)" file="$(find rtt_lwr_gazebo)/launch/lwr_gazebo.launch">
+        <arg name="robot_ns" value="$(arg robot_ns)"/>
+        <arg name="robot_name" value="lwr_sim"/>
+        <arg name="gui" value="$(arg gazebo_gui)"/>
+</include>
+
+
+
+
 
 </launch>

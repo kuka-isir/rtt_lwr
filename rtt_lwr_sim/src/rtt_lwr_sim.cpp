@@ -5,7 +5,7 @@
 #include<Eigen/SVD>
 #include <Eigen/Dense>
 #include <boost/assign.hpp>
-
+#include <ros/service.h>
 namespace Eigen{
 template<typename _Matrix_Type_>
 _Matrix_Type_ pseudoInverse(const _Matrix_Type_ &a, double epsilon = std::numeric_limits<double>::epsilon())
@@ -270,8 +270,8 @@ bool LWRSim::configureHook(){
     port_JointState.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states"));
     port_JointStateFiltered.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states_filtered"));
 
-    port_JointStateCommand.createStream(rtt_roscomm::topic(/*"~"+*/gazebo_robot_comp_name+"/joint_states_cmd"));
-    port_JointStateGazebo.createStream(rtt_roscomm::topic(/*"~"+*/gazebo_robot_comp_name+"/joint_states"));
+    port_JointStateCommand.createStream(rtt_roscomm::topic("/"+gazebo_robot_comp_name+"/joint_states_cmd"));
+    port_JointStateGazebo.createStream(rtt_roscomm::topic("/"+gazebo_robot_comp_name+"/joint_states"));
     
     port_JointStateGravity.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states_gravity"));
     port_JointStateDynamics.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states_dynamics"));
@@ -310,9 +310,9 @@ bool LWRSim::configureHook(){
         rtt_rosclock::use_ros_clock_topic();
         rtt_rosclock::enable_sim();
     }
-
-
-    return true;
+    // HACK: Make sure to wait for gazebo to come up
+    RTT::log(RTT::Warning) << "*********************** WAITING FOR GAZEBO SERVICE **********************" << RTT::endlog();
+    return ros::service::waitForService("/"+gazebo_robot_comp_name+"/ready", 10*1E3);
 }
 bool LWRSim::connectToRTTGazebo(const std::string& gazebo_deployer_name, const std::string& gazebo_robot_comp_name)
 {
@@ -490,6 +490,8 @@ void LWRSim::updateHook() {
         }
         
     }
+    
+    joint_state_cmd_.header.frame_id = "";
     
     jnt_trq_cmd_fs = port_JointTorqueCommand.read(jnt_trq_cmd_);
     jnt_pos_cmd_fs = port_JointPositionCommand.read(jnt_pos_cmd_);

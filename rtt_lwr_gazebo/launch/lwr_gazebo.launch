@@ -18,22 +18,34 @@
 <arg name="joint_6_init" default="0.0"/>
 
 <arg name="use_sim_time" default="true"/>
-<!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
-<include file="$(find rtt_lwr_gazebo)/launch/empty_world.launch">
-	<arg name="debug" value="$(arg debug)" />
-	<arg name="gui" value="$(arg gui)" />
-	<arg name="paused" value="false"/>
-	<arg name="use_sim_time" value="$(arg use_sim_time)"/>
-	<arg name="headless" value="false"/>
-</include>
 
-<group ns="$(arg robot_ns)">
-    <param name="tf_prefix" value="$(arg robot_ns)" />
-    <param name="robot_name" value="$(arg robot_name)"/>
+<!-- Tools -->
+<arg name="load_base" default="false" />
+<arg name="load_ati_sensor" default="true" />
+<arg name="load_calib_tool" default="false" />
+<arg name="load_handle" default="false" />
 
-    <include file="$(find lwr_description)/launch/lwr_upload.launch"/>
+<!-- Gazebo has some hardcoded 'waiting for /gazebo... so it should not be in a sub namespace'-->
+<!--group ns="$(arg robot_ns)"-->
+    <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+    <include file="$(find rtt_lwr_gazebo)/launch/empty_world.launch">
+            <arg name="debug" value="$(arg debug)" />
+            <arg name="gui" value="$(arg gui)" />
+            <arg name="paused" value="false"/>
+            <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+            <arg name="headless" value="false"/>
+    </include>
+    <!--param name="tf_prefix" value="$(arg robot_ns)" /-->
+    <!--param name="robot_name" value="$(arg robot_name)"/-->
 
-    <node if="$(arg use_initial_joint_positions)" name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model $(arg robot_name) 
+    <include file="$(find lwr_description)/launch/lwr_upload.launch">
+        <arg name="load_base" value="$(arg load_base)" />
+        <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
+        <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
+        <arg name="load_handle" value="$(arg load_handle)" />
+    </include>
+
+    <node ns="$(arg robot_ns)" if="$(arg use_initial_joint_positions)" name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model $(arg robot_name) 
           -J joint_0 $(arg joint_0_init)
           -J joint_1 $(arg joint_1_init)
           -J joint_2 $(arg joint_2_init)
@@ -43,11 +55,11 @@
           -J joint_6 $(arg joint_6_init)
           "  respawn="false" output="screen" />
     
-    <node unless="$(arg use_initial_joint_positions)" name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model $(arg robot_name)"  respawn="false" output="screen" />
+    <node ns="$(arg robot_ns)" unless="$(arg use_initial_joint_positions)" name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model $(arg robot_name)"  respawn="false" output="screen" />
     <!-- Launch the CORBA TO naming service -->
     <node if="$(arg TAO)" name="corba_naming_service" pkg="rtt_ros" type="corba-naming-service" args="-m 1"/>
 
-</group>
+<!--/group-->
 
 
 
