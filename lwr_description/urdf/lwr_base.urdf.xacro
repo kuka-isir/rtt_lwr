@@ -4,14 +4,14 @@
    <xacro:macro name="lwr_base">
 	  <link name="base_link">
 	    <visual>
-	      <origin rpy="0 0 0" xyz="0 0 0"/>
+	      <origin rpy="0 0 0" xyz="0 0 0.01"/>
 	      <geometry>
 		<mesh filename="package://lwr_description/meshes/lwr_base/lwr_base.stl"/>
 	      </geometry>
       	      <material name="color_j7"/>
 	    </visual>
 	    <collision>
-	      <origin rpy="0 0 0" xyz="0 0 0"/>
+	      <origin rpy="0 0 0" xyz="0 0 0.01"/>
 	      <geometry>
 		<mesh filename="package://lwr_description/meshes/lwr_base/lwr_base_collision.stl"/>
 	      </geometry>
