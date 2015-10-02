@@ -168,17 +168,6 @@ public:
         RTT::log(RTT::Info)<<"Done configuring gazebo"<<RTT::endlog();
         last_update_time_ = rtt_rosclock::rtt_now();
         
-        boost::shared_ptr<rtt_rosservice::ROSService> rosservice =
-        this->getProvider<rtt_rosservice::ROSService>("rosservice");
-        if(rosservice)
-        {
-            std::cout << "Trying to set the ROSService" << std::endl;
-            bool ret = rosservice->connect("ready","/"+this->getName()+"/ready","std_srvs/Empty");
-            std::cout << "We get "<<ret << RTT::endlog();
-        }else{
-            std::cerr << "Could not load rosservice" << std::endl;
-        }
-        
         return true;
     }
 
@@ -292,6 +281,16 @@ public:
 
     virtual bool configureHook()
     {
+        boost::shared_ptr<rtt_rosservice::ROSService> rosservice =
+        this->getProvider<rtt_rosservice::ROSService>("rosservice");
+        if(rosservice)
+        {
+            std::cout << "Trying to set the ROSService" << std::endl;
+            bool ret = rosservice->connect("ready","/"+this->getName()+"/ready","std_srvs/Empty");
+            std::cout << "We get "<<ret << RTT::endlog();
+        }else{
+            std::cerr << "Could not load rosservice" << std::endl;
+        }
         return true;
     }
 
