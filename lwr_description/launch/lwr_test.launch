@@ -1,17 +1,26 @@
 <?xml version="1.0"?>
 <launch>
 <arg name="robot_ns" default="/"/>
+<!-- Tools -->
+<arg name="load_base" default="false" />
+<arg name="load_ati_sensor" default="true" />
+<arg name="load_calib_tool" default="false" />
+<arg name="load_handle" default="false" />
+
 
 <node pkg="rviz" type="rviz" output="screen" name="rviz" />
-
-
 
 <group ns="$(arg robot_ns)">
 	<param name="tf_prefix" value="$(arg robot_ns)" />
         
         <node pkg="tf" type="static_transform_publisher" name="world_ns_connector" args="0 0 0 0 0 0 /world $(arg robot_ns)/world 100"/>
         
-	<include file="$(find lwr_description)/launch/lwr_upload.launch"/>
+	<include file="$(find lwr_description)/launch/lwr_upload.launch">
+		<arg name="load_base" value="$(arg load_base)" />
+        <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
+        <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
+        <arg name="load_handle" value="$(arg load_handle)" />
+    </include>
         
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 

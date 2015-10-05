@@ -2,7 +2,7 @@
 <launch>
 
 	<arg name="load_base" default="false" />
-	<arg name="load_ati_sensor" default="true" />
+	<arg name="load_ati_sensor" default="false" />
 	<arg name="load_calib_tool" default="false" />
 	<arg name="load_handle" default="false" />
 

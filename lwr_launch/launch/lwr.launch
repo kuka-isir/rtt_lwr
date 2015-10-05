@@ -30,21 +30,31 @@
     
     <!-- world is in the urdf, but sometime we want everything in a different namespace, so we'll have /sub/world. This connects /world to /sub/world-->
     <node pkg="tf" type="static_transform_publisher" name="world_ns_connector" args="0 0 0 0 0 0 /world $(arg robot_ns)/world 100"/>
-    <!-- Gazebo launches it -->
-    <!--include file="$(find lwr_description)/launch/lwr_upload.launch">
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+</group>
+
+
+<!-- Description and/or gazebo -->
+
+<group ns="$(arg robot_ns)">
+    <!-- Gazebo launches it if sim, otherwise here so that lwr_gazebo is standalone (hacky) -->
+    <include file="$(find lwr_description)/launch/lwr_upload.launch">
         <arg name="load_base" value="$(arg load_base)" />
         <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
         <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
         <arg name="load_handle" value="$(arg load_handle)" />
-    </include-->
-
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+    </include>
 </group>
 
 <include if="$(arg launch_gazebo)" file="$(find rtt_lwr_gazebo)/launch/lwr_gazebo.launch">
         <arg name="robot_ns" value="$(arg robot_ns)"/>
         <arg name="robot_name" value="lwr_sim"/>
         <arg name="gui" value="$(arg gazebo_gui)"/>
+        <arg name="load_robot_description" value="false"/>
+        <arg name="load_base" value="$(arg load_base)" />
+        <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
+        <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
+        <arg name="load_handle" value="$(arg load_handle)" />
 </include>
 
 
