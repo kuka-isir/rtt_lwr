@@ -19,6 +19,7 @@
 
 <arg name="use_sim_time" default="true"/>
 
+<arg name="load_robot_description" default="true"/>
 <!-- Tools -->
 <arg name="load_base" default="false" />
 <arg name="load_ati_sensor" default="true" />
@@ -38,7 +39,7 @@
     <!--param name="tf_prefix" value="$(arg robot_ns)" /-->
     <!--param name="robot_name" value="$(arg robot_name)"/-->
 
-    <include file="$(find lwr_description)/launch/lwr_upload.launch">
+    <include if="$(arg load_robot_description)" file="$(find lwr_description)/launch/lwr_upload.launch">
         <arg name="load_base" value="$(arg load_base)" />
         <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
         <arg name="load_calib_tool" value="$(arg load_calib_tool)" />

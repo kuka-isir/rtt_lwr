@@ -31,7 +31,7 @@
         <arg name="load_handle" value="$(arg load_handle)" />
         <arg name="root_link" value="$(arg root_link)"/>
         <arg name="tip_link" value="$(arg tip_link)"/>
-	<arg name="launch_gazebo" value="false" unless="$(arg sim)"/>
+        <arg name="launch_gazebo" value="false" unless="$(arg sim)"/>
         <arg name="launch_gazebo" value="$(arg launch_gazebo)" if="$(arg sim)"/>
     </include>
 
