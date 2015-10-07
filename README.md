@@ -9,3 +9,7 @@ RTT Kuka LWR 4+
 
 ### Cartesian Impedance Control
 <img src="http://www.sciweavers.org/tex2img.php?eq=%5Ctau_%7Bcmd%7D%20%3D%20J%5ET%20%5Bk_c%28x_%7BFRI%7D%20-%20x_%7Bmsr%7D%29%20%20%2B%20F_%7BFRI%7D%5D%20-%20k_d.%5Cdot%7Bq%7D%20%2B%20f_%7Bdynamics%7D%28q%2C%5Cdot%7Bq%7D%2C%5Cddot%7Bq%7D%29&bc=Transparent&fc=Black&im=png&fs=18&ff=modern&edit=0" align="center" border="0" alt="\tau_{cmd} = J^T [k_c(x_{FRI} - x_{msr})  + F_{FRI}] - k_d.\dot{q} + f_{dynamics}(q,\dot{q},\ddot{q})" width="642" height="31" />
+
+### Control Software Architecture
+
+[![Kuka LWR 4+ Control Software Architecture](https://docs.google.com/drawings/d/1NT4zMJfsXPfwbvzINFyB0WleWip_2uDBInXyNyzadrM/pub?w=1354&amp)](https://goo.gl/c7EvvT)
