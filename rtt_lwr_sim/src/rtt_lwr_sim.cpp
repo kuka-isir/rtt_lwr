@@ -125,9 +125,11 @@ void LWRSim::setInitialJointPosition(const std::vector< double > j_init)
         RTT::log(RTT::Error) << "Invalid size (should be " << LBR_MNJ << ")" << RTT::endlog();
         return;
     }
-    if(port_JointPositionGazeboCommand.connected())
+    if(using_corba)
         port_JointPositionGazeboCommand.write(j_init);
-    joint_state_cmd_.position = j_init;
+    else
+        joint_state_cmd_.position = j_init;
+    //RTT::log(RTT::Warning) << "Setting Joint Position to " << joint_state_cmd_ << RTT::endlog();
     init_pos_requested = true;
 }
 
@@ -306,13 +308,15 @@ bool LWRSim::configureHook(){
     // This is necessary to plot the data as gazebo sets the clock
     // Note: Connections are still made and working, it's again just for plotting/recording
     if(use_sim_clock){
+        RTT::Logger::Instance()->in(getName());
         RTT::log(RTT::Warning) << "Using ROS Sim Clock" << RTT::endlog();
         rtt_rosclock::use_ros_clock_topic();
         rtt_rosclock::enable_sim();
+        rtt_rosclock::set_sim_clock_activity(this);
     }
     // HACK: Make sure to wait for gazebo to come up
     RTT::log(RTT::Warning) << "*********************** WAITING FOR GAZEBO SERVICE **********************" << RTT::endlog();
-    return ros::service::waitForService("/"+gazebo_robot_comp_name+"/ready", 10*1E3);
+    return ros::service::waitForService("/"+gazebo_robot_comp_name+"/ready", service_timeout_s*1E3);
 }
 bool LWRSim::connectToRTTGazebo(const std::string& gazebo_deployer_name, const std::string& gazebo_robot_comp_name)
 {
@@ -468,10 +472,17 @@ void LWRSim::setCartesianImpedanceMode()
 }
 
 void LWRSim::updateHook() {
-
+    RTT::log(RTT::Debug) << "LWR SIM Update at "<<rtt_rosclock::host_now()<< RTT::endlog();
+    static double last_update_time_sim;
+    double rtt_time_ = 1E-9*RTT::os::TimeService::ticks2nsecs(RTT::os::TimeService::Instance()->getTicks());
+    period_sim_ = rtt_time_ - last_update_time_sim;
+    last_update_time_sim = rtt_time_;
+        
     read_start = rtt_rosclock::host_now().toSec();
     // Read From gazebo simulation
-    if(port_JointPositionGazebo.connected() || port_JointVelocityGazebo.connected() || port_JointTorqueGazebo.connected())
+    if(using_corba && (port_JointPositionGazebo.connected() 
+        || port_JointVelocityGazebo.connected() 
+        || port_JointTorqueGazebo.connected()))
     {
         RTT::FlowStatus fs_p = port_JointPositionGazebo.read(joint_position_gazebo);
         RTT::FlowStatus fs_v = port_JointVelocityGazebo.read(joint_velocity_gazebo);
@@ -670,7 +681,7 @@ void LWRSim::updateHook() {
       }
     
     now = rtt_rosclock::host_now();
-    write_start = now.toNSec();
+    write_start = now.toSec();
     //Update status
     cart_pos_stamped_.header.stamp = now;
     cart_wrench_stamped_.header.stamp = now;
@@ -687,7 +698,7 @@ void LWRSim::updateHook() {
     Eigen::Map<Eigen::VectorXd>(joint_state_.velocity.data(),LBR_MNJ) = jnt_vel_;
     Eigen::Map<Eigen::VectorXd>(joint_state_.effort.data(),LBR_MNJ) = jnt_trq_;
 
-    if(jnt_pos_cmd_fs == RTT::NewData && init_pos_requested==false)
+    if(jnt_pos_cmd_fs == RTT::NewData /*&& init_pos_requested==false*/)
         Eigen::Map<Eigen::VectorXd>(joint_state_cmd_.position.data(),LBR_MNJ) = jnt_pos_cmd_;
     
     joint_state_cmd_.effort = joint_torque_gazebo_cmd;

@@ -40,7 +40,7 @@
 #include <kdl_conversions/kdl_msg.h>
 #include <eigen_conversions/eigen_msg.h>
 
-inline float clamp(float x, float a, float b)
+inline float clamp(const float& x, const float& a, const float& b)
 
 {
 
@@ -66,9 +66,13 @@ namespace lwr{
         dr_max_(0.1),
         safety_checks_(false),
         connect_to_rtt_gazebo_at_configure(true),
+        using_corba(false),
+        service_timeout_s(20.0),
         gravity_vector(0.,0.,-9.81289)
         {
             //this->addAttribute("fromKRL", m_fromKRL);
+            this->addProperty("using_corba", using_corba).doc("");
+            this->addProperty("service_timeout_s", service_timeout_s).doc("");
             //this->addAttribute("toKRL", m_toKRL);
             this->addProperty("connect_to_rtt_gazebo_at_configure", connect_to_rtt_gazebo_at_configure).doc("");
             this->addProperty("gazebo_deployer_name", gazebo_deployer_name).doc("");
@@ -154,6 +158,7 @@ namespace lwr{
             this->provides("debug")->addAttribute("ik_duration",this->ik_duration);
             this->provides("debug")->addAttribute("write_duration",this->write_duration);
             this->provides("debug")->addAttribute("updatehook_duration",this->updatehook_duration);
+            this->provides("debug")->addAttribute("period_sim",this->period_sim_);
         }
         bool configureHook();
         void updateHook();
@@ -196,7 +201,7 @@ namespace lwr{
                                           port_JointPosition,
                                           port_JointTorqueRaw,
                                           port_JointPositionFRIOffset;
-        bool connect_to_rtt_gazebo_at_configure;
+        bool connect_to_rtt_gazebo_at_configure,using_corba;
         int prop_fri_port;
         double dr_max_;
         std::vector<double> prop_joint_offset;
@@ -349,6 +354,8 @@ namespace lwr{
     KDL::JntArrayVel q;
     KDL::JntSpaceInertiaMatrix H;
     bool init_pos_requested;
+    double period_sim_;
+    double service_timeout_s;
     };
 }
 ORO_CREATE_COMPONENT(lwr::LWRSim)

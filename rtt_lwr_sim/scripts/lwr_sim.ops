@@ -1,16 +1,37 @@
 // Launching LWR SIM
-loadComponent("gazebo","CORBA");
+require("print")
 
 import("rtt_ros")
 import("rtt_rosnode")
 ros.import("rtt_lwr_sim")
 
 loadComponent("lwr_sim","lwr::LWRSim")
-
-lwr_sim.connect_to_rtt_gazebo_at_configure = false
-
 setActivity("lwr_sim",0.001,HighestPriority-1,ORO_SCHED_RT)
 
-connectPeers("gazebo","lwr_sim")
+lwr_sim.using_corba = true
+lwr_sim.connect_to_rtt_gazebo_at_configure = false
 
 lwr_sim.configure()
+
+
+if(lwr_sim.using_corba) then {
+    var int trials=10000;
+    while(!loadComponent("gazebo","CORBA")) {
+        print.ln("----------------------- Trying to load via corba -----------------");
+        trials = trials -1;
+        if(trials == 0) then {
+            print.ln("\n\n********************* COULD NOT LOAD CORBA **********************\n\n");
+            break;
+        }
+    }
+
+    if(trials != 0) then{
+        print.ln("\n\n********************* Corba Loaded Sucessfully **********************\n\n");
+    }
+    connectPeers("gazebo","lwr_sim")
+    lwr_sim.connectToRTTGazebo("gazebo","lwr_gazebo");
+}
+
+
+
+
