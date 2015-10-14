@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(rtt_lwr_gazebo)
 set(CMAKE_BUILD_TYPE Release)
-list(APPEND CMAKE_CXX_FLAGS "-std=c++11")
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS 
     rtt_ros 
@@ -15,9 +14,11 @@ catkin_package()
 
 # Depend on system install of Gazebo 
 find_package(gazebo REQUIRED)
-#find_package(orocos_kdl REQUIRED)
-#find_package(Eigen REQUIRED)
-#find_package(Boost COMPONENTS thread REQUIRED)
+
+# Add c++11 for Gazebo >= 6.0
+if(${GAZEBO_VERSION} GREATER 6)
+list(APPEND CMAKE_CXX_FLAGS "-std=c++11")
+endif()
 
 link_directories(
   ${GAZEBO_LIBRARY_DIRS}
