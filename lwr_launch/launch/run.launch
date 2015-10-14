@@ -7,6 +7,7 @@
     <arg name="respawn" default="false" />
     <arg name="gazebo_gui" default="true"/>
     <arg name="launch_gazebo" default="true"/>
+    <arg name="start_paused" default="false"/>
     <!-- Tools -->
     <arg name="load_base" default="false" />
     <arg name="load_ati_sensor" default="false" />
@@ -33,6 +34,7 @@
         <arg name="tip_link" value="$(arg tip_link)"/>
         <arg name="launch_gazebo" value="false" unless="$(arg sim)"/>
         <arg name="launch_gazebo" value="$(arg launch_gazebo)" if="$(arg sim)"/>
+        <arg name="start_paused" value="$(arg start_paused)"/>
     </include>
 
     <group ns="$(arg robot_ns)">       
