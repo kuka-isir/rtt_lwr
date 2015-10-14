@@ -16,7 +16,7 @@
 <arg name="joint_4_init" default="0.0"/>
 <arg name="joint_5_init" default="0.0"/>
 <arg name="joint_6_init" default="0.0"/>
-
+<arg name="paused" default="false"/>
 <arg name="use_sim_time" default="true"/>
 
 <arg name="load_robot_description" default="true"/>
@@ -32,9 +32,10 @@
     <include file="$(find rtt_lwr_gazebo)/launch/empty_world.launch">
             <arg name="debug" value="$(arg debug)" />
             <arg name="gui" value="$(arg gui)" />
-            <arg name="paused" value="false"/>
+            <arg name="paused" value="$(arg paused)"/>
             <arg name="use_sim_time" value="$(arg use_sim_time)"/>
             <arg name="headless" value="false"/>
+            <arg name="world_name" value="$(find rtt_lwr_gazebo)/launch/lwr.world"/>
     </include>
     <!--param name="tf_prefix" value="$(arg robot_ns)" /-->
     <!--param name="robot_name" value="$(arg robot_name)"/-->
