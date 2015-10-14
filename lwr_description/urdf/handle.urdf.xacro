@@ -34,8 +34,8 @@
 	  </link>
 	  <joint name="ati_to_handle_joint" type="fixed">
 	    <origin
-	      xyz="0 -0.0438 ${0.0075-0.0488}"
-	      rpy="0 0 ${-M_PI}" />
+	      xyz="0 0.0438 ${0.0075-0.0488}"
+	      rpy="0 0 0" />
 	    <parent link="ati_link" />
 	    <child link="handle_link" />
 	  </joint>
