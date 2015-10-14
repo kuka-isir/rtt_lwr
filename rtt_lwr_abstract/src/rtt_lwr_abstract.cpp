@@ -21,6 +21,7 @@ jnt_pos_cmd(LBR_MNJ),
 jnt_trq_cmd(LBR_MNJ),
 J_tip_base(LBR_MNJ),
 jnt_grav(LBR_MNJ),
+use_sim_clock(false),
 connect_all_ports_at_startup(true)
 {
     this->addProperty("robot_name",robot_name);
@@ -28,7 +29,8 @@ connect_all_ports_at_startup(true)
     this->addProperty("tip_link", tip_link).doc("");
     this->addProperty("robot_description",robot_description).doc("The URDF description");
     this->addProperty("connect_all_ports_at_startup",connect_all_ports_at_startup);
-
+    this->addProperty("use_sim_clock",use_sim_clock);
+    
     this->ports()->addPort("CartesianImpedanceCommand", port_CartesianImpedanceCommand).doc("");
     this->ports()->addPort("CartesianWrenchCommand", port_CartesianWrenchCommand).doc("");
     this->ports()->addPort("CartesianPositionCommand", port_CartesianPositionCommand).doc("");
@@ -93,10 +95,17 @@ bool RTTLWRAbstract::init(bool connect_all_ports){
     for(unsigned int i=0;i<kdl_chain.getNrOfSegments();++i)
     {
         const std::string name = kdl_chain.getSegment(i).getName();
-        seg_names_idx[name] = i+1;
+        seg_names_idx.add(name,i+1);
         RTT::log(RTT::Warning) << "Segment " << i << "-> " << name << " idx -> "<< seg_names_idx[name] <<RTT::endlog();
     }
     
+    if(use_sim_clock){
+        RTT::Logger::Instance()->in(getName());
+        RTT::log(RTT::Warning) << "Using ROS Sim Clock" << RTT::endlog();
+        rtt_rosclock::use_ros_clock_topic();
+        rtt_rosclock::enable_sim();
+        rtt_rosclock::set_sim_clock_activity(this);
+    }
     
     id_dyn_solver.reset(new KDL::ChainDynParam(kdl_chain,gravity_vector));
     id_rne_solver.reset(new KDL::ChainIdSolver_RNE(kdl_chain,gravity_vector));

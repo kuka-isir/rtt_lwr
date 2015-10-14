@@ -48,6 +48,31 @@
 #include <kdl_conversions/kdl_msg.h>
 #include <tf_conversions/tf_eigen.h>
 namespace lwr{
+class SegmentIndice{
+    public: const int operator()(const std::string& segment_name)
+    {
+        return this->operator[](segment_name);
+    }
+    public: const int operator[](const std::string& segment_name)
+    {
+        if(seg_idx_names.empty())
+            return -1;
+        if(seg_idx_names[segment_name])
+            return seg_idx_names[segment_name];
+        else{
+            std::map<std::string,int>::iterator it;
+            it = seg_idx_names.end();
+            it--;
+            std::cerr << "Segment name ["<<segment_name<<"] does not exists, returning last element in map ["<<it->second<<"]" << std::endl;
+            return it->second;
+        }
+    }
+    public: void add(const std::string& seg_name,int i)
+    {
+        seg_idx_names[seg_name] = i;
+    }
+    protected : std::map<std::string,int> seg_idx_names;
+};
     // Custom FRI/KRL Cmds
     static const fri_int32_t FRI_START = 1;
     static const fri_int32_t FRI_STOP = 2;
@@ -330,9 +355,9 @@ protected:
     boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver;
 
     KDL::Vector gravity_vector;
-    std::map<std::string,unsigned int> seg_names_idx;
+    SegmentIndice seg_names_idx;
 
-    bool connect_all_ports_at_startup;
+    bool connect_all_ports_at_startup,use_sim_clock;
 };
 }
 #endif
