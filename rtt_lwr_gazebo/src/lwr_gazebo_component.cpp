@@ -37,6 +37,9 @@ public:
         using_ros_topics(true),
         set_brakes(false),
         nb_static_joints(0),// HACK: The urdf has static tag for base_link, which makes it appear in gazebo as a joint
+        nb_cmd_received_(0),
+        new_cmd_sem_(0),
+        new_gz_sem_(0),
         last_gz_update_time_(0,0)
     {
         // Add required gazebo interfaces
@@ -77,7 +80,6 @@ public:
 
           
     }
-
     // Let everyone know that rtt_gazebo is loaded
     bool readyService(std_srvs::EmptyRequest& req,std_srvs::EmptyResponse& res)
     {
@@ -91,7 +93,7 @@ public:
             RTT::log(RTT::Error)<<"No model could be loaded"<<RTT::endlog();
             return false;
         }
-
+        
         // Get the joints
         gazebo_joints_ = model->GetJoints();
         model_links_ = model->GetLinks();
@@ -108,7 +110,7 @@ public:
             RTT::log(RTT::Info)<<"Link "<<(*it)->GetName()<<RTT::endlog();
             if((*it)->IsStatic())
             {
-                //NOTE: Does NOT work for our problem, must use other hack
+                //NOTE: Does NOT work for our problem, must use another hack
                 nb_static_joints++;
                 continue;
             }
@@ -167,7 +169,6 @@ public:
         
         RTT::log(RTT::Info)<<"Done configuring gazebo"<<RTT::endlog();
         last_update_time_ = rtt_rosclock::rtt_now();
-        
         return true;
     }
 
@@ -175,107 +176,98 @@ public:
     virtual void gazeboUpdateHook(gazebo::physics::ModelPtr model)
     {
         if(model.get() == NULL) {return;}
+        do{
+            RTT::log(RTT::Debug) << "Waiting for UpdateHook at "<<rtt_rosclock::host_now()<<" v:"<<nb_cmd_received_<< data_fs<<RTT::endlog();
+            updateData(); //Busy wait
+            if((nb_cmd_received_==0 && data_fs==RTT::NoData) ||  jnt_pos_fs == RTT::NewData)
+                break;
+        }while(!(RTT::NewData == data_fs && nb_cmd_received_));
 
-        // Synchronize with update()
-#ifdef XENOMAI
-        //gazebo_mutex_.lock();
-        if(rtt_done){
-            gazebo_done=false;
-#else
-        RTT::os::MutexTryLock trylock(gazebo_mutex_);
-        if(trylock.isSuccessful()) {
-#endif
-            // Increment simulation step counter (debugging)
-            steps_gz_++;
+        // Increment simulation step counter (debugging)
+        steps_gz_++;
+        // Get the RTT and gazebo time for debugging purposes
+        rtt_time_ = 1E-9*RTT::os::TimeService::ticks2nsecs(RTT::os::TimeService::Instance()->getTicks());
+        gazebo::common::Time gz_time = model->GetWorld()->GetSimTime();
+        gz_time_ = (double)gz_time.sec + ((double)gz_time.nsec)*1E-9;
 
-            // Get the RTT and gazebo time for debugging purposes
-            rtt_time_ = 1E-9*RTT::os::TimeService::ticks2nsecs(RTT::os::TimeService::Instance()->getTicks());
-            gazebo::common::Time gz_time = model->GetWorld()->GetSimTime();
-            gz_time_ = (double)gz_time.sec + ((double)gz_time.nsec)*1E-9;
+        // Get the wall time
+        gazebo::common::Time gz_wall_time = gazebo::common::Time::GetWallTime();
+        wall_time_ = (double)gz_wall_time.sec + ((double)gz_wall_time.nsec)*1E-9;
 
-            // Get the wall time
-            gazebo::common::Time gz_wall_time = gazebo::common::Time::GetWallTime();
-            wall_time_ = (double)gz_wall_time.sec + ((double)gz_wall_time.nsec)*1E-9;
-
-            // Get state
-            //gazebo::physics::JointWrench jw;
-            for(unsigned j=0; j<n_joints_; j++) {
-                jnt_pos_[j] = gazebo_joints_[j+nb_static_joints]->GetAngle(0).Radian();
-                jnt_vel_[j] = gazebo_joints_[j+nb_static_joints]->GetVelocity(0);
-                jnt_trq_[j] = gazebo_joints_[j+nb_static_joints]->GetForce(0u);//jnt_trq_cmd_[j];
-                //jw = gazebo_joints_[j+1]->GetForceTorque(0u);
-                //RTT::log(RTT::Error)<<"j"<<j<<" "<<jw.body1Torque.x<<" "<<jw.body1Torque.y<<" "<<jw.body1Torque.z<<RTT::endlog(); 
-                //jnt_trq_[j] = jw.body1Torque.x;
-                //jnt_trq_[j] = jnt_trq_cmd_[j];
-            }
-
-            /// Set Initial Joint Positions
-            if(set_new_pos && data_timestamp == new_pos_timestamp)
-            {
-                RTT::log(RTT::Warning) << "Setting Joint Position : \n"<<js_cmd<<RTT::endlog();
-                if(gazebo_joints_.size())
-                    gazebo_joints_[0]->GetAngle(0).Radian();
-                for(unsigned j=0; j<n_joints_; j++)
-                    gazebo_joints_[j+nb_static_joints]->SetAngle(0,jnt_pos_cmd_[j]);
-                set_new_pos = false;
-            }else{
-                /*if(gazebo_joints_.size())
-                    gazebo_joints_[0]->GetAngle(0).Radian();
-                for(unsigned int j=0; j < n_joints_; j++)
-                    gazebo_joints_[j+1]->SetAngle(0,gazebo_joints_[j+1]->GetAngle(0).Radian());*/
-            }
-            
-            // Simulates breaks
-            // NOTE: Gazebo is calling the callback very fast, so we might have false positive
-            
-            switch(data_fs)
-            {
-                case RTT::NoData: // Not Connected
-                    set_brakes = true;
-                    break;
-            
-                case RTT::OldData: 
-                    if(data_timestamp == last_data_timestamp
-                        && nb_no_data_++ >= 2) // Connection lost
-                        set_brakes = true;
-                    break;
-            
-                case RTT::NewData: //we cool
-                    set_brakes = false;
-                    if(nb_no_data_-- <= 0)
-                        nb_no_data_ = 0;
-                    break;
-            }
-            
-            RTT::log(RTT::Debug) << "data_fs : "<<data_fs<<" ts:"<<data_timestamp<<" last ts:"<<last_data_timestamp <<" steps rtt:" <<steps_rtt_<<"last steps:" << last_steps_rtt_<<"brakes:"<<set_brakes<<RTT::endlog();
-            
-            if(set_brakes)
-            {
-                
-                /*for(gazebo::physics::Link_V::iterator it = model_links_.begin();
-                    it != model_links_.end();++it)
-                    (*it)->SetGravityMode(false);*/
-
-                for(gazebo::physics::Joint_V::iterator it = gazebo_joints_.begin();it != gazebo_joints_.end();++it)
-                    (*it)->SetAngle(0,(*it)->GetAngle(0).Radian());
-            }else{
-                /*for(gazebo::physics::Link_V::iterator it = model_links_.begin();
-                    it != model_links_.end();++it)
-                    (*it)->SetGravityMode(true);*/
-
-                // Write command
-                if(gazebo_joints_.size())
-                    gazebo_joints_[0]->SetForce(0,gazebo_joints_[0]->GetForce(0u));
-                for(unsigned j=0; j<n_joints_; j++)
-                    gazebo_joints_[j+nb_static_joints]->SetForce(0,jnt_trq_cmd_[j]);
-            }
-            last_data_timestamp=data_timestamp;
-        }else{
-            //RTT::log(RTT::Error)<< "gazeboUpdateHook locked" <<RTT::endlog();
+        // Get state
+        //gazebo::physics::JointWrench jw;
+        for(unsigned j=0; j<n_joints_; j++) {
+            jnt_pos_[j] = gazebo_joints_[j+nb_static_joints]->GetAngle(0).Radian();
+            jnt_vel_[j] = gazebo_joints_[j+nb_static_joints]->GetVelocity(0);
+            jnt_trq_[j] = gazebo_joints_[j+nb_static_joints]->GetForce(0u);//jnt_trq_cmd_[j];
+            //jw = gazebo_joints_[j+1]->GetForceTorque(0u);
+            //RTT::log(RTT::Error)<<"j"<<j<<" "<<jw.body1Torque.x<<" "<<jw.body1Torque.y<<" "<<jw.body1Torque.z<<RTT::endlog(); 
+            //jnt_trq_[j] = jw.body1Torque.x;
+            //jnt_trq_[j] = jnt_trq_cmd_[j];
         }
-#ifdef XENOMAI
-     gazebo_done = true;
-#endif
+
+        /// Set Initial Joint Positions
+        if(set_new_pos  /*&& js_cmd.header.frame_id == "POSITION_CMD"*/ /*&& data_timestamp == new_pos_timestamp*/)
+        {
+            RTT::log(RTT::Warning) << jnt_pos_fs<< " Setting Joint Position : \n"<<js_cmd<<RTT::endlog();
+            if(gazebo_joints_.size())
+                gazebo_joints_[0]->GetAngle(0).Radian();
+            for(unsigned j=0; j<n_joints_; j++)
+                gazebo_joints_[j+nb_static_joints]->SetAngle(0,jnt_pos_cmd_[j]);
+            set_new_pos = false;
+        }else if(set_new_pos){
+            RTT::log(RTT::Error) << "set_new_pos:"<<(bool)set_new_pos<<" data_timestamp:"<<data_timestamp<<" new_pos_timestamp:"<<new_pos_timestamp<<RTT::endlog();
+            /*if(gazebo_joints_.size())
+                gazebo_joints_[0]->GetAngle(0).Radian();
+            for(unsigned int j=0; j < n_joints_; j++)
+                gazebo_joints_[j+1]->SetAngle(0,gazebo_joints_[j+1]->GetAngle(0).Radian());*/
+        }
+        
+        // Simulates breaks
+        // NOTE: Gazebo is calling the callback very fast, so we might have false positive
+        
+        switch(data_fs)
+        {
+            case RTT::NoData: // Not Connected
+                set_brakes = true;
+                break;
+        
+            case RTT::OldData: 
+                if(data_timestamp == last_data_timestamp
+                    && nb_no_data_++ >= 2) // Connection lost
+                    set_brakes = true;
+                break;
+        
+            case RTT::NewData: //we cool
+                set_brakes = false;
+                if(nb_no_data_-- <= 0)
+                    nb_no_data_ = 0;
+                break;
+        }
+        
+        RTT::log(RTT::Debug) << "Gazebo data_fs : "<<data_fs<<" ts:"<<data_timestamp<<" last ts:"<<last_data_timestamp <<" steps rtt:" <<steps_rtt_<<"last steps:" << last_steps_rtt_<<"brakes:"<<set_brakes<<RTT::endlog();
+        
+        if(set_brakes)
+        {
+            
+            for(gazebo::physics::Link_V::iterator it = model_links_.begin();
+                it != model_links_.end();++it)
+                (*it)->SetGravityMode(false);
+
+            for(gazebo::physics::Joint_V::iterator it = gazebo_joints_.begin();it != gazebo_joints_.end();++it)
+                (*it)->SetAngle(0,(*it)->GetAngle(0).Radian());
+        }else{
+            for(gazebo::physics::Link_V::iterator it = model_links_.begin();
+                it != model_links_.end();++it)
+                (*it)->SetGravityMode(true);
+
+            // Write command
+            if(gazebo_joints_.size())
+                gazebo_joints_[0]->SetForce(0,gazebo_joints_[0]->GetForce(0u));
+            for(unsigned j=0; j<n_joints_; j++)
+                gazebo_joints_[j+nb_static_joints]->SetForce(0,jnt_trq_cmd_[j]);
+        }
+        last_data_timestamp=data_timestamp;
     }
 
 
@@ -285,25 +277,16 @@ public:
         this->getProvider<rtt_rosservice::ROSService>("rosservice");
         if(rosservice)
         {
-            std::cout << "Trying to set the ROSService" << std::endl;
+            std::cout << "Trying to set the ROSService "<<this->getName()+"/ready" << std::endl;
             bool ret = rosservice->connect("ready","/"+this->getName()+"/ready","std_srvs/Empty");
-            std::cout << "We get "<<ret << RTT::endlog();
+            std::cout << "ROSService "<<this->getName()+"/ready"<< " successfully setup" << RTT::endlog();
         }else{
             std::cerr << "Could not load rosservice" << std::endl;
         }
         return true;
     }
-
-    virtual void updateHook()
+    void updateData()
     {
-        // Synchronize with gazeboUpdate()
-#ifndef XENOMAI
-       RTT::os::MutexLock lock(gazebo_mutex_);
-#else
-       if(true){
-           rtt_done=false;
-           
-#endif
         if(port_JointPositionCommand.connected() || 
             port_JointTorqueCommand.connected() || 
             port_JointVelocityCommand.connected())
@@ -329,37 +312,43 @@ public:
         if(using_ros_topics)
         {
             data_fs = port_JointStatesCommand.read(js_cmd);
-            //if(data_fs == RTT::NoData)
-            //    return;
             data_timestamp = js_cmd.header.stamp;
-            if(data_fs==RTT::NewData && js_cmd.header.frame_id == "POSITION_CMD")
+            
+            // Checking if new joint position is requested
+            if(data_fs!= RTT::NoData && js_cmd.header.frame_id == "POSITION_CMD")
             {
-                RTT::log(RTT::Warning) << "Joint Position Requested : \n"<<js_cmd<<RTT::endlog();
+                RTT::log(RTT::Warning) << data_fs<<"Joint Position Requested : \n"<<js_cmd<<RTT::endlog();
                 jnt_pos_cmd_ = js_cmd.position;
                 set_new_pos = true;
+                jnt_pos_fs = RTT::NewData;
                 new_pos_timestamp = data_timestamp;
             }else
                 jnt_trq_cmd_ = js_cmd.effort;
             
         }else{
+            data_fs = port_JointTorqueCommand.read(jnt_trq_cmd_);
             jnt_pos_fs = port_JointPositionCommand.read(jnt_pos_cmd_);
             
             if(jnt_pos_fs == RTT::NewData)
+            {
                 set_new_pos = true;
+                js_cmd.position = jnt_pos_cmd_;
+            }
             
-            data_fs = port_JointTorqueCommand.read(jnt_trq_cmd_);
+            data_timestamp = new_pos_timestamp = rtt_rosclock::host_now();
             
         }
-        
         
         read_duration_ = RTT::os::TimeService::Instance()->secondsSince(read_start);
 
         // Write state to ports
         RTT::os::TimeService::ticks write_start = RTT::os::TimeService::Instance()->getTicks();
-
-        port_JointVelocity.write(jnt_vel_);
-        port_JointPosition.write(jnt_pos_);
-        port_JointTorque.write(jnt_trq_);
+        
+        if(!using_ros_topics){
+            port_JointVelocity.write(jnt_vel_);
+            port_JointPosition.write(jnt_pos_);
+            port_JointTorque.write(jnt_trq_);
+        }
         
         js.header.stamp = rtt_rosclock::host_now(); // Wall time
         js.effort = jnt_trq_;
@@ -367,22 +356,32 @@ public:
         js.velocity = jnt_vel_;
         
         port_JointStates.write(js);
-        
         write_duration_ = RTT::os::TimeService::Instance()->secondsSince(write_start);
-#ifdef XENOMAI
-        //gazebo_mutex_.unlock();
-        rtt_done=true;
-       }else{
-           //RTT::log(RTT::Error)<< "gazeboUpdateHook not done" <<RTT::endlog();
-       }
-#endif
+        
+        //RTT::log(RTT::Debug) << "UpdateHook() "<<data_fs<<RTT::endlog();
+        switch(data_fs){
+            case RTT::OldData:
+                //RTT::log(RTT::Debug) << data_fs<<" at "<<data_timestamp<<" old "<<last_timestamp<<RTT::endlog();
+                break;
+            case RTT::NewData:
+                RTT::log(RTT::Debug) << data_fs<<" at "<<data_timestamp<<RTT::endlog();
+                nb_cmd_received_++;
+                last_timestamp = data_timestamp;
+                break;
+            case RTT::NoData:
+                nb_cmd_received_= 0;
+                break;
+        }
+    }
+    virtual void updateHook()
+    {
+        RTT::log(RTT::Debug) << "UpdateHook() "<<rtt_rosclock::host_now()<<RTT::endlog();
+        return;
     }
 protected:
-
-    //! Synchronization
-#ifndef XENOMAI
-    RTT::os::MutexRecursive gazebo_mutex_;
-#endif
+   
+    RTT::os::Semaphore new_cmd_sem_;
+    RTT::os::Semaphore new_gz_sem_;
     //! The Gazebo Model
     //! The gazebo
     std::vector<gazebo::physics::JointPtr> gazebo_joints_;
@@ -432,9 +431,10 @@ protected:
     
     sensor_msgs::JointState js,js_cmd;
     bool using_ros_topics;
-    ros::Time last_data_timestamp,data_timestamp;
+    ros::Time last_data_timestamp,data_timestamp,last_timestamp;
     bool set_brakes;
     int nb_static_joints;
+    int nb_cmd_received_;
     
     
 };
