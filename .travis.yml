@@ -17,10 +17,9 @@ install:
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo apt-get update -qq
   - sudo apt-get install -qq -y python-rosdep python-catkin-tools
+  - sudo apt-get install -qq -y ros-$CI_ROS_DISTRO-catkin ros-$CI_ROS_DISTRO-ros
   - sudo rosdep init
   - rosdep update
-  # Use rosdep to install all dependencies (including ROS itself)
-  - rosdep install --from-paths ./ -i -y --rosdistro $CI_ROS_DISTRO
   - source /opt/ros/$CI_ROS_DISTRO/setup.bash
   - mkdir -p $CATKIN_WS_SRC
   - ln -s $TRAVIS_BUILD_DIR $CATKIN_WS_SRC
