@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
     std_msgs
 )
 
-catkin_package()
+catkin_package(DEPENDS rtt gazebo eigen)
 
 # Depend on system install of Gazebo 
 find_package(gazebo REQUIRED)
