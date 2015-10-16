@@ -1,81 +1,42 @@
-# Adapted from https://github.com/jbohren/conman
-language:
-  - cpp
-  - python
-python:
-  - "2.7"
-
 sudo: required
-
+dist: trusty
+# Force travis to use its minimal image with default Python settings
+language: generic
 compiler:
   - gcc
-before_install:
-  # Gcc 4.8
-  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+env:
+  global:
+    - CATKIN_WS=~/catkin_ws
+    - CATKIN_WS_SRC=${CATKIN_WS}/src
+  matrix:
+    - CI_ROS_DISTRO="indigo"
+    - CI_ROS_DISTRO="jade"
+  
+install:
+  - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
+  - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo apt-get update -qq
-  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-  # Let's use gold linker for faster builds
-  - sudo apt-get install -y binutils-gold
-  # Install Eigen 3.2
-  - wget http://bitbucket.org/eigen/eigen/get/3.2.5.tar.bz2
-  - tar xf 3.2.5.tar.bz2
-  - cd eigen-eigen-bdd17ee3b1b3
-  - mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/ # for gold linker
-  - sudo make install
-  - cd ../../
-  # MongoDB hack - I don't fully understand this but its for moveit_warehouse
-  - sudo apt-get remove -y mongodb mongodb-10gen
-  - sudo apt-get install -y mongodb-clients mongodb-server -o Dpkg::Options::="--force-confdef" # default actions
-  # OmniORB 4
-  - sudo apt-get install -y libomniorb4-dev omniidl libomniorb4* omni* libblas* liblapack* f2c omniidl-python omniorb-nameserver libomniorb4-1-dbg libomniorb4-dev omniorb omniorb-idl python-omniorb-dbg python-omniorb-doc
-  # Install newer boost compatible with gcc 4.8.
-  - wget --no-verbose --output-document=boost-trunk.tar.bz2 http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.bz2/download
-  - export BOOST_ROOT="$TRAVIS_BUILD_DIR/../boost-trunk"
-  - export CMAKE_MODULE_PATH="$BOOST_ROOT"
-  - mkdir -p $BOOST_ROOT
-  - tar jxf boost-trunk.tar.bz2 --strip-components=1 -C $BOOST_ROOT
-  - (cd $BOOST_ROOT; ./bootstrap.sh --with-libraries=atomic)
-  - (cd $BOOST_ROOT; ./b2 threading=multi --prefix=$BOOST_ROOT -d0 install)
-  # Define some config vars
-  - export ROS_DISTRO=hydro
-  - export CI_SOURCE_PATH=$(pwd)
-  - export EXTRA_CMAKE_ARGS="-DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB"
-  # Bootstrap a minimal ROS installation
-  - git clone https://github.com/jhu-lcsr/ros_ci_tools /tmp/ros_ci_tools && export PATH=/tmp/ros_ci_tools:$PATH
-  - ros_ci_bootstrap public
-  - source /opt/ros/$ROS_DISTRO/setup.bash
-  # Create non-isolated workspace
-  - mkdir -p ~/ws/src
-  - pushd ~/ws/src
-  - ln -s $CI_SOURCE_PATH
-  - git clone https://github.com/orocos/rtt_ros_integration.git
-  - pushd rtt_ros_integration
-  - find . -maxdepth 1 -type d -exec touch {}/CATKIN_IGNORE \;
-  - rm CATKIN_IGNORE
-  - rm rtt_actionlib/CATKIN_IGNORE
-  - popd
-  - git clone https://github.com/jbohren/rqt_dot.git
-  - git clone https://github.com/jhu-lcsr/rtt_ros_control.git
+  - sudo apt-get install -qq -y python-rosdep python-catkin-tools
+  - sudo rosdep init
+  - rosdep update
+  # Use rosdep to install all dependencies (including ROS itself)
+  #- rosdep install --from-paths ./ -i -y --rosdistro $CI_ROS_DISTRO
+  - source /opt/ros/$CI_ROS_DISTRO/setup.bash
+  - mkdir -p $CATKIN_WS_SRC
+  - ln -s $TRAVIS_BUILD_DIR $CATKIN_WS_SRC
+  - cd $CATKIN_WS
+  - catkin init
   - git clone https://github.com/ahoarau/rtt_gazebo
   - git clone https://github.com/kuka-isir/rtt_ros_kdl_tools
-  - git clone https://github.com/orocos/rtt_geometry.git
-  - git clone https://github.com/jbohren/conman.git
-  - popd
   - wget https://raw.githubusercontent.com/IDSCETHZurich/re_trajectory-generator/master/kuka_IK/include/friComm.h
-  - mv friComm.h ~/ws/src/rtt_lwr/lwr_hardware/kuka_lwr_fri/include/kuka_lwr_fri/friComm.h
-  - rosdep install -r --from-paths ~/ws/src --ignore-src --rosdistro $ROS_DISTRO -y > /dev/null
-  # Currently waiting for this rosdep rule to be merged
-  - sudo apt-get install -qq google-mock lcov
-  - sudo pip install cpp-coveralls --use-mirrors
-
-install:
-  # build the normal catkin workspace
-  - pushd ~/ws
-  - catkin_make -j2 -DCATKIN_ENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Debug
-    # -DENABLE_COVERAGE=On 
-
+  - mv friComm.h $CATKIN_WS_SRC/rtt_lwr/lwr_hardware/kuka_lwr_fri/include/kuka_lwr_fri/friComm.h
+  - rosdep install -r --from-paths $CATKIN_WS_SRC/ --ignore-src --rosdistro $ROS_DISTRO -y
 script:
+  # Enable install space
+  #- catkin config --install
+  # Build [and Install] packages
+  - catkin build --limit-status-rate 0.1 --no-notify -j2 -DCATKIN_ENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Debug
+  # Build tests
+  #- catkin build --limit-status-rate 0.1 --no-notify --make-args tests
   # Run tests
-  - source devel/setup.bash
-  - catkin_make 
+  #- catkin run_tests
