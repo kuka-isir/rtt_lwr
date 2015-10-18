@@ -23,7 +23,7 @@ install:
   - source /opt/ros/$CI_ROS_DISTRO/setup.bash
   - mkdir -p $CATKIN_WS_SRC
   - ln -s $TRAVIS_BUILD_DIR $CATKIN_WS_SRC
-  - cd $CATKIN_WS
+  - cd $CATKIN_WS_SRC
   - catkin init
   - git clone https://github.com/ahoarau/rtt_gazebo
   - git clone https://github.com/kuka-isir/rtt_ros_kdl_tools
