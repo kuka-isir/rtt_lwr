@@ -22,15 +22,21 @@
 			</plugin>
   		</gazebo>
                 
-		<!-- ati_sensor NOT YET WORKING (need gazebo >4.0, see ati_sensor.urdf.xacro) -->
-		<!--xacro:if value="$(arg load_ati_sensor)">
-		            <gazebo>
-		                    <plugin name="ati_ft_sensor" filename="libgazebo_ros_ft_sensor.so">
-		                            <jointName>joint_6</jointName>
-		                            <topicName>ft_sensor/FTData</topicName>
-		                    </plugin>
-		            </gazebo>
-		</xacro:if-->
+		<!-- ati_sensor (need gazebo >4.0, see ati_sensor.urdf.xacro) -->
+		<xacro:if value="$(arg load_ati_sensor)">
+                    <!-- Use a fixed joint in gazebo -->
+                    <gazebo reference="ati_joint">
+                        <disableFixedJointLumping>true</disableFixedJointLumping>
+                    </gazebo>
+                    <gazebo>
+                        <plugin name="ft_sensor" filename="libgazebo_ros_ft_sensor.so">
+                            <jointName>ati_joint</jointName>
+                            <topicName>ft_sensor/wrench</topicName>
+                            <updateRate>1000</updateRate>
+                            <gaussianNoise>0.0001</gaussianNoise>
+                        </plugin>
+                    </gazebo>
+		</xacro:if>
     
   		<xacro:gz_joint joint_name="joint_0"/>
   		<xacro:gz_joint joint_name="joint_1"/>
@@ -40,9 +46,9 @@
   		<xacro:gz_joint joint_name="joint_5"/>
   		<xacro:gz_joint joint_name="joint_6"/>
 
-        <gazebo reference="base_link">
-            <static>true</static>
-        </gazebo>
+                <gazebo reference="base_link">
+                    <static>true</static>
+                </gazebo>
   
 		<gazebo reference="link_0">
 			<gravity>true</gravity>

@@ -4,8 +4,8 @@
    <xacro:macro name="ati_sensor">
 
 	  <joint name="ati_joint" type="fixed">
-	  	<!-- Hack for gazebo <4.0 ati sensor plugin https://bitbucket.org/osrf/gazebo/issues/940/force-torque-sensor-forcetorquesensorcc -->
-	  	<!--limit effort="1000" velocity="0" lower="0" upper="0" /-->
+	    <!-- Need the gazebo <disableFixedJointLumping>true</disableFixedJointLumping> option for the gazebo ros pkgs ft_sensor -->
+	    <limit effort="400" velocity="0" lower="0" upper="0" />
 	    <origin xyz="0 0 0.0488" rpy="0 0 ${(20.0)*M_PI/180.0}" />
 	    <parent link="link_7" />
 	    <child link="ati_link" />
