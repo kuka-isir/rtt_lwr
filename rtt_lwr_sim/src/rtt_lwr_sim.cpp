@@ -97,6 +97,11 @@ KDL::Chain KukaLWR_DHnew(){
                                                       RotationalInertia(0.000001,0.0,0.0001203,0.0,0.0,0.0))));
     return kukaLWR_DHnew;
 }
+bool LWRSim::waitForROSService(std::string service_name)
+{
+    std::cout << "*********************** "<<getName()<<" waiting for "<<service_name <<"**********************" << std::endl;
+    return ros::service::waitForService(service_name, service_timeout_s*1E3);
+}
 
 void LWRSim::resetJointImpedanceGains()
 {
@@ -125,18 +130,18 @@ void LWRSim::setInitialJointPosition(const std::vector< double > j_init)
         RTT::log(RTT::Error) << "Invalid size (should be " << LBR_MNJ << ")" << RTT::endlog();
         return;
     }
+    joint_state_cmd_.position = j_init;
+    
     if(using_corba)
+    {
+        RTT::log(RTT::Warning) << "Writing to CORBA " << joint_state_cmd_ << RTT::endlog();
         port_JointPositionGazeboCommand.write(j_init);
-    else
-        joint_state_cmd_.position = j_init;
-    //RTT::log(RTT::Warning) << "Setting Joint Position to " << joint_state_cmd_ << RTT::endlog();
+    }
+    RTT::log(RTT::Warning) << getName() + " asking Joint Position to " << joint_state_cmd_ << RTT::endlog();
     init_pos_requested = true;
 }
 
 bool LWRSim::configureHook(){
-    if(connect_to_rtt_gazebo_at_configure)
-        if(!connectToRTTGazebo(gazebo_deployer_name, gazebo_robot_comp_name))
-            return false;
     // Get the rosparam service requester
     boost::shared_ptr<rtt_rosparam::ROSParam> rosparam =
             this->getProvider<rtt_rosparam::ROSParam>("rosparam");
@@ -154,10 +159,7 @@ bool LWRSim::configureHook(){
     RTT::log(RTT::Info)<<"root_link : "<<root_link<<RTT::endlog();
     RTT::log(RTT::Info)<<"tip_link : "<<tip_link<<RTT::endlog();
         
-    if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,
-                                                     kdl_tree_,
-                                                     kdl_chain_
-                                                    ))
+    if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,kdl_tree_,kdl_chain_))
     {
         RTT::log(RTT::Error) << "Error while loading the URDF with params : "<<robot_name_<<" "<<root_link<<" "<<tip_link <<RTT::endlog();
         return false;
@@ -271,9 +273,6 @@ bool LWRSim::configureHook(){
 
     port_JointState.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states"));
     port_JointStateFiltered.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states_filtered"));
-
-    port_JointStateCommand.createStream(rtt_roscomm::topic("/"+gazebo_robot_comp_name+"/joint_states_cmd"));
-    port_JointStateGazebo.createStream(rtt_roscomm::topic("/"+gazebo_robot_comp_name+"/joint_states"));
     
     port_JointStateGravity.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states_gravity"));
     port_JointStateDynamics.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states_dynamics"));
@@ -314,25 +313,24 @@ bool LWRSim::configureHook(){
         rtt_rosclock::enable_sim();
         rtt_rosclock::set_sim_clock_activity(this);
     }
-    // HACK: Make sure to wait for gazebo to come up
-    RTT::log(RTT::Warning) << "*********************** WAITING FOR GAZEBO SERVICE **********************" << RTT::endlog();
-    return ros::service::waitForService("/"+gazebo_robot_comp_name+"/ready", service_timeout_s*1E3);
 }
-bool LWRSim::connectToRTTGazebo(const std::string& gazebo_deployer_name, const std::string& gazebo_robot_comp_name)
+
+bool LWRSim::connectToGazeboCORBA(const std::string& gazebo_deployer_name, const std::string& gazebo_robot_comp_name)
 {
     if(this->hasPeer(gazebo_deployer_name)){
-            this->peer = this->getPeer(gazebo_deployer_name);
+            RTT::TaskContext* peer = NULL;
+            peer = this->getPeer(gazebo_deployer_name);
+            if(peer == NULL) return false;
             // Getting information from gazebo
-            std::string lwr_gazebo(gazebo_robot_comp_name);
             RTT::ConnPolicy policy = RTT::ConnPolicy::data();
-            port_JointPositionGazeboCommand.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointPositionCommand"),policy);
-            port_JointVelocityGazeboCommand.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointVelocityCommand"),policy);
-            port_JointTorqueGazeboCommand.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointTorqueCommand"),policy);
+            port_JointPositionGazeboCommand.connectTo(peer->getPeer(gazebo_robot_comp_name)->getPort("JointPositionCommand"),policy);
+            port_JointVelocityGazeboCommand.connectTo(peer->getPeer(gazebo_robot_comp_name)->getPort("JointVelocityCommand"),policy);
+            port_JointTorqueGazeboCommand.connectTo(peer->getPeer(gazebo_robot_comp_name)->getPort("JointTorqueCommand"),policy);
 
-            port_JointPositionGazebo.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointPosition"),policy);
-            port_JointVelocityGazebo.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointVelocity"),policy);
-            port_JointTorqueGazebo.connectTo(this->peer->getPeer(lwr_gazebo)->getPort("JointTorque"),policy);
-
+            port_JointPositionGazebo.connectTo(peer->getPeer(gazebo_robot_comp_name)->getPort("JointPosition"),policy);
+            port_JointVelocityGazebo.connectTo(peer->getPeer(gazebo_robot_comp_name)->getPort("JointVelocity"),policy);
+            port_JointTorqueGazebo.connectTo(peer->getPeer(gazebo_robot_comp_name)->getPort("JointTorque"),policy);
+            return true;
         }else{
             RTT::log(RTT::Error)<<"Couldn't find "<<gazebo_deployer_name<<" deployer name"<<RTT::endlog();
             return false;
@@ -731,7 +729,6 @@ void LWRSim::updateHook() {
     
     if(init_pos_requested){
         joint_state_cmd_.header.frame_id="POSITION_CMD";
-        RTT::log(RTT::Info) <<"Initial Position Requested"<<joint_state_cmd_ << RTT::endlog();
         init_pos_requested=false;
     }
     port_JointStateCommand.write(joint_state_cmd_);

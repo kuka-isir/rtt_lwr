@@ -3,3 +3,5 @@
 setActivity("lwr_gazebo",0,10,ORO_SCHED_OTHER)
 lwr_gazebo.configure()
 lwr_gazebo.start()
+loadService("lwr_gazebo","rosservice")
+lwr_gazebo.rosservice.connect("ready","/lwr_gazebo/ready", "std_srvs/Empty")
