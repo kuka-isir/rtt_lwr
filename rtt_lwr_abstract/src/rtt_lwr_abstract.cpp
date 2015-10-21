@@ -102,7 +102,7 @@ bool RTTLWRAbstract::init(bool connect_all_ports){
     if(use_sim_clock){
         RTT::Logger::Instance()->in(getName());
         RTT::log(RTT::Warning) << "Using ROS Sim Clock" << RTT::endlog();
-        rtt_rosclock::use_ros_clock_topic();
+        //rtt_rosclock::use_ros_clock_topic();
         rtt_rosclock::enable_sim();
         rtt_rosclock::set_sim_clock_activity(this);
     }
