@@ -38,11 +38,6 @@ target_link_libraries(
     ${kdl_conversions_LIBRARIES}
 )
 
-# Just for Hydro compatibility
-list(REMOVE_ITEM catkin_LIBRARIES lwr_fri_generate_messages_cpp)
-list(REMOVE_ITEM catkin_LIBRARIES lwr_fri_generate_messages_lisp)
-list(REMOVE_ITEM catkin_LIBRARIES lwr_fri_generate_messages_py)
-
 add_dependencies(${PROJECT_NAME} lwr_fri_generate_messages_cpp)
 orocos_generate_package(INCLUDE_DIRS include
                         DEPENDS rtt_ros_kdl_tools)
