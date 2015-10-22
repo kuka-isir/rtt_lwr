@@ -11,7 +11,7 @@ env:
   matrix:
     - CI_ROS_DISTRO="jade"
     - CI_ROS_DISTRO="indigo"
-    - CI_ROS_DISTRO="indigo" USE_GAZEBO
+    - CI_ROS_DISTRO="indigo" USE_GAZEBO6
 matrix:
   allow_failures:
     - env: CI_ROS_DISTRO="jade"
