@@ -11,7 +11,7 @@ env:
   matrix:
     - CI_ROS_DISTRO="jade"
     - CI_ROS_DISTRO="indigo"
-    - CI_ROS_DISTRO="indigo" USE_GAZEBO6
+    - CI_ROS_DISTRO="indigo" USE_GAZEBO6="true"
 matrix:
   allow_failures:
     - env: CI_ROS_DISTRO="jade"
@@ -35,7 +35,7 @@ install:
   - wget https://raw.githubusercontent.com/IDSCETHZurich/re_trajectory-generator/master/kuka_IK/include/friComm.h
   - mv friComm.h $CATKIN_WS_SRC/rtt_lwr/lwr_hardware/kuka_lwr_fri/include/kuka_lwr_fri/friComm.h
   - rosdep install -r --from-paths $CATKIN_WS_SRC/ --rosdistro $ROS_DISTRO -y
-  - if[ $USE_GAZEBO6 ] ; then wget -O /tmp/gazebo6_install.sh http://osrf-distributions.s3.amazonaws.com/gazebo/gazebo6_install.sh; sudo sh /tmp/gazebo6_install.sh ; fi
+  - if[ -n "$USE_GAZEBO6" ] ; then wget -O /tmp/gazebo6_install.sh http://osrf-distributions.s3.amazonaws.com/gazebo/gazebo6_install.sh; sudo sh /tmp/gazebo6_install.sh ; fi
 script:
   # Enable install space
   #- catkin config --install
