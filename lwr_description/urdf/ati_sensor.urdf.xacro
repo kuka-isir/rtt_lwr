@@ -17,7 +17,7 @@
 		      xyz="-0.00480740431783837 0.00412111608218374 -0.0111556038816137"
 		      rpy="0 0 0" />
 		    <mass
-		      value="0.316951020394394" />
+		      value="0.212" />
 		    <inertia
 		      ixx="4.36061005979496E-05"
 		      ixy="-1.11387576114314E-05"
@@ -48,6 +48,7 @@
     <child link="ati_link" />
   </joint>
 
+  <!-- The sensing part of the sensor -->
   <link name="ati_link">
     <inertial>
       <origin
@@ -65,25 +66,23 @@
     </inertial>
     <visual>
       <origin
-        xyz="0 0 0"
+        xyz="0 0 -0.005"
         rpy="0 0 0" />
       <geometry>
-        <mesh
-          filename="package://lwr_description/meshes/ati_sensor/ati_sensor_cylinder.stl" />
+        <cylinder length="0.01" radius="0.03"/>
       </geometry>
       <material
         name="">
         <color
-          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+          rgba="1.0 0.0 0.0 0.1" />
       </material>
     </visual>
     <collision>
       <origin
-        xyz="0 0 0"
+        xyz="0 0 -0.005"
         rpy="0 0 0" />
       <geometry>
-        <mesh
-          filename="package://lwr_description/meshes/ati_sensor/ati_sensor_cylinder.stl" />
+        <cylinder length="0.01" radius="0.03"/>
       </geometry>
     </collision>
   </link>
