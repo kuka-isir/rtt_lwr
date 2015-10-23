@@ -113,7 +113,6 @@ public:
                 RTT::log(RTT::Warning)<<"Not adding (fake) fixed joint ["<<name<<"] idx:"<<idx<<RTT::endlog();
                 continue;
             }
-            (*jit)->SetProvideFeedback(true);
             joints_idx.push_back(idx);
             joint_names_.push_back(name);
             RTT::log(RTT::Warning)<<"Adding joint ["<<name<<"] idx:"<<idx<<RTT::endlog();
@@ -241,13 +240,13 @@ public:
         if(set_brakes)
         {
             
-            for(gazebo::physics::Link_V::iterator it = model_links_.begin();
+            /*for(gazebo::physics::Link_V::iterator it = model_links_.begin();
                 it != model_links_.end();++it)
                 (*it)->SetGravityMode(false);
 
             for(gazebo::physics::Joint_V::iterator it = gazebo_joints_.begin();it != gazebo_joints_.end();++it)
                 (*it)->SetAngle(0,(*it)->GetAngle(0).Radian());
-        }else{
+       */ }else{
             for(gazebo::physics::Link_V::iterator it = model_links_.begin();
                 it != model_links_.end();++it)
                 (*it)->SetGravityMode(true);

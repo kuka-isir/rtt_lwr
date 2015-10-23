@@ -3,35 +3,35 @@
    
    <xacro:macro name="ati_sensor">
 
-	  <joint name="ati_joint" type="fixed">
+	  <joint name="ati_base_joint" type="fixed">
 	    <!-- Need the gazebo <disableFixedJointLumping>true</disableFixedJointLumping> option for the gazebo ros pkgs ft_sensor -->
 	    <limit effort="400" velocity="0" lower="0" upper="0" />
-	    <origin xyz="0 0 0.0488" rpy="0 0 ${(20.0)*M_PI/180.0}" />
+	    <origin xyz="0 0 0.045" rpy="0 0 ${(20.0)*M_PI/180.0}" />
 	    <parent link="link_7" />
-	    <child link="ati_link" />
+	    <child link="ati_base_link" />
 	  </joint>
 
-	  <link name="ati_link">
-	    <inertial>
-	      <origin
-		xyz="-0.00178553387370124 -0.000310330841277809 0.0197116137003042"
-		rpy="0 0 0" />
-	      <mass
-		value="0.316951020394394" />
-	      <inertia
-		ixx="0.000196894344101305"
-		ixy="4.02893385807679E-06"
-		ixz="-6.2186338186242E-06"
-		iyy="0.000219267703175818"
-		iyz="-1.08082570436843E-06"
-		izz="0.000295322983266294" />
-	    </inertial>
+	  <link name="ati_base_link">
+		  <inertial>
+		    <origin
+		      xyz="-0.00480740431783837 0.00412111608218374 -0.0111556038816137"
+		      rpy="0 0 0" />
+		    <mass
+		      value="0.316951020394394" />
+		    <inertia
+		      ixx="4.36061005979496E-05"
+		      ixy="-1.11387576114314E-05"
+		      ixz="1.18766045084891E-06"
+		      iyy="4.67870488895371E-05"
+		      iyz="-1.05981886988621E-06"
+		      izz="7.64371245181666E-05" />
+		  </inertial>
 	    <visual>
-	      <origin xyz="0 0 -0.0488" rpy="0 0 ${-45*M_PI/180.0}" />
+	      <origin xyz="0 0 0.0" rpy="0 0 0" />
 	      <geometry>
 		<mesh filename="package://lwr_description/meshes/ati_sensor/ati_sensor.stl" />
 	      </geometry>
-      	      <material name="color_j7"/>
+				<material name="color_j7"/>
 	    </visual>
 	    <collision>
 	      <origin xyz="0 0 -0.0488" rpy="0 0 ${-45*M_PI/180.0}" />
@@ -40,6 +40,53 @@
 	      </geometry>
 	    </collision>
 	  </link>
+
+  <joint name="ati_joint" type="fixed">
+    <limit effort="400" velocity="0" lower="0" upper="0" />
+    <origin xyz="0 0 0.0036" rpy="0 0 0" />
+    <parent link="ati_base_link" />
+    <child link="ati_link" />
+  </joint>
+
+  <link name="ati_link">
+    <inertial>
+      <origin
+        xyz="-1.59594559789866E-16 -6.93889390390723E-17 -0.00209999999999987"
+        rpy="0 0 0" />
+      <mass
+        value="0.001" />
+      <inertia
+        ixx="2.04554394204082E-06"
+        ixy="-2.11758236813575E-22"
+        ixz="-1.11092775809582E-23"
+        iyy="2.04554394204082E-06"
+        iyz="-8.96327424295973E-24"
+        izz="4.07793678453489E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://lwr_description/meshes/ati_sensor/ati_sensor_cylinder.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://lwr_description/meshes/ati_sensor/ati_sensor_cylinder.stl" />
+      </geometry>
+    </collision>
+  </link>
 
    </xacro:macro>
 
