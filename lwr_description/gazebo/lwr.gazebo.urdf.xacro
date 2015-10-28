@@ -2,10 +2,17 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
     <xacro:arg name="load_ati_sensor" default="false"/>
+    <xacro:arg name="load_base" default="false"/>
+    <xacro:arg name="load_handle" default="false"/>
+    <xacro:arg name="load_calib_tool" default="false"/>
     
 	<xacro:macro  name="gz_joint" params="joint_name">
 		<gazebo reference="${joint_name}">
-			<implicitSpringDamper>true</implicitSpringDamper>
+			<provideFeedback>true</provideFeedback>
+            <!-- Dangerous option :) -->
+			<!--implicitSpringDamper>true</implicitSpringDamper-->
+                        <!--stopCfm>0.9</stopCfm-->
+                        <!--stopErp>0.5</stopErp-->
 		</gazebo>
 	</xacro:macro>
 
@@ -24,10 +31,30 @@
                 
 		<!-- ati_sensor (need gazebo >4.0, see ati_sensor.urdf.xacro) -->
 		<xacro:if value="$(arg load_ati_sensor)">
+                    
                     <!-- Use a fixed joint in gazebo -->
-                    <gazebo reference="ati_joint">
+                    <gazebo reference="ati_base_joint">
                         <disableFixedJointLumping>true</disableFixedJointLumping>
                     </gazebo>
+                    
+                    <gazebo reference="ati_joint">
+			<provideFeedback>true</provideFeedback>
+                        <disableFixedJointLumping>true</disableFixedJointLumping>
+                    </gazebo>
+                    
+                    <gazebo reference="ati_base_link">
+                        <material>Gazebo/Grey</material>
+                    </gazebo>
+                    
+                    <gazebo reference="ati_link">
+                        <!-- gravity tag does not work for some reason , 
+                        so we have to update the lwr_gazebo ops 
+                        with lwr_gazebo.setLinkGravityMode("ati_link",false) -->
+                        
+                        <gravity>false</gravity>
+                        <material>Gazebo/Grey</material>
+                    </gazebo>
+                    
                     <gazebo>
                         <plugin name="ft_sensor" filename="libgazebo_ros_ft_sensor.so">
                             <jointName>ati_joint</jointName>
@@ -37,7 +64,32 @@
                         </plugin>
                     </gazebo>
 		</xacro:if>
-    
+                
+                <xacro:if value="$(arg load_handle)">
+                    <gazebo reference="handle_link">
+                        <material>Gazebo/White</material>
+                    </gazebo>
+                </xacro:if>
+
+                <xacro:if value="$(arg load_base)">
+                    <gazebo reference="base_link">
+                        <material>Gazebo/Grey</material>
+                    </gazebo>
+                </xacro:if>
+                
+                <!-- base_link and link_0 are fixed, so merged by gazebo -->
+                <xacro:unless value="$(arg load_base)">
+                    <gazebo reference="base_link">
+                        <material>Gazebo/Orange</material>
+                    </gazebo>
+                </xacro:unless>
+                
+                <xacro:if value="$(arg load_calib_tool)">
+                    <gazebo reference="calib_link">
+                        <material>Gazebo/White</material>
+                    </gazebo>
+                </xacro:if>   
+                
   		<xacro:gz_joint joint_name="joint_0"/>
   		<xacro:gz_joint joint_name="joint_1"/>
   		<xacro:gz_joint joint_name="joint_2"/>
@@ -46,47 +98,31 @@
   		<xacro:gz_joint joint_name="joint_5"/>
   		<xacro:gz_joint joint_name="joint_6"/>
 
-                <gazebo reference="base_link">
-                    <static>true</static>
-                </gazebo>
-  
-		<gazebo reference="link_0">
-			<gravity>true</gravity>
-			<material>Gazebo/Orange</material>
-		</gazebo>
-
 		<gazebo reference="link_1">
-			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
 		</gazebo>
 
 		<gazebo reference="link_2">
-			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
 		</gazebo>
 
 		<gazebo reference="link_3">
-			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
 		</gazebo>
 
 		<gazebo reference="link_4">
-			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
 		</gazebo>
 
 		<gazebo reference="link_5">
-			<gravity>true</gravity>
 			<material>Gazebo/Orange</material>
 		</gazebo>
 
 		<gazebo reference="link_6">
-			<gravity>true</gravity>
 			<material>Gazebo/Grey</material>
 		</gazebo>
 
 		<gazebo reference="link_7">
-			<gravity>true</gravity>
 			<material>Gazebo/DarkGrey</material>
 		</gazebo>
 

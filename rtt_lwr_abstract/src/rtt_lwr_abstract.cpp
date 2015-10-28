@@ -114,6 +114,7 @@ bool RTTLWRAbstract::init(bool connect_all_ports){
     
     jnt_pos_kdl.resize(kdl_chain.getNrOfJoints());
     jnt_vel_kdl.resize(kdl_chain.getNrOfJoints());
+    jnt_acc_kdl.resize(kdl_chain.getNrOfJoints());
     jnt_pos_vel_kdl.resize(kdl_chain.getNrOfSegments());
     jnt_trq_kdl.resize(kdl_chain.getNrOfJoints());
     gravity_kdl.resize(kdl_chain.getNrOfJoints());
@@ -123,6 +124,7 @@ bool RTTLWRAbstract::init(bool connect_all_ports){
     std::fill(f_ext_kdl.begin(),f_ext_kdl.end(),KDL::Wrench::Zero());
     SetToZero(jnt_pos_kdl);
     SetToZero(jnt_vel_kdl);
+    SetToZero(jnt_acc_kdl);
     SetToZero(jnt_pos_vel_kdl);
     SetToZero(gravity_kdl);
     SetToZero(coriolis_kdl);
@@ -130,14 +132,20 @@ bool RTTLWRAbstract::init(bool connect_all_ports){
     // Set the Robot name (lwr or lwr_sim) For other components to know it
     boost::shared_ptr<rtt_rosparam::ROSParam> rosparam =
         this->getProvider<rtt_rosparam::ROSParam>("rosparam");
-    rosparam->getRelative("robot_name");
-    
+    if(rosparam)
+        rosparam->getRelative("robot_name");
+    else
+        RTT::log(RTT::Error) << "ROS Param could not be loaded "<< RTT::endlog(); 
 
     RTT::log(RTT::Warning) << "KDL Chain Joints : " << kdl_chain.getNrOfJoints()<< RTT::endlog();
     RTT::log(RTT::Warning) << "KDL Chain Segments : " << kdl_chain.getNrOfSegments()<< RTT::endlog();
 
+    bool ret=true;
     if(connect_all_ports)
-        return connectAllPorts(robot_name);
+        ret &= connectAllPorts(robot_name);
+    
+    ret &= this->getAllComponentRelative();
+    
     return true;
 }
 bool RTTLWRAbstract::getAllComponentRelative()
@@ -153,8 +161,11 @@ bool RTTLWRAbstract::getAllComponentRelative()
         {
             if(rosparam->getParam(getName() +"/"+(*it)->getName(),(*it)->getName()))
                 RTT::log(RTT::Info) << getName() +"/"+(*it)->getName() << " => "<< this->getProperty((*it)->getName())<< RTT::endlog();
+            else
+                RTT::log(RTT::Warning) << "No param found for "<<getName() +"/"+(*it)->getName()<< RTT::endlog();
         }
-    }else{ 
+    }else{
+        RTT::log(RTT::Error) << "ROS Param could not be loaded "<< RTT::endlog();
         return false;
     }
     return true;

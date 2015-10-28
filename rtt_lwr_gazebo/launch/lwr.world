@@ -13,7 +13,7 @@
     <physics type="ode">
       <ode>
         <solver>
-          <iters>1000</iters>
+          <iters>100</iters>
           <use_dynamic_moi_rescaling>false</use_dynamic_moi_rescaling>
         </solver>
       </ode>

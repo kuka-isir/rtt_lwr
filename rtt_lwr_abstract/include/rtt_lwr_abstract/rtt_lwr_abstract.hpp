@@ -334,7 +334,8 @@ protected:
                     jnt_vel_kdl,
                     coriolis_kdl,
                     gravity_kdl,
-                    jnt_trq_kdl;
+                    jnt_trq_kdl,
+                    jnt_acc_kdl;
                     
     KDL::JntArrayVel jnt_pos_vel_kdl;
     KDL::Frame tool_in_base_frame;
