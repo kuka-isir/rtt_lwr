@@ -9,7 +9,10 @@
 	<xacro:macro  name="gz_joint" params="joint_name">
 		<gazebo reference="${joint_name}">
 			<provideFeedback>true</provideFeedback>
-			<implicitSpringDamper>true</implicitSpringDamper>
+            <!-- Dangerous option :) -->
+			<!--implicitSpringDamper>true</implicitSpringDamper-->
+                        <!--stopCfm>0.9</stopCfm-->
+                        <!--stopErp>0.5</stopErp-->
 		</gazebo>
 	</xacro:macro>
 
@@ -28,20 +31,30 @@
                 
 		<!-- ati_sensor (need gazebo >4.0, see ati_sensor.urdf.xacro) -->
 		<xacro:if value="$(arg load_ati_sensor)">
+                    
                     <!-- Use a fixed joint in gazebo -->
                     <gazebo reference="ati_base_joint">
                         <disableFixedJointLumping>true</disableFixedJointLumping>
                     </gazebo>
+                    
                     <gazebo reference="ati_joint">
 			<provideFeedback>true</provideFeedback>
                         <disableFixedJointLumping>true</disableFixedJointLumping>
                     </gazebo>
+                    
                     <gazebo reference="ati_base_link">
                         <material>Gazebo/Grey</material>
                     </gazebo>
+                    
                     <gazebo reference="ati_link">
+                        <!-- gravity tag does not work for some reason , 
+                        so we have to update the lwr_gazebo ops 
+                        with lwr_gazebo.setLinkGravityMode("ati_link",false) -->
+                        
+                        <gravity>false</gravity>
                         <material>Gazebo/Grey</material>
                     </gazebo>
+                    
                     <gazebo>
                         <plugin name="ft_sensor" filename="libgazebo_ros_ft_sensor.so">
                             <jointName>ati_joint</jointName>
