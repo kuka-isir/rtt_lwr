@@ -44,6 +44,7 @@ public:
         // Add required gazebo interfaces
         this->provides("gazebo")->addOperation("configure",&LWRGazeboComponent::gazeboConfigureHook,this,RTT::ClientThread);
         this->provides("gazebo")->addOperation("update",&LWRGazeboComponent::gazeboUpdateHook,this,RTT::ClientThread);
+        this->addOperation("setLinkGravityMode",&LWRGazeboComponent::setLinkGravityMode,this,RTT::ClientThread);
         this->addOperation("ready",&LWRGazeboComponent::readyService,this,RTT::ClientThread);
 
         this->ports()->addPort("JointPositionCommand", port_JointPositionCommand).doc("");
@@ -79,6 +80,23 @@ public:
     bool readyService(std_srvs::EmptyRequest& req,std_srvs::EmptyResponse& res)
     {
         return true;
+    }
+    
+    void setLinkGravityMode(const std::string& link_name,bool gravity_mode)
+    {
+        // HACK: I want to remove gravity for ati_link (force torque sensor), but
+        // <gravity> tag does not work for some reason, so I'm doin' it here.
+        // FIXME
+        
+        for(gazebo::physics::Link_V::iterator it = this->model_links_.begin();
+            it != this->model_links_.end();++it)
+            {
+                if((*it)->GetName() == link_name)
+                {
+                   gravity_mode_.insert(std::make_pair((*it),gravity_mode));
+                   RTT::log(RTT::Warning)<<"Setting link "<<link_name<<" to "<<((*it)->GetGravityMode()? "true":"false")<<RTT::endlog();
+                }
+            }
     }
     
     //! Called from gazebo
@@ -133,6 +151,7 @@ public:
             jnt_pos_.push_back(0.0);
             jnt_vel_.push_back(0.0);
             jnt_trq_.push_back(0.0);
+            jnt_pos_brakes_.push_back(0.0);
         }
 
         js.effort = jnt_trq_;
@@ -190,24 +209,6 @@ public:
             jnt_trq_[j] = gazebo_joints_[joints_idx[j]]->GetForce(0u);
         }
 
-        // Force Joint Positions
-        if(set_new_pos)
-        {
-            RTT::log(RTT::Warning) <<  getName() << " " <<jnt_pos_fs<< " Setting Joint Position : \n"<<js_cmd<<RTT::endlog();
-            
-            // Copy all joints to current values
-            for(gazebo::physics::Joint_V::iterator it = gazebo_joints_.begin();it != gazebo_joints_.end();++it)
-                (*it)->SetAngle(0,(*it)->GetAngle(0).Radian());
-            
-            // Update specific joints regarding cmd
-            for(unsigned j=0; j<joints_idx.size(); j++)
-                gazebo_joints_[joints_idx[j]]->SetAngle(0,jnt_pos_cmd_[j]);
-            
-            // Aknowledge the settings
-            set_new_pos = false;
-            
-        }
-        
         // Simulates breaks
         // NOTE: Gazebo is calling the callback very fast, so we might have false positive
         // This is only usefull when using ROS interface (not CORBA) + launching gazebo standalone
@@ -235,22 +236,42 @@ public:
                 break;
         }
         
+        // Set Gravity Mode or specified links
+        for(std::map<gazebo::physics::LinkPtr,bool>::iterator it = this->gravity_mode_.begin();
+            it != this->gravity_mode_.end();++it)
+            {
+                   it->first->SetGravityMode(it->second);
+            }
+            
         //RTT::log(RTT::Debug) << "Gazebo data_fs : "<<data_fs<<" ts:"<<data_timestamp<<" last ts:"<<last_data_timestamp <<" steps rtt:" <<steps_rtt_<<"last steps:" << last_steps_rtt_<<"brakes:"<<set_brakes<<RTT::endlog();
         
-        if(set_brakes)
-        {
+        // Copy Current joint pos in case of brakes
+        if(!set_brakes)
+            for(unsigned j=0; j<joints_idx.size(); j++)
+                jnt_pos_brakes_[j] = jnt_pos_[j];
             
-            /*for(gazebo::physics::Link_V::iterator it = model_links_.begin();
-                it != model_links_.end();++it)
-                (*it)->SetGravityMode(false);
-
-            for(gazebo::physics::Joint_V::iterator it = gazebo_joints_.begin();it != gazebo_joints_.end();++it)
-                (*it)->SetAngle(0,(*it)->GetAngle(0).Radian());
-       */ }else{
-            for(gazebo::physics::Link_V::iterator it = model_links_.begin();
-                it != model_links_.end();++it)
-                (*it)->SetGravityMode(true);
-
+        // Force Joint Positions in case of a cmd
+        if(set_new_pos)
+        {
+            RTT::log(RTT::Warning) <<  getName() << " " <<jnt_pos_fs<< " Setting Joint Position : \n"<<js_cmd<<RTT::endlog();
+            
+            // Update specific joints regarding cmd
+            for(unsigned j=0; j<joints_idx.size(); j++)
+            {
+                gazebo_joints_[joints_idx[j]]->SetAngle(0,jnt_pos_cmd_[j]);
+                jnt_pos_brakes_[j] = jnt_pos_cmd_[j];
+            }
+            
+            // Aknowledge the settings
+            set_new_pos = false;
+            
+        }else if(set_brakes)
+        {
+            for(unsigned j=0; j<joints_idx.size(); j++)
+                gazebo_joints_[joints_idx[j]]->SetAngle(0,jnt_pos_brakes_[j]);
+            
+        }else{
+            
             // Write command         
             // Update specific joints regarding cmd
             for(unsigned j=0; j<joints_idx.size(); j++)
@@ -367,12 +388,12 @@ public:
     
 protected:
     std::vector<int> joints_idx;
-    
+    std::map<gazebo::physics::LinkPtr,bool> gravity_mode_;
     RTT::os::Semaphore new_cmd_sem_;
     RTT::os::Semaphore new_gz_sem_;
     //! The Gazebo Model
     //! The gazebo
-    std::vector<gazebo::physics::JointPtr> gazebo_joints_;
+    gazebo::physics::Joint_V gazebo_joints_;
     gazebo::physics::Link_V model_links_;
     std::vector<std::string> joint_names_;
 
@@ -390,7 +411,7 @@ protected:
     RTT::FlowStatus jnt_pos_fs,
                     data_fs;
 
-    std::vector<double> jnt_vel_,jnt_trq_,jnt_pos_;
+    std::vector<double> jnt_vel_,jnt_trq_,jnt_pos_,jnt_pos_brakes_;
     std::vector<double> jnt_vel_cmd_,jnt_trq_cmd_,jnt_pos_cmd_;
 
     //! RTT time for debugging
