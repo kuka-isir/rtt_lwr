@@ -70,7 +70,7 @@ do_start()
        exit 1
    fi
 
-
+   sudo modprobe -r ${RT_DRIVER#$"rt_"} 
    #cd ${prefix}/sbin/
    sudo ${prefix_bin}/rtnet start
    sleep 0.5
