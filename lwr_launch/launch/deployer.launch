@@ -5,6 +5,8 @@
   <arg name="LOG_LEVEL" default="info"/>
   <!-- Additional Orocos deployer args -->
   <arg name="DEPLOYER_ARGS" default=""/>
+    <!-- Additional Orocos deployer args accessible via os.argv() -->
+  <arg name="EXTRA_DEPLOYER_ARGS" default=""/>
   <!-- Orocos target (gnulinux, xenomai, etc) -->
   <arg name="OROCOS_TARGET" default="$(optenv OROCOS_TARGET)"/>
   <!-- Path to look for dynamically-loaded plugins and components (something like /lib/orocos) -->
@@ -14,7 +16,8 @@
   <!-- Set DEBUG to true to run in GDB (don't forget to build in Debug mode) -->
   <arg name="DEBUG" default="false"/>
   <!-- Respawn the node if it creashes (not recommended) -->
-  <arg name="respawn" default="false"/>
+  <arg name="RESPAWN" default="false"/>
+  
   <arg if="$(arg DEBUG)" name="SUFFIX" value="-debug"/>
   <arg unless="$(arg DEBUG)" name="SUFFIX" value=""/>
 
@@ -22,8 +25,8 @@
   <node unless="$(arg CORBA)"
     name="$(arg NAME)"
     pkg="rtt_ros" type="deployer$(arg SUFFIX)" 
-    args="-l $(arg LOG_LEVEL) $(arg DEPLOYER_ARGS) --"
-    output="screen" respawn="$(arg respawn)">
+    args="-l $(arg LOG_LEVEL) $(arg DEPLOYER_ARGS) -- $(arg EXTRA_DEPLOYER_ARGS)"
+    output="screen" respawn="$(arg RESPAWN)">
     <env name="OROCOS_TARGET" value="$(arg OROCOS_TARGET)"/>
     <env name="RTT_COMPONENT_PATH" value="$(arg RTT_COMPONENT_PATH)"/>
   </node>
@@ -31,8 +34,8 @@
   <node if="$(arg CORBA)"
     name="$(arg NAME)"
     pkg="lwr_scripts" type="deployer-corba$(arg SUFFIX)" 
-    args="-l $(arg LOG_LEVEL) $(arg DEPLOYER_ARGS) --"
-    output="screen" respawn="$(arg respawn)">
+    args="-l $(arg LOG_LEVEL) $(arg DEPLOYER_ARGS) -- $(arg EXTRA_DEPLOYER_ARGS)"
+    output="screen" respawn="$(arg RESPAWN)">
     <env name="OROCOS_TARGET" value="$(arg OROCOS_TARGET)"/>
     <env name="RTT_COMPONENT_PATH" value="$(arg RTT_COMPONENT_PATH)"/>
   </node>

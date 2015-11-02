@@ -1,6 +1,7 @@
 <launch>
     <arg name="sim" default="false" />
     <arg name="ops_script" />
+    <arg name="ops_args" default=""/>
     <arg name="robot_ns" default="/"/>
     <arg name="debug" default="false" />
     <arg name="rviz" default="false" />
@@ -44,8 +45,9 @@
                 <arg name="NAME" value="lwr_sim" if="$(arg sim)"/>
                 <arg name="NAME" value="lwr" unless="$(arg sim)"/>
                 <arg name="LOG_LEVEL" value="$(arg log_level)"/>
-                <arg name="DEBUG" default="$(arg debug)"/>
-                <arg name="respawn" default="$(arg respawn)"/>
+                <arg name="DEBUG" value="$(arg debug)"/>
+                <arg name="RESPAWN" value="$(arg respawn)"/>
+                <arg name="EXTRA_DEPLOYER_ARGS" value="$(arg ops_args)"/>
             </include>
     </group>
 </launch>
