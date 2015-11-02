@@ -1,3 +1,3 @@
 [submodule "lwr_hardware"]
 	path = lwr_hardware
-	url = https://github.com/ahoarau/lwr_hardware.git
+	url = https://github.com/kuka-isir/lwr_hardware.git
