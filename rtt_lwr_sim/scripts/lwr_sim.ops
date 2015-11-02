@@ -14,7 +14,7 @@ lwr_sim.waitForROSService("/lwr_gazebo/ready")
 stream("lwr_sim.JointStateCommand", ros.comm.topic("/lwr_gazebo/joint_states_cmd"))
 stream("lwr_sim.JointStateGazebo", ros.comm.topic("/lwr_gazebo/joint_states"))
 
-var int trials=10000;
+var int trials=10;
 while(!loadComponent("gazebo","CORBA")) {
     print.ln("----------------------- Trying to load via corba -----------------");
     trials = trials -1;
