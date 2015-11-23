@@ -26,6 +26,7 @@
   <run_depend>rtt_gazebo_deployer</run_depend>
   <run_depend>sensor_msgs</run_depend>
   <run_depend>message_runtime</run_depend>
+  <run_depend>rtt_gazebo</run_depend>
 
   <export>
       <rtt_ros>
