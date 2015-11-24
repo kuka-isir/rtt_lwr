@@ -76,20 +76,20 @@ do_start()
    sleep 0.5
 
    # Bring up connection
-   i=0
-   rc=0
-   for SLAVE in $SLAVES; do
-   		sudo ${prefix_bin}/rtifconfig rteth$i up $IPADDR netmask $NETMASK
-   		#${prefix_bin}/rtroute solicit $SLAVE dev rteth$i
-   		i=$((i+1))
-   	done
+   #i=0
+   #rc=0
+   #for SLAVE in $SLAVES; do
+   #		sudo ${prefix_bin}/rtifconfig rteth$i up $IPADDR netmask $NETMASK
+   #		#${prefix_bin}/rtroute solicit $SLAVE dev rteth$i
+  # 		i=$((i+1))
+   #	done
 
    # Wait until connection is good for all slaves
    i=0
    names=($SLAVES_NAMES)
    for SLAVE in $SLAVES; do
    		   #echo "${prefix_bin}/rtroute solicit $SLAVE dev rteth$i"
-
+           sudo ${prefix_bin}/rtifconfig rteth$i up $IPADDR netmask $NETMASK
            bringup_slave $SLAVE ${names[$i]} $i &
            i=$((i+1))
    done
