@@ -1,0 +1,10 @@
+# IT IS UNLIKELY YOU WANT TO EDIT THIS FILE BY HAND,
+# UNLESS FOR REMOVING ENTRIES.
+# IF YOU WANT TO CHANGE THE ROS ENVIRONMENT VARIABLES
+# USE THE rosinstall TOOL INSTEAD.
+# IF YOU CHANGE IT, USE rosinstall FOR THE CHANGES TO TAKE EFFECT
+- git: {local-name: rtt_lwr, uri: 'https://github.com/kuka-isir/rtt_lwr'}
+- git: {local-name: rtt_ros_kdl_tools, uri: 'https://github.com/kuka-isir/rtt_ros_kdl_tools.git'}
+- git: {local-name: lwr_project_creator, uri: 'https://github.com/kuka-isir/lwr_project_creator.git'}
+- git: {local-name: rtt_lwr_controllers, uri: 'https://github.com/kuka-isir/rtt_lwr_controllers.git'}
+- git: {local-name: rtt_gazebo, uri: 'https://github.com/ahoarau/rtt_gazebo'}
