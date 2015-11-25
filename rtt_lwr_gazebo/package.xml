@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <package>
   <name>rtt_lwr_gazebo</name>
-  <version>0.1.2</version>
+  <version>1.0.0</version>
   <description>The rtt_lwr_gazebo package</description>
 
+  <author email="jbo@jhu.edu">jbohren</author>
   <maintainer email="hoarau.robotics@gmail.com">Antoine Hoarau</maintainer>
 
   <license>BSD</license>
@@ -17,8 +18,9 @@
   <build_depend>rtt_gazebo_deployer</build_depend>
   <build_depend>cmake_modules</build_depend>
   <build_depend>sensor_msgs</build_depend>
-  <build_depend>message_generation</build_depend>
+  <build_depend>std_srvs</build_depend>
 
+  <run_depend>std_srvs</run_depend>
   <run_depend>gazebo</run_depend>
   <run_depend>rtt_roscomm</run_depend>
   <run_depend>gazebo_ros</run_depend>

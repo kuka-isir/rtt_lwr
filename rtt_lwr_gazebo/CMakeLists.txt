@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
     sensor_msgs 
     message_generation 
     std_msgs
+    std_srvs
 )
 
 catkin_package(DEPENDS rtt gazebo eigen)

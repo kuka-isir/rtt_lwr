@@ -20,7 +20,10 @@
 
 <param if="$(arg sim)" name="use_sim_time" value="true" />
 
-<node if="$(arg rviz)" name="rviz" pkg="rviz" type="rviz" args="-d $(find lwr_launch)/launch/lwr_sim.rviz"/>
+<arg if="$(arg sim)" name="rviz_config" default="$(find lwr_launch)/launch/lwr_sim.rviz"/>
+<arg unless="$(arg sim)" name="rviz_config" default="$(find lwr_launch)/launch/lwr_hw.rviz"/>
+
+<node if="$(arg rviz)" name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)"/>
 
 <group ns="$(arg robot_ns)">
     <param name="tf_prefix" value="$(arg robot_ns)" />
