@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+   
+	<xacro:macro name="hook">
+  	<link name="hook_link">
+			<inertial>
+      	<origin	xyz="-0.0254993845921743 1.38777878078145E-17 0.00542364979744681" rpy="0 0 0" />
+	      <mass value="0.00264337359925226" />
+      	<inertia
+		      ixx="1.31229592580266E-06"
+		      ixy="-4.65078567008438E-22"
+		      ixz="-1.73070306938344E-07"
+		      iyy="1.80117298509349E-06"
+		      iyz="2.31978685293435E-22"
+		      izz="4.97471327705407E-07" />
+	    </inertial>
+  	  <visual>
+  	    <origin xyz="0 0 0" rpy="0 0 0" />
+  	    <geometry>
+  	      <mesh filename="package://lwr_description/meshes/hook/hook.stl" />
+  	    </geometry>
+  	    <material name="">
+  	      <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+  	    </material>
+  	  </visual>
+  	  <collision>
+  	    <origin
+  	      xyz="0 0 0"
+  	      rpy="0 0 0" />
+	      <geometry>
+  	      <mesh filename="package://lwr_description/meshes/hook/hook.stl" />
+    	  </geometry>
+    	</collision>
+  	</link>
+		<joint name="ati_to_hook_joint" type="fixed">
+		  <origin
+		    xyz="-0.036155 -0.025331 0.0444"
+		    rpy="-3.1416 -9.386E-17 -2.7489" />
+		  <parent
+		    link="ati_link" />
+		  <child
+		    link="hook_link" />
+		  <axis xyz="0 0 0" />
+		</joint>
+  </xacro:macro>
+
+</robot>
