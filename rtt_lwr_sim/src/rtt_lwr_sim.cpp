@@ -233,6 +233,7 @@ bool LWRSim::configureHook(){
     kp_.resize(LBR_MNJ);
     kd_.resize(LBR_MNJ);
     kg_.resize(LBR_MNJ);
+    kg_.setConstant(1.0);
     kp_default_.resize(LBR_MNJ);
     kd_default_.resize(LBR_MNJ);
     kc_.resize(6);
@@ -633,7 +634,7 @@ void LWRSim::updateHook() {
       switch(static_cast<FRI_CTRL>(robot_state.control)){
             case FRI_CTRL_JNT_IMP:
                 // Joint Impedance Control
-                jnt_trq_gazebo_cmd_ = G.data;
+                jnt_trq_gazebo_cmd_ = kg_.asDiagonal() * G.data;
                 
                 // Joint Impedance part
                 if(jnt_pos_cmd_fs == RTT::NewData){
@@ -650,7 +651,7 @@ void LWRSim::updateHook() {
                 break;
             case FRI_CTRL_POSITION:
                 //Position Control
-                jnt_trq_gazebo_cmd_ = G.data;
+                jnt_trq_gazebo_cmd_ = kg_.asDiagonal() * G.data;
                 
                 if(jnt_pos_cmd_fs == RTT::NewData){
                     jnt_trq_gazebo_cmd_ += kp_default_.asDiagonal()*(jnt_pos_cmd_-jnt_pos_) - kd_default_.asDiagonal()*jnt_vel_ ;
@@ -663,7 +664,7 @@ void LWRSim::updateHook() {
                 break;
             case FRI_CTRL_CART_IMP:
                 //Cartesian Impedance Control
-                jnt_trq_gazebo_cmd_ = G.data;
+                jnt_trq_gazebo_cmd_ = kg_.asDiagonal() * G.data;
                 
                 if(cart_pos_cmd_fs == RTT::NewData){
                     jnt_trq_gazebo_cmd_ += jac_.data.transpose()*(kc_.asDiagonal()*(X_err_) + F_cmd_ + kcd_.asDiagonal()*(Xd_err_));
