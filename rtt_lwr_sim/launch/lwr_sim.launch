@@ -1,7 +1,0 @@
-<launch>
-    <arg name="robot_name" default="lwr_sim"/>
-
-    <node name="lwr_sim_deployer" pkg="rtt_ros" type="deployer-corba" args="-s $(find rtt_lwr_sim)/scripts/lwr_sim.ops --" output="screen">
-        <param name="robot_name" value="$(arg robot_name)"/>
-    </node>
-</launch>

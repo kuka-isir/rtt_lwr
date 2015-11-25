@@ -40,124 +40,21 @@
 #include <kdl_conversions/kdl_msg.h>
 #include <eigen_conversions/eigen_msg.h>
 
+#define TORAD 3.141592653589793/180.0
+
 inline float clamp(const float& x, const float& a, const float& b)
 
 {
-
     return x < a ? a : (x > b ? b : x);
-
 }
 
 namespace lwr{
     
     class LWRSim : public RTT::TaskContext{
     public:
-        LWRSim(std::string const& name):RTT::TaskContext(name),
-        n_joints_(0),
-        urdf_str_(""),
-        robot_name_(""),
-        velocity_smoothing_factor_(.95),
-        root_link("link_0"),
-        tip_link("link_7"),
-        use_sim_clock(true),
-        dr_max_(0.1),
-        safety_checks_(false),
-        connect_to_rtt_gazebo_at_configure(true),
-        using_corba(false),
-        service_timeout_s(20.0),
-        gravity_vector(0.,0.,-9.81289)
-        {
-            //this->addAttribute("fromKRL", m_fromKRL);
-            this->addProperty("using_corba", using_corba).doc("");
-            this->addProperty("service_timeout_s", service_timeout_s).doc("");
-            //this->addAttribute("toKRL", m_toKRL);
-            
-            this->addProperty("fri_port", prop_fri_port).doc("");
-            this->addProperty("joint_offset", prop_joint_offset).doc("");
-            
-            this->addProperty("root_link", root_link).doc("");
-            this->addProperty("tip_link", tip_link).doc("");
-            this->addProperty("robot_description",urdf_str_).doc("The URDF of the Kuka");
-            this->addProperty("dr_max",dr_max_).doc("The max rot angle cmd beetween two frames");
-            this->addProperty("n_joints",n_joints_);
-            this->addProperty("use_sim_clock",use_sim_clock);
-            this->addProperty("safety_checks",safety_checks_);
-            this->addProperty("robot_name",robot_name_).doc("The name of the robot lwr/lwr_sim");
-
-            this->ports()->addPort("JointPositionGazeboCommand", port_JointPositionGazeboCommand).doc("");
-            this->ports()->addPort("JointVelocityGazeboCommand", port_JointVelocityGazeboCommand).doc("");
-            this->ports()->addPort("JointTorqueGazeboCommand", port_JointTorqueGazeboCommand).doc("");
-
-            this->ports()->addPort("JointPositionGazebo", port_JointPositionGazebo).doc("");
-            this->ports()->addPort("JointVelocityGazebo", port_JointVelocityGazebo).doc("");
-            this->ports()->addPort("JointTorqueGazebo", port_JointTorqueGazebo).doc("");
-            this->ports()->addPort("JointStateGazebo", port_JointStateGazebo).doc("");
-
-            this->ports()->addPort("CartesianImpedanceCommand", port_CartesianImpedanceCommand).doc("");
-            this->ports()->addPort("CartesianWrenchCommand", port_CartesianWrenchCommand).doc("");
-            this->ports()->addPort("CartesianPositionCommand", port_CartesianPositionCommand).doc("");
-            this->ports()->addPort("JointImpedanceCommand", port_JointImpedanceCommand).doc("");
-            this->ports()->addPort("JointPositionCommand", port_JointPositionCommand).doc("");
-            this->ports()->addPort("JointTorqueCommand", port_JointTorqueCommand).doc("");
-
-            this->ports()->addPort("toKRL",port_ToKRL).doc("");
-            //this->ports()->addPort("KRL_CMD", port_KRL_CMD).doc("");
-            this->ports()->addPort("fromKRL",port_FromKRL).doc("");
-            
-            this->ports()->addPort("CartesianWrench", port_CartesianWrench).doc("");
-            this->ports()->addPort("CartesianWrenchStamped", port_CartesianWrenchStamped).doc("");
-            this->ports()->addPort("RobotState", port_RobotState).doc("");
-            this->ports()->addPort("FRIState", port_FRIState).doc("");
-            this->ports()->addPort("JointVelocity", port_JointVelocity).doc("");
-            this->ports()->addPort("CartesianVelocity", port_CartesianVelocity).doc("");
-            this->ports()->addPort("CartesianPosition", port_CartesianPosition).doc("");
-            this->ports()->addPort("MassMatrix", port_MassMatrix).doc("");
-            this->ports()->addPort("Jacobian", port_Jacobian).doc("");
-            this->ports()->addPort("JointTorque", port_JointTorque).doc("");
-            this->ports()->addPort("GravityTorque", port_GravityTorque).doc("");
-            this->ports()->addPort("JointPosition", port_JointPosition).doc("");
-            //this->ports()->addPort("JointTorqueRaw", port_JointTorqueRaw).doc("");
-            //this->ports()->addPort("JointPositionFRIOffset", port_JointPositionFRIOffset).doc("");
-
-            this->ports()->addPort("JointState",port_JointState).doc("");
-            this->ports()->addPort("JointStateCommand",port_JointStateCommand).doc("");
-            this->ports()->addPort("JointStateFiltered",port_JointStateFiltered).doc("");
-            this->ports()->addPort("JointStateGravity",port_JointStateGravity).doc("");
-            
-            
-            this->addProperty("kp",kp_);
-            this->addProperty("kd",kd_);
-            this->addProperty("kg",kg_);
-            this->addProperty("kc",kc_);
-            this->addProperty("kcd",kcd_);
-            
-            this->addProperty("smoothing_factor",velocity_smoothing_factor_);
-            this->addOperation("setJointImpedance",&LWRSim::setJointImpedance,this,RTT::OwnThread);
-            this->addOperation("connectToGazeboCORBA",&LWRSim::connectToGazeboCORBA,this,RTT::OwnThread);
-            this->addOperation("setCartesianImpedance",&LWRSim::setCartesianImpedance,this,RTT::OwnThread);
-            this->addOperation("setGravityMode",&LWRSim::setGravityMode,this,RTT::OwnThread);
-            this->addOperation("resetJointImpedanceGains",&LWRSim::resetJointImpedanceGains,this,RTT::OwnThread);
-            
-            this->addOperation("setJointImpedanceMode",&LWRSim::setJointImpedanceMode,this,RTT::OwnThread);
-            this->addOperation("setCartesianImpedanceMode",&LWRSim::setCartesianImpedanceMode,this,RTT::OwnThread);
-            
-            this->addOperation("setInitialJointPosition",&LWRSim::setInitialJointPosition,this,RTT::OwnThread);
-            
-            this->provides("debug")->addAttribute("read_start",this->read_start);
-            this->provides("debug")->addAttribute("write_start",this->write_start);
-            this->provides("debug")->addAttribute("read_duration",this->read_duration);
-            this->provides("debug")->addAttribute("id_duration",this->id_duration);
-            this->provides("debug")->addAttribute("fk_duration",this->fk_duration);
-            this->provides("debug")->addAttribute("ik_duration",this->ik_duration);
-            this->provides("debug")->addAttribute("write_duration",this->write_duration);
-            this->provides("debug")->addAttribute("updatehook_duration",this->updatehook_duration);
-            this->provides("debug")->addAttribute("period_sim",this->period_sim_);
-            
-            this->addOperation("waitForROSService",&LWRSim::waitForROSService,this,RTT::OwnThread);
-        }
+        LWRSim(std::string const& name);
         bool configureHook();
         void updateHook();
-        virtual ~LWRSim(){};
         
     protected:
         bool connectToGazeboCORBA(const std::string& gazebo_deployer_name,const std::string& gazebo_robot_comp_name);
@@ -225,9 +122,9 @@ namespace lwr{
                             joint_velocity_gazebo_cmd,
                             joint_torque_gazebo_cmd;
         
-        std::vector<double> pos_limits_,
-                            vel_limits_,
-                            trq_limits_;
+        Eigen::VectorXd pos_limits_,
+                        vel_limits_,
+                        trq_limits_;
                             
         Eigen::VectorXd jnt_pos_,
                         jnt_pos_fri_offset,
@@ -289,15 +186,12 @@ namespace lwr{
         std::string urdf_str_;
         urdf::Model urdf_model_;
         KDL::Tree kdl_tree_;
-        KDL::Chain kdl_chain_;
-        KDL::Chain kukaLWR_DHnew;
-        
+        KDL::Chain kdl_chain_;        
         
         boost::scoped_ptr<KDL::ChainFkSolverVel_recursive> fk_vel_solver;
         boost::scoped_ptr<KDL::ChainDynParam> id_dyn_solver;
         boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver;
         boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver;
-        boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver_add_;
         
         bool safety_checks_;
 
@@ -313,20 +207,15 @@ namespace lwr{
         Eigen::Matrix<double,6,1>   kc_,
                                     kcd_,
                                     kc_default_,
-                                    kcd_default_;
-                   
-        double velocity_smoothing_factor_;
-        
+                                    kcd_default_;        
         std::string robot_name_;
         
-        sensor_msgs::JointState joint_state_filtered_,
-                                joint_state_,
+        sensor_msgs::JointState joint_state_,
                                 joint_state_cmd_,
                                 joint_state_gravity_,
                                 joint_state_dyn_;
                                 
         RTT::OutputPort<sensor_msgs::JointState> port_JointState,
-                                                 port_JointStateFiltered,
                                                  port_JointStateCommand,
                                                  port_JointStateGravity,
                                                  port_JointStateDynamics;
@@ -337,15 +226,14 @@ namespace lwr{
         
         bool use_sim_clock;
 
-        bool safetyChecks(const std::vector<double>& position,const std::vector<double>& velocity,const std::vector<double>& torque);
-        bool safetyCheck(const std::vector<double>& v, const std::vector<double>& limits,const std::string& name="");
+        bool safetyChecks(const Eigen::VectorXd& position,const Eigen::VectorXd& velocity,const Eigen::VectorXd& torque);
+        bool safetyCheck(const Eigen::VectorXd& v, const Eigen::VectorXd& limits,const std::string& name="");
         void updateJointImpedance(const lwr_fri::FriJointImpedance& impedance);
         void updateCartesianImpedance(const lwr_fri::CartesianImpedance& cart_impedance);
         
         //KDL Stuff
         KDL::Wrenches f_ext;
-        KDL::Wrenches f_ext_add;
-        KDL::JntArray G,qdot,qddot,jnt_trq_kdl_,jnt_trq_kdl_add_;
+        KDL::JntArray G,qdot,qddot,jnt_trq_kdl_,jnt_trq_coriolis_kdl_;
         KDL::Wrench cart_wrench_kdl_;
         KDL::JntArrayVel q;
         KDL::JntSpaceInertiaMatrix H;
