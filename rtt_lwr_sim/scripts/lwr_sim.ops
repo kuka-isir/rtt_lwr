@@ -20,7 +20,7 @@ while(!loadComponent("gazebo","CORBA")) {
     trials = trials -1;
     if(trials == 0) then {
         print.ln("\n********************* COULD NOT LOAD CORBA **********************\n");
-        return;
+        break;
     }
 }
 
@@ -31,6 +31,7 @@ if(trials != 0) then{
         lwr_sim.using_corba=true;
     }
 }else{
+    print.ln("\n********************* Using ROS instead of CORBA (experimental) **********************\n");
     lwr_sim.using_corba=false;
 }
 
