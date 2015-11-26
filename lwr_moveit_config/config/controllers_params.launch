@@ -21,8 +21,8 @@
       verbose: true
     </rosparam>
     <rosparam if="$(arg ee_empty)" subst_value="true">
-      p_gains: [250.0, 250.0, 250.0, 250.0, 150.0, 40.0, 40.0]
-      d_gains: [31.6, 31.6, 31.6, 31.6, 24.5, 12.6, 12.6]
+      p_gains: [450.0, 450.0, 200.0, 200.0, 200.0, 20.0, 10.0]
+      d_gains: [1.0, 1.0, 0.7, 0.7, 0.7, 0.1, 0.0]
       position_tolerance: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
       velocity_tolerance: [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
     </rosparam>
