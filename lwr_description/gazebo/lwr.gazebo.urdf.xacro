@@ -5,7 +5,18 @@
     <xacro:arg name="load_base" default="false"/>
     <xacro:arg name="load_handle" default="false"/>
     <xacro:arg name="load_calib_tool" default="false"/>
-    
+
+    <xacro:macro name="gz_ft_sensor" params="joint_name">
+        <gazebo>
+            <plugin name="ft_sensor_${joint_name}" filename="libgazebo_ros_ft_sensor.so">
+                <jointName>${joint_name}</jointName>
+                <topicName>lwr_gazebo/ft_sensor_${joint_name}</topicName>
+                <updateRate>1000</updateRate>
+                <gaussianNoise>0.0001</gaussianNoise>
+            </plugin>
+        </gazebo>
+     </xacro:macro>
+
 	<xacro:macro  name="gz_joint" params="joint_name">
 		<gazebo reference="${joint_name}">
 			<provideFeedback>true</provideFeedback>
@@ -28,33 +39,33 @@
 			    <orocosScript><filename>$(find rtt_lwr_gazebo)/scripts/lwr_gazebo.ops</filename></orocosScript>
 			</plugin>
   		</gazebo>
-                
+
 		<!-- ati_sensor (need gazebo >4.0, see ati_sensor.urdf.xacro) -->
 		<xacro:if value="$(arg load_ati_sensor)">
-                    
+
                     <!-- Use a fixed joint in gazebo -->
                     <gazebo reference="ati_base_joint">
                         <disableFixedJointLumping>true</disableFixedJointLumping>
                     </gazebo>
-                    
+
                     <gazebo reference="ati_joint">
 			<provideFeedback>true</provideFeedback>
                         <disableFixedJointLumping>true</disableFixedJointLumping>
                     </gazebo>
-                    
+
                     <gazebo reference="ati_base_link">
                         <material>Gazebo/Grey</material>
                     </gazebo>
-                    
+
                     <gazebo reference="ati_link">
-                        <!-- gravity tag does not work for some reason , 
-                        so we have to update the lwr_gazebo ops 
+                        <!-- gravity tag does not work for some reason ,
+                        so we have to update the lwr_gazebo ops
                         with lwr_gazebo.setLinkGravityMode("ati_link",false) -->
-                        
+
                         <gravity>false</gravity>
                         <material>Gazebo/Grey</material>
                     </gazebo>
-                    
+
                     <gazebo>
                         <plugin name="ft_sensor" filename="libgazebo_ros_ft_sensor.so">
                             <jointName>ati_joint</jointName>
@@ -64,7 +75,15 @@
                         </plugin>
                     </gazebo>
 		</xacro:if>
-                
+            <gazebo>
+    			<plugin name="gz_state_pub" filename="libgazebo_ros_joint_state_publisher.so">
+    				<!--robotNamespace>~</robotNamespace-->
+                  <jointName>joint_0,joint_1,joint_2,joint_3,joint_4,joint_5,joint_6</jointName>
+    			  <updateRate>100</updateRate>
+                  <alwaysOn>true</alwaysOn>
+    			</plugin>
+            </gazebo>
+
                 <xacro:if value="$(arg load_handle)">
                     <gazebo reference="handle_link">
                         <material>Gazebo/White</material>
@@ -76,20 +95,20 @@
                         <material>Gazebo/Grey</material>
                     </gazebo>
                 </xacro:if>
-                
+
                 <!-- base_link and link_0 are fixed, so merged by gazebo -->
                 <xacro:unless value="$(arg load_base)">
                     <gazebo reference="base_link">
                         <material>Gazebo/Orange</material>
                     </gazebo>
                 </xacro:unless>
-                
+
                 <xacro:if value="$(arg load_calib_tool)">
                     <gazebo reference="calib_link">
                         <material>Gazebo/White</material>
                     </gazebo>
-                </xacro:if>   
-                
+                </xacro:if>
+
   		<xacro:gz_joint joint_name="joint_0"/>
   		<xacro:gz_joint joint_name="joint_1"/>
   		<xacro:gz_joint joint_name="joint_2"/>
@@ -97,6 +116,14 @@
   		<xacro:gz_joint joint_name="joint_4"/>
   		<xacro:gz_joint joint_name="joint_5"/>
   		<xacro:gz_joint joint_name="joint_6"/>
+
+        <!--xacro:gz_ft_sensor joint_name="joint_0"/-->
+        <!--xacro:gz_ft_sensor joint_name="joint_1"/-->
+        <!--xacro:gz_ft_sensor joint_name="joint_2"/-->
+        <!--xacro:gz_ft_sensor joint_name="joint_3"/-->
+        <!--xacro:gz_ft_sensor joint_name="joint_4"/-->
+        <!--xacro:gz_ft_sensor joint_name="joint_5"/-->
+        <!--xacro:gz_ft_sensor joint_name="joint_6"/-->
 
 		<gazebo reference="link_1">
 			<material>Gazebo/Orange</material>
