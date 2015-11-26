@@ -1,7 +1,7 @@
 // Start LWR SIMULATION
 import("rtt_ros")
 ros.import("rtt_rospack")
-
+ros.import("rtt_rosclock")
 
 ros.import("conman")
 ros.import("conman_ros")
@@ -9,15 +9,18 @@ loadComponent("scheme","conman::Scheme")
 setActivity("scheme",0.001,10,ORO_SCHED_RT)
 scheme.loadService("conman_ros")
 
-
 runScript(ros.find("rtt_lwr_sim")+"/scripts/lwr_sim.ops")
 
+// Load sim clock
+loadService("scheme","sim_clock_activity")
+ros.clock.useROSClockTopic()
+ros.clock.enableSimClock()
 
 lwr_sim.setJointImpedanceMode()
 
 
 ros.import("lcsr_controllers")
-runScript(ros.find("rtt_state_publisher")+"/scripts/run_sim.ops")
+//runScript(ros.find("rtt_state_publisher")+"/scripts/run_sim.ops")
 
 
 loadComponent("pid","lcsr_controllers::JointPIDController")
@@ -44,7 +47,7 @@ traj_rml.configure()
 
 
 connectPeers("scheme","lwr_sim")
-connectPeers("scheme","state_pub")
+//connectPeers("scheme","state_pub")
 connectPeers("scheme","pid")
 connectPeers("scheme","traj_rml")
 
@@ -53,12 +56,12 @@ scheme.addBlock("pid")
 scheme.addBlock("traj_rml")
 
 scheme.addGroup("robots")
-scheme.addGroup("state_estimation")
+//scheme.addGroup("state_estimation")
 scheme.addGroup("joint_control")
 scheme.addGroup("traj_control")
 
 scheme.addToGroup("lwr_sim","robots")
-scheme.addToGroup("state_pub","state_estimation")
+//scheme.addToGroup("state_pub","state_estimation")
 scheme.addToGroup("pid","joint_control")
 scheme.addToGroup("traj_rml","traj_control")
 
@@ -70,11 +73,8 @@ scheme.configure()
 
 
 scheme.enableBlock("robots",true)
-scheme.enableBlock("state_estimation",true)
+//scheme.enableBlock("state_estimation",true)
 scheme.enableBlock("joint_control",true)
 scheme.enableBlock("traj_control",true)
 
 scheme.start()
-
-
-

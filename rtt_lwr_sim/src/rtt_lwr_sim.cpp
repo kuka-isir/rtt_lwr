@@ -143,7 +143,7 @@ void LWRSim::setInitialJointPosition(const std::vector< double > j_init)
         return;
     }
     joint_state_cmd_.position = j_init;
-    
+
     if(using_corba)
     {
         log(Warning) << "Writing to CORBA " << joint_state_cmd_ << endlog();
@@ -170,29 +170,29 @@ bool LWRSim::configureHook(){
 
     log(Info)<<"root_link : "<<root_link<<endlog();
     log(Info)<<"tip_link : "<<tip_link<<endlog();
-        
+
     if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,kdl_tree_,kdl_chain_))
     {
         log(Error) << "Error while loading the URDF with params : "<<robot_name_<<" "<<root_link<<" "<<tip_link <<endlog();
         return false;
     }
-    
+
     id_dyn_solver.reset(new ChainDynParam(kdl_chain_,gravity_vector));
     id_rne_solver.reset(new ChainIdSolver_RNE(kdl_chain_,gravity_vector));
     fk_vel_solver.reset(new ChainFkSolverVel_recursive(kdl_chain_));
     jnt_to_jac_solver.reset(new ChainJntToJacSolver(kdl_chain_));
-                  
+
     // Store the number of degrees of freedom of the chain
     n_joints_ = kdl_chain_.getNrOfJoints();
 
     log(Debug)<<"LWR njoints : "<<LBR_MNJ<<" Segments : "<<kdl_chain_.getNrOfSegments()<<endlog();
-    
+
     if(n_joints_ =! LBR_MNJ)
     {
         log(Error)<<"Number of joints error : found "<<LBR_MNJ<<endlog();
         return false;
     }
-    
+
     // In from gazebo
     joint_position_gazebo.resize(LBR_MNJ,0.0);
     joint_velocity_gazebo.resize(LBR_MNJ,0.0);
@@ -223,7 +223,7 @@ bool LWRSim::configureHook(){
     jnt_trq_gazebo_cmd_.resize(LBR_MNJ);
     prop_joint_offset.resize(LBR_MNJ);
     std::fill(prop_joint_offset.begin(),prop_joint_offset.end(),0.0);
-    
+
     jnt_trq_gazebo_cmd_.setZero();
     jnt_pos_.setZero();
     jnt_pos_fri_offset.setZero();
@@ -235,7 +235,7 @@ bool LWRSim::configureHook(){
     jnt_pos_cmd_.setZero();
     jnt_trq_cmd_.setZero();
     mass_.setZero();// = MatrixXd::Zero(LBR_MNJ,LBR_MNJ);
-    
+
     kp_.resize(LBR_MNJ);
     kd_.resize(LBR_MNJ);
     kg_.resize(LBR_MNJ);
@@ -246,7 +246,7 @@ bool LWRSim::configureHook(){
     kcd_.resize(6);
     kc_default_.resize(6);
     kcd_default_.resize(6);
-     
+
     for(int i=0;i<FRI_USER_SIZE;i++)
     {
         fri_from_krl.realData[i]=0;
@@ -264,7 +264,7 @@ bool LWRSim::configureHook(){
     port_JointStateCommand.setDataSample(joint_state_cmd_);
     port_JointStateGravity.setDataSample(joint_state_gravity_);
     port_JointStateDynamics.setDataSample(joint_state_dyn_);
-    
+
     port_JointPosition.setDataSample(jnt_pos_);
     //port_JointPositionFRIOffset.setDataSample(jnt_pos_fri_offset);
     port_JointVelocity.setDataSample(jnt_vel_);
@@ -277,42 +277,42 @@ bool LWRSim::configureHook(){
 
 
     port_JointState.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states"));
-    
+
     port_JointStateGravity.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states_gravity"));
     port_JointStateDynamics.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states_dynamics"));
-        
+
     port_CartesianPositionStamped.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/cartesian_pose"));
     //port_CartesianVelocity.createStream(rtt_roscomm::topic("/"+this->getName()+"/cartesian_twist"));
     //port_CartesianWrench.createStream(rtt_roscomm::topic("/"+this->getName()+"/cartesian_wrench"));
-    
+
     //port_CartesianWrenchStamped.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/cartesian_wrench"));
-    
+
     q.resize(LBR_MNJ);
     f_ext.resize(kdl_chain_.getNrOfSegments());
     G.resize(LBR_MNJ);
     qdot.resize(LBR_MNJ);
     qddot.resize(LBR_MNJ);
     jnt_trq_kdl_.resize(LBR_MNJ);
-    
+
     robot_state.control = static_cast<fri_uint16_t>(FRI_CTRL_POSITION);
     fri_state.quality = static_cast<fri_uint16_t>(FRI_QUALITY_PERFECT);
     fri_to_krl.intData[0] = FRI_STATE_MON;
     fri_from_krl.intData[0] = FRI_STATE_MON;
-    
+
     pos_limits_.resize(LBR_MNJ);
     vel_limits_.resize(LBR_MNJ);
     trq_limits_.resize(LBR_MNJ);
     pos_limits_ << 170*TORAD,120*TORAD,170*TORAD,120*TORAD,170*TORAD,120*TORAD,170*TORAD;
     vel_limits_ << 112.5*TORAD,112.5*TORAD,112.5*TORAD,112.5*TORAD,180*TORAD,112.5*TORAD,112.5*TORAD;
     trq_limits_ << 200,200,100,100,100,30,30;
-    
-       
+
+
     resetJointImpedanceGains();
     resetCartesianImpedanceGains();
 
     // This is necessary to plot the data as gazebo sets the clock
     // Note: Connections are still made and working, it's again just for plotting/recording
-    if(use_sim_clock){
+    if(false && use_sim_clock){
         Logger::Instance()->in(getName());
         log(Warning) << "Using ROS Sim Clock" << endlog();
         rtt_rosclock::use_ros_clock_topic();
@@ -361,7 +361,7 @@ bool LWRSim::safetyCheck(const VectorXd& v,
         log(Error) << name<<" vector size error "<<v.size()<<"!="<<LBR_MNJ<<endlog();
         return false;
     }
-    
+
     bool ret=true;
     for(unsigned i=0;i<v.size();i++)
     {
@@ -383,16 +383,16 @@ bool LWRSim::setJointImpedance(const VectorXd& stiffness, const VectorXd& dampin
                             <<", should be "<<LBR_MNJ<<")"<<endlog();
         return false;
     }
-    
+
     for(unsigned j=0;j<LBR_MNJ;++j)
     {
         jnt_imp_.stiffness[j] = stiffness[j];
         jnt_imp_.damping[j] = damping[j];
     }
-    
+
     kp_ = stiffness;
     kd_ = damping;
-    
+
     return true;
 }
 bool LWRSim::setGravityMode()
@@ -417,22 +417,22 @@ bool LWRSim::setCartesianImpedance(const Matrix< double, 6, 1 >& cart_stiffness,
     cart_imp_.stiffness.linear.x = cart_stiffness[0];
     cart_imp_.stiffness.linear.y = cart_stiffness[1];
     cart_imp_.stiffness.linear.z = cart_stiffness[2];
-    
+
     cart_imp_.stiffness.angular.x = cart_stiffness[3];
     cart_imp_.stiffness.angular.y = cart_stiffness[4];
     cart_imp_.stiffness.angular.z = cart_stiffness[5];
-    
+
     cart_imp_.damping.linear.x = cart_damping[0];
     cart_imp_.damping.linear.y = cart_damping[1];
     cart_imp_.damping.linear.z = cart_damping[2];
-    
+
     cart_imp_.damping.angular.x = cart_damping[3];
     cart_imp_.damping.angular.y = cart_damping[4];
     cart_imp_.damping.angular.z = cart_damping[5];
-    
+
     kc_ = cart_stiffness;
     kcd_ = cart_damping;
-    
+
     return true;
 }
 
@@ -445,7 +445,7 @@ void LWRSim::updateJointImpedance(const lwr_fri::FriJointImpedance& impedance)
     kp_[4] = clamp(impedance.stiffness[4],0.0,200.0);   kd_[4] = clamp(impedance.damping[4],0.0,0.7);
     kp_[5] = clamp(impedance.stiffness[5],0.0,10.0);   kd_[5] = clamp(impedance.damping[5],0.0,0.1);
     kp_[6] = clamp(impedance.stiffness[6],0.0,10.0);   kd_[6] = clamp(impedance.damping[6],0.0,0.0);
-    
+
 }
 
 void LWRSim::updateCartesianImpedance(const lwr_fri::CartesianImpedance& cart_impedance)
@@ -453,19 +453,19 @@ void LWRSim::updateCartesianImpedance(const lwr_fri::CartesianImpedance& cart_im
     kc_[0] = cart_impedance.stiffness.linear.x;
     kc_[1] = cart_impedance.stiffness.linear.y;
     kc_[2] = cart_impedance.stiffness.linear.z;
-    
+
     kc_[3] = cart_impedance.stiffness.angular.x;
     kc_[4] = cart_impedance.stiffness.angular.y;
     kc_[5] = cart_impedance.stiffness.angular.z;
-    
+
     kcd_[0] = cart_impedance.damping.linear.x;
     kcd_[1] = cart_impedance.damping.linear.y;
     kcd_[2] = cart_impedance.damping.linear.z;
-    
+
     kcd_[3] = cart_impedance.damping.angular.x;
     kcd_[4] = cart_impedance.damping.angular.y;
     kcd_[5] = cart_impedance.damping.angular.z;
-    
+
     cart_imp_ = cart_impedance;
 }
 
@@ -485,17 +485,17 @@ void LWRSim::updateHook() {
     double rtt_time_ = 1E-9*os::TimeService::ticks2nsecs(os::TimeService::Instance()->getTicks());
     period_sim_ = rtt_time_ - last_update_time_sim;
     last_update_time_sim = rtt_time_;
-        
+
     read_start = rtt_rosclock::host_now().toSec();
     // Read From gazebo simulation
-    if(using_corba && (port_JointPositionGazebo.connected() 
-        || port_JointVelocityGazebo.connected() 
+    if(using_corba && (port_JointPositionGazebo.connected()
+        || port_JointVelocityGazebo.connected()
         || port_JointTorqueGazebo.connected()))
     {
         FlowStatus fs_p = port_JointPositionGazebo.read(joint_position_gazebo);
         FlowStatus fs_v = port_JointVelocityGazebo.read(joint_velocity_gazebo);
         FlowStatus fs_g = port_JointTorqueGazebo.read(joint_torque_gazebo);
-        
+
         if(fs_g == NoData || fs_p == NoData || fs_v == NoData){
             log(Warning)  << getName() << ": NoData" << endlog();
             return;
@@ -507,11 +507,11 @@ void LWRSim::updateHook() {
             joint_velocity_gazebo = joint_state_.velocity;
             joint_torque_gazebo = joint_state_.effort;
         }
-        
+
     }
-    
+
     joint_state_cmd_.header.frame_id = "";
-    
+
     jnt_trq_cmd_fs = port_JointTorqueCommand.read(jnt_trq_cmd_);
     jnt_pos_cmd_fs = port_JointPositionCommand.read(jnt_pos_cmd_);
     cart_pos_cmd_fs = port_CartesianPositionCommand.read(cart_pos_cmd_);
@@ -519,7 +519,7 @@ void LWRSim::updateHook() {
     FlowStatus fs_fri_to_krl = port_ToKRL.read(fri_to_krl);
     FlowStatus fs_jnt_imp_cmd = port_JointImpedanceCommand.read(jnt_imp_cmd_);
     FlowStatus fs_cart_imp_cmd = port_CartesianImpedanceCommand.read(cart_imp_cmd_);
-    
+
     fri_state.timestamp = read_start;
 
     if(fs_fri_to_krl == NewData)
@@ -561,7 +561,7 @@ void LWRSim::updateHook() {
                 robot_state.power = 0;
                 break;
         }
-    
+
     jnt_pos_ = VectorXd::Map(joint_position_gazebo.data(),LBR_MNJ);
     jnt_vel_ = VectorXd::Map(joint_velocity_gazebo.data(),LBR_MNJ);
     jnt_trq_ = VectorXd::Map(joint_torque_gazebo.data(),LBR_MNJ);
@@ -571,10 +571,10 @@ void LWRSim::updateHook() {
 
     // Waiting for CartesianVelocityCommand
     Xd_cmd_.setZero();
-    
+
     if(fs_jnt_imp_cmd == NewData)
         updateJointImpedance(jnt_imp_cmd_);
-    
+
     if(fs_cart_imp_cmd == NewData)
         updateCartesianImpedance(cart_imp_cmd_);
 
@@ -584,17 +584,17 @@ void LWRSim::updateHook() {
     q.qdot.data = jnt_vel_;
     qdot.data = jnt_vel_;
     qddot.data.setConstant(0.0);
-    
+
     id_dyn_solver->JntToMass(q.q,H);
     mass_ = H.data;
-    
+
     std::fill(f_ext.begin(),f_ext.end(),Wrench::Zero());
-    
+
     id_rne_solver->CartToJnt(q.q,qdot,qddot,f_ext,jnt_trq_kdl_);
-        
+
     id_dyn_solver->JntToGravity(q.q,G);
     id_dyn_solver->JntToCoriolis(q.q,q.qdot,jnt_trq_coriolis_kdl_);
-    
+
     Map<VectorXd>(joint_state_dyn_.position.data(),LBR_MNJ) = G.data;
     Map<VectorXd>(joint_state_dyn_.velocity.data(),LBR_MNJ) = jnt_trq_coriolis_kdl_.data;
     Map<VectorXd>(joint_state_dyn_.effort.data(),LBR_MNJ) = jnt_trq_kdl_.data;
@@ -607,41 +607,41 @@ void LWRSim::updateHook() {
     ee_frame_kdl_ = ee_framevel_kdl_.GetFrame();
 
     tf::poseKDLToMsg(ee_frame_kdl_,cart_pos_);
-    tf::twistKDLToMsg(ee_twist_kdl_,cart_twist_); 
-    
+    tf::twistKDLToMsg(ee_twist_kdl_,cart_twist_);
+
     cart_pos_stamped_.header.frame_id = root_link;
     cart_pos_stamped_.pose = cart_pos_;
 
-    
+
     //ee_twist_des_kdl_.SetToZero();
     SetToZero(ee_twist_des_kdl_);
     ee_twist_diff_kdl_ = diff(ee_twist_kdl_,ee_twist_des_kdl_);
     tf::twistKDLToEigen(ee_twist_diff_kdl_,Xd_err_);
-    
+
     if(cart_pos_cmd_fs == NewData){
         tf::poseMsgToKDL(cart_pos_cmd_,ee_frame_des_kdl_);
         ee_frame_diff_kdl_ = diff(ee_frame_kdl_,ee_frame_des_kdl_);
         tf::twistKDLToEigen(ee_frame_diff_kdl_,X_err_);
     }
-    
-    
+
+
     F_cmd_.setZero();
     if(cart_wrench_cmd_fs == NewData)
         tf::wrenchMsgToEigen(cart_wrench_cmd_,F_cmd_);
-    
+
     if(jnt_trq_cmd_fs != NewData)
-        jnt_trq_cmd_.setZero();    
-    
+        jnt_trq_cmd_.setZero();
+
     cart_wrench_stamped_.header.frame_id = tip_link;
     cart_wrench_stamped_.wrench = cart_wrench_;
-    
+
     // Send at least Gravity
 
       switch(static_cast<FRI_CTRL>(robot_state.control)){
             case FRI_CTRL_JNT_IMP:
                 // Joint Impedance Control
                 jnt_trq_gazebo_cmd_ = kg_.asDiagonal() * G.data;
-                
+
                 // Joint Impedance part
                 if(jnt_pos_cmd_fs == NewData){
                     jnt_trq_gazebo_cmd_ += kp_.asDiagonal()*(jnt_pos_cmd_ - jnt_pos_) - kd_.asDiagonal()*jnt_vel_ ;
@@ -649,64 +649,64 @@ void LWRSim::updateHook() {
                 // Additional torque
                 if(jnt_trq_cmd_fs != NoData)
                     jnt_trq_gazebo_cmd_ += jnt_trq_cmd_;
-                    
+
                 Map<VectorXd>(joint_torque_gazebo_cmd.data(),LBR_MNJ) = jnt_trq_gazebo_cmd_;
                 port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
                 joint_state_cmd_.header.frame_id = "EFFORT_CMD";
-                
+
                 break;
             case FRI_CTRL_POSITION:
                 //Position Control
                 jnt_trq_gazebo_cmd_ = kg_.asDiagonal() * G.data;
-                
+
                 if(jnt_pos_cmd_fs == NewData){
                     jnt_trq_gazebo_cmd_ += kp_default_.asDiagonal()*(jnt_pos_cmd_-jnt_pos_) - kd_default_.asDiagonal()*jnt_vel_ ;
                 }
-                
+
                 Map<VectorXd>(joint_torque_gazebo_cmd.data(),LBR_MNJ) = jnt_trq_gazebo_cmd_;
                 port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
                 joint_state_cmd_.header.frame_id = "EFFORT_CMD";
-                
+
                 break;
             case FRI_CTRL_CART_IMP:
                 //Cartesian Impedance Control
                 jnt_trq_gazebo_cmd_ = kg_.asDiagonal() * G.data;
-                
+
                 if(cart_pos_cmd_fs == NewData){
                     jnt_trq_gazebo_cmd_ += jac_.data.transpose()*(kc_.asDiagonal()*(X_err_) + F_cmd_ + kcd_.asDiagonal()*(Xd_err_));
                 }
-                
+
                 Map<VectorXd>(joint_torque_gazebo_cmd.data(),LBR_MNJ) = jnt_trq_gazebo_cmd_;
                 port_JointTorqueGazeboCommand.write(joint_torque_gazebo_cmd);
                 joint_state_cmd_.header.frame_id = "EFFORT_CMD";
-                
+
                 break;
             default:
                 break;
       }
-    
+
     now = rtt_rosclock::host_now();
     write_start = now.toSec();
     //Update status
     cart_pos_stamped_.header.stamp = now;
     cart_wrench_stamped_.header.stamp = now;
     joint_state_.header.stamp = now;
-    
+
     joint_state_cmd_.header.stamp = now;
     joint_state_gravity_.header.stamp = now;
     joint_state_dyn_.header.stamp = now;
 
     Map<VectorXd>(joint_state_gravity_.effort.data(),LBR_MNJ) = grav_trq_;
-    
+
     Map<VectorXd>(joint_state_.position.data(),LBR_MNJ) = jnt_pos_;
     Map<VectorXd>(joint_state_.velocity.data(),LBR_MNJ) = jnt_vel_;
     Map<VectorXd>(joint_state_.effort.data(),LBR_MNJ) = jnt_trq_;
 
     if(jnt_pos_cmd_fs == NewData /*&& init_pos_requested==false*/)
         Map<VectorXd>(joint_state_cmd_.position.data(),LBR_MNJ) = jnt_pos_cmd_;
-    
+
     joint_state_cmd_.effort = joint_torque_gazebo_cmd;
-    
+
     port_JointState.write(joint_state_);
     port_JointStateDynamics.write(joint_state_dyn_);
 
@@ -720,22 +720,21 @@ void LWRSim::updateHook() {
     port_CartesianVelocity.write(cart_twist_);
     port_CartesianWrench.write(cart_wrench_);
     port_CartesianWrenchStamped.write(cart_wrench_stamped_);
-    
+
     port_Jacobian.write(jac_);
     port_MassMatrix.write(mass_);
-    
+
     if(init_pos_requested){
         joint_state_cmd_.header.frame_id="POSITION_CMD";
         init_pos_requested=false;
     }
     port_JointStateCommand.write(joint_state_cmd_);
     port_FromKRL.write(fri_from_krl);
-    
+
     port_RobotState.write(robot_state);
     port_FRIState.write(fri_state);
-    
+
     write_duration = (rtt_rosclock::host_now().toSec() - write_start);
     updatehook_duration = (rtt_rosclock::host_now().toSec() - read_start);
 
 }
-
