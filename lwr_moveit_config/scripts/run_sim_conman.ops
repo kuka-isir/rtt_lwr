@@ -9,7 +9,7 @@ loadComponent("scheme","conman::Scheme")
 setActivity("scheme",0.001,10,ORO_SCHED_RT)
 scheme.loadService("conman_ros")
 
-runScript(ros.find("rtt_lwr_sim")+"/scripts/lwr_sim.ops")
+runScript(ros.find("rtt_lwr_sim")+"/scripts/lwr_sim_no_simclock.ops")
 
 // Load sim clock
 loadService("scheme","sim_clock_activity")
@@ -17,10 +17,10 @@ ros.clock.useROSClockTopic()
 ros.clock.enableSimClock()
 
 lwr_sim.setJointImpedanceMode()
-
+//lwr_sim.setInitialJointPosition(array(1.0,0.,0.0,-1.57,0.0,1.57,0.))
 
 ros.import("lcsr_controllers")
-//runScript(ros.find("rtt_state_publisher")+"/scripts/run_sim.ops")
+runScript(ros.find("rtt_state_publisher")+"/scripts/run_sim.ops")
 
 
 loadComponent("pid","lcsr_controllers::JointPIDController")
@@ -38,16 +38,14 @@ connect("lwr_sim.JointPosition", "traj_rml.joint_position_in",ConnPolicy());
 connect("lwr_sim.JointVelocity", "traj_rml.joint_velocity_in",ConnPolicy());
 connect("traj_rml.joint_position_out", "pid.joint_position_cmd_in",ConnPolicy());
 connect("traj_rml.joint_velocity_out", "pid.joint_velocity_cmd_in",ConnPolicy());
-
+connect("traj_rml.joint_acceleration_out", "pid.joint_acceleration_cmd_in",ConnPolicy());
 
 pid.configure()
 traj_rml.configure()
 
 
-
-
 connectPeers("scheme","lwr_sim")
-//connectPeers("scheme","state_pub")
+connectPeers("scheme","state_pub")
 connectPeers("scheme","pid")
 connectPeers("scheme","traj_rml")
 
@@ -56,12 +54,12 @@ scheme.addBlock("pid")
 scheme.addBlock("traj_rml")
 
 scheme.addGroup("robots")
-//scheme.addGroup("state_estimation")
+scheme.addGroup("state_estimation")
 scheme.addGroup("joint_control")
 scheme.addGroup("traj_control")
 
 scheme.addToGroup("lwr_sim","robots")
-//scheme.addToGroup("state_pub","state_estimation")
+scheme.addToGroup("state_pub","state_estimation")
 scheme.addToGroup("pid","joint_control")
 scheme.addToGroup("traj_rml","traj_control")
 
@@ -73,7 +71,7 @@ scheme.configure()
 
 
 scheme.enableBlock("robots",true)
-//scheme.enableBlock("state_estimation",true)
+scheme.enableBlock("state_estimation",true)
 scheme.enableBlock("joint_control",true)
 scheme.enableBlock("traj_control",true)
 
