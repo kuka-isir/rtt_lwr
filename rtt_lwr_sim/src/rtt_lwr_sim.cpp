@@ -277,6 +277,7 @@ bool LWRSim::configureHook(){
 
 
     port_JointState.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states"));
+    port_JointStateCommand.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states_cmd"));
 
     port_JointStateGravity.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states_gravity"));
     port_JointStateDynamics.createStream(rtt_roscomm::topic(/*"~"+*/this->getName()+"/joint_states_dynamics"));
@@ -438,6 +439,14 @@ bool LWRSim::setCartesianImpedance(const Matrix< double, 6, 1 >& cart_stiffness,
 
 void LWRSim::updateJointImpedance(const lwr_fri::FriJointImpedance& impedance)
 {
+    for(unsigned int i=0;i<LBR_MNJ;i++)
+    {
+        if(impedance.stiffness[i] >=0)
+            kp_[i] = impedance.stiffness[i];
+        if(impedance.damping[i] >= 0)
+            kd_[i] = impedance.damping[i];
+    }
+    /*
     kp_[0] = clamp(impedance.stiffness[0],0.0,450.0);   kd_[0] = clamp(impedance.damping[0],0.0,1.0);
     kp_[1] = clamp(impedance.stiffness[1],0.0,450.0);   kd_[1] = clamp(impedance.damping[1],0.0,1.0);
     kp_[2] = clamp(impedance.stiffness[2],0.0,200.0);   kd_[2] = clamp(impedance.damping[2],0.0,0.7);
@@ -445,6 +454,7 @@ void LWRSim::updateJointImpedance(const lwr_fri::FriJointImpedance& impedance)
     kp_[4] = clamp(impedance.stiffness[4],0.0,200.0);   kd_[4] = clamp(impedance.damping[4],0.0,0.7);
     kp_[5] = clamp(impedance.stiffness[5],0.0,10.0);   kd_[5] = clamp(impedance.damping[5],0.0,0.1);
     kp_[6] = clamp(impedance.stiffness[6],0.0,10.0);   kd_[6] = clamp(impedance.damping[6],0.0,0.0);
+    */
 
 }
 
