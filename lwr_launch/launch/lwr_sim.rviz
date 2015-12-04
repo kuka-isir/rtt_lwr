@@ -89,6 +89,80 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
+        ati_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ati_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        calib_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        handle_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        hook_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_7:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        world:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
       Name: RobotModel
       Robot Description: robot_description
       TF Prefix: ""
@@ -108,29 +182,66 @@ Visualization Manager:
       Enabled: true
       Frame Timeout: 15
       Frames:
+        /world:
+          Value: true
         All Enabled: true
+        ati_base_link:
+          Value: true
+        ati_link:
+          Value: true
+        base_link:
+          Value: true
+        calib_link:
+          Value: true
+        handle_link:
+          Value: true
+        hook_link:
+          Value: true
+        link_0:
+          Value: true
+        link_1:
+          Value: true
+        link_2:
+          Value: true
+        link_3:
+          Value: true
+        link_4:
+          Value: true
+        link_5:
+          Value: true
+        link_6:
+          Value: true
+        link_7:
+          Value: true
+        world:
+          Value: true
       Marker Scale: 0.2
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        {}
+        /world:
+          {}
+        world:
+          base_link:
+            link_0:
+              link_1:
+                link_2:
+                  link_3:
+                    link_4:
+                      link_5:
+                        link_6:
+                          link_7:
+                            ati_base_link:
+                              ati_link:
+                                hook_link:
+                                  {}
+                              calib_link:
+                                {}
+                              handle_link:
+                                {}
       Update Interval: 0
-      Value: true
-    - Alpha: 1
-      Axes Length: 0.1
-      Axes Radius: 0.001
-      Class: rviz/Pose
-      Color: 255; 25; 0
-      Enabled: true
-      Head Length: 0.3
-      Head Radius: 0.1
-      Name: Pose
-      Shaft Length: 1
-      Shaft Radius: 0.05
-      Shape: Axes
-      Topic: /lwr_sim/CartOptCtrl/pos_curr
       Value: true
     - Alpha: 1
       Axes Length: 0.1
@@ -144,7 +255,7 @@ Visualization Manager:
       Shaft Length: 1
       Shaft Radius: 0.05
       Shape: Axes
-      Topic: /lwr_sim/CartOptCtrl/pos_des
+      Topic: /lwr_sim/cartesian_pose
       Value: true
     - Alpha: 1
       Buffer Length: 1
@@ -158,7 +269,7 @@ Visualization Manager:
         X: 0
         Y: 0
         Z: 0
-      Topic: /lwr_sim/CartOptCtrl/cart_traj_des
+      Topic: /depl_sim/CartOptCtrl/cart_traj_des
       Value: true
     - Alpha: 0.5
       Axes Length: 1
@@ -172,7 +283,7 @@ Visualization Manager:
       Shaft Length: 0.15
       Shaft Radius: 0.01
       Shape: Arrow
-      Topic: /lwr_sim/CartOptCtrl/pos_tmp
+      Topic: /depl_sim/CartOptCtrl/pos_curr
       Value: true
     - Alpha: 0.5
       Axes Length: 1
@@ -186,7 +297,7 @@ Visualization Manager:
       Shaft Length: 0.1
       Shaft Radius: 0.01
       Shape: Arrow
-      Topic: /lwr_sim/CartOptCtrl/pos_tmp
+      Topic: /depl_sim/CartOptCtrl/pos_des
       Value: true
     - Alpha: 0.5
       Axes Length: 1
@@ -200,14 +311,14 @@ Visualization Manager:
       Shaft Length: 0.1
       Shaft Radius: 0.01
       Shape: Arrow
-      Topic: /lwr_sim/CartOptCtrl/pos_curr
+      Topic: /depl_sim/CartOptCtrl/pos_tmp
       Value: true
     - Arrow Length: 0.05
       Class: rviz/PoseArray
       Color: 255; 25; 0
       Enabled: true
       Name: PoseArray
-      Topic: /lwr_sim/CartOptCtrl/traj_poses
+      Topic: /depl_sim/CartOptCtrl/traj_poses
       Value: true
     - Alpha: 0.5
       Class: rviz/Effort
@@ -221,16 +332,30 @@ Visualization Manager:
       Topic: /lwr_gazebo/joint_states
       Value: true
       Width: 0.005
+      joint_0:
+        Value: true
+      joint_1:
+        Value: true
+      joint_2:
+        Value: true
+      joint_3:
+        Value: true
+      joint_4:
+        Value: true
+      joint_5:
+        Value: true
+      joint_6:
+        Value: true
     - Alpha: 1
       Arrow Width: 0.05
       Class: rviz/WrenchStamped
       Enabled: true
-      Force Arrow Scale: 1
+      Force Arrow Scale: 0.03
       Force Color: 204; 51; 51
       History Length: 1
       Name: WrenchStamped
       Topic: /ft_sensor/wrench
-      Torque Arrow Scale: 1
+      Torque Arrow Scale: 0.2
       Torque Color: 204; 204; 51
       Value: true
   Enabled: true
@@ -257,22 +382,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.52841
+      Distance: 1.6218
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.326456
-        Y: -0.193616
-        Z: 0.637037
+        X: 0.503312
+        Y: 0.0761896
+        Z: 0.572728
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.419796
+      Pitch: 0.0747962
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.80857
+      Yaw: 4.78355
     Saved: ~
 Window Geometry:
   Displays:
