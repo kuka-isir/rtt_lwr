@@ -12,31 +12,19 @@
       tip_link: link_7
       robot_description_param: robot_description
       # friction
-      static_deadband: [0.001, 0.001, 0.001, 0.01, 0.01, 0.01, 0.01]
-      static_effort: [4.0, 1.0, 2.0, 1.0, 0.2, 0.2, 0.05]
+      static_deadband: [0.001, 0.001, 0.01, 0.001, 0.001, 0.01, 0.01]
+      static_effort: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.1]
       static_eps: 0.020
-      i_gains: [5.0, 5.0, 4.0, 3.0, 0.3, 0.2, 0.2]
-      i_clamps: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+      i_gains: [10.0, 10.0, 1.0, 10.0, 1.0, 1.0, 0.1]
+      i_clamps: [1.0, 1.0, 0.5, 1.0, 0.5, 0.1, 0.1]
       compensate_friction: false
       verbose: true
     </rosparam>
     <rosparam if="$(arg ee_empty)" subst_value="true">
-      p_gains: [450.0, 450.0, 200.0, 200.0, 200.0, 20.0, 10.0]
-      d_gains: [1.0, 1.0, 0.7, 0.7, 0.7, 0.1, 0.0]
+      p_gains: [350.0, 350.0, 80.0, 350.0, 80.0, 20.0, 1.0]
+      d_gains: [20.0, 20.0, 1.5, 20.0, 1.5, 1.0, 0.05]
       position_tolerance: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
-      velocity_tolerance: [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
-    </rosparam>
-    <rosparam if="$(arg ee_ball)" subst_value="true">
-      p_gains: [350.0, 350.0, 350.0, 300.0, 15.0, 15.0, 0.5]
-      d_gains: [20.0, 5.0, 3.0, 5.0, 0.4, 0.4, 0.001]
-      position_tolerance: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
-      velocity_tolerance: [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
-    </rosparam>
-    <rosparam if="$(arg ee_hand)" subst_value="true">
-      p_gains: [350.0, 350.0, 350.0, 300.0, 25.0, 25.0, 2.0]
-      d_gains: [40.0, 40.0, 30.0, 20.0, 6.5, 4.5, 1.1]
-      position_tolerance: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
-      velocity_tolerance: [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
+      velocity_tolerance: [10.0, 1.0, 10.5, 1.0, 1.5, 2.5, 2.0]
     </rosparam>
   </group>
 
@@ -48,7 +36,7 @@
       sampling_resolution: 0.002
       #note: absolute max joint velocity: 2.0 rad/s
       #note: safe joint velocity: 0.5 rad/s
-      stop_on_violation: false
+      stop_on_violation: true
       verbose: false
       stop_time: 0.25
       temporal_tolerance: 0.5
@@ -57,25 +45,12 @@
     </rosparam>
     <rosparam if="$(arg ee_empty)" subst_value="true">
       position_tolerance: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
-      velocity_tolerance: [3.2, 3.2, 3.2, 3.2, 3.0, 3.0, 3.0]
-      max_velocities: [1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5]
-      max_accelerations: [4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5]
-      max_jerks: [5.5, 5.5, 5.5, 5.5, 5.5, 5.5, 5.5]
+      velocity_tolerance: [30.2, 30.2, 30.2, 30.2, 30.0, 30.0, 30.0]
+      max_velocities: [1.5, 1.5, 1.0, 1.5, 1.5, 1.0, 1.0]
+      max_accelerations: [3.0, 3.0, 1.5, 3.0, 3.0, 2.0, 3.5]
+      max_jerks: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
     </rosparam>
-    <rosparam if="$(arg ee_ball)" subst_value="true">
-      position_tolerance: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
-      velocity_tolerance: [3.2, 3.2, 3.2, 3.2, 3.0, 3.0, 3.0]
-      max_velocities: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-      max_accelerations: [1.5, 1.5, 1.5, 4.0, 4.0, 4.0, 4.0]
-      max_jerks: [2.5, 2.5, 2.5, 2.5, 5.5, 5.5, 5.0]
-    </rosparam>
-    <rosparam if="$(arg ee_hand)" subst_value="true">
-      position_tolerance: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
-      velocity_tolerance: [3.2, 3.2, 3.2, 3.2, 3.0, 3.0, 3.0]
-      max_velocities: [1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5]
-      max_accelerations: [1.5, 1.5, 1.5, 4.0, 8.0, 8.0, 8.0]
-      max_jerks: [2.5, 2.5, 2.5, 2.5, 5.5, 5.5, 5.0]
-    </rosparam>
+
   </group>
 
 
