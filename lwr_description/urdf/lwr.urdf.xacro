@@ -2,34 +2,30 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro"
       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
    name="lwr" >
-   <xacro:property name="velocity_scale" value="50.0"/>
+   <xacro:property name="velocity_scale" value="1.0"/>
    <xacro:property name="effort_scale" value="50.0"/>
 
    <xacro:property name="M_PI" value="3.1415926535897931" />
 
-   <xacro:property name="damping_factor" value="0.2"/>
+   <xacro:property name="damping_factor" value="0.1"/>
 
-   <xacro:property name="d0" value="${damping_factor*5.5}"/>
-   <xacro:property name="d1" value="${damping_factor*5.5}"/>
-   <xacro:property name="d2" value="${damping_factor*3.5}"/>
-   <xacro:property name="d3" value="${damping_factor*3.5}"/>
-   <xacro:property name="d4" value="${damping_factor*3.5}"/>
-   <xacro:property name="d5" value="${damping_factor*1.1}"/>
-   <xacro:property name="d6" value="${damping_factor*0.1}"/>
-   
-   <xacro:property name="friction_factor" value="2.0"/>
+   <xacro:property name="d0" value="${damping_factor*2.0}"/>
+   <xacro:property name="d1" value="${damping_factor*1.8}"/>
+   <xacro:property name="d2" value="${damping_factor*1.0}"/>
+   <xacro:property name="d3" value="${damping_factor*1.5}"/>
+   <xacro:property name="d4" value="${damping_factor*1.2}"/>
+   <xacro:property name="d5" value="${damping_factor*1.0}"/>
+   <xacro:property name="d6" value="${damping_factor*1.0}"/>
+
+   <xacro:property name="friction_factor" value="1.0"/>
 
    <xacro:property name="f0" value="${friction_factor*1.0}"/>
    <xacro:property name="f1" value="${friction_factor*1.0}"/>
    <xacro:property name="f2" value="${friction_factor*1.0}"/>
    <xacro:property name="f3" value="${friction_factor*1.0}"/>
-   <xacro:property name="f4" value="${friction_factor*1.0}"/>
-   <xacro:property name="f5" value="${friction_factor*1.0}"/>
-   <xacro:property name="f6" value="${friction_factor*1.0}"/>
-
-
-
-  <!-- Gazebo joint configuration -->
+   <xacro:property name="f4" value="${friction_factor*0.4}"/>
+   <xacro:property name="f5" value="${friction_factor*0.1}"/>
+   <xacro:property name="f6" value="${friction_factor*0.1}"/>
 
    <xacro:macro name="lwr" params="parent *origin ">
 
@@ -85,8 +81,8 @@
             <origin
               xyz="-6.33965437334127E-08 0.0233273473346096 0.118146290406178"
               rpy="0 0 0" />
-            <mass
-              value="2.30339938771869" />
+              <mass
+                value="2.30339938771869" />
             <inertia
               ixx="0.0156081163626041"
               ixy="5.97319920503909E-08"
@@ -125,8 +121,8 @@
       <origin
         xyz="1.26774962153076E-06 -0.032746486541291 0.0736556727355962"
         rpy="0 0 0" />
-      <mass
-        value="2.30343543179071" />
+        <mass
+          value="2.30343543179071" />
       <inertia
         ixx="0.0142348526057094"
         ixy="-3.73763310100809E-08"
@@ -173,8 +169,8 @@
       <origin
         xyz="-1.40921289121243E-06 -0.0233297626126898 0.11815047247629"
         rpy="0 0 0" />
-      <mass
-        value="2.30342143971329" />
+        <mass
+          value="2.30342143971329" />
       <inertia
         ixx="0.0156098024078732"
         ixy="4.75479645197283E-08"
@@ -213,8 +209,8 @@
       <origin
         xyz="1.12239473548659E-07 0.0327442387470235 0.073658815701594"
         rpy="0 0 0" />
-      <mass
-        value="2.30343586527606" />
+        <mass
+          value="2.30343586527606" />
       <inertia
         ixx="0.0142336552604204"
         ixy="-5.89296043886227E-08"
@@ -253,8 +249,8 @@
       <origin
         xyz="-6.00824789920296E-07 0.0207751869661564 0.0862053948486382"
         rpy="0 0 0" />
-      <mass
-        value="1.60059828363332" />
+        <mass
+          value="1.60059828363332" />
       <inertia
         ixx="0.00880806620496216"
         ixy="1.22820321842462E-07"
@@ -293,15 +289,15 @@
       <origin
         xyz="-2.64519244286276E-08 -0.00451753627467652 -0.00295324741635017"
         rpy="0 0 0" />
-      <mass
-        value="1.49302436988808" />
-      <inertia
-        ixx="0.00298541138330797"
-        ixy="-3.97658663154265E-09"
-        ixz="-1.71667243685877E-09"
-        iyy="0.00299834927882566"
-        iyz="-2.53647350791604E-05"
-        izz="0.00323627047307316" />
+        <mass
+          value="1.49302436988808" />
+        <inertia
+          ixx="0.00298541138330797"
+          ixy="-3.97658663154265E-09"
+          ixz="-1.71667243685877E-09"
+          iyy="0.00299834927882566"
+          iyz="-2.53647350791604E-05"
+          izz="0.00323627047307316" />
     </inertial>
          <visual>
             <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
@@ -332,15 +328,15 @@
       <origin
         xyz="2.77555756156289E-17 1.11022302462516E-16 -0.015814675599801"
         rpy="0 0 0" />
-      <mass
-        value="0.108688241139613" />
-      <inertia
-        ixx="4.17908737998876E-05"
-        ixy="0"
-        ixz="0"
-        iyy="4.17908737998876E-05"
-        iyz="0"
-        izz="7.00756879151782E-05" />
+        <mass
+          value="0.108688241139613" />
+        <inertia
+          ixx="4.17908737998876E-05"
+          ixy="0"
+          ixz="0"
+          iyy="4.17908737998876E-05"
+          iyz="0"
+          izz="7.00756879151782E-05" />
     </inertial>
          <visual>
             <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
