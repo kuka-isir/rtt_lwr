@@ -8,7 +8,6 @@
 #include <rtt/Logger.hpp>
 
 //#include <Eigen/Dense>
-#include <boost/graph/graph_concepts.hpp>
 #include <rtt/os/Timer.hpp>
 #include <rtt_rosclock/rtt_rosclock.h>
 #include <boost/thread/mutex.hpp>
