@@ -37,7 +37,17 @@ target_link_libraries(${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${USE_OROCOS_LIBRARIES}
 )
+orocos_service(lwr_helper src/lwr_helper.cpp)
+target_link_libraries(
+    lwr_helper
+    ${catkin_LIBRARIES}
+    ${USE_OROCOS_LIBRARIES}
+)
 
 add_dependencies(${PROJECT_NAME} lwr_fri_generate_messages_cpp)
-orocos_install_headers(include/${PROJECT_NAME}/${PROJECT_NAME}.hpp)
-orocos_generate_package(INCLUDE_DIRS include)
+orocos_install_headers(
+        include/${PROJECT_NAME}/${PROJECT_NAME}.hpp
+        include/${PROJECT_NAME}/lwr_helper.h
+    )
+orocos_generate_package(INCLUDE_DIRS include
+                        DEPENDS rtt_ros_kdl_tools)
