@@ -54,8 +54,8 @@
       <plugin_depend>rtt_rosparam</plugin_depend>
       <plugin_depend>rtt_roscomm</plugin_depend>
       <plugin_depend>rtt_rospack</plugin_depend>
-      <!--plugin_depend>conman</plugin_depend-->
-      <!--plugin_depend>conman_ros</plugin_depend-->
+      <plugin_depend>rtt_nav_msgs</plugin_depend>
+      <plugin_depend>kuka_lwr_fri</plugin_depend>
     </rtt_ros>
   </export>
 </package>
