@@ -32,11 +32,11 @@
 			<plugin name="rtt_gazebo" filename="librtt_gazebo_deployer.so">
 				<!--robotNamespace>~</robotNamespace-->
 			  <component>
-			    <package>rtt_lwr_gazebo</package>
-			    <type>LWRGazeboComponent</type>
-			    <name>lwr_gazebo</name>
+			    <package>rtt_lwr_sim</package>
+			    <type>lwr::LWRSim</type>
+			    <name>lwr_sim</name>
 			  </component>
-			    <orocosScript><filename>$(find rtt_lwr_gazebo)/scripts/lwr_gazebo.ops</filename></orocosScript>
+			    <orocosScript><filename>$(find rtt_lwr_sim)/scripts/lwr_sim_gazebo.ops</filename></orocosScript>
 			</plugin>
   		</gazebo>
 

@@ -1,0 +1,33 @@
+require("print")
+import("rtt_std_msgs")
+import("rtt_std_srvs")
+import("rtt_diagnostic_msgs")
+import("rtt_geometry_msgs")
+import("rtt_sensor_msgs")
+import("kdl_typekit")
+import("eigen_typekit")
+import("rtt_rosclock")
+import("rtt_tf")
+import("rtt_rosparam")
+import("rtt_roscomm")
+import("rtt_rospack")
+import("kuka_lwr_fri")
+
+setActivity("lwr_sim",0,10,ORO_SCHED_OTHER)
+lwr_sim.configure()
+
+
+loadService("lwr_sim","rosservice")
+lwr_sim.rosservice.connect("ready","/lwr_sim/ready", "std_srvs/Empty")
+
+lwr_sim.setLinkGravityMode("ati_link",false)
+
+print.ln("Starting Gazebo component")
+
+lwr_sim.start()
+
+if(lwr_sim.isRunning()) then{
+        print.ln("Gazebo component running \033[32;1m OK \033[0m\n")
+}else{
+        print.ln("\033[31;1m Gazebo component NOT running \033[0m\n")
+}
