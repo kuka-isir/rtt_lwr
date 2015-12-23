@@ -260,11 +260,7 @@ class RTTLWRAbstract : public RTT::TaskContext{
     void setJointTorqueControlMode();
 
     bool connectAllPorts(const std::string& robot_name="lwr");
-private:
-    /**
-     * @brief lwr or lwr_sim peer (used to connect ports)
-     */
-      RTT::TaskContext* peer;
+
 protected:
     static const unsigned int n_joints = LBR_MNJ;
 

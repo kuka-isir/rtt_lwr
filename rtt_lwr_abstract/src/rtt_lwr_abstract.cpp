@@ -2,7 +2,11 @@
 // Author: Antoine Hoarau
 
 #include "rtt_lwr_abstract/rtt_lwr_abstract.hpp"
+#include <rtt_ros_kdl_tools/mqueue_connpolicy.hpp>
 using namespace lwr;
+using namespace KDL;
+using namespace Eigen;
+using namespace RTT;
 
 RTTLWRAbstract::RTTLWRAbstract(std::string const& name) : 
 RTT::TaskContext(name),
@@ -140,6 +144,16 @@ bool RTTLWRAbstract::init(bool connect_all_ports){
     RTT::log(RTT::Warning) << "KDL Chain Joints : " << kdl_chain.getNrOfJoints()<< RTT::endlog();
     RTT::log(RTT::Warning) << "KDL Chain Segments : " << kdl_chain.getNrOfSegments()<< RTT::endlog();
 
+    RTT::log(RTT::Info) << "Setting data samples" << RTT::endlog();
+
+    port_JointPositionCommand.setDataSample(jnt_pos_cmd);
+    port_JointTorqueCommand.setDataSample(jnt_trq_cmd);
+    port_CartesianImpedanceCommand.setDataSample(cart_imp_cmd);
+    port_CartesianWrenchCommand.setDataSample(cart_wrench_cmd);
+    port_CartesianPositionCommand.setDataSample(cart_pos_cmd);
+    port_JointImpedanceCommand.setDataSample(jnt_imp_cmd);
+    port_ToKRL.setDataSample(fri_to_krl);
+    
     bool ret=true;
     if(connect_all_ports)
         ret &= connectAllPorts(robot_name);
@@ -178,75 +192,37 @@ bool RTTLWRAbstract::connectAllPorts(const std::string& robot_name)
         RTT::log(RTT::Fatal) << robot_name<<" peer could not be found, can't connect all ports"<<RTT::endlog();
         return false;
     }
-    this->peer = getPeer(robot_name);
-    RTT::ConnPolicy policy = RTT::ConnPolicy::data();
-
-
+    RTT::TaskContext * peer = NULL;
+    peer = getPeer(robot_name);
+    if(peer == NULL) return false;
+    
     RTT::log(RTT::Info) << "Connectings all ports ..." << RTT::endlog();
-    port_CartesianWrench.connectTo(this->peer->getPort("CartesianWrench"),policy);
-    port_RobotState.connectTo(this->peer->ports()->getPort("RobotState"),policy);
-    port_FRIState.connectTo(this->peer->getPort("FRIState"),policy);
-    port_JointVelocity.connectTo(this->peer->getPort("JointVelocity"),policy);
-    port_CartesianVelocity.connectTo(this->peer->getPort("CartesianVelocity"),policy);
-    port_CartesianPosition.connectTo(this->peer->getPort("CartesianPosition"),policy);
-    port_MassMatrix.connectTo(this->peer->getPort("MassMatrix"),policy);
-    port_Jacobian.connectTo(this->peer->getPort("Jacobian"),policy);
-    port_JointTorque.connectTo(this->peer->getPort("JointTorque"),policy);
-    port_GravityTorque.connectTo(this->peer->getPort("GravityTorque"),policy);
-    port_JointPosition.connectTo(this->peer->getPort("JointPosition"),policy);
-    
-    //m_toKRL = peer->attributes()->getAttribute("toKRL");
-    //m_fromKRL= peer->attributes()->getAttribute("fromKRL");
-
-    //port_JointTorqueRaw.connectTo(this->peer->getPort("JointTorqueRaw"),policy);
-    //port_JointPositionFRIOffset.connectTo(this->peer->getPort("JointPositionFRIOffset"),policy);
-    
-    
-    port_CartesianImpedanceCommand.connectTo(this->peer->getPort("CartesianImpedanceCommand"),policy);
-    port_CartesianPositionCommand.connectTo(this->peer->getPort("CartesianPositionCommand"),policy);
-    port_CartesianWrenchCommand.connectTo(this->peer->getPort("CartesianWrenchCommand"),policy);
-    port_JointImpedanceCommand.connectTo(this->peer->getPort("JointImpedanceCommand"),policy);
-    port_JointPositionCommand.connectTo(this->peer->getPort("JointPositionCommand"),policy);
-    port_JointTorqueCommand.connectTo(this->peer->getPort("JointTorqueCommand"),policy);
-    port_ToKRL.connectTo(this->peer->getPort("toKRL"),policy);
-    port_FromKRL.connectTo(this->peer->getPort("fromKRL"),policy);
-
-    RTT::log(RTT::Info) << "Setting data samples" << RTT::endlog();
-
-    port_JointPositionCommand.setDataSample(jnt_pos_cmd);
-    port_JointTorqueCommand.setDataSample(jnt_trq_cmd);
-    port_CartesianImpedanceCommand.setDataSample(cart_imp_cmd);
-    port_CartesianWrenchCommand.setDataSample(cart_wrench_cmd);
-    port_CartesianPositionCommand.setDataSample(cart_pos_cmd);
-    port_JointImpedanceCommand.setDataSample(jnt_imp_cmd);
-    port_ToKRL.setDataSample(fri_to_krl);
-    
-    RTT::log(RTT::Info) << "Verifying connections " << RTT::endlog();
     bool all_connected = true;
-    all_connected &= port_CartesianWrench.connected();
-    all_connected &= port_RobotState.connected();
-    all_connected &= port_FRIState.connected();
-    all_connected &= port_JointVelocity.connected();
-    all_connected &= port_CartesianVelocity.connected();
-    all_connected &= port_CartesianPosition.connected();
-    all_connected &= port_MassMatrix.connected();
-    all_connected &= port_Jacobian.connected();
-    all_connected &= port_JointTorque.connected();
-    all_connected &= port_GravityTorque.connected();
-    all_connected &= port_JointPosition.connected();
-    all_connected &= port_ToKRL.connected();
-    all_connected &= port_FromKRL.connected();
-    //all_connected &= port_JointTorqueRaw.connected();
-    //all_connected &= port_JointPositionFRIOffset.connected();
     
-    all_connected &= port_CartesianImpedanceCommand.connected();
-    all_connected &= port_CartesianPositionCommand.connected();
-    all_connected &= port_CartesianWrenchCommand.connected();
-    all_connected &= port_JointImpedanceCommand.connected();
-    all_connected &= port_JointPositionCommand.connected();
-    all_connected &= port_JointTorqueCommand.connected();
-    RTT::log(RTT::Info) << "OK!" <<all_connected<< RTT::endlog();
-    return all_connected;
+    all_connected &=port_CartesianWrench.connectTo(peer->getPort("CartesianWrench"),MQConnPolicy::mq_data());
+    all_connected &=port_RobotState.connectTo(peer->ports()->getPort("RobotState"),MQConnPolicy::mq_data());
+    all_connected &=port_FRIState.connectTo(peer->getPort("FRIState"),MQConnPolicy::mq_data());
+    all_connected &=port_JointVelocity.connectTo(peer->getPort("JointVelocity"),MQConnPolicy::mq_data());
+    all_connected &=port_CartesianVelocity.connectTo(peer->getPort("CartesianVelocity"),MQConnPolicy::mq_data());
+    all_connected &=port_CartesianPosition.connectTo(peer->getPort("CartesianPosition"),MQConnPolicy::mq_data());
+    all_connected &=port_MassMatrix.connectTo(peer->getPort("MassMatrix"),MQConnPolicy::mq_data());
+    all_connected &=port_Jacobian.connectTo(peer->getPort("Jacobian"),MQConnPolicy::mq_data());
+    all_connected &=port_JointTorque.connectTo(peer->getPort("JointTorque"),MQConnPolicy::mq_data());
+    all_connected &=port_GravityTorque.connectTo(peer->getPort("GravityTorque"),MQConnPolicy::mq_data());
+    all_connected &=port_JointPosition.connectTo(peer->getPort("JointPosition"),MQConnPolicy::mq_data());
+    
+    all_connected &=port_CartesianImpedanceCommand.connectTo(peer->getPort("CartesianImpedanceCommand"),MQConnPolicy::mq_data());
+    all_connected &=port_CartesianPositionCommand.connectTo(peer->getPort("CartesianPositionCommand"),MQConnPolicy::mq_data());
+    all_connected &=port_CartesianWrenchCommand.connectTo(peer->getPort("CartesianWrenchCommand"),MQConnPolicy::mq_data());
+    all_connected &=port_JointImpedanceCommand.connectTo(peer->getPort("JointImpedanceCommand"),MQConnPolicy::mq_data());
+    all_connected &=port_JointPositionCommand.connectTo(peer->getPort("JointPositionCommand"),MQConnPolicy::mq_data());
+    all_connected &=port_JointTorqueCommand.connectTo(peer->getPort("JointTorqueCommand"),MQConnPolicy::mq_data());
+    all_connected &=port_ToKRL.connectTo(peer->getPort("toKRL"),MQConnPolicy::mq_data());
+    all_connected &=port_FromKRL.connectTo(peer->getPort("fromKRL"),MQConnPolicy::mq_data());
+    
+    if(!all_connected)
+        RTT::log(RTT::Error) << "Not all ports are connected !" << RTT::endlog();
+    return true;
 }
 bool RTTLWRAbstract::updateState(){
     bool res=true;
