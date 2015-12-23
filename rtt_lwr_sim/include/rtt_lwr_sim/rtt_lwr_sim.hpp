@@ -6,6 +6,10 @@
 #include <rtt/Port.hpp>
 #include <rtt/Component.hpp>
 
+#include <gazebo/gazebo.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/common/common.hh>
+
 #include <kuka_lwr_fri/friComm.h>
 
 #include <lwr_fri/CartesianImpedance.h>
@@ -40,13 +44,14 @@
 #include <kdl_conversions/kdl_msg.h>
 #include <eigen_conversions/eigen_msg.h>
 
-#define TORAD 3.141592653589793/180.0
+#include <boost/thread.hpp>
+#include <std_srvs/Empty.h>
 
-inline float clamp(const float& x, const float& a, const float& b)
+using namespace KDL;
+using namespace RTT;
+using namespace Eigen;
+using namespace RTT::corba;
 
-{
-    return x < a ? a : (x > b ? b : x);
-}
 
 namespace lwr{
     
@@ -57,17 +62,23 @@ namespace lwr{
         void updateHook();
         
     protected:
-        bool connectToGazeboCORBA(const std::string& gazebo_deployer_name,const std::string& gazebo_robot_comp_name);
         bool waitForROSService(std::string service_name);
         void setJointImpedanceMode();
         void setCartesianImpedanceMode();
         void resetJointImpedanceGains();
-        void setInitialJointPosition(const std::vector<double> j_init);
+        void setInitialJointPosition(const std::vector<double>& joint_position_cmd);
         void resetCartesianImpedanceGains();
-        
+        void setLinkGravityMode(const std::string& link_name,bool gravity_mode);
+        void gazeboUpdateHook(gazebo::physics::ModelPtr model);
+        bool readyService(std_srvs::EmptyRequest& req,std_srvs::EmptyResponse& res);
+        bool gazeboConfigureHook(gazebo::physics::ModelPtr model);
         bool setGravityMode();
         bool setJointImpedance(const Eigen::VectorXd& stiffness, const Eigen::VectorXd& damping);
         bool setCartesianImpedance(const Eigen::Matrix<double,6,1> & cart_stiffness, const Eigen::Matrix<double,6,1> & cart_damping);
+        bool isCommandMode();
+        
+        RTT::OutputPort<bool> port_sync_status;
+        RTT::InputPort<bool> port_sync_cmd;
         
         RTT::InputPort<lwr_fri::CartesianImpedance > port_CartesianImpedanceCommand;
         RTT::InputPort<geometry_msgs::Wrench > port_CartesianWrenchCommand;
@@ -98,30 +109,14 @@ namespace lwr{
         bool connect_to_rtt_gazebo_at_configure,using_corba;
         int prop_fri_port;
         double dr_max_;
+        
+        bool set_joint_pos_no_dynamics_;
+        bool set_brakes_;
+        
         std::vector<double> prop_joint_offset;
-
-        RTT::InputPort<std::vector<double> > port_JointPositionGazebo,
-                                             port_JointVelocityGazebo,
-                                             port_JointTorqueGazebo;
-        RTT::FlowStatus jnt_pos_cmd_fs,
-                        jnt_trq_cmd_fs,
-                        cart_imp_cmd_fs,
-                        cart_wrench_cmd_fs,
-                        cart_pos_cmd_fs;
-
-        RTT::OutputPort<std::vector<double> > port_JointPositionGazeboCommand,
-                                              port_JointVelocityGazeboCommand,
-                                              port_JointTorqueGazeboCommand;
                                               
         RTT::InputPort<sensor_msgs::JointState > port_JointStateGazebo;
-        
-        std::vector<double> joint_position_gazebo,
-                            joint_velocity_gazebo,
-                            joint_torque_gazebo,
-                            joint_position_gazebo_cmd,
-                            joint_velocity_gazebo_cmd,
-                            joint_torque_gazebo_cmd;
-        
+                
         Eigen::VectorXd pos_limits_,
                         vel_limits_,
                         trq_limits_;
@@ -135,7 +130,9 @@ namespace lwr{
                         jnt_vel_,
                         jnt_pos_cmd_,
                         jnt_trq_cmd_,
-                        jnt_trq_gazebo_cmd_;
+                        jnt_trq_gazebo_cmd_,
+                        jnt_pos_brakes_,
+                        jnt_pos_no_dyn_;
                         
         Eigen::Matrix<double,6,1>  X_,
                                    X_cmd_,
@@ -155,22 +152,17 @@ namespace lwr{
         KDL::FrameVel ee_framevel_kdl_;           
         tf::Matrix3x3 quat_m;
         tf::Quaternion quat_tf;
-        double roll, pitch, yaw;
         KDL::Jacobian jac_;
 
-        KDL::Frame T_old_;
         geometry_msgs::PoseStamped cart_pos_stamped_;
         geometry_msgs::Pose cart_pos_, cart_pos_cmd_;
         geometry_msgs::Wrench cart_wrench_, cart_wrench_cmd_;
         geometry_msgs::WrenchStamped cart_wrench_stamped_;
         geometry_msgs::Twist cart_twist_;
-        Eigen::MatrixXd mass_;
         lwr_fri::FriJointImpedance jnt_imp_cmd_,jnt_imp_;
         lwr_fri::CartesianImpedance cart_imp_cmd_,cart_imp_;
 
-        int m_control_mode;
         std::string joint_names_prefix;
-        uint16_t counter, fri_state_last;
 
         tFriIntfState fri_state;
         tFriRobotState robot_state;
@@ -178,11 +170,6 @@ namespace lwr{
         tFriKrlData fri_from_krl;
         tFriKrlData fri_to_krl;
         
-        ros::Time now;
-        double read_start,write_start;
-        double read_duration,write_duration,updatehook_duration;
-        double id_duration,ik_duration,fk_duration;
-        unsigned int n_joints_;
         std::string urdf_str_;
         urdf::Model urdf_model_;
         KDL::Tree kdl_tree_;
@@ -210,15 +197,13 @@ namespace lwr{
                                     kcd_default_;        
         std::string robot_name_;
         
-        sensor_msgs::JointState joint_state_,
-                                joint_state_cmd_,
-                                joint_state_gravity_,
-                                joint_state_dyn_;
+        sensor_msgs::JointState joint_states_,
+                                joint_states_cmd_,
+                                joint_states_dyn_;
                                 
-        RTT::OutputPort<sensor_msgs::JointState> port_JointState,
-                                                 port_JointStateCommand,
-                                                 port_JointStateGravity,
-                                                 port_JointStateDynamics;
+        RTT::OutputPort<sensor_msgs::JointState> port_JointStates,
+                                                 port_JointStatesCommand,
+                                                 port_JointStatesDynamics;
                                                  
         std::string root_link;
         
@@ -232,15 +217,26 @@ namespace lwr{
         void updateCartesianImpedance(const lwr_fri::CartesianImpedance& cart_impedance);
         
         //KDL Stuff
-        KDL::Wrenches f_ext;
-        KDL::JntArray G,qdot,qddot,jnt_trq_kdl_,jnt_trq_coriolis_kdl_;
+        KDL::Wrenches f_ext_;
+        
+        KDL::JntArray jnt_pos_kdl_,
+                      jnt_trq_grav_kdl_,
+                      jnt_vel_kdl_,
+                      jnt_acc_kdl_,
+                      jnt_trq_kdl_,
+                      jnt_trq_coriolis_kdl_;
+                      
         KDL::Wrench cart_wrench_kdl_;
-        KDL::JntArrayVel q;
-        KDL::JntSpaceInertiaMatrix H;
+        KDL::JntSpaceInertiaMatrix mass_kdl_;
         bool init_pos_requested;
         double period_sim_;
         double service_timeout_s;
+        std::vector<int> joints_idx_;
+        std::map<gazebo::physics::LinkPtr,bool> gravity_mode_;
+        gazebo::physics::Joint_V gazebo_joints_;
+        gazebo::physics::Link_V model_links_;
+        std::vector<std::string> joint_names_;
     };
 }
-ORO_CREATE_COMPONENT(lwr::LWRSim)
+
 #endif

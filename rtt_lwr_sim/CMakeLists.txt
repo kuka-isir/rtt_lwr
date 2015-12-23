@@ -8,12 +8,20 @@ find_package(catkin REQUIRED COMPONENTS
   kuka_lwr_fri
   sensor_msgs
   std_msgs
+  std_srvs
   cmake_modules
   kdl_parser
   kdl_conversions
   eigen_conversions
   lwr_fri
 )
+
+find_package(gazebo REQUIRED)
+if(${GAZEBO_VERSION})
+    if(${GAZEBO_VERSION} GREATER 6)
+        list(APPEND CMAKE_CXX_FLAGS "-std=c++11")
+    endif()
+endif()
 
 find_package(Eigen REQUIRED)
 find_package(orocos_kdl REQUIRED)
@@ -24,6 +32,7 @@ include_directories(
     ${Eigen_INCLUDE_DIRS}
     ${orocos_kdl_INCLUDE_DIRS}
     ${USE_OROCOS_INCLUDE_DIRS}
+    ${GAZEBO_INCLUDE_DIRS}
 )
 
 orocos_component(${PROJECT_NAME} src/${PROJECT_NAME}.cpp)
@@ -36,6 +45,7 @@ target_link_libraries(
     ${kdl_parser_LIBRARIES}
     ${orocos_kdl_LIBRARIES}
     ${kdl_conversions_LIBRARIES}
+    ${GAZEBO_LIBRARIES}
 )
 
 add_dependencies(${PROJECT_NAME} lwr_fri_generate_messages_cpp)
