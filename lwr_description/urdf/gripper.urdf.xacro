@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+	<xacro:macro name="gripper">
+
+		<joint name="gripper_base_joint" type="fixed">
+			<origin xyz="0 0 0" rpy="0 0 ${M_PI/4}" />
+	    <parent link="ati_link" />
+	    <child link="gripper_base_link" />
+	  </joint>
+
+		<link name="gripper_base_link">
+		  <inertial>
+		    <origin
+		      xyz="-0.000270930769071453 0.000209849417675608 0.0385920105763185"
+		      rpy="0 0 0" />
+		    <mass
+		      value="0.20320036515825" />
+		    <inertia
+		      ixx="0.000190048348423889"
+		      ixy="-1.8128877344581E-06"
+		      ixz="9.39799849660007E-07"
+		      iyy="0.000188118428793352"
+		      iyz="-1.54983192347747E-06"
+		      izz="0.000226003514545444" />
+		  </inertial>
+		  <visual>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/gripper_base.stl" />
+		    </geometry>
+		    <material
+		      name="">
+		      <color rgba="0.7 0.7 0.7 1" />
+		    </material>
+		  </visual>
+		  <collision>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/gripper_base_collision.stl" />
+		    </geometry>
+		  </collision>
+		</link>
+		<link
+		  name="d1p1">
+		  <inertial>
+		    <origin
+		      xyz="0.0146225533157576 -0.00029397635145615 -2.45920805106079E-08"
+		      rpy="0 0 0" />
+		    <mass
+		      value="0.00545395104181413" />
+		    <inertia
+		      ixx="2.54274945160524E-07"
+		      ixy="-2.5760615847184E-10"
+		      ixz="-6.2681321958253E-13"
+		      iyy="7.06268769241487E-07"
+		      iyz="-3.73632079233602E-14"
+		      izz="5.41398475887945E-07" />
+		  </inertial>
+		  <visual>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/d1p1.stl" />
+		    </geometry>
+		    <material
+		      name="">
+		      <color rgba="0.7 0.7 0.7 1" />
+		    </material>
+		  </visual>
+		  <collision>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/d1p1_collision.stl" />
+		    </geometry>
+		  </collision>
+		</link>
+		<joint
+		  name="d1p1"
+		  type="revolute">
+		  <origin
+		    xyz="0 0.043 0.051"
+		    rpy="1.5708 -4.2116E-17 1.5708" />
+		  <parent
+		    link="gripper_base_link" />
+		  <child
+		    link="d1p1" />
+		  <axis
+		    xyz="0 0 1" />
+		 <limit lower="0" upper="1.5708" velocity="10.0" effort="1000" />
+		</joint>
+		<link
+		  name="d1p2">
+		  <inertial>
+		    <origin
+		      xyz="0.0146225533157576 -0.00029397635145615 -2.45920805104288E-08"
+		      rpy="0 0 0" />
+		    <mass
+		      value="0.00545395104181412" />
+		    <inertia
+		      ixx="2.54274945160523E-07"
+		      ixy="-2.57606158471824E-10"
+		      ixz="-6.26813219623795E-13"
+		      iyy="7.06268769241487E-07"
+		      iyz="-3.73632079343911E-14"
+		      izz="5.41398475887945E-07" />
+		  </inertial>
+		  <visual>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/d1p2.stl" />
+		    </geometry>
+		    <material
+		      name="">
+		      <color rgba="0.7 0.7 0.7 1" />
+		    </material>
+		  </visual>
+		  <collision>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/d1p2_collision.stl" />
+		    </geometry>
+		  </collision>
+		</link>
+		<joint
+		  name="d1p2"
+		  type="revolute">
+		  <origin
+		    xyz="0.03 0 0"
+		    rpy="4.18901787128711E-22 3.6318165567121E-22 5.55111512312578E-17" />
+		  <parent
+		    link="d1p1" />
+		  <child
+		    link="d1p2" />
+		  <axis
+		    xyz="0 0 1" />
+		 <limit lower="0" upper="1.5708" velocity="10.0" effort="1000" />
+			<mimic joint="d1p1" multiplier="1" />
+		</joint>
+		<link
+		  name="d1p3">
+		  <inertial>
+		    <origin
+		      xyz="0.0151215366331375 -0.000194783657492183 2.87242355587606E-08"
+		      rpy="0 0 0" />
+		    <mass
+		      value="0.00567160718829562" />
+		    <inertia
+		      ixx="2.40443353445289E-07"
+		      ixy="4.58755718573133E-09"
+		      ixz="8.60831033808753E-13"
+		      iyy="7.35196092179799E-07"
+		      iyz="6.9273498255053E-14"
+		      izz="5.90647265410122E-07" />
+		  </inertial>
+		  <visual>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/d1p3.stl" />
+		    </geometry>
+		    <material
+		      name="">
+		      <color rgba="0.7 0.7 0.7 1" />
+		    </material>
+		  </visual>
+		  <collision>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/d1p3_collision.stl" />
+		    </geometry>
+		  </collision>
+		</link>
+		<joint
+		  name="d1p3"
+		  type="revolute">
+		  <origin
+		    xyz="0.03 0 0"
+		    rpy="6.0215E-18 -7.5775E-18 0" />
+		  <parent
+		    link="d1p2" />
+		  <child
+		    link="d1p3" />
+		  <axis
+		    xyz="0 0 1" />
+		 <limit lower="0" upper="1.5708" velocity="10.0" effort="1000" />
+			<mimic joint="d1p1" multiplier="1" />
+		</joint>
+		<link
+		  name="d2p1">
+		  <inertial>
+		    <origin
+		      xyz="0.0146225227858482 -0.000293976676742302 -2.35561750314139E-08"
+		      rpy="0 0 0" />
+		    <mass
+		      value="0.00545394740303212" />
+		    <inertia
+		      ixx="2.54274973434031E-07"
+		      ixy="-2.57668191229328E-10"
+		      ixz="-6.00346065441266E-13"
+		      iyy="7.06268734342209E-07"
+		      iyz="-1.50150979391751E-13"
+		      izz="5.41398424455506E-07" />
+		  </inertial>
+		  <visual>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/d2p1.stl" />
+		    </geometry>
+		    <material
+		      name="">
+		      <color rgba="0.7 0.7 0.7 1" />
+		    </material>
+		  </visual>
+		  <collision>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/d2p1_collision.stl" />
+		    </geometry>
+		  </collision>
+		</link>
+		<joint
+		  name="d2p1"
+		  type="revolute">
+		  <origin
+		    xyz="0.037239 -0.0215 0.051"
+		    rpy="1.5708 8.8083E-17 -0.5236" />
+		  <parent
+		    link="gripper_base_link" />
+		  <child
+		    link="d2p1" />
+		  <axis
+		    xyz="0 0 1" />
+		 <limit lower="0" upper="1.5708" velocity="10.0" effort="1000" />
+			<mimic joint="d1p1" multiplier="1" />
+		</joint>
+		<link
+		  name="d2p2">
+		  <inertial>
+		    <origin
+		      xyz="0.0146225227858482 -0.000293976676742302 -2.3556175024475E-08"
+		      rpy="0 0 0" />
+		    <mass
+		      value="0.00545394740303215" />
+		    <inertia
+		      ixx="2.54274973434032E-07"
+		      ixy="-2.57668191229159E-10"
+		      ixz="-6.00346065500823E-13"
+		      iyy="7.06268734342213E-07"
+		      iyz="-1.5015097925663E-13"
+		      izz="5.4139842445551E-07" />
+		  </inertial>
+		  <visual>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/d2p2.stl" />
+		    </geometry>
+		    <material
+		      name="">
+		      <color rgba="0.7 0.7 0.7 1" />
+		    </material>
+		  </visual>
+		  <collision>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/d2p2_collision.stl" />
+		    </geometry>
+		  </collision>
+		</link>
+		<joint
+		  name="d2p2"
+		  type="revolute">
+		  <origin
+		    xyz="0.03 0 0"
+		    rpy="-1.71977777094396E-16 5.55111512312578E-17 7.28583859910259E-17" />
+		  <parent
+		    link="d2p1" />
+		  <child
+		    link="d2p2" />
+		  <axis
+		    xyz="0 0 1" />
+		 <limit lower="0" upper="1.5708" velocity="10.0" effort="1000" />
+			<mimic joint="d1p1" multiplier="1" />
+		</joint>
+		<link
+		  name="d2p3">
+		  <inertial>
+		    <origin
+		      xyz="0.0151215316273259 -0.000194791247587908 6.27124754071229E-08"
+		      rpy="0 0 0" />
+		    <mass
+		      value="0.00567159608753658" />
+		    <inertia
+		      ixx="2.40443359824306E-07"
+		      ixy="4.58733805581616E-09"
+		      ixz="3.35598089531523E-12"
+		      iyy="7.35195169522362E-07"
+		      iyz="-4.69262231163669E-13"
+		      izz="5.90646280756576E-07" />
+		  </inertial>
+		  <visual>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/d2p3.stl" />
+		    </geometry>
+		    <material
+		      name="">
+		      <color rgba="0.7 0.7 0.7 1" />
+		    </material>
+		  </visual>
+		  <collision>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/d2p3_collision.stl" />
+		    </geometry>
+		  </collision>
+		</link>
+		<joint
+		  name="d2p3"
+		  type="revolute">
+		  <origin
+		    xyz="0.03 0 0"
+		    rpy="7.43708407166825E-18 -5.55111512312578E-17 4.37475576597901E-17" />
+		  <parent
+		    link="d2p2" />
+		  <child
+		    link="d2p3" />
+		  <axis
+		    xyz="0 0 1" />
+		 <limit lower="0" upper="1.5708" velocity="10.0" effort="1000" />
+			<mimic joint="d1p1" multiplier="1" />
+		</joint>
+		<link
+		  name="d3p1">
+		  <inertial>
+		    <origin
+		      xyz="0.0146225295479684 -0.000293976419857046 -3.5875932152124E-08"
+		      rpy="0 0 0" />
+		    <mass
+		      value="0.00545395412108467" />
+		    <inertia
+		      ixx="2.54274938544044E-07"
+		      ixy="-2.57534388404031E-10"
+		      ixz="-7.12755707888409E-13"
+		      iyy="7.06268758794657E-07"
+		      iyz="-7.90294220119397E-14"
+		      izz="5.41398454503777E-07" />
+		  </inertial>
+		  <visual>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/d3p1.stl" />
+		    </geometry>
+		    <material
+		      name="">
+		      <color rgba="0.7 0.7 0.7 1" />
+		    </material>
+		  </visual>
+		  <collision>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/d3p1_collision.stl" />
+		    </geometry>
+		  </collision>
+		</link>
+		<joint
+		  name="d3p1"
+		  type="revolute">
+		  <origin
+		    xyz="-0.0372390923627308 -0.0215000000000001 0.051"
+		    rpy="1.5707963267949 -5.08372981691816E-17 -2.61799387799149" />
+		  <parent
+		    link="gripper_base_link" />
+		  <child
+		    link="d3p1" />
+		  <axis
+		    xyz="0 0 1" />
+		 <limit lower="0" upper="1.5708" velocity="10.0" effort="1000" />
+			<mimic joint="d1p1" multiplier="1" />
+		</joint>
+		<link
+		  name="d3p2">
+		  <inertial>
+		    <origin
+		      xyz="0.0146225295479684 -0.00029397641985706 -3.58759321486546E-08"
+		      rpy="0 0 0" />
+		    <mass
+		      value="0.00545395412108467" />
+		    <inertia
+		      ixx="2.54274938544044E-07"
+		      ixy="-2.57534388403855E-10"
+		      ixz="-7.12755707762677E-13"
+		      iyy="7.06268758794656E-07"
+		      iyz="-7.90294219283686E-14"
+		      izz="5.41398454503777E-07" />
+		  </inertial>
+		  <visual>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/d3p2.stl" />
+		    </geometry>
+		    <material
+		      name="">
+		      <color rgba="0.7 0.7 0.7 1" />
+		    </material>
+		  </visual>
+		  <collision>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/d3p2_collision.stl" />
+		    </geometry>
+		  </collision>
+		</link>
+		<joint
+		  name="d3p2"
+		  type="revolute">
+		  <origin
+		    xyz="0.03 0 0"
+		    rpy="-1.23259516440783E-32 1.11022302462516E-16 2.1570415377137E-32" />
+		  <parent
+		    link="d3p1" />
+		  <child
+		    link="d3p2" />
+		  <axis
+		    xyz="0 0 1" />
+		 <limit lower="0" upper="1.5708" velocity="10.0" effort="1000" />
+			<mimic joint="d1p1" multiplier="1" />
+		</joint>
+		<link
+		  name="d3p3">
+		  <inertial>
+		    <origin
+		      xyz="0.0151212931952798 -0.000194859857704288 2.86423150336335E-08"
+		      rpy="0 0 0" />
+		    <mass
+		      value="0.00567141646170543" />
+		    <inertia
+		      ixx="2.40442471185825E-07"
+		      ixy="4.58375889957901E-09"
+		      ixz="2.90358616947974E-13"
+		      iyy="7.35180044188637E-07"
+		      iyz="2.81424954348309E-13"
+		      izz="5.90633620358595E-07" />
+		  </inertial>
+		  <visual>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/d3p3.stl" />
+		    </geometry>
+		    <material
+		      name="">
+		      <color rgba="0.7 0.7 0.7 1" />
+		    </material>
+		  </visual>
+		  <collision>
+		    <origin
+		      xyz="0 0 0"
+		      rpy="0 0 0" />
+		    <geometry>
+		      <mesh
+		        filename="package://lwr_description/meshes/gripper/d3p3_collision.stl" />
+		    </geometry>
+		  </collision>
+		</link>
+		<joint
+		  name="d3p3"
+		  type="revolute">
+		  <origin
+		    xyz="0.03 0 0"
+		    rpy="0 0 3.08148791101958E-33" />
+		  <parent
+		    link="d3p2" />
+		  <child
+		    link="d3p3" />
+		  <axis
+		    xyz="0 0 1" />
+		 <limit lower="0" upper="1.5708" velocity="10.0" effort="1000" />
+			<mimic joint="d1p1" multiplier="1" />
+		</joint>
+
+	</xacro:macro>
+
+</robot>
