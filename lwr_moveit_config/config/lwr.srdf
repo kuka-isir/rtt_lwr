@@ -18,6 +18,10 @@
         <joint name="joint_5" />
         <joint name="joint_6" />
     </group>
+    <group name="gripper">
+        <link name="d1p1" />
+        <joint name="d1p1" />
+    </group>
     <!--GROUP STATES: Purpose: Define a named state for a particular group, in terms of joint values. This is useful to define states like 'folded arms'-->
     <group_state name="zero" group="arm">
         <joint name="joint_0" value="0" />
@@ -31,9 +35,173 @@
     <group_state name="start" group="arm">
         <joint name="joint_6" value="0" />
     </group_state>
+    <group_state name="opened" group="gripper">
+        <joint name="d1p1" value="0" />
+    </group_state>
+    <group_state name="closed" group="gripper">
+        <joint name="d1p1" value="1.05" />
+    </group_state>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="effector" parent_link="link_7" group="arm" />
+    <!--PASSIVE JOINT: Purpose: this element is used to mark joints that are not actuated-->
+    <passive_joint name="d1p2" />
+    <passive_joint name="d1p3" />
+    <passive_joint name="d2p1" />
+    <passive_joint name="d2p2" />
+    <passive_joint name="d2p3" />
+    <passive_joint name="d3p1" />
+    <passive_joint name="d3p2" />
+    <passive_joint name="d3p3" />
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
+    <disable_collisions link1="ati_base_link" link2="ati_link" reason="Adjacent" />
+    <disable_collisions link1="ati_base_link" link2="d1p1" reason="Never" />
+    <disable_collisions link1="ati_base_link" link2="d1p2" reason="Never" />
+    <disable_collisions link1="ati_base_link" link2="d1p3" reason="Never" />
+    <disable_collisions link1="ati_base_link" link2="d2p1" reason="Never" />
+    <disable_collisions link1="ati_base_link" link2="d2p2" reason="Never" />
+    <disable_collisions link1="ati_base_link" link2="d2p3" reason="Never" />
+    <disable_collisions link1="ati_base_link" link2="d3p1" reason="Never" />
+    <disable_collisions link1="ati_base_link" link2="d3p2" reason="Never" />
+    <disable_collisions link1="ati_base_link" link2="d3p3" reason="Never" />
+    <disable_collisions link1="ati_base_link" link2="gripper_base_link" reason="Default" />
+    <disable_collisions link1="ati_base_link" link2="link_1" reason="Never" />
+    <disable_collisions link1="ati_base_link" link2="link_2" reason="Never" />
+    <disable_collisions link1="ati_base_link" link2="link_3" reason="Never" />
+    <disable_collisions link1="ati_base_link" link2="link_4" reason="Never" />
+    <disable_collisions link1="ati_base_link" link2="link_6" reason="Never" />
+    <disable_collisions link1="ati_base_link" link2="link_7" reason="Adjacent" />
+    <disable_collisions link1="ati_link" link2="d1p1" reason="Never" />
+    <disable_collisions link1="ati_link" link2="d1p2" reason="Never" />
+    <disable_collisions link1="ati_link" link2="d1p3" reason="Never" />
+    <disable_collisions link1="ati_link" link2="d2p1" reason="Never" />
+    <disable_collisions link1="ati_link" link2="d2p2" reason="Never" />
+    <disable_collisions link1="ati_link" link2="d2p3" reason="Never" />
+    <disable_collisions link1="ati_link" link2="d3p1" reason="Never" />
+    <disable_collisions link1="ati_link" link2="d3p2" reason="Never" />
+    <disable_collisions link1="ati_link" link2="d3p3" reason="Never" />
+    <disable_collisions link1="ati_link" link2="gripper_base_link" reason="Adjacent" />
+    <disable_collisions link1="ati_link" link2="link_1" reason="Never" />
+    <disable_collisions link1="ati_link" link2="link_2" reason="Never" />
+    <disable_collisions link1="ati_link" link2="link_3" reason="Never" />
+    <disable_collisions link1="ati_link" link2="link_4" reason="Never" />
+    <disable_collisions link1="ati_link" link2="link_5" reason="Never" />
+    <disable_collisions link1="ati_link" link2="link_6" reason="Never" />
+    <disable_collisions link1="ati_link" link2="link_7" reason="Never" />
+    <disable_collisions link1="base_link" link2="link_0" reason="Adjacent" />
+    <disable_collisions link1="base_link" link2="link_1" reason="Never" />
+    <disable_collisions link1="base_link" link2="link_2" reason="Never" />
+    <disable_collisions link1="base_link" link2="link_3" reason="Never" />
+    <disable_collisions link1="d1p1" link2="d1p2" reason="Adjacent" />
+    <disable_collisions link1="d1p1" link2="d1p3" reason="Never" />
+    <disable_collisions link1="d1p1" link2="d2p1" reason="Never" />
+    <disable_collisions link1="d1p1" link2="d2p2" reason="Never" />
+    <disable_collisions link1="d1p1" link2="d2p3" reason="Never" />
+    <disable_collisions link1="d1p1" link2="d3p1" reason="Never" />
+    <disable_collisions link1="d1p1" link2="d3p2" reason="Never" />
+    <disable_collisions link1="d1p1" link2="d3p3" reason="Never" />
+    <disable_collisions link1="d1p1" link2="gripper_base_link" reason="Adjacent" />
+    <disable_collisions link1="d1p1" link2="link_1" reason="Never" />
+    <disable_collisions link1="d1p1" link2="link_2" reason="Never" />
+    <disable_collisions link1="d1p1" link2="link_3" reason="Never" />
+    <disable_collisions link1="d1p1" link2="link_4" reason="Never" />
+    <disable_collisions link1="d1p1" link2="link_5" reason="Never" />
+    <disable_collisions link1="d1p1" link2="link_6" reason="Never" />
+    <disable_collisions link1="d1p1" link2="link_7" reason="Never" />
+    <disable_collisions link1="d1p2" link2="d1p3" reason="Adjacent" />
+    <disable_collisions link1="d1p2" link2="d2p1" reason="Never" />
+    <disable_collisions link1="d1p2" link2="d2p2" reason="Never" />
+    <disable_collisions link1="d1p2" link2="d2p3" reason="Never" />
+    <disable_collisions link1="d1p2" link2="d3p1" reason="Never" />
+    <disable_collisions link1="d1p2" link2="d3p2" reason="Never" />
+    <disable_collisions link1="d1p2" link2="d3p3" reason="Never" />
+    <disable_collisions link1="d1p2" link2="gripper_base_link" reason="Never" />
+    <disable_collisions link1="d1p2" link2="link_2" reason="Never" />
+    <disable_collisions link1="d1p2" link2="link_3" reason="Never" />
+    <disable_collisions link1="d1p2" link2="link_4" reason="Never" />
+    <disable_collisions link1="d1p2" link2="link_5" reason="Never" />
+    <disable_collisions link1="d1p2" link2="link_6" reason="Never" />
+    <disable_collisions link1="d1p2" link2="link_7" reason="Never" />
+    <disable_collisions link1="d1p3" link2="d2p1" reason="Never" />
+    <disable_collisions link1="d1p3" link2="d2p2" reason="Never" />
+    <disable_collisions link1="d1p3" link2="d3p1" reason="Never" />
+    <disable_collisions link1="d1p3" link2="d3p2" reason="Never" />
+    <disable_collisions link1="d1p3" link2="gripper_base_link" reason="User" />
+    <disable_collisions link1="d1p3" link2="link_1" reason="Never" />
+    <disable_collisions link1="d1p3" link2="link_2" reason="Never" />
+    <disable_collisions link1="d1p3" link2="link_3" reason="Never" />
+    <disable_collisions link1="d1p3" link2="link_4" reason="Never" />
+    <disable_collisions link1="d1p3" link2="link_5" reason="Never" />
+    <disable_collisions link1="d1p3" link2="link_6" reason="Never" />
+    <disable_collisions link1="d1p3" link2="link_7" reason="Never" />
+    <disable_collisions link1="d2p1" link2="d2p2" reason="Adjacent" />
+    <disable_collisions link1="d2p1" link2="d2p3" reason="Never" />
+    <disable_collisions link1="d2p1" link2="d3p1" reason="Never" />
+    <disable_collisions link1="d2p1" link2="d3p2" reason="Never" />
+    <disable_collisions link1="d2p1" link2="d3p3" reason="Never" />
+    <disable_collisions link1="d2p1" link2="gripper_base_link" reason="Adjacent" />
+    <disable_collisions link1="d2p1" link2="link_1" reason="Never" />
+    <disable_collisions link1="d2p1" link2="link_2" reason="Never" />
+    <disable_collisions link1="d2p1" link2="link_3" reason="Never" />
+    <disable_collisions link1="d2p1" link2="link_4" reason="Never" />
+    <disable_collisions link1="d2p1" link2="link_5" reason="Never" />
+    <disable_collisions link1="d2p1" link2="link_6" reason="Never" />
+    <disable_collisions link1="d2p1" link2="link_7" reason="Never" />
+    <disable_collisions link1="d2p2" link2="d2p3" reason="Adjacent" />
+    <disable_collisions link1="d2p2" link2="d3p1" reason="Never" />
+    <disable_collisions link1="d2p2" link2="d3p2" reason="Never" />
+    <disable_collisions link1="d2p2" link2="d3p3" reason="Never" />
+    <disable_collisions link1="d2p2" link2="gripper_base_link" reason="Never" />
+    <disable_collisions link1="d2p2" link2="link_1" reason="Never" />
+    <disable_collisions link1="d2p2" link2="link_2" reason="Never" />
+    <disable_collisions link1="d2p2" link2="link_3" reason="Never" />
+    <disable_collisions link1="d2p2" link2="link_4" reason="Never" />
+    <disable_collisions link1="d2p2" link2="link_5" reason="Never" />
+    <disable_collisions link1="d2p2" link2="link_6" reason="Never" />
+    <disable_collisions link1="d2p2" link2="link_7" reason="Never" />
+    <disable_collisions link1="d2p3" link2="d3p1" reason="Never" />
+    <disable_collisions link1="d2p3" link2="d3p2" reason="Never" />
+    <disable_collisions link1="d2p3" link2="gripper_base_link" reason="User" />
+    <disable_collisions link1="d2p3" link2="link_2" reason="Never" />
+    <disable_collisions link1="d2p3" link2="link_3" reason="Never" />
+    <disable_collisions link1="d2p3" link2="link_4" reason="Never" />
+    <disable_collisions link1="d2p3" link2="link_5" reason="Never" />
+    <disable_collisions link1="d2p3" link2="link_6" reason="Never" />
+    <disable_collisions link1="d2p3" link2="link_7" reason="Never" />
+    <disable_collisions link1="d3p1" link2="d3p2" reason="Adjacent" />
+    <disable_collisions link1="d3p1" link2="d3p3" reason="Never" />
+    <disable_collisions link1="d3p1" link2="gripper_base_link" reason="Adjacent" />
+    <disable_collisions link1="d3p1" link2="link_0" reason="Never" />
+    <disable_collisions link1="d3p1" link2="link_1" reason="Never" />
+    <disable_collisions link1="d3p1" link2="link_2" reason="Never" />
+    <disable_collisions link1="d3p1" link2="link_3" reason="Never" />
+    <disable_collisions link1="d3p1" link2="link_4" reason="Never" />
+    <disable_collisions link1="d3p1" link2="link_5" reason="Never" />
+    <disable_collisions link1="d3p1" link2="link_6" reason="Never" />
+    <disable_collisions link1="d3p1" link2="link_7" reason="Never" />
+    <disable_collisions link1="d3p2" link2="d3p3" reason="Adjacent" />
+    <disable_collisions link1="d3p2" link2="gripper_base_link" reason="Never" />
+    <disable_collisions link1="d3p2" link2="link_1" reason="Never" />
+    <disable_collisions link1="d3p2" link2="link_2" reason="Never" />
+    <disable_collisions link1="d3p2" link2="link_3" reason="Never" />
+    <disable_collisions link1="d3p2" link2="link_4" reason="Never" />
+    <disable_collisions link1="d3p2" link2="link_5" reason="Never" />
+    <disable_collisions link1="d3p2" link2="link_6" reason="Never" />
+    <disable_collisions link1="d3p2" link2="link_7" reason="Never" />
+    <disable_collisions link1="d3p3" link2="gripper_base_link" reason="User" />
+    <disable_collisions link1="d3p3" link2="link_0" reason="Never" />
+    <disable_collisions link1="d3p3" link2="link_2" reason="Never" />
+    <disable_collisions link1="d3p3" link2="link_3" reason="Never" />
+    <disable_collisions link1="d3p3" link2="link_4" reason="Never" />
+    <disable_collisions link1="d3p3" link2="link_5" reason="Never" />
+    <disable_collisions link1="d3p3" link2="link_6" reason="Never" />
+    <disable_collisions link1="d3p3" link2="link_7" reason="Never" />
+    <disable_collisions link1="gripper_base_link" link2="link_1" reason="Never" />
+    <disable_collisions link1="gripper_base_link" link2="link_2" reason="Never" />
+    <disable_collisions link1="gripper_base_link" link2="link_3" reason="Never" />
+    <disable_collisions link1="gripper_base_link" link2="link_4" reason="Never" />
+    <disable_collisions link1="gripper_base_link" link2="link_5" reason="Never" />
+    <disable_collisions link1="gripper_base_link" link2="link_6" reason="Never" />
+    <disable_collisions link1="gripper_base_link" link2="link_7" reason="Never" />
     <disable_collisions link1="link_0" link2="link_1" reason="Adjacent" />
     <disable_collisions link1="link_0" link2="link_2" reason="Never" />
     <disable_collisions link1="link_0" link2="link_3" reason="Never" />
