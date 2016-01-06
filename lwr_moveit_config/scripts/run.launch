@@ -54,6 +54,7 @@
     <arg name="load_ati_sensor" default="false" />
     <arg name="load_calib_tool" default="false" />
     <arg name="load_handle" default="false" />
+    <arg name="load_gripper" default="false" />
     <arg name="start_paused" default="false"/>
     <!-- Gazebo -->
     <arg name="gazebo_gui" default="true"/>
@@ -78,6 +79,7 @@
         <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
         <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
         <arg name="load_handle" value="$(arg load_handle)" />
+        <arg name="load_gripper" value="$(arg load_gripper)" />
         <arg name="gazebo_gui" value="$(arg gazebo_gui)"/>
         <arg name="launch_gazebo" value="$(arg launch_gazebo)"/>
         <arg name="start_paused" value="$(arg start_paused)"/>

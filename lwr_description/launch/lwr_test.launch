@@ -6,6 +6,7 @@
 <arg name="load_ati_sensor" default="true" />
 <arg name="load_calib_tool" default="false" />
 <arg name="load_handle" default="false" />
+<arg name="load_gripper" default="false" />
 
 
 <node pkg="rviz" type="rviz" output="screen" name="rviz" />
@@ -20,6 +21,7 @@
         <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
         <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
         <arg name="load_handle" value="$(arg load_handle)" />
+        <arg name="load_gripper" value="$(arg load_gripper)" />
     </include>
         
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>

@@ -25,6 +25,7 @@
 <arg name="load_ati_sensor" default="true" />
 <arg name="load_calib_tool" default="false" />
 <arg name="load_handle" default="false" />
+<arg name="load_gripper" default="false" />
 
 <!-- Gazebo has some hardcoded 'waiting for /gazebo... so it should not be in a sub namespace'-->
 <!--group ns="$(arg robot_ns)"-->
@@ -45,6 +46,7 @@
         <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
         <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
         <arg name="load_handle" value="$(arg load_handle)" />
+        <arg name="load_gripper" value="$(arg load_handle)" />
     </include>
 
     <node ns="$(arg robot_ns)" if="$(arg use_initial_joint_positions)" name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model $(arg robot_name) 
