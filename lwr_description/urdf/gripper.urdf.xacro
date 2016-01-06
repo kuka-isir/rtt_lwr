@@ -3,10 +3,18 @@
 
 	<xacro:macro name="gripper">
 
-		<joint name="gripper_base_joint" type="fixed">
-			<origin xyz="0 0 0" rpy="0 0 ${M_PI/4}" />
+	  <joint name="gripper_base_joint" type="fixed">
+	    <origin xyz="0 0 0" rpy="0 0 ${M_PI/4}" />
 	    <parent link="ati_link" />
 	    <child link="gripper_base_link" />
+	  </joint>
+
+	  <link name="gripper_grasp_link" />
+
+	  <joint name="gripper_grasp_joint" type="fixed">
+	    <origin xyz="0 0 0.085" rpy="0 0 0" />
+	    <parent link="gripper_base_link" />
+	    <child link="gripper_grasp_link" />
 	  </joint>
 
 		<link name="gripper_base_link">
