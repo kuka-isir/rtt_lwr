@@ -39,7 +39,7 @@
         <joint name="d1p1" value="0" />
     </group_state>
     <group_state name="closed" group="gripper">
-        <joint name="d1p1" value="1.05" />
+        <joint name="d1p1" value="1.04719755719755719755719755719755719755719755" />
     </group_state>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="effector" parent_link="link_7" group="arm" />

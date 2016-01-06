@@ -98,7 +98,7 @@
 		    link="d1p1" />
 		  <axis
 		    xyz="0 0 1" />
-		 <limit lower="0" upper="1.5708" velocity="10.0" effort="1000" />
+		 <limit lower="0" upper="1.05" velocity="10.0" effort="1000" />
 		</joint>
 		<link
 		  name="d1p2">
