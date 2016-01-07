@@ -46,7 +46,7 @@
         <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
         <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
         <arg name="load_handle" value="$(arg load_handle)" />
-        <arg name="load_gripper" value="$(arg load_handle)" />
+        <arg name="load_gripper" value="$(arg load_gripper)" />
     </include>
 
     <node ns="$(arg robot_ns)" if="$(arg use_initial_joint_positions)" name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model $(arg robot_name) 
