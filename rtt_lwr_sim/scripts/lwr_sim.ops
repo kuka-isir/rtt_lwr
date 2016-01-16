@@ -1,6 +1,9 @@
 require("print")
-loadComponent("gazebo","CORBA")
+
 import("rtt_ros")
 ros.import("rtt_lwr_abstract")
 loadService("Deployer","lwr_helper")
-lwr_helper.connectPeers("gazebo","lwr_sim")
+
+lwr_helper.waitForROSService("/lwr_sim/ready",10)
+loadComponent("gazebo","CORBA")
+lwr_helper.connectPeerCORBA("gazebo","lwr_sim")

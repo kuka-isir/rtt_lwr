@@ -1,7 +1,7 @@
 #include <rtt/RTT.hpp>
 #include <rtt/Property.hpp>
 #include <rtt/plugin/ServicePlugin.hpp>
-
+#include <ros/service.h>
 
 using namespace RTT;
 using namespace std;
@@ -12,17 +12,22 @@ public:
     LwrHelper(TaskContext* owner) :
     Service("lwr_helper", owner)
     {
-        this->addOperation("connectHw", &LwrHelper::connectHw, this);
-        this->addOperation("connectSim", &LwrHelper::connectSim, this);
-        this->addOperation("connectPeers", &LwrHelper::connectPeers, this);
+        /*this->addOperation("connectHw", &LwrHelper::connectHw, this);
+        this->addOperation("connectSim", &LwrHelper::connectSim, this);*/
+        this->addOperation("connectPeerCORBA", &LwrHelper::connectPeerCORBA, this);
+        this->addOperation("waitForROSService", &LwrHelper::waitForROSService, this);
     }
-    bool connectHw(const std::string& name)
+   /* bool connectHw(const std::string& name)
     {
     }
     bool connectSim(const std::string& name)
     {
+    }*/
+    bool waitForROSService(std::string service_name, double service_timeout_s)
+    {
+        return ros::service::waitForService(service_name, service_timeout_s*1E3);
     }
-    bool connectPeers(const std::string& interface_name,const std::string& peer_name)
+    bool connectPeerCORBA(const std::string& interface_name,const std::string& peer_name)
     {
         if(this->getOwner()->hasPeer(interface_name) == false){return false;}
         if(this->getOwner()->getPeer(interface_name)->hasPeer(peer_name) == false) { return false;}

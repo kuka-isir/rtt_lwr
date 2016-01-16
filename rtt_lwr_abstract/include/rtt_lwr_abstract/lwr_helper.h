@@ -12,18 +12,21 @@ namespace rtt_rosparam {
   public:
     ROSParam(RTT::TaskContext *owner) :
       RTT::ServiceRequester("lwr_helper",owner),
-      connectHw("connectHw"),
-      connectSim("getAllAbsolute"),
-      connectPeer("connectPeer")
+      /*connectHw("connectHw"),
+      connectSim("getAllAbsolute"),*/
+      connectPeers("connectPeers"),
+      connectPeers("waitForROSService")
     {
-      this->addOperationCaller(connectHw);
-      this->addOperationCaller(connectSim);
-      this->addOperationCaller(connectPeer);
+      /*this->addOperationCaller(connectHw);
+      this->addOperationCaller(connectSim);*/
+      this->addOperationCaller(connectPeers);
+      this->addOperationCaller(waitForROSService);
     }
 
-    RTT::OperationCaller<bool(const std::string &)> connectHw;
-    RTT::OperationCaller<bool(const std::string &)> connectSim;
-    RTT::OperationCaller<bool(const std::string &,const std::string &)> connectPeer;
+    /*RTT::OperationCaller<bool(const std::string &)> connectHw;
+    RTT::OperationCaller<bool(const std::string &)> connectSim;*/
+    RTT::OperationCaller<bool(const std::string &,const std::string &)> connectPeers;
+    RTT::OperationCaller<bool(const std::string &,double)> waitForROSService;
 
   };
 }
