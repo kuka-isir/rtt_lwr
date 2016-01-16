@@ -51,3 +51,7 @@ target_link_libraries(
 add_dependencies(${PROJECT_NAME} lwr_fri_generate_messages_cpp)
 orocos_generate_package(INCLUDE_DIRS include
                         DEPENDS rtt_ros_kdl_tools)
+
+install(DIRECTORY scripts/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/scripts
+  PATTERN ".svn" EXCLUDE)

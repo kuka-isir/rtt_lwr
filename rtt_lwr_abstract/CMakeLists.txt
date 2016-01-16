@@ -4,6 +4,7 @@ project(rtt_lwr_abstract)
 set(CMAKE_BUILD_TYPE Release)
 
 find_package(catkin REQUIRED COMPONENTS 
+    roscpp
     rtt_ros 
     kuka_lwr_fri 
     diagnostic_msgs 
