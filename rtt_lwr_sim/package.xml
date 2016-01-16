@@ -67,6 +67,7 @@
       <plugin_depend>rtt_roscomm</plugin_depend>
       <plugin_depend>rtt_rospack</plugin_depend>
       <plugin_depend>kuka_lwr_fri</plugin_depend>
+      <plugin_depend>lwr_fri</plugin_depend>
     </rtt_ros>
   </export>
 </package>
