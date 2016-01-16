@@ -39,13 +39,13 @@ gravity_vector(0.,0.,-9.81289)
     this->addProperty("root_link", root_link).doc("");
     this->addProperty("tip_link", tip_link).doc("");
     this->addProperty("robot_description",urdf_str_).doc("The URDF of the Kuka");
-    this->addProperty("gravity_vector",gravity_vector);
-    this->addProperty("use_sim_clock",use_sim_clock);   
-    this->addProperty("safety_checks",safety_checks_);
+    this->addProperty("gravity_vector",gravity_vector).doc("");
+    this->addProperty("use_sim_clock",use_sim_clock).doc("");   
+    this->addProperty("safety_checks",safety_checks_).doc("");
     this->addProperty("robot_name",robot_name_).doc("The name of the robot lwr/lwr_sim");
 
-    this->ports()->addPort("SyncStatus",port_sync_status).doc("");
-    this->ports()->addEventPort("SyncCommand",port_sync_cmd).doc("");
+    /*this->ports()->addPort("SyncStatus",port_sync_status).doc("");
+    this->ports()->addEventPort("SyncCommand",port_sync_cmd).doc("");*/
     
     this->ports()->addPort("CartesianImpedanceCommand", port_CartesianImpedanceCommand).doc("");
     this->ports()->addPort("CartesianWrenchCommand", port_CartesianWrenchCommand).doc("");
@@ -55,13 +55,14 @@ gravity_vector(0.,0.,-9.81289)
     this->ports()->addPort("JointTorqueCommand", port_JointTorqueCommand).doc("");
 
     this->ports()->addPort("toKRL",port_ToKRL).doc("");
-    //this->ports()->addPort("KRL_CMD", port_KRL_CMD).doc("");
     this->ports()->addPort("fromKRL",port_FromKRL).doc("");
 
     this->ports()->addPort("CartesianWrench", port_CartesianWrench).doc("");
     this->ports()->addPort("CartesianWrenchStamped", port_CartesianWrenchStamped).doc("");
+    
     this->ports()->addPort("RobotState", port_RobotState).doc("");
     this->ports()->addPort("FRIState", port_FRIState).doc("");
+
     this->ports()->addPort("JointVelocity", port_JointVelocity).doc("");
     this->ports()->addPort("CartesianVelocity", port_CartesianVelocity).doc("");
     this->ports()->addPort("CartesianPosition", port_CartesianPosition).doc("");
@@ -77,11 +78,11 @@ gravity_vector(0.,0.,-9.81289)
     this->ports()->addPort("JointStatesCommand",port_JointStatesCommand).doc("");
     this->ports()->addPort("JointStatesDynamicsDecomposition",port_JointStatesDynamics).doc("");
     
-    /*this->addProperty("kp",kp_);
+    this->addProperty("kp",kp_);
     this->addProperty("kd",kd_);
     this->addProperty("kg",kg_);
-    this->addProperty("kc",kc_);
-    this->addProperty("kcd",kcd_);*/
+    //this->addProperty("kc",kc_);
+    //this->addProperty("kcd",kcd_);
 
     this->addOperation("setJointImpedance",&LWRSim::setJointImpedance,this,OwnThread);
     this->addOperation("setCartesianImpedance",&LWRSim::setCartesianImpedance,this,OwnThread);
@@ -203,7 +204,6 @@ bool LWRSim::gazeboConfigureHook(gazebo::physics::ModelPtr model)
     jac_.resize(joints_idx_.size());
     jac_.data.setZero();
     mass_kdl_.resize(joints_idx_.size());
-    jnt_trq_grav_kdl_.resize(joints_idx_.size());
     jnt_trq_gazebo_cmd_.resize(joints_idx_.size());
     prop_joint_offset.resize(joints_idx_.size());
     std::fill(prop_joint_offset.begin(),prop_joint_offset.end(),0.0);
@@ -474,7 +474,7 @@ void LWRSim::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         log(RTT::Debug) << getName() << " gazeboUpdateHook() : model is NULL "<< TimeService::Instance()->getNSecs() << endlog();
         return;
     }
-    log(RTT::Debug) << getName() << " gazeboUpdateHook() "<< TimeService::Instance()->getNSecs() << endlog();
+    //log(RTT::Debug) << getName() << " gazeboUpdateHook() "<< TimeService::Instance()->getNSecs() << endlog();
 
     // Read From gazebo simulation
     for(unsigned j=0; j<joints_idx_.size(); j++) {
@@ -729,7 +729,7 @@ void LWRSim::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     }
     
     TimeService::nsecs tduration = TimeService::Instance()->getNSecs(tstart);
-    log(RTT::Debug) << getName() << " gazeboUpdateHook() duration " << tduration << endlog();
+    //log(RTT::Debug) << getName() << " gazeboUpdateHook() duration " << tduration << endlog();
 }
 
 ORO_CREATE_COMPONENT(lwr::LWRSim)
