@@ -52,7 +52,7 @@
     </include>
 </group>
 
-<include if="$(arg launch_gazebo)" file="$(find rtt_lwr_gazebo)/launch/lwr_gazebo.launch">
+<include if="$(arg launch_gazebo)" file="$(find rtt_lwr_sim)/launch/lwr_gazebo.launch">
         <arg name="robot_ns" value="$(arg robot_ns)"/>
         <arg name="robot_name" value="lwr_sim"/>
         <arg name="gui" value="$(arg gazebo_gui)"/>

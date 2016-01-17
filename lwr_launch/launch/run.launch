@@ -19,6 +19,9 @@
     <arg name="tip_link" default="link_7"/>
     <arg name="root_link" default="link_0"/>
     
+    <!-- Run inside the gazebo process -->
+    <arg name="spawn_in_gazebo_process" default="false"/>
+
     <!-- Orocos log level (never, fatal, critical, error, warning, info, debug, realtime) -->
     <arg name="log_level" default="warning"/>
     
@@ -38,7 +41,9 @@
         <arg name="start_paused" value="$(arg start_paused)"/>
     </include>
 
-    <group ns="$(arg robot_ns)">       
+    <node if="$(arg spawn_in_gazebo_process)" name="launcher_node" pkg="rosservice" type="rosservice" args="call /gazebo/gazebo/run_script $(arg ops_script) --wait -v"/>
+
+    <group unless="$(arg spawn_in_gazebo_process)" ns="$(arg robot_ns)">       
             <include file="$(find lwr_launch)/launch/deployer.launch">
                 <arg name="CORBA" value="true" if="$(arg sim)"/>
                 <arg name="DEPLOYER_ARGS" value="-s $(arg ops_script)"/>
