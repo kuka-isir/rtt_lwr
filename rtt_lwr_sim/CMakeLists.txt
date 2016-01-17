@@ -55,3 +55,6 @@ orocos_generate_package(INCLUDE_DIRS include
 install(DIRECTORY scripts/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/scripts
   PATTERN ".svn" EXCLUDE)
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+  PATTERN ".svn" EXCLUDE)

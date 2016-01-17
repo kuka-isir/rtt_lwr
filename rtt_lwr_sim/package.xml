@@ -18,7 +18,6 @@
   <build_depend>rtt_rosparam</build_depend>
   <build_depend>rtt_rosclock</build_depend>
   <build_depend>kuka_lwr_fri</build_depend>
-  <build_depend>rtt_lwr_gazebo</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>diagnostic_msgs</build_depend>
   <build_depend>geometry_msgs</build_depend>
@@ -49,7 +48,6 @@
   <run_depend>orocos_kdl</run_depend>
   <run_depend>kdl_conversions</run_depend>
   <run_depend>eigen_conversions</run_depend>
-  <run_depend>rtt_lwr_gazebo</run_depend>
   <run_depend>lwr_fri</run_depend>
 
   <export>
