@@ -15,9 +15,8 @@ import("kuka_lwr_fri")
 setActivity("lwr_sim",0,10,ORO_SCHED_OTHER)
 lwr_sim.configure()
 
-
 loadService("lwr_sim","rosservice")
-lwr_sim.rosservice.connect("ready","/lwr_sim/ready", "std_srvs/Empty")
+lwr_sim.rosservice.connect("ready","/gazebo/lwr_sim/ready", "std_srvs/Empty")
 
 lwr_sim.setLinkGravityMode("ati_link",false)
 
