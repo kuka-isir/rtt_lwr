@@ -1,7 +1,6 @@
 sudo: required
 dist: trusty
-# Force travis to use its minimal image with default Python settings
-language: generic
+language: ruby
 rvm:
   - 1.9.3
 compiler:
@@ -32,7 +31,7 @@ install:
   - cd $CATKIN_WS
   - catkin init
   - cd $CATKIN_WS_SRC
-  - git clone https://github.com/ahoarau/rtt_gazebo
+  - git clone https://github.com/kuka-isir/rtt_gazebo
   - git clone https://github.com/kuka-isir/rtt_ros_kdl_tools
   - wget https://raw.githubusercontent.com/IDSCETHZurich/re_trajectory-generator/master/kuka_IK/include/friComm.h
   - mv friComm.h $CATKIN_WS_SRC/rtt_lwr/lwr_hardware/kuka_lwr_fri/include/kuka_lwr_fri/friComm.h
@@ -42,7 +41,7 @@ script:
   # Enable install space
   #- catkin config --install
   # Build [and Install] packages
-  - catkin build --limit-status-rate 0.1 --no-notify -j2 -DCATKIN_ENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Debug
+  - catkin build --limit-status-rate 0.1 --no-notify --no-status -j2 -DCATKIN_ENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Debug
   # Build tests
   #- catkin build --limit-status-rate 0.1 --no-notify --make-args tests
   # Run tests
