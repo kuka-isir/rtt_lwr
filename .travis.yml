@@ -1,8 +1,6 @@
 sudo: required
 dist: trusty
-language: ruby
-rvm:
-  - 1.9.3
+language: generic
 compiler:
   - gcc
 env:
@@ -18,6 +16,8 @@ matrix:
     - env: CI_ROS_DISTRO="jade"
   
 install:
+  - rvm use 1.9.3 --install --binary --fuzzy
+  - rvm --version
   - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo apt-get update -qq
@@ -36,6 +36,9 @@ install:
   - wget https://raw.githubusercontent.com/IDSCETHZurich/re_trajectory-generator/master/kuka_IK/include/friComm.h
   - mv friComm.h $CATKIN_WS_SRC/rtt_lwr/lwr_hardware/kuka_lwr_fri/include/kuka_lwr_fri/friComm.h
   - rosdep install -r --from-paths $CATKIN_WS_SRC/ --rosdistro $ROS_DISTRO -y
+  - ruby -e 'puts $:'
+  - source /opt/ros/$CI_ROS_DISTRO/setup.bash
+  - ruby -e 'puts $:'
   - if [ -n "$USE_GAZEBO6" ] ; then wget -O /tmp/gazebo6_install.sh http://osrf-distributions.s3.amazonaws.com/gazebo/gazebo6_install.sh; sudo sh /tmp/gazebo6_install.sh ; fi
 script:
   # Enable install space
