@@ -17,9 +17,10 @@ matrix:
   
 install:
   - rvm use 1.9.3 --install --binary --fuzzy
-  - rvm --version
   - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
+  - sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
+  - wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
   - sudo apt-get update -qq
   - sudo apt-get install -qq -y python-rosdep python-catkin-tools
   - sudo apt-get install -qq -y ros-$CI_ROS_DISTRO-catkin ros-$CI_ROS_DISTRO-ros
@@ -39,10 +40,11 @@ install:
   - ruby -e 'puts $:'
   - source /opt/ros/$CI_ROS_DISTRO/setup.bash
   - ruby -e 'puts $:'
-  - if [ -n "$USE_GAZEBO6" ] ; then wget -O /tmp/gazebo6_install.sh http://osrf-distributions.s3.amazonaws.com/gazebo/gazebo6_install.sh; sudo sh /tmp/gazebo6_install.sh ; fi
+  - echo $RUBYLIB
+  - if [ -n "$USE_GAZEBO6" ] ; sudo apt-get install -qq -y ros-indigo-gazebo6-ros-pkgs; fi
 script:
   # Enable install space
-  #- catkin config --install
+  - catkin config --install
   # Build [and Install] packages
   - catkin build --limit-status-rate 0.1 --no-notify --no-status -j2 -DCATKIN_ENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Debug
   # Build tests
