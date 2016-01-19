@@ -41,7 +41,7 @@ install:
   - source /opt/ros/$CI_ROS_DISTRO/setup.bash
   - ruby -e 'puts $:'
   - echo $RUBYLIB
-  - if [ -n "$USE_GAZEBO6" ] ; sudo apt-get install -qq -y ros-indigo-gazebo6-ros-pkgs; fi
+  - if [ -n "$USE_GAZEBO6" ] ; then sudo apt-get install -qq -y ros-indigo-gazebo6-ros-pkgs; fi
 script:
   # Enable install space
   - catkin config --install
