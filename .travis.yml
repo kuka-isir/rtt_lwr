@@ -8,12 +8,12 @@ env:
     - CATKIN_WS=~/catkin_ws
     - CATKIN_WS_SRC=${CATKIN_WS}/src
   matrix:
-    - CI_ROS_DISTRO="jade"
+    - CI_ROS_DISTRO="jade" USE_GAZEBO6="true"
     - CI_ROS_DISTRO="indigo"
     - CI_ROS_DISTRO="indigo" USE_GAZEBO6="true"
 matrix:
   allow_failures:
-    - env: CI_ROS_DISTRO="jade"
+    - env: CI_ROS_DISTRO="jade" USE_GAZEBO6="true"
   
 install:
 # Typegen/Orogen Hack : reset the path so rosdep installs 1.9.3 correctly
