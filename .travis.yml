@@ -16,7 +16,8 @@ matrix:
     - env: CI_ROS_DISTRO="jade"
   
 install:
-  - rvm use 1.9.3 --install --binary --fuzzy
+# Typegen/Orogen Hack : reset the path so rosdep installs 1.9.3 correctly
+  - export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
   - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
@@ -38,14 +39,8 @@ install:
   - mv friComm.h $CATKIN_WS_SRC/rtt_lwr/lwr_hardware/kuka_lwr_fri/include/kuka_lwr_fri/friComm.h
   - rosdep install -r --from-paths $CATKIN_WS_SRC/ --rosdistro $ROS_DISTRO -y
   - if [ -n "$USE_GAZEBO6" ] ; then sudo apt-get install -qq -y ros-indigo-gazebo6-ros-pkgs; fi
-  - ruby -e 'puts $:'
   - source /opt/ros/$CI_ROS_DISTRO/setup.bash
-  - ruby -e 'puts $:'
-  - echo $RUBYLIB
-  - echo $RACK_ENV
-  - export RACK_ENV=$RUBYLIB:$RACK_ENV ; echo $RACK_ENV
-  - typegen
-  
+
 script:
   # Enable install space
   - catkin config --install
