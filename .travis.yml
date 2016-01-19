@@ -37,11 +37,15 @@ install:
   - wget https://raw.githubusercontent.com/IDSCETHZurich/re_trajectory-generator/master/kuka_IK/include/friComm.h
   - mv friComm.h $CATKIN_WS_SRC/rtt_lwr/lwr_hardware/kuka_lwr_fri/include/kuka_lwr_fri/friComm.h
   - rosdep install -r --from-paths $CATKIN_WS_SRC/ --rosdistro $ROS_DISTRO -y
+  - if [ -n "$USE_GAZEBO6" ] ; then sudo apt-get install -qq -y ros-indigo-gazebo6-ros-pkgs; fi
   - ruby -e 'puts $:'
   - source /opt/ros/$CI_ROS_DISTRO/setup.bash
   - ruby -e 'puts $:'
   - echo $RUBYLIB
-  - if [ -n "$USE_GAZEBO6" ] ; then sudo apt-get install -qq -y ros-indigo-gazebo6-ros-pkgs; fi
+  - echo $RACK_ENV
+  - export RACK_ENV=$RUBYLIB:$RACK_ENV ; echo $RACK_ENV
+  - typegen
+  
 script:
   # Enable install space
   - catkin config --install
