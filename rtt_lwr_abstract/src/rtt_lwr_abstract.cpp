@@ -154,11 +154,11 @@ bool RTTLWRAbstract::init(bool connect_all_ports){
     port_JointImpedanceCommand.setDataSample(jnt_imp_cmd);
     port_ToKRL.setDataSample(fri_to_krl);
     
-    bool ret=true;
-    if(connect_all_ports)
-        ret &= connectAllPorts(robot_name);
+    if(connect_all_ports || connect_all_ports_at_startup)
+        if(!connectAllPorts(robot_name))
+            connectAllPortsMQueue(robot_name);
     
-    ret &= this->getAllComponentRelative();
+    this->getAllComponentRelative();
     
     return true;
 }
@@ -184,7 +184,6 @@ bool RTTLWRAbstract::getAllComponentRelative()
     }
     return true;
 }
-
 bool RTTLWRAbstract::connectAllPorts(const std::string& robot_name)
 {
     if(!hasPeer(robot_name))
@@ -192,6 +191,46 @@ bool RTTLWRAbstract::connectAllPorts(const std::string& robot_name)
         RTT::log(RTT::Fatal) << robot_name<<" peer could not be found, can't connect all ports"<<RTT::endlog();
         return false;
     }
+    RTT::TaskContext * peer = NULL;
+    peer = getPeer(robot_name);
+    if(peer == NULL) return false;
+    
+    RTT::log(RTT::Info) << "Connectings all ports ..." << RTT::endlog();
+    bool all_connected = true;
+    
+    all_connected &=port_CartesianWrench.connectTo(peer->getPort("CartesianWrench"),ConnPolicy::data());
+    all_connected &=port_RobotState.connectTo(peer->ports()->getPort("RobotState"),ConnPolicy::data());
+    all_connected &=port_FRIState.connectTo(peer->getPort("FRIState"),ConnPolicy::data());
+    all_connected &=port_JointVelocity.connectTo(peer->getPort("JointVelocity"),ConnPolicy::data());
+    all_connected &=port_CartesianVelocity.connectTo(peer->getPort("CartesianVelocity"),ConnPolicy::data());
+    all_connected &=port_CartesianPosition.connectTo(peer->getPort("CartesianPosition"),ConnPolicy::data());
+    all_connected &=port_MassMatrix.connectTo(peer->getPort("MassMatrix"),ConnPolicy::data());
+    all_connected &=port_Jacobian.connectTo(peer->getPort("Jacobian"),ConnPolicy::data());
+    all_connected &=port_JointTorque.connectTo(peer->getPort("JointTorque"),ConnPolicy::data());
+    all_connected &=port_GravityTorque.connectTo(peer->getPort("GravityTorque"),ConnPolicy::data());
+    all_connected &=port_JointPosition.connectTo(peer->getPort("JointPosition"),ConnPolicy::data());
+    
+    all_connected &=port_CartesianImpedanceCommand.connectTo(peer->getPort("CartesianImpedanceCommand"),ConnPolicy::data());
+    all_connected &=port_CartesianPositionCommand.connectTo(peer->getPort("CartesianPositionCommand"),ConnPolicy::data());
+    all_connected &=port_CartesianWrenchCommand.connectTo(peer->getPort("CartesianWrenchCommand"),ConnPolicy::data());
+    all_connected &=port_JointImpedanceCommand.connectTo(peer->getPort("JointImpedanceCommand"),ConnPolicy::data());
+    all_connected &=port_JointPositionCommand.connectTo(peer->getPort("JointPositionCommand"),ConnPolicy::data());
+    all_connected &=port_JointTorqueCommand.connectTo(peer->getPort("JointTorqueCommand"),ConnPolicy::data());
+    all_connected &=port_ToKRL.connectTo(peer->getPort("toKRL"),ConnPolicy::data());
+    all_connected &=port_FromKRL.connectTo(peer->getPort("fromKRL"),ConnPolicy::data());
+    
+    if(!all_connected)
+        RTT::log(RTT::Error) << "Not all ports are connected !" << RTT::endlog();
+    return all_connected;
+}
+bool RTTLWRAbstract::connectAllPortsMQueue(const std::string& robot_name)
+{
+    if(!hasPeer(robot_name))
+    {
+        RTT::log(RTT::Fatal) << robot_name<<" peer could not be found, can't connect all ports"<<RTT::endlog();
+        return false;
+    }
+    
     RTT::TaskContext * peer = NULL;
     peer = getPeer(robot_name);
     if(peer == NULL) return false;
@@ -222,7 +261,7 @@ bool RTTLWRAbstract::connectAllPorts(const std::string& robot_name)
     
     if(!all_connected)
         RTT::log(RTT::Error) << "Not all ports are connected !" << RTT::endlog();
-    return true;
+    return all_connected;
 }
 bool RTTLWRAbstract::updateState(){
     bool res=true;
