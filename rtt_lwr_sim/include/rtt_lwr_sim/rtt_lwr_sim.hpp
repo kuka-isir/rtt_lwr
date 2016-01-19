@@ -236,6 +236,7 @@ namespace lwr{
         gazebo::physics::Joint_V gazebo_joints_;
         gazebo::physics::Link_V model_links_;
         std::vector<std::string> joint_names_;
+        unsigned int nb_no_data_;
     };
 }
 

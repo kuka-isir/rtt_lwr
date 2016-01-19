@@ -22,6 +22,8 @@ safety_checks_(false),
 connect_to_rtt_gazebo_at_configure(true),
 set_joint_pos_no_dynamics_(false),
 service_timeout_s(20.0),
+set_brakes_(false),
+nb_no_data_(0),
 gravity_vector(0.,0.,-9.81289)
 {
     this->provides("gazebo")->addOperation("configure",&LWRSim::gazeboConfigureHook,this,RTT::ClientThread);
@@ -37,6 +39,7 @@ gravity_vector(0.,0.,-9.81289)
     //this->addProperty("joint_offset", prop_joint_offset).doc("");
 
     this->addProperty("root_link", root_link).doc("");
+    this->addProperty("set_brakes", set_brakes_).doc("");
     this->addProperty("tip_link", tip_link).doc("");
     this->addProperty("robot_description",urdf_str_).doc("The URDF of the Kuka");
     this->addProperty("gravity_vector",gravity_vector).doc("");
@@ -468,7 +471,8 @@ void LWRSim::updateHook()
 }
 void LWRSim::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
-    TimeService::nsecs tstart = TimeService::Instance()->getNSecs();
+    static TimeService::nsecs last_tstart,tstart;
+    tstart = TimeService::Instance()->getNSecs();
     // Checking if model is correct
     if(model.get() == NULL){
         log(RTT::Debug) << getName() << " gazeboUpdateHook() : model is NULL "<< TimeService::Instance()->getNSecs() << endlog();
@@ -484,6 +488,8 @@ void LWRSim::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     }
 
     // Read commands from users
+    jnt_trq_cmd_.setZero();
+
     FlowStatus jnt_trq_cmd_fs = port_JointTorqueCommand.readNewest(jnt_trq_cmd_);
     FlowStatus jnt_pos_cmd_fs = port_JointPositionCommand.readNewest(jnt_pos_cmd_);
     FlowStatus cart_pos_cmd_fs = port_CartesianPositionCommand.readNewest(cart_pos_cmd_);
@@ -493,7 +499,7 @@ void LWRSim::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     FlowStatus cart_imp_cmd_fs = port_CartesianImpedanceCommand.readNewest(cart_imp_cmd_);
 
     fri_state.timestamp = rtt_rosclock::host_now().toNSec();
-
+    log(RTT::Debug) << getName() << " gazeboUpdateHook()  "<<tstart <<" " << jnt_trq_cmd_fs << jnt_trq_cmd_.transpose() << endlog();
     // Update Robot Internal State to mimic KRC
     // Update cmds to FRI
     if(fri_to_krl_cmd_fs == NewData)
@@ -688,7 +694,28 @@ void LWRSim::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     port_RobotState.write(robot_state);
     port_FRIState.write(fri_state);
     
+    switch(jnt_trq_cmd_fs)
+    {
+        // Not Connected
+        case RTT::NoData: 
+            set_brakes_ = true;
+            break;
     
+        // Connection lost
+        case RTT::OldData:
+            if(tstart == last_tstart
+                && nb_no_data_++ >= 2) 
+                set_brakes_ = true;
+            last_tstart = tstart;
+            break;
+    
+        // OK
+        case RTT::NewData:
+            set_brakes_ = false;
+            if(nb_no_data_-- <= 0)
+                nb_no_data_ = 0;
+            break;
+    }
     // Set Gravity Mode or specified links
     for(std::map<gazebo::physics::LinkPtr,bool>::iterator it = this->gravity_mode_.begin();
         it != this->gravity_mode_.end();++it)
