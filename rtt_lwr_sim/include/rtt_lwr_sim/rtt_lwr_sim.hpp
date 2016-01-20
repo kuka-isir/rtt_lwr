@@ -74,7 +74,7 @@ namespace lwr{
         bool gazeboConfigureHook(gazebo::physics::ModelPtr model);
         bool setGravityMode();
         bool setJointImpedance(const Eigen::VectorXd& stiffness, const Eigen::VectorXd& damping);
-        bool setCartesianImpedance(const Eigen::Matrix<double,6,1> & cart_stiffness, const Eigen::Matrix<double,6,1> & cart_damping);
+        bool setCartesianImpedance(const Eigen::VectorXd& cart_stiffness, const Eigen::VectorXd& cart_damping);
         bool isCommandMode();
         
         RTT::OutputPort<bool> port_sync_status;
@@ -122,7 +122,7 @@ namespace lwr{
                         trq_limits_;
                             
         Eigen::VectorXd jnt_pos_,
-                        jnt_pos_fri_offset,
+                        jnt_pos_fri_offset_,
                         jnt_pos_old_,
                         jnt_trq_,
                         jnt_trq_raw_,
@@ -191,9 +191,9 @@ namespace lwr{
                         kp_default_,
                         kd_default_;
                         
-        Eigen::Matrix<double,6,1>   kc_,
+        Eigen::VectorXd             kcp_,
                                     kcd_,
-                                    kc_default_,
+                                    kcp_default_,
                                     kcd_default_;        
         std::string robot_name_;
         
