@@ -1,19 +1,23 @@
 require("print")
-import("rtt_std_msgs")
-import("rtt_std_srvs")
-import("rtt_diagnostic_msgs")
-import("rtt_geometry_msgs")
-import("rtt_sensor_msgs")
-import("kdl_typekit")
-import("eigen_typekit")
-import("rtt_tf")
+import("rtt_ros")
+
+ros.import("rtt_geometry_msgs")
+ros.import("kdl_typekit")
+ros.import("eigen_typekit")
 import("rtt_rosparam")
 import("rtt_roscomm")
 import("rtt_rospack")
-import("kuka_lwr_fri")
+ros.import("kuka_lwr_fri")
+ros.import("lwr_fri")
 
 setActivity("lwr_sim",0,10,ORO_SCHED_OTHER)
+
 lwr_sim.configure()
+
+stream("lwr_sim.JointStates",ros.comm.topic("~lwr_sim/joint_states"))
+stream("lwr_sim.JointStatesCommand",ros.comm.topic("~lwr_sim/joint_states_cmd"))
+stream("lwr_sim.JointStatesDynamicsDecomposition",ros.comm.topic("~lwr_sim/joint_states_dynamics"))
+stream("lwr_sim.CartesianPose",ros.comm.topic("~lwr_sim/cartesian_pose"))
 
 loadService("lwr_sim","rosservice")
 lwr_sim.rosservice.connect("ready","/gazebo/lwr_sim/ready", "std_srvs/Empty")
