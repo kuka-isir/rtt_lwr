@@ -26,6 +26,14 @@
 <arg name="load_calib_tool" default="false" />
 <arg name="load_handle" default="false" />
 
+<group ns="gazebo">
+  <rosparam ns="$(arg robot_name)" subst_value="true">
+          kp_default: [450.0, 450.0, 200.0, 200.0, 200.0, 20.0, 10.0]
+          kd_default: [1.0, 1.0, 1.0, 0.7, 0.7, 0.1, 0.0]
+          kcp_default: [1000.0, 1000.0, 1000.0, 200.0, 200.0, 200.0]
+          kcd_default: [0.7, 0.7, 0.7, 0.7, 0.7, 0.7]
+  </rosparam>
+</group>
 <!-- Gazebo has some hardcoded 'waiting for /gazebo... so it should not be in a sub namespace'-->
 <!--group ns="$(arg robot_ns)"-->
     <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
