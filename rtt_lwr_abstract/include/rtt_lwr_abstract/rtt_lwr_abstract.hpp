@@ -77,7 +77,7 @@ class SegmentIndice{
     static const fri_int32_t FRI_START = 1;
     static const fri_int32_t FRI_STOP = 2;
     static const fri_int32_t STOP_KRL_SCRIPT = 3;
-    
+
 class RTTLWRAbstract : public RTT::TaskContext{
   public:
       RTTLWRAbstract(std::string const& name);
@@ -115,10 +115,10 @@ class RTTLWRAbstract : public RTT::TaskContext{
     /** @brief Orocos Cleanup hook
      */
     virtual void cleanupHook();
-    
+
     const unsigned int getNrOfJoints() const;
 
-    bool sendJointCommand(RTT::OutputPort<Eigen::VectorXd>& port_cmd,const Eigen::VectorXd& jnt_cmd); 
+    bool sendJointCommand(RTT::OutputPort<Eigen::VectorXd>& port_cmd,const Eigen::VectorXd& jnt_cmd);
 
     int getToolKRL();
 
@@ -134,17 +134,17 @@ class RTTLWRAbstract : public RTT::TaskContext{
      *  @return : The value of the FRI_STATE enum
      */
     FRI_STATE getFRIMode();
-    
+
     /** @brief Get the FRI Quality
      *  @return : The value of the FRI_QUALITY enum
      */
     FRI_QUALITY getFRIQuality();
-    
+
     /** @brief Get the FRI Control mode
      *  @return: The current control mode from FRI_CTRL (joint impedance, cartesian impedance or joint position)
      */
     FRI_CTRL getFRIControlMode();
-    
+
     /** @brief Ask KRL script for a friStop()
      */
     void friStop();
@@ -163,41 +163,41 @@ class RTTLWRAbstract : public RTT::TaskContext{
 
     /** @brief Return the cartesian position of the tool center point in the robot base frame
      */
-    bool getCartesianPosition(geometry_msgs::Pose& cart_position);
+    RTT::FlowStatus getCartesianPosition(geometry_msgs::Pose& cart_position);
 
     /** @brief Return the Jacobian
      */
-    bool getJacobian(KDL::Jacobian& jacobian);
+    RTT::FlowStatus getJacobian(KDL::Jacobian& jacobian);
 
     /** @brief Return the Mass Matrix
      */
-    bool getMassMatrix(Eigen::MatrixXd& mass_matrix);
+    RTT::FlowStatus getMassMatrix(Eigen::MatrixXd& mass_matrix);
 
     /** @brief Return the gravity torque
      */
-    bool getGravityTorque(Eigen::VectorXd& gravity_torque);
+    RTT::FlowStatus getGravityTorque(Eigen::VectorXd& gravity_torque);
     /** @brief Return the estimated joint velocity
      */
-    bool getJointVelocity(Eigen::VectorXd& joint_velocity);
+    RTT::FlowStatus getJointVelocity(Eigen::VectorXd& joint_velocity);
 
     /** @brief Return the current configuration of the robot
      */
-    bool getJointPosition(Eigen::VectorXd& joint_position);
+    RTT::FlowStatus getJointPosition(Eigen::VectorXd& joint_position);
 
     /** @brief Return the estimated external joint torque
      */
-    bool getJointTorque(Eigen::VectorXd& joint_torque);
+    RTT::FlowStatus getJointTorque(Eigen::VectorXd& joint_torque);
         /** @brief Return the actuator joint torque seem by the motor
      */
-    bool getJointTorqueRaw(Eigen::VectorXd& joint_torque_raw);
-    
+    RTT::FlowStatus getJointTorqueRaw(Eigen::VectorXd& joint_torque_raw);
+
     /** @brief Return the cartesian velocity of the Tooltip (Twist)
      */
-    bool getCartesianVelocity(geometry_msgs::Twist& cart_twist);
-    
+    RTT::FlowStatus getCartesianVelocity(geometry_msgs::Twist& cart_twist);
+
     /** @brief Return the estimated external tool center point wrench
      */
-    bool getCartesianWrench(geometry_msgs::Wrench& cart_wrench);
+    RTT::FlowStatus getCartesianWrench(geometry_msgs::Wrench& cart_wrench);
 
     /** @brief Send Joint position in radians
      */
@@ -217,11 +217,11 @@ class RTTLWRAbstract : public RTT::TaskContext{
     /** @brief Set the Position Control Mode 10
      */
     void setJointPositionControlMode();
-        
+
     /** @brief Set the Impedance Control Mode 30
      */
     void setJointImpedanceControlMode();
-        
+
     /** @brief Set the Cartesian Impedance Control Mode 20
      */
     void setCartesianImpedanceControlMode();
@@ -232,7 +232,7 @@ class RTTLWRAbstract : public RTT::TaskContext{
     bool isCartesianImpedanceControlMode();
     bool isJointPositionControlMode();
     bool updateState();
-    
+
     template<class T>
     RTT::FlowStatus readData(RTT::InputPort<T>& port,T& data)
     {
@@ -243,7 +243,7 @@ class RTTLWRAbstract : public RTT::TaskContext{
         }
         return port.read(data);
     }
-    
+
     template<class T>
     void writeData(RTT::InputPort<T>& port,const T& data)
     {
@@ -254,9 +254,9 @@ class RTTLWRAbstract : public RTT::TaskContext{
         }
         port.write(data);
     }
-    
+
     bool getAllComponentRelative();
-    
+
     void setJointTorqueControlMode();
 
     bool connectAllPorts(const std::string& robot_name="lwr");
@@ -285,7 +285,7 @@ protected:
     //RTT::OutputPort<std_msgs::Int32 > port_KRL_CMD;
     RTT::InputPort<tFriKrlData > port_FromKRL;
     //RTT::InputPort<std_msgs::Int32 > port_KRL_CMD;
-        
+
     RTT::OutputPort<tFriKrlData > port_ToKRL;
     RTT::InputPort<geometry_msgs::Wrench > port_CartesianWrench;
     RTT::InputPort<tFriRobotState > port_RobotState;
@@ -310,13 +310,13 @@ protected:
     Eigen::MatrixXd mass;
     lwr_fri::FriJointImpedance jnt_imp_cmd;
     lwr_fri::CartesianImpedance cart_imp_cmd;
-    
+
     Eigen::Matrix<double,6,1> X,Xd,Xdd,X_cmd,Xd_cmd,Xdd_cmd;
     Eigen::Affine3d X_aff,Xd_aff;
     Eigen::VectorXd kp,kd;
     Eigen::Matrix<double,6,1> kp_cart,kd_cart;
     KDL::Frame X_kdl,Xd_kdl;
-    
+
     Eigen::VectorXd jnt_pos,
                     jnt_pos_old,
                     jnt_trq,
@@ -333,7 +333,7 @@ protected:
                     gravity_kdl,
                     jnt_trq_kdl,
                     jnt_acc_kdl;
-                    
+
     KDL::JntArrayVel jnt_pos_vel_kdl;
     KDL::Frame tool_in_base_frame;
 
@@ -341,12 +341,12 @@ protected:
 
     KDL::Jacobian J_tip_base;
     KDL::FrameVel tool_in_base_framevel;
-    
-    std::string root_link,tip_link,robot_name,robot_description;
+
+    std::string root_link,tip_link,robot_name,robot_description,robot_ns,tf_prefix;
     urdf::Model urdf_model;
     KDL::Tree kdl_tree;
-    KDL::Chain kdl_chain;        
-        
+    KDL::Chain kdl_chain;
+
     boost::scoped_ptr<KDL::ChainFkSolverVel_recursive> fk_vel_solver;
     boost::scoped_ptr<KDL::ChainDynParam> id_dyn_solver;
     boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver;
@@ -355,7 +355,7 @@ protected:
     KDL::Vector gravity_vector;
     SegmentIndice seg_names_idx;
 
-    bool connect_all_ports_at_startup,use_sim_clock;
+    bool connect_all_ports_at_startup,use_sim_time;
 };
 }
 #endif
