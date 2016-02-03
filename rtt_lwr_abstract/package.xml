@@ -51,6 +51,10 @@
       <plugin_depend>rtt_diagnostic_msgs</plugin_depend>
       <plugin_depend>rtt_geometry_msgs</plugin_depend>
       <plugin_depend>rtt_sensor_msgs</plugin_depend>
+      <plugin_depend>rtt_actionlib_msgs</plugin_depend>
+      <plugin_depend>rtt_control_msgs</plugin_depend>
+      <plugin_depend>rtt_controller_manager_msgs</plugin_depend>
+      <plugin_depend>rtt_shape_msgs</plugin_depend>
       <plugin_depend>kdl_typekit</plugin_depend>
       <plugin_depend>eigen_typekit</plugin_depend>
       <plugin_depend>rtt_rosclock</plugin_depend>
