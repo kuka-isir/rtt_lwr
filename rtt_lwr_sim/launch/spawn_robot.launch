@@ -1,0 +1,50 @@
+<launch>
+    <arg name="robot_ns" default="/"/>
+    <arg name="robot_name"/>
+    <arg name="x" default="0.0"/>
+    <arg name="y" default="0.0"/>
+    <arg name="z" default="0.0"/>
+    <!-- For the KDL chain -->
+    <arg name="root_link" default="link_0"/>
+    <arg name="tip_link" default="link_7"/>
+    <arg name="tf_prefix" default="$(arg robot_ns)"/>
+	<!-- Tools -->
+    <arg name="load_base" default="false" />
+    <arg name="load_ati_sensor" default="false" />
+    <arg name="load_calib_tool" default="false" />
+    <arg name="load_handle" default="false" />
+
+    <group ns="$(arg robot_ns)">
+        <!--group ns="$(arg robot_name)"-->
+
+            <rosparam ns="$(arg robot_name)">
+                kp_default: [450.0, 450.0, 200.0, 200.0, 200.0, 20.0, 10.0]
+                kd_default: [1.0, 1.0, 1.0, 0.7, 0.7, 0.1, 0.0]
+                kcp_default: [1000.0, 1000.0, 1000.0, 200.0, 200.0, 200.0]
+                kcd_default: [0.7, 0.7, 0.7, 0.7, 0.7, 0.7]
+            </rosparam>
+
+            <param name="tf_prefix" value="$(arg tf_prefix)"/>
+            <param name="robot_name" value="$(arg robot_name)"/>
+            <param name="root_link" value="$(arg root_link)"/>
+            <param name="tip_link" value="$(arg tip_link)"/>
+
+            <include file="$(find lwr_description)/launch/lwr_upload.launch">
+                <arg name="load_base" value="$(arg load_base)" />
+                <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
+                <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
+                <arg name="load_handle" value="$(arg load_handle)" />
+                <arg name="robot_name" value="$(arg robot_name)"/>
+            </include>
+
+            <node name="spawn_$(arg robot_name)" pkg="gazebo_ros"
+                type="spawn_model"
+                args="-param robot_description -urdf
+                    -model $(arg robot_name)
+                    -x $(arg x) -y $(arg y) -z $(arg z)"
+                respawn="false" output="screen" />
+
+        <!--/group-->
+    </group>
+
+</launch>

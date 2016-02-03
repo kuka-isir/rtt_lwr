@@ -1,76 +1,65 @@
 <?xml version="1.0"?>
 <launch>
 
-  <!-- roslaunch arguments -->
-<arg name="debug" default="false"/>
-<arg name="gui" default="true"/>
-<arg name="TAO" default="false"/>
-<arg name="robot_ns" default="/"/>
-<arg name="robot_name" default="lwr_sim"/>
-<!--PTP {a1 0,a2 87,a3 87,a4 0,a5 -55,a6 0,e1 0} -->
-<arg name="use_initial_joint_positions" default="false"/>
-<arg name="joint_0_init" default="0.0"/>
-<arg name="joint_1_init" default="0.0"/>
-<arg name="joint_2_init" default="0.0"/>
-<arg name="joint_3_init" default="0.0"/>
-<arg name="joint_4_init" default="0.0"/>
-<arg name="joint_5_init" default="0.0"/>
-<arg name="joint_6_init" default="0.0"/>
-<arg name="paused" default="false"/>
-<arg name="use_sim_time" default="true"/>
+    <!-- roslaunch arguments -->
+    <arg name="debug" default="false"/>
+    <arg name="x" default="0.0"/>
+    <arg name="y" default="0.0"/>
+    <arg name="z" default="0.0"/>
+    <arg name="gui" default="true"/>
+    <arg name="TAO" default="false"/>
+    <arg name="robot_ns" default="/"/>
+    <arg name="robot_name" default="lwr_sim"/>
+    <!--PTP {a1 0,a2 87,a3 87,a4 0,a5 -55,a6 0,e1 0} -->
+    <arg name="initial_joint_positions" default="[0, 0, 0, 0, 0, 0, 0]"/>
+    <arg name="paused" default="false"/>
+    <arg name="use_sim_time" default="true"/>
 
-<arg name="load_robot_description" default="true"/>
-<!-- Tools -->
-<arg name="load_base" default="false" />
-<arg name="load_ati_sensor" default="true" />
-<arg name="load_calib_tool" default="false" />
-<arg name="load_handle" default="false" />
+    <arg name="load_robot_description" default="true"/>
+    <!-- Tools -->
+    <arg name="load_base" default="false" />
+    <arg name="load_ati_sensor" default="false" />
+    <arg name="load_calib_tool" default="false" />
+    <arg name="load_handle" default="false" />
 
-<group ns="gazebo">
-  <rosparam ns="$(arg robot_name)" subst_value="true">
-          kp_default: [450.0, 450.0, 200.0, 200.0, 200.0, 20.0, 10.0]
-          kd_default: [1.0, 1.0, 1.0, 0.7, 0.7, 0.1, 0.0]
-          kcp_default: [1000.0, 1000.0, 1000.0, 200.0, 200.0, 200.0]
-          kcd_default: [0.7, 0.7, 0.7, 0.7, 0.7, 0.7]
-  </rosparam>
-</group>
-<!-- Gazebo has some hardcoded 'waiting for /gazebo... so it should not be in a sub namespace'-->
-<!--group ns="$(arg robot_ns)"-->
-    <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+    <arg name="root_link" default="link_0"/>
+    <arg name="tip_link" default="link_7"/>
+    <arg name="tf_prefix" default="$(arg robot_ns)"/>
+
     <include file="$(find rtt_lwr_sim)/launch/empty_world.launch">
-            <arg name="debug" value="$(arg debug)" />
-            <arg name="gui" value="$(arg gui)" />
-            <arg name="paused" value="$(arg paused)"/>
-            <arg name="use_sim_time" value="$(arg use_sim_time)"/>
-            <arg name="headless" value="false"/>
-            <arg name="world_name" value="$(find rtt_lwr_sim)/launch/lwr.world"/>
-    </include>
-    <!--param name="tf_prefix" value="$(arg robot_ns)" /-->
-    <!--param name="robot_name" value="$(arg robot_name)"/-->
-
-    <include if="$(arg load_robot_description)" file="$(find lwr_description)/launch/lwr_upload.launch">
-        <arg name="load_base" value="$(arg load_base)" />
-        <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
-        <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
-        <arg name="load_handle" value="$(arg load_handle)" />
+        <arg name="debug" value="$(arg debug)" />
+        <arg name="gui" value="$(arg gui)" />
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+        <arg name="headless" value="false"/>
+        <arg name="world_name" value="$(find rtt_lwr_sim)/launch/lwr.world"/>
     </include>
 
-    <node ns="$(arg robot_ns)" if="$(arg use_initial_joint_positions)" name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model $(arg robot_name) 
-          -J joint_0 $(arg joint_0_init)
-          -J joint_1 $(arg joint_1_init)
-          -J joint_2 $(arg joint_2_init)
-          -J joint_3 $(arg joint_3_init)
-          -J joint_4 $(arg joint_4_init)
-          -J joint_5 $(arg joint_5_init)
-          -J joint_6 $(arg joint_6_init)
-          "  respawn="false" output="screen" />
-    
-    <node ns="$(arg robot_ns)" unless="$(arg use_initial_joint_positions)" name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model $(arg robot_name)"  respawn="false" output="screen" />
+    <include file="$(find rtt_lwr_sim)/launch/spawn_robot.launch">
+        <arg name="robot_ns" value="$(arg robot_ns)"/>
+        <arg name="robot_name" value="$(arg robot_name)"/>
+        <arg name="x" value="$(arg x)"/>
+        <arg name="y" value="$(arg y)"/>
+        <arg name="z" value="$(arg z)"/>
+        <arg name="tf_prefix" value="$(arg tf_prefix)"/>
+        <arg name="root_link" value="$(arg root_link)"/>
+        <arg name="tip_link" value="$(arg tip_link)"/>
+        <arg name="load_base" default="$(arg load_base)" />
+        <arg name="load_ati_sensor" default="$(arg load_ati_sensor)" />
+        <arg name="load_calib_tool" default="$(arg load_calib_tool)" />
+        <arg name="load_handle" default="$(arg load_handle)" />
+    </include>
+
     <!-- Launch the CORBA TO naming service -->
-    <node if="$(arg TAO)" name="corba_naming_service" pkg="rtt_ros" type="corba-naming-service" args="-m 1"/>
+    <node if="$(arg TAO)" name="corba_naming_service"
+        pkg="rtt_ros" type="corba-naming-service" args="-m 1"/>
 
-<!--/group-->
-
-
+    <node name="$(arg robot_name)_set_initial_joint_positions"
+        pkg="rosservice" type="rosservice" output="screen"
+        args="call /gazebo/set_model_configuration
+        '{ model_name: $(arg robot_name),
+        joint_names: [ joint_0, joint_1, joint_2,
+                        joint_3, joint_4, joint_5, joint_6 ],
+        joint_positions: $(arg initial_joint_positions)}' --wait -v"/>
 
 </launch>
