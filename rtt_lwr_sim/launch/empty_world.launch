@@ -6,7 +6,7 @@
   <arg name="use_sim_time" default="true"/>
   <arg name="gui" default="true"/>
   <arg name="headless" default="false"/>
-  <arg name="verbose" default="false"/>
+  <arg name="verbose" default="true"/>
   <arg name="debug" default="false"/>
   <arg name="world_name" default="worlds/empty.world"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
 
@@ -31,7 +31,7 @@
 
   <!-- start gazebo client -->
   <group if="$(arg gui)">
-    <node name="gazebo_gui" pkg="gazebo_ros" type="gzclient" respawn="false" output="screen"/>
+    <node name="gazebo_gui" pkg="gazebo_ros" type="gzclient" args="$(arg command_arg3)" respawn="false" output="screen"/>
   </group>
 
 </launch>
