@@ -14,16 +14,17 @@ using namespace Eigen;
 LWRSim::LWRSim(std::string const& name):TaskContext(name),
 urdf_str_(""),
 robot_name_(""),
-root_link("link_0"),
-tip_link("link_7"),
+root_link_(""),
+tip_link_(""),
+robot_ns_(""),
+rtt_sem_(0),
 use_sim_clock(true),
-dr_max_(0.1),
 safety_checks_(false),
 connect_to_rtt_gazebo_at_configure(true),
 set_joint_pos_no_dynamics_(false),
-service_timeout_s(20.0),
 set_brakes_(false),
-nb_no_data_(0),
+sync_with_cmds_(true),
+nb_loops_(0),
 gravity_vector(0.,0.,-9.81289)
 {
     this->provides("gazebo")->addOperation("configure",&LWRSim::gazeboConfigureHook,this,RTT::ClientThread);
@@ -31,8 +32,8 @@ gravity_vector(0.,0.,-9.81289)
     this->addOperation("setLinkGravityMode",&LWRSim::setLinkGravityMode,this,RTT::ClientThread);
     this->addOperation("ready",&LWRSim  ::readyService,this,RTT::ClientThread);
     //this->addAttribute("fromKRL", m_fromKRL);
-    this->addProperty("using_corba", using_corba).doc("");
-    this->addProperty("service_timeout_s", service_timeout_s).doc("");
+    //this->addProperty("using_corba", using_corba).doc("");
+    this->addProperty("synchronize_with_commands", sync_with_cmds_).doc("");
     this->addProperty("kp_default", kp_default_).doc("");
     this->addProperty("kd_default", kd_default_).doc("");
     this->addProperty("kcp_default", kcp_default_).doc("");
@@ -42,18 +43,20 @@ gravity_vector(0.,0.,-9.81289)
     this->addProperty("fri_port", prop_fri_port).doc("");
     //this->addProperty("joint_offset", prop_joint_offset).doc("");
 
-    this->addProperty("root_link", root_link).doc("");
+    this->addProperty("root_link", root_link_).doc("");
     this->addProperty("set_brakes", set_brakes_).doc("");
-    this->addProperty("tip_link", tip_link).doc("");
-    this->addProperty("robot_description",urdf_str_).doc("The URDF of the Kuka");
+    this->addProperty("tip_link", tip_link_).doc("");
+    this->addProperty("robot_description",urdf_str_).doc("");
+    this->addProperty("robot_ns",robot_ns_).doc("");
+    this->addProperty("tf_prefix",tf_prefix_).doc("");
     this->addProperty("gravity_vector",gravity_vector).doc("");
-    this->addProperty("use_sim_clock",use_sim_clock).doc("");   
+    this->addProperty("use_sim_clock",use_sim_clock).doc("");
     this->addProperty("safety_checks",safety_checks_).doc("");
     this->addProperty("robot_name",robot_name_).doc("The name of the robot lwr/lwr_sim");
 
     /*this->ports()->addPort("SyncStatus",port_sync_status).doc("");
     this->ports()->addEventPort("SyncCommand",port_sync_cmd).doc("");*/
-    
+
     this->ports()->addPort("CartesianImpedanceCommand", port_CartesianImpedanceCommand).doc("");
     this->ports()->addPort("CartesianWrenchCommand", port_CartesianWrenchCommand).doc("");
     this->ports()->addPort("CartesianPositionCommand", port_CartesianPositionCommand).doc("");
@@ -66,7 +69,7 @@ gravity_vector(0.,0.,-9.81289)
 
     this->ports()->addPort("CartesianWrench", port_CartesianWrench).doc("");
     this->ports()->addPort("CartesianWrenchStamped", port_CartesianWrenchStamped).doc("");
-    
+
     this->ports()->addPort("RobotState", port_RobotState).doc("");
     this->ports()->addPort("FRIState", port_FRIState).doc("");
 
@@ -84,7 +87,7 @@ gravity_vector(0.,0.,-9.81289)
     this->ports()->addPort("JointStates",port_JointStates).doc("");
     this->ports()->addPort("JointStatesCommand",port_JointStatesCommand).doc("");
     this->ports()->addPort("JointStatesDynamicsDecomposition",port_JointStatesDynamics).doc("");
-    
+
     this->addProperty("kp",kp_);
     this->addProperty("kd",kd_);
     this->addProperty("kg",kg_);
@@ -96,13 +99,24 @@ gravity_vector(0.,0.,-9.81289)
     this->addOperation("setGravityMode",&LWRSim::setGravityMode,this,OwnThread);
     this->addOperation("resetJointImpedanceGains",&LWRSim::resetJointImpedanceGains,this,OwnThread);
 
-    this->addOperation("setJointImpedanceMode",&LWRSim::setJointImpedanceMode,this,OwnThread);
-    this->addOperation("setCartesianImpedanceMode",&LWRSim::setCartesianImpedanceMode,this,OwnThread);
+    this->addOperation("setJointTorqueControlMode",&LWRSim::setJointTorqueControlMode,this,OwnThread);
+    this->addOperation("setJointImpedanceControlMode",&LWRSim::setJointImpedanceControlMode,this,OwnThread);
+    this->addOperation("setCartesianImpedanceControlMode",&LWRSim::setCartesianImpedanceControlMode,this,OwnThread);
 
     this->addOperation("setInitialJointPosition",&LWRSim::setInitialJointPosition,this,OwnThread);
 
 }
-
+void LWRSim::setJointTorqueControlMode(){
+        if(!isConfigured())
+        {
+            log(Error) << "Please configure first, doing nothing." << endlog();
+        }
+        setJointImpedanceControlMode();
+        Eigen::VectorXd kp(joints_idx_.size()),kd(joints_idx_.size());
+        kp.setConstant(0.0);
+        kd.setConstant(0.0);
+        setJointImpedance(kp,kd);
+}
 bool LWRSim::readyService(std_srvs::EmptyRequest& req,std_srvs::EmptyResponse& res)
 {
     return true;
@@ -178,15 +192,32 @@ bool LWRSim::gazeboConfigureHook(gazebo::physics::ModelPtr model)
         return false;
     }
 
-    // Set the Robot name (lwr or lwr_sim) For other components to know it
-    rosparam->getRelative("robot_name");
-    rosparam->getRelative("root_link");
-    rosparam->getRelative("tip_link");
+    // We are in the /gazebo namespace,
+    // So in the params we have :
+    // /gazebo/robot_description
+    // /gazebo/robot_name
+    // /gazebo/root_link
+    // /gazebo/tip_link
+    bool ret = true;
+    ret &= rosparam->getRelative("robot_name");
+    ret &= rosparam->getRelative("root_link");
+    ret &= rosparam->getRelative("tip_link");
+    rosparam->getRelative("tf_prefix");
+    ret &= rosparam->getRelative("robot_description");
 
+    /*if(!tf_prefix_.empty() && *tf_prefix_.rbegin() != '/') tf_prefix_+='/';
+    if(tf_prefix_ == "/") tf_prefix_="";
+
+    root_link_ = tf_prefix_ + root_link_;
+    tip_link_ = tf_prefix_ + tip_link_;*/
 
     if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,kdl_tree_,kdl_chain_))
     {
-        log(Error) << "Error while loading the URDF with params : "<<robot_name_<<" "<<root_link<<" "<<tip_link <<endlog();
+        log(Error) << "Error while loading the URDF with params :"
+        <<"\n -- root_link  : "<<root_link_
+        <<"\n -- tip_link   : "<<tip_link_
+        /*<<"\n -- tf_prefix   : "<<tf_prefix_*/
+        <<endlog();
         return false;
     }
 
@@ -238,10 +269,10 @@ bool LWRSim::gazeboConfigureHook(gazebo::physics::ModelPtr model)
     kcp_default_.resize(6);
     kcd_default_.resize(6);
 
-    rosparam->getComponentPrivate("kp_default"); // searches in /gazebo/lwr_sim/<param-name>
-    rosparam->getComponentPrivate("kd_default");
-    rosparam->getComponentPrivate("kcp_default");
-    rosparam->getComponentPrivate("kcd_default");
+    ret &= rosparam->getParam(getName() + "/kp_default","kp_default"); // searches in lwr_sim/<param-name>
+    ret &= rosparam->getParam(getName() + "/kd_default","kd_default");
+    ret &= rosparam->getParam(getName() + "/kcp_default","kcp_default");
+    ret &= rosparam->getParam(getName() + "/kcd_default","kcd_default");
 
     for(int i=0;i<FRI_USER_SIZE;i++)
     {
@@ -285,37 +316,20 @@ bool LWRSim::gazeboConfigureHook(gazebo::physics::ModelPtr model)
     port_Jacobian.setDataSample(jac_);
     port_MassMatrix.setDataSample(mass_kdl_.data);
     port_FromKRL.setDataSample(fri_from_krl);
-    
+
     resetJointImpedanceGains();
     resetCartesianImpedanceGains();
-    
+
     log(Info) << getName() << " done configuring gazebo" << endlog();
-    return true;
-}
-bool LWRSim::waitForROSService(std::string service_name)
-{
-    return ros::service::waitForService(service_name, service_timeout_s*1E3);
+    return ret;
 }
 
 void LWRSim::resetJointImpedanceGains()
 {
-    /*kp_default_[0] = 450.0;   kd_default_[0] = 1.0;
-    kp_default_[1] = 450.0;   kd_default_[1] = 1.0;
-    kp_default_[2] = 200.0;   kd_default_[2] = 0.7;
-    kp_default_[3] = 200.0;   kd_default_[3] = 0.7;
-    kp_default_[4] = 200.0;   kd_default_[4] = 0.7;
-    kp_default_[5] = 20.0;    kd_default_[5] = 0.1;
-    kp_default_[6] = 10.0;    kd_default_[6] = 0.0;*/
     this->setJointImpedance(kp_default_,kd_default_);
 }
 void LWRSim::resetCartesianImpedanceGains()
 {
-    /*kcp_default_[0] = 1000.0;   kcd_default_[0] = 0.7;
-    kcp_default_[1] = 1000.0;   kcd_default_[1] = 0.7;
-    kcp_default_[2] = 1000.0;   kcd_default_[2] = 0.7;
-    kcp_default_[3] = 200.0;   kcd_default_[3] = 0.7;
-    kcp_default_[4] = 200.0;   kcd_default_[4] = 0.7;
-    kcp_default_[5] = 200.0;    kcd_default_[5] = 0.7;*/
     this->setCartesianImpedance(kcp_default_,kcd_default_);
 }
 void LWRSim::setInitialJointPosition(const std::vector<double>& jnt_pos_cmd)
@@ -324,7 +338,7 @@ void LWRSim::setInitialJointPosition(const std::vector<double>& jnt_pos_cmd)
         log(Error) << "Invalid size ( found "<<jnt_pos_cmd.size() << " should be " << joints_idx_.size() << ")" << endlog();
         return;
     }
-    
+
     jnt_pos_no_dyn_ = VectorXd::Map(jnt_pos_cmd.data(),jnt_pos_cmd.size());
     set_joint_pos_no_dynamics_ = true;
 }
@@ -429,7 +443,9 @@ bool LWRSim::setCartesianImpedance(const VectorXd& cart_stiffness, const VectorX
 
 void LWRSim::updateJointImpedance(const lwr_fri::FriJointImpedance& impedance)
 {
-    for(unsigned int i=0;i<joints_idx_.size();i++)
+    for(unsigned int i=0;i<joints_idx_.size()
+        && i<impedance.damping.size()
+        && i<impedance.stiffness.size();i++)
     {
         if(impedance.stiffness[i] >=0)
             kp_[i] = impedance.stiffness[i];
@@ -460,71 +476,49 @@ void LWRSim::updateCartesianImpedance(const lwr_fri::CartesianImpedance& cart_im
 }
 
 
-void LWRSim::setJointImpedanceMode()
+void LWRSim::setJointImpedanceControlMode()
 {
     fri_to_krl.intData[1] = 10*FRI_CTRL_JNT_IMP;
 }
-void LWRSim::setCartesianImpedanceMode()
+void LWRSim::setCartesianImpedanceControlMode()
 {
     fri_to_krl.intData[1] = 10*FRI_CTRL_CART_IMP;
 }
 
-void LWRSim::updateHook() 
+void LWRSim::updateHook()
 {
+    RTT::os::MutexLock lock(gazebo_mutex_);
     log(RTT::Debug) << getName() << " UpdateHook() "<< TimeService::Instance()->getNSecs() << endlog();
-    return;
-}
-void LWRSim::gazeboUpdateHook(gazebo::physics::ModelPtr model)
-{
-    static TimeService::nsecs last_tstart,tstart;
+    static TimeService::nsecs last_tstart,tstart,tstart_wait;
     tstart = TimeService::Instance()->getNSecs();
-    // Checking if model is correct
-    if(model.get() == NULL){
-        log(RTT::Debug) << getName() << " gazeboUpdateHook() : model is NULL "<< TimeService::Instance()->getNSecs() << endlog();
-        return;
-    }
-    //log(RTT::Debug) << getName() << " gazeboUpdateHook() "<< TimeService::Instance()->getNSecs() << endlog();
-
-    // Read From gazebo simulation
-    for(unsigned j=0; j<joints_idx_.size(); j++) {
-        jnt_pos_[j] = gazebo_joints_[joints_idx_[j]]->GetAngle(0).Radian();
-        jnt_vel_[j] = gazebo_joints_[joints_idx_[j]]->GetVelocity(0);
-        jnt_trq_[j] = gazebo_joints_[joints_idx_[j]]->GetForce(0u);
-    }
-
     // Reset commands from users
     jnt_trq_cmd_.setZero();
     if(set_brakes_ == false) jnt_pos_cmd_ = jnt_pos_;
     Xd_cmd_.setZero();
     F_cmd_.setZero();
 
-    // Set Gravity Mode or specified links
-    for(std::map<gazebo::physics::LinkPtr,bool>::iterator it = this->gravity_mode_.begin();
-        it != this->gravity_mode_.end();++it)
-                it->first->SetGravityMode(it->second);
-
     // Do set pos if asked
     if(set_joint_pos_no_dynamics_)
     {
         for(unsigned j=0; j<joints_idx_.size(); j++)
-            gazebo_joints_[joints_idx_[j]]->SetAngle(0,jnt_pos_no_dyn_[j]);
+            gazebo_joints_[joints_idx_[j]]->SetPosition(0,jnt_pos_no_dyn_[j]);
         // Set jnt pos
         jnt_pos_cmd_ = jnt_pos_ = jnt_pos_no_dyn_;
         set_joint_pos_no_dynamics_ = false;
     }
 
 
+    FlowStatus jnt_trq_cmd_fs
+                    ,jnt_pos_cmd_fs
+                    ,cart_pos_cmd_fs
+                    ,cart_wrench_cmd_fs
+                    ,fri_to_krl_cmd_fs
+                    ,jnt_imp_cmd_fs
+                    ,cart_imp_cmd_fs;
 
-    FlowStatus jnt_trq_cmd_fs = port_JointTorqueCommand.readNewest(jnt_trq_cmd_);
-    FlowStatus jnt_pos_cmd_fs = port_JointPositionCommand.readNewest(jnt_pos_cmd_);
-    FlowStatus cart_pos_cmd_fs = port_CartesianPositionCommand.readNewest(cart_pos_cmd_);
-    FlowStatus cart_wrench_cmd_fs = port_CartesianWrenchCommand.readNewest(cart_wrench_cmd_);
-    FlowStatus fri_to_krl_cmd_fs = port_ToKRL.readNewest(fri_to_krl);
-    FlowStatus jnt_imp_cmd_fs = port_JointImpedanceCommand.readNewest(jnt_imp_cmd_);
-    FlowStatus cart_imp_cmd_fs = port_CartesianImpedanceCommand.readNewest(cart_imp_cmd_);
-
+    fri_to_krl_cmd_fs = port_ToKRL.readNewest(fri_to_krl);
     fri_state.timestamp = rtt_rosclock::host_now().toNSec();
-    
+
     // Update Robot Internal State to mimic KRC
     // Update cmds to FRI
     if(fri_to_krl_cmd_fs == NewData)
@@ -573,11 +567,56 @@ void LWRSim::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     if(safety_checks_)
         safetyChecks(jnt_pos_,jnt_vel_,jnt_trq_);
 
+    bool exit_loop = false;
+    int n_wait=0;
+    tstart_wait = TimeService::Instance()->getNSecs();
+    do
+    {
+        jnt_trq_cmd_fs = port_JointTorqueCommand.readNewest(jnt_trq_cmd_);
+        jnt_pos_cmd_fs = port_JointPositionCommand.readNewest(jnt_pos_cmd_);
+        cart_pos_cmd_fs = port_CartesianPositionCommand.readNewest(cart_pos_cmd_);
+
+        switch(static_cast<FRI_CTRL>(robot_state.control)){
+            case FRI_CTRL_JNT_IMP:
+                if(jnt_trq_cmd_fs == NewData)
+                    exit_loop = true;
+                break;
+            case FRI_CTRL_OTHER:
+                exit_loop = true;
+                break;
+            case FRI_CTRL_POSITION:
+                if(jnt_trq_cmd_fs == NewData || jnt_pos_cmd_fs == NewData)
+                    exit_loop = true;
+                break;
+            case FRI_CTRL_CART_IMP:
+                if(cart_pos_cmd_fs == NewData)
+                    exit_loop = true;
+                break;
+            default:
+                break;
+        }
+        if(0 && !exit_loop)
+        {
+            log(RTT::Debug) << getName() << " UpdateHook() : waiting "<< TimeService::Instance()->getNSecs()
+            <<" - pos:"<<jnt_trq_cmd_fs
+            <<" - trq:"<<jnt_pos_cmd_fs
+            <<" - crt:"<<cart_pos_cmd_fs
+            <<" - set_joint_pos_no_dynamics_:"<<set_joint_pos_no_dynamics_
+            << endlog();
+        }
+        if(!exit_loop) n_wait++;
+    }while(sync_with_cmds_ && !exit_loop && nb_loops_++ > 2);
+
+    TimeService::nsecs tduration_wait = TimeService::Instance()->getNSecs(tstart_wait);
+
+    cart_wrench_cmd_fs = port_CartesianWrenchCommand.readNewest(cart_wrench_cmd_);
+    jnt_imp_cmd_fs = port_JointImpedanceCommand.readNewest(jnt_imp_cmd_);
+    cart_imp_cmd_fs = port_CartesianImpedanceCommand.readNewest(cart_imp_cmd_);
 
     // Update joint impedance gains
     if(jnt_imp_cmd_fs == NewData)
         updateJointImpedance(jnt_imp_cmd_);
-    
+
     // Update cartesian impedance gains
     if(cart_imp_cmd_fs == NewData)
         updateCartesianImpedance(cart_imp_cmd_);
@@ -596,7 +635,7 @@ void LWRSim::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 
     // Compute Gravity terms G(q)
     id_dyn_solver->JntToGravity(jnt_pos_kdl_,jnt_trq_grav_kdl_);
-    
+
     // Compute Coriolis terms b(q,qdot)
     id_dyn_solver->JntToCoriolis(jnt_pos_kdl_,jnt_vel_kdl_,jnt_trq_coriolis_kdl_);
 
@@ -612,7 +651,7 @@ void LWRSim::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     tf::poseKDLToMsg(ee_frame_kdl_,cart_pos_);
     tf::twistKDLToMsg(ee_twist_kdl_,cart_twist_);
 
-    cart_pos_stamped_.header.frame_id = root_link;
+    cart_pos_stamped_.header.frame_id = root_link_;
     cart_pos_stamped_.pose = cart_pos_;
 
 
@@ -631,7 +670,7 @@ void LWRSim::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     tf::wrenchMsgToEigen(cart_wrench_cmd_,F_cmd_);
 
 
-    cart_wrench_stamped_.header.frame_id = tip_link;
+    cart_wrench_stamped_.header.frame_id = tip_link_;
     cart_wrench_stamped_.wrench = cart_wrench_;
 
     jnt_trq_gazebo_cmd_ = kg_.asDiagonal() * jnt_trq_grav_kdl_.data;
@@ -678,7 +717,7 @@ void LWRSim::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     Map<VectorXd>(joint_states_.effort.data(),joints_idx_.size()) = jnt_trq_;
 
     Map<VectorXd>(joint_states_cmd_.position.data(),joints_idx_.size()) = jnt_pos_cmd_;
-    Map<VectorXd>(joint_states_cmd_.effort.data(),joints_idx_.size()) = jnt_trq_gazebo_cmd_;
+    Map<VectorXd>(joint_states_cmd_.effort.data(),joints_idx_.size()) = jnt_trq_gazebo_cmd_ - jnt_trq_grav_kdl_.data;
 
     port_JointStates.write(joint_states_);
     port_JointStatesCommand.write(joint_states_cmd_);
@@ -702,21 +741,71 @@ void LWRSim::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 
     port_RobotState.write(robot_state);
     port_FRIState.write(fri_state);
-    
+
+    rtt_sem_.signal();
 
 
-    for(unsigned j=0; j<joints_idx_.size(); j++)
-        gazebo_joints_[joints_idx_[j]]->SetForce(0,jnt_trq_gazebo_cmd_[j]);
-
-
-    
     TimeService::nsecs tduration = TimeService::Instance()->getNSecs(tstart);
-    log(RTT::Debug) << getName() << " gazeboUpdateHook()  "
-    <<tstart 
-    <<"\n - jnt_trq_cmd_fs:" << jnt_trq_cmd_fs    
-    <<"\n - jnt_trq_cmd_:"<<jnt_trq_cmd_.transpose() 
+    log(RTT::Debug) << getName() << " UpdateHook()  "
+    <<tstart
+    <<"\n - jnt_trq_cmd_fs:" << jnt_trq_cmd_fs
+    <<"\n - jnt_pos_cmd_fs:" << jnt_pos_cmd_fs
+    <<"\n - jnt_trq_cmd_:"<<jnt_trq_cmd_.transpose()
+    <<"\n - sync_with_cmds:"<<sync_with_cmds_
+    <<"\n - Waited for cmds :"<<n_wait
+    <<"\n - Waited for cmds ns :"<<tduration_wait
     <<"\n - set_brakes:"<<set_brakes_
+    <<"\n - robot_state.control:"<<robot_state.control
+    <<"\n -- kp: "<<kp_.transpose()
+    <<"\n -- kd: "<<kd_.transpose()
     <<"\n -- duration: "<<tduration<< endlog();
+    return;
+}
+void LWRSim::gazeboUpdateHook(gazebo::physics::ModelPtr model)
+{
+    RTT::os::MutexTryLock trylock(gazebo_mutex_);
+    if(trylock.isSuccessful() == false) {
+        log(RTT::Debug) << getName() << " gazeboUpdateHook() : mutex locked "<< TimeService::Instance()->getNSecs() << endlog();
+        rtt_sem_.wait();
+        log(RTT::Debug) << getName() << " gazeboUpdateHook() : let's go!"<< TimeService::Instance()->getNSecs() << endlog();
+    }
+    // Checking if model is correct
+    if(model.get() == NULL){
+        log(RTT::Debug) << getName() << " gazeboUpdateHook() : model is NULL "<< TimeService::Instance()->getNSecs() << endlog();
+        return;
+    }
+    log(RTT::Debug) << getName() << " gazeboUpdateHook() "<< TimeService::Instance()->getNSecs() << endlog();
+
+    // Read From gazebo simulation
+    for(unsigned j=0; j<joints_idx_.size(); j++) {
+        jnt_pos_[j] = gazebo_joints_[joints_idx_[j]]->GetAngle(0).Radian();
+        jnt_vel_[j] = gazebo_joints_[joints_idx_[j]]->GetVelocity(0);
+        jnt_trq_[j] = gazebo_joints_[joints_idx_[j]]->GetForce(0u);
+    }
+
+
+    if(port_JointTorqueCommand.connected() || port_JointPositionCommand.connected())
+    {
+        // Enable gravity for everyone
+       for(gazebo::physics::Link_V::iterator it = model_links_.begin();
+             it != model_links_.end();++it)
+             (*it)->SetGravityMode(true);
+
+        // Set Gravity Mode or specified links
+        for(std::map<gazebo::physics::LinkPtr,bool>::iterator it = this->gravity_mode_.begin();
+            it != this->gravity_mode_.end();++it)
+                    it->first->SetGravityMode(it->second);
+
+        for(unsigned j=0; j<joints_idx_.size(); j++)
+            gazebo_joints_[joints_idx_[j]]->SetForce(0,jnt_trq_gazebo_cmd_[j]);
+    }
+    else
+    {
+        // If no one is connected, stop gravity
+       for(gazebo::physics::Link_V::iterator it = model_links_.begin();
+             it != model_links_.end();++it)
+             (*it)->SetGravityMode(false);
+    }
     //log(RTT::Debug) << getName() << " gazeboUpdateHook() duration " << tduration << endlog();
 }
 

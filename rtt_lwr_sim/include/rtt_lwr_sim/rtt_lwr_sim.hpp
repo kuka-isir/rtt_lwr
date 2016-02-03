@@ -5,6 +5,7 @@
 #include <rtt/TaskContext.hpp>
 #include <rtt/Port.hpp>
 #include <rtt/Component.hpp>
+#include <rtt/os/Semaphore.hpp>
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
@@ -54,17 +55,18 @@ using namespace RTT::corba;
 
 
 namespace lwr{
-    
+
     class LWRSim : public RTT::TaskContext{
     public:
         LWRSim(std::string const& name);
         bool configureHook();
         void updateHook();
-        
+        virtual ~LWRSim(){};
     protected:
         bool waitForROSService(std::string service_name);
-        void setJointImpedanceMode();
-        void setCartesianImpedanceMode();
+        void setJointImpedanceControlMode();
+        void setJointTorqueControlMode();
+        void setCartesianImpedanceControlMode();
         void resetJointImpedanceGains();
         void setInitialJointPosition(const std::vector<double>& joint_position_cmd);
         void resetCartesianImpedanceGains();
@@ -76,10 +78,10 @@ namespace lwr{
         bool setJointImpedance(const Eigen::VectorXd& stiffness, const Eigen::VectorXd& damping);
         bool setCartesianImpedance(const Eigen::VectorXd& cart_stiffness, const Eigen::VectorXd& cart_damping);
         bool isCommandMode();
-        
+
         RTT::OutputPort<bool> port_sync_status;
         RTT::InputPort<bool> port_sync_cmd;
-        
+
         RTT::InputPort<lwr_fri::CartesianImpedance > port_CartesianImpedanceCommand;
         RTT::InputPort<geometry_msgs::Wrench > port_CartesianWrenchCommand;
         RTT::InputPort<geometry_msgs::Pose > port_CartesianPositionCommand;
@@ -89,7 +91,7 @@ namespace lwr{
         //RTT::InputPort<std_msgs::Int32 > port_KRL_CMD;
         RTT::InputPort<tFriKrlData > port_ToKRL;
         //RTT::InputPort<std_msgs::Int32 > port_KRL_CMD;
-        
+
         RTT::OutputPort<tFriKrlData > port_FromKRL;
         RTT::OutputPort<geometry_msgs::Wrench > port_CartesianWrench;
         RTT::OutputPort<geometry_msgs::WrenchStamped > port_CartesianWrenchStamped;
@@ -109,18 +111,18 @@ namespace lwr{
         bool connect_to_rtt_gazebo_at_configure,using_corba;
         int prop_fri_port;
         double dr_max_;
-        
+
         bool set_joint_pos_no_dynamics_;
         bool set_brakes_;
-        
+
         std::vector<double> prop_joint_offset;
-                                              
+
         RTT::InputPort<sensor_msgs::JointState > port_JointStateGazebo;
-                
+
         Eigen::VectorXd pos_limits_,
                         vel_limits_,
                         trq_limits_;
-                            
+
         Eigen::VectorXd jnt_pos_,
                         jnt_pos_fri_offset_,
                         jnt_pos_old_,
@@ -133,7 +135,7 @@ namespace lwr{
                         jnt_trq_gazebo_cmd_,
                         jnt_pos_brakes_,
                         jnt_pos_no_dyn_;
-                        
+
         Eigen::Matrix<double,6,1>  X_,
                                    X_cmd_,
                                    Xd_,
@@ -145,11 +147,11 @@ namespace lwr{
                    ee_twist_des_kdl_,
                    ee_twist_diff_kdl_,
                    ee_frame_diff_kdl_;
-        
+
         KDL::Frame ee_frame_kdl_,
                    ee_frame_des_kdl_;
-                   
-        KDL::FrameVel ee_framevel_kdl_;           
+
+        KDL::FrameVel ee_framevel_kdl_;
         tf::Matrix3x3 quat_m;
         tf::Quaternion quat_tf;
         KDL::Jacobian jac_;
@@ -162,73 +164,69 @@ namespace lwr{
         lwr_fri::FriJointImpedance jnt_imp_cmd_,jnt_imp_;
         lwr_fri::CartesianImpedance cart_imp_cmd_,cart_imp_;
 
-        std::string joint_names_prefix;
-
         tFriIntfState fri_state;
         tFriRobotState robot_state;
-        
+
         tFriKrlData fri_from_krl;
         tFriKrlData fri_to_krl;
-        
+
         std::string urdf_str_;
         urdf::Model urdf_model_;
         KDL::Tree kdl_tree_;
-        KDL::Chain kdl_chain_;        
-        
+        KDL::Chain kdl_chain_;
+
         boost::scoped_ptr<KDL::ChainFkSolverVel_recursive> fk_vel_solver;
         boost::scoped_ptr<KDL::ChainDynParam> id_dyn_solver;
         boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver;
         boost::scoped_ptr<KDL::ChainIdSolver_RNE> id_rne_solver;
-        
+
         bool safety_checks_;
 
         KDL::Vector gravity_vector;
-        
+
         //! Control gains
         Eigen::VectorXd kp_,
                         kd_,
                         kg_,
                         kp_default_,
                         kd_default_;
-                        
+
         Eigen::VectorXd             kcp_,
                                     kcd_,
                                     kcp_default_,
-                                    kcd_default_;        
+                                    kcd_default_;
         std::string robot_name_;
-        
+
         sensor_msgs::JointState joint_states_,
                                 joint_states_cmd_,
                                 joint_states_dyn_;
-                                
+
         RTT::OutputPort<sensor_msgs::JointState> port_JointStates,
                                                  port_JointStatesCommand,
                                                  port_JointStatesDynamics;
-                                                 
-        std::string root_link;
-        
-        std::string tip_link;
-        
+
+        std::string root_link_,tip_link_,robot_ns_,tf_prefix_;
+
         bool use_sim_clock;
 
         bool safetyChecks(const Eigen::VectorXd& position,const Eigen::VectorXd& velocity,const Eigen::VectorXd& torque);
         bool safetyCheck(const Eigen::VectorXd& v, const Eigen::VectorXd& limits,const std::string& name="");
         void updateJointImpedance(const lwr_fri::FriJointImpedance& impedance);
         void updateCartesianImpedance(const lwr_fri::CartesianImpedance& cart_impedance);
-        
+
         //KDL Stuff
         KDL::Wrenches f_ext_;
-        
+
         KDL::JntArray jnt_pos_kdl_,
                       jnt_trq_grav_kdl_,
                       jnt_vel_kdl_,
                       jnt_acc_kdl_,
                       jnt_trq_kdl_,
                       jnt_trq_coriolis_kdl_;
-                      
+
         KDL::Wrench cart_wrench_kdl_;
         KDL::JntSpaceInertiaMatrix mass_kdl_;
-        bool init_pos_requested;
+        bool sync_with_cmds_;
         double period_sim_;
         double service_timeout_s;
         std::vector<int> joints_idx_;
@@ -236,7 +234,9 @@ namespace lwr{
         gazebo::physics::Joint_V gazebo_joints_;
         gazebo::physics::Link_V model_links_;
         std::vector<std::string> joint_names_;
-        unsigned int nb_no_data_;
+        unsigned int nb_no_data_,nb_loops_;
+        RTT::os::MutexRecursive gazebo_mutex_,rtt_mutex_;
+        RTT::os::Semaphore rtt_sem_;
     };
 }
 
