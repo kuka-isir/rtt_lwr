@@ -1,6 +1,0 @@
-import("rtt_ros")
-ros.import("rtt_rospack")
-runScript(ros.find("rtt_lwr_sim")+"/scripts/lwr_sim.ops")
-runScript(ros.find("rtt_state_publisher")+"/scripts/run_sim.ops")
-lwr_sim.start()
-state_pub.start()
