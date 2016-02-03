@@ -3,13 +3,13 @@ project(rtt_lwr_abstract)
 
 set(CMAKE_BUILD_TYPE Release)
 
-find_package(catkin REQUIRED COMPONENTS 
+find_package(catkin REQUIRED COMPONENTS
     roscpp
-    rtt_ros 
-    kuka_lwr_fri 
-    diagnostic_msgs 
-    geometry_msgs 
-    std_msgs 
+    rtt_ros
+    kuka_lwr_fri
+    diagnostic_msgs
+    geometry_msgs
+    std_msgs
     kdl_conversions
     eigen_conversions
     lwr_fri
@@ -20,9 +20,9 @@ find_package(Eigen REQUIRED)
 find_package(orocos_kdl REQUIRED)
 
 include_directories(
-    include 
-    ${catkin_INCLUDE_DIRS} 
-    ${Eigen_INCLUDE_DIRS} 
+    include
+    ${catkin_INCLUDE_DIRS}
+    ${Eigen_INCLUDE_DIRS}
     ${orocos_kdl_INCLUDE_DIRS}
     ${USE_OROCOS_INCLUDE_DIRS}
 )
@@ -31,16 +31,17 @@ include_directories(
 orocos_library(${PROJECT_NAME} src/${PROJECT_NAME}.cpp)
 set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY COMPILE_DEFINITIONS RTT_COMPONENT)
 
-target_link_libraries(${PROJECT_NAME} 
-    ${orocos_kdl_LIBRARIES} 
-    ${kdl_conversions_LIBRARIES} 
+target_link_libraries(${PROJECT_NAME}
+    ${orocos_kdl_LIBRARIES}
+    ${kdl_conversions_LIBRARIES}
     ${Xenomai_RTDM_LIBRARIES}
     ${catkin_LIBRARIES}
     ${USE_OROCOS_LIBRARIES}
 )
-orocos_service(lwr_helper src/lwr_helper.cpp)
+orocos_use_package(ocl-deployment)
+orocos_service(ros_helper src/ros_helper.cpp)
 target_link_libraries(
-    lwr_helper
+    ros_helper
     ${catkin_LIBRARIES}
     ${USE_OROCOS_LIBRARIES}
 )
@@ -48,7 +49,7 @@ target_link_libraries(
 add_dependencies(${PROJECT_NAME} lwr_fri_generate_messages_cpp)
 orocos_install_headers(
         include/${PROJECT_NAME}/${PROJECT_NAME}.hpp
-        include/${PROJECT_NAME}/lwr_helper.h
+        include/${PROJECT_NAME}/ros_helper.h
     )
 orocos_generate_package(INCLUDE_DIRS include
                         DEPENDS rtt_ros_kdl_tools)
