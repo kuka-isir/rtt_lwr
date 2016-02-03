@@ -8,7 +8,8 @@
   <xacro:arg name="load_ati_sensor" default="false"/>
   <xacro:arg name="load_calib_tool" default="false"/>
   <xacro:arg name="load_handle" default="false"/>
-  <xacro:arg name="load_hook" default="true"/>
+  <xacro:arg name="load_hook" default="false"/>
+  <xacro:arg name="robot_name" default="lwr"/>
 
   <!-- lwr-->
   <xacro:include filename="$(find lwr_description)/urdf/lwr.urdf.xacro" />

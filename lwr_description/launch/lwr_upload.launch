@@ -5,16 +5,14 @@
 	<arg name="load_ati_sensor" default="false" />
 	<arg name="load_calib_tool" default="false" />
 	<arg name="load_handle" default="false" />
+	<arg name="robot_name" default="lwr" />
 
 	<param name="robot_description" command="
 		$(find xacro)/xacro.py '$(find lwr_description)/robots/kuka_lwr.urdf.xacro'
+		robot_name:=$(arg robot_name)
 		load_base:=$(arg load_base)
 		load_ati_sensor:=$(arg load_ati_sensor)
 		load_calib_tool:=$(arg load_calib_tool)
 		load_handle:=$(arg load_handle)" />
 
-	<!--param name="root_link" type="str" value="link_0"/-->
-	<!--param name="tip_link" type="str" value="link_7"/-->
-
 </launch>
-

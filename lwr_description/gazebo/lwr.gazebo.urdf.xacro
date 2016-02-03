@@ -1,16 +1,18 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
-    <xacro:arg name="load_ati_sensor" default="false"/>
     <xacro:arg name="load_base" default="false"/>
-    <xacro:arg name="load_handle" default="false"/>
+    <xacro:arg name="load_ati_sensor" default="false"/>
     <xacro:arg name="load_calib_tool" default="false"/>
+    <xacro:arg name="load_handle" default="false"/>
+    <xacro:arg name="load_hook" default="false"/>
+    <xacro:arg name="robot_name" default="lwr"/>
 
     <xacro:macro name="gz_ft_sensor" params="joint_name">
         <gazebo>
             <plugin name="ft_sensor_${joint_name}" filename="libgazebo_ros_ft_sensor.so">
                 <jointName>${joint_name}</jointName>
-                <topicName>lwr_gazebo/ft_sensor_${joint_name}</topicName>
+                <topicName>~/ft_sensor_${joint_name}</topicName>
                 <updateRate>1000</updateRate>
                 <gaussianNoise>0.0001</gaussianNoise>
             </plugin>
@@ -30,13 +32,50 @@
 	<xacro:macro name="lwr_gazebo">
 		<gazebo>
 			<plugin name="rtt_gazebo" filename="librtt_gazebo_deployer.so">
-				<!--robotNamespace>~</robotNamespace-->
+                <!--isolated/-->
+                <!--eployerName>deployer_test</deployerName-->
 			  <component>
 			    <package>rtt_lwr_sim</package>
 			    <type>lwr::LWRSim</type>
-			    <name>lwr_sim</name>
+			    <name>$(arg robot_name)</name>
 			  </component>
-			    <orocosScript><filename>$(find rtt_lwr_sim)/scripts/lwr_sim_gazebo.ops</filename></orocosScript>
+			    <orocosScript>
+                    <!--filename>$(find rtt_lwr_sim)/scripts/lwr_sim_gazebo.ops</filename-->
+                    <inline>
+                        require("print");
+                        import("rtt_ros");
+
+                        ros.import("rtt_geometry_msgs");
+                        ros.import("kdl_typekit");
+                        ros.import("eigen_typekit");
+                        import("rtt_rosparam");
+                        import("rtt_roscomm");
+                        import("rtt_rospack");
+                        ros.import("kuka_lwr_fri");
+                        ros.import("lwr_fri");
+
+                        setActivity("$(arg robot_name)",0,10,ORO_SCHED_OTHER);
+
+                        $(arg robot_name).configure();
+                        $(arg robot_name).synchronize_with_commands = false;
+
+                        stream("$(arg robot_name).JointStates",ros.comm.topic("$(arg robot_name)/joint_states"));
+                        stream("$(arg robot_name).JointStatesCommand",ros.comm.topic("$(arg robot_name)/joint_states_cmd"));
+                        stream("$(arg robot_name).JointStatesDynamicsDecomposition",ros.comm.topic("$(arg robot_name)/joint_states_dynamics"));
+                        stream("$(arg robot_name).CartesianPosition",ros.comm.topic("$(arg robot_name)/cartesian_pose"));
+
+                        loadService("$(arg robot_name)","sim_clock_activity");
+                        loadService("$(arg robot_name)","rosservice");
+                        $(arg robot_name).rosservice.connect("ready","$(arg robot_name)/ready", "std_srvs/Empty");
+
+                        $(arg robot_name).setLinkGravityMode("ati_link",false);
+
+                        $(arg robot_name).start();
+
+                        if($(arg robot_name).isRunning()) then{print.ln("\033[32;1m[Info][$(arg robot_name)] Gazebo component running \033[0m\n")};
+                        if(!$(arg robot_name).isRunning()) then{print.ln("\033[31;1m[ERROR][$(arg robot_name)] Gazebo component NOT running \033[0m\n")};
+                    </inline>
+                </orocosScript>
 			</plugin>
   		</gazebo>
 
@@ -68,8 +107,9 @@
 
                     <gazebo>
                         <plugin name="ft_sensor" filename="libgazebo_ros_ft_sensor.so">
+                            <robotNamespace>ft_sensor</robotNamespace>
                             <jointName>ati_joint</jointName>
-                            <topicName>ft_sensor/wrench</topicName>
+                            <topicName>wrench</topicName>
                             <updateRate>1000</updateRate>
                             <gaussianNoise>0.0001</gaussianNoise>
                         </plugin>
