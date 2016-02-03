@@ -1,0 +1,11 @@
+import("rtt_ros")
+ros.import("rtt_rospack")
+import("rtt_lwr_abstract")
+this.require("ros_helper")
+
+var string robot_name = ros_helper.getRobotName()
+
+runScript(ros.find("rtt_lwr_sim")+"/scripts/lwr_sim_loader.ops")
+startComponent(robot_name)
+
+runScript(ros.find("rtt_state_publisher")+"/scripts/runner.ops")

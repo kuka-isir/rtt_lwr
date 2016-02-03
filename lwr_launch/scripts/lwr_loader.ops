@@ -1,0 +1,16 @@
+require("print")
+
+import("rtt_ros")
+ros.import("rtt_rosnode")
+import("rtt_lwr_abstract")
+this.require("ros_helper")
+
+var string robot_name = ros_helper.getRobotName()
+
+if(ros_helper.isSim()) then{
+    runScript(ros.find("rtt_lwr_sim")+"/scripts/lwr_sim_loader.ops")
+    print.ln("\033[34;1m[Info]["+robot_name+"] RUNNING ON SIMULATION \033[0m\n")
+}else{
+    runScript(ros.find("lwr_fri")+"/lwr_fri_loader.ops")
+    print.ln("\033[34;1m[Info]["+robot_name+"] RUNNING ON HARDWARE \033[0m\n")
+}
