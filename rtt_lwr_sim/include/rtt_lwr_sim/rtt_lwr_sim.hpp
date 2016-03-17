@@ -237,6 +237,7 @@ namespace lwr{
         unsigned int nb_no_data_,nb_loops_;
         RTT::os::MutexRecursive gazebo_mutex_,rtt_mutex_;
         RTT::os::Semaphore rtt_sem_;
+        double timeout_s;
     };
 }
 
