@@ -30,17 +30,14 @@
 	</xacro:macro>
 
 	<xacro:macro name="lwr_gazebo">
-		<gazebo>
+		<!-- <gazebo>
 			<plugin name="rtt_gazebo" filename="librtt_gazebo_deployer.so">
-                <!--isolated/-->
-                <!--eployerName>deployer_test</deployerName-->
 			  <component>
 			    <package>rtt_lwr_sim</package>
 			    <type>lwr::LWRSim</type>
 			    <name>$(arg robot_name)</name>
 			  </component>
 			    <orocosScript>
-                    <!--filename>$(find rtt_lwr_sim)/scripts/lwr_sim_gazebo.ops</filename-->
                     <inline>
                         require("print");
                         import("rtt_ros");
@@ -53,18 +50,20 @@
                         import("rtt_rospack");
                         ros.import("kuka_lwr_fri");
                         ros.import("lwr_fri");
+                        import("lwr_launch");
+                        runScript("$(find lwr_launch)"+"/scripts/lwr_loader.ops");
 
-                        setActivity("$(arg robot_name)",0,10,ORO_SCHED_OTHER);
+                        setActivity("$(arg robot_name)",0,HighestPriority,ORO_SCHED_RT);
 
                         $(arg robot_name).configure();
-                        $(arg robot_name).synchronize_with_commands = false;
+                        $(arg robot_name).synchronize_with_commands = true;
 
                         stream("$(arg robot_name).JointStates",ros.comm.topic("$(arg robot_name)/joint_states"));
                         stream("$(arg robot_name).JointStatesCommand",ros.comm.topic("$(arg robot_name)/joint_states_cmd"));
                         stream("$(arg robot_name).JointStatesDynamicsDecomposition",ros.comm.topic("$(arg robot_name)/joint_states_dynamics"));
                         stream("$(arg robot_name).CartesianPosition",ros.comm.topic("$(arg robot_name)/cartesian_pose"));
 
-                        loadService("$(arg robot_name)","sim_clock_activity");
+                        /*loadService("$(arg robot_name)","sim_clock_activity");*/
                         loadService("$(arg robot_name)","rosservice");
                         $(arg robot_name).rosservice.connect("ready","$(arg robot_name)/ready", "std_srvs/Empty");
 
@@ -77,7 +76,7 @@
                     </inline>
                 </orocosScript>
 			</plugin>
-  		</gazebo>
+  		</gazebo> -->
 
 		<!-- ati_sensor (need gazebo >4.0, see ati_sensor.urdf.xacro) -->
 		<xacro:if value="$(arg load_ati_sensor)">
