@@ -1,9 +1,8 @@
 
 require("print")
 require("os")
-import("rtt_ros")
-ros.import("rtt_rospack")
-ros.import("rtt_roscomm")
+import("rtt_rospack")
+import("rtt_roscomm")
 import("lwr_launch")
 
 var string env_name = "Deployer"
@@ -19,28 +18,30 @@ if(!this.loadService("Deployer","ros_helper")) then
 
 global string getRobotName()
 {
-    return ros_helper.getRobotName();
+    return this.ros_helper.getRobotName();
 }
 
 global string getRobotNs()
 {
-    return ros_helper.getRobotNs();
+    return this.ros_helper.getRobotNs();
 }
 
 global string getTfPrefix()
 {
-    return ros_helper.getTfPrefix();
+    return this.ros_helper.getTfPrefix();
 }
 
 global bool isSim()
 {
-    return ros_helper.isSim();
+    return this.ros_helper.isSim();
 }
 
 global bool importRequiredPackages()
 {
     # This is gonna load all the <export><plugin_depends> tags
-    ros.import("lwr_launch")
+    require("scripting")
+    import("rtt_ros")
+    scripting.eval("ros.import(\"lwr_launch\")")
     return true;
 }
 
@@ -48,7 +49,7 @@ global bool importRequiredPackages()
 global bool setRobotInitialJointConfiguration(double q0,double q1,double q2,double q3,double q4,double q5,double q6)
 {
     # Example : setRobotInitialJointConfiguration(1.0,0.,0.0,-1.57,0.0,1.57,0.)
-    ros_helper.rosServiceCall("/gazebo/set_model_configuration '{ model_name: "+getRobotName()+",joint_names: [ joint_0, joint_1, joint_2,joint_3, joint_4, joint_5, joint_6 ],joint_positions: ["+q0+", "+q1+", "+q2+", "+q3+", "+q4+", "+q5+", "+q6+"]}' --wait -v");
+    this.ros_helper.rosServiceCall("/gazebo/set_model_configuration '{ model_name: "+getRobotName()+",joint_names: [ joint_0, joint_1, joint_2,joint_3, joint_4, joint_5, joint_6 ],joint_positions: ["+q0+", "+q1+", "+q2+", "+q3+", "+q4+", "+q5+", "+q6+"]}' --wait -v");
     return true;
 }
 
@@ -77,7 +78,6 @@ global string loadRobot(bool start_component)
         setActivity(robot_name,0.001,10,ORO_SCHED_OTHER)
 
         scripting.eval(robot_name+".argv = strings(\"--verbose\")")
-        scripting.eval(robot_name+".iters = 1")
 
         scripting.eval(robot_name+".add_plugin(\"libgazebo_ros_paths_plugin.so\")")
         scripting.eval(robot_name+".add_plugin(\"libgazebo_ros_api_plugin.so\")")
@@ -94,7 +94,7 @@ global string loadRobot(bool start_component)
         if(start_component) then
             startComponent(robot_name)
 
-        #if(ros_helper.waitForROSService(robot_name + "/ready",20)) then
+        #if(this.ros_helper.waitForROSService(robot_name + "/ready",20)) then
         #{
         #    print.ln("\033[32;1m[Info]["+robot_name+"] Component successfully imported to Deployer \033[0m\n")
         #}else{
@@ -140,7 +140,7 @@ global bool connectAllPorts(string controller_name,string robot_name, ConnPolicy
 global bool loadStatePublisher(bool start_component)
 {
     var string robot_name = getRobotName()
-    print.ln("\033[34;1m[Info]Loading state publisher \033[0m\n")
+    print.ln("\033[34;1m[Info] Loading state publisher \033[0m\n")
     #var string state_pub_path = ros.find("rtt_state_publisher")+"/scripts/loader.ops"
     #print.ln("Loading state publisher at "+state_pub_path)
     #runScript(state_pub_path)

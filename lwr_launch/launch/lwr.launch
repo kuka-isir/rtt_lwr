@@ -60,7 +60,7 @@
 </group>
 
 
-<include if="$(arg launch_gazebo)" file="$(find rtt_lwr_sim)/launch/lwr_gazebo.launch">
+<!--include if="$(arg launch_gazebo)" file="$(find rtt_lwr_sim)/launch/lwr_gazebo.launch">
     <arg name="robot_ns" value="$(arg robot_ns)"/>
     <arg name="tf_prefix" value="$(arg tf_prefix)"/>
     <arg name="robot_name" value="lwr_sim"/>
@@ -75,6 +75,20 @@
     <arg name="paused" value="$(arg start_paused)"/>
     <arg name="initial_joint_positions" value="$(arg initial_joint_positions)"/>
     <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+</include-->
+<include file="$(find rtt_lwr_sim)/launch/spawn_robot.launch">
+    <arg name="robot_ns" value="$(arg robot_ns)"/>
+    <arg name="robot_name" value="$(arg robot_name)"/>
+    <arg name="x" value="0.0"/>
+    <arg name="y" value="0.0"/>
+    <arg name="z" value="0.0"/>
+    <arg name="tf_prefix" value="$(arg tf_prefix)"/>
+    <arg name="root_link" value="$(arg root_link)"/>
+    <arg name="tip_link" value="$(arg tip_link)"/>
+    <arg name="load_base" default="$(arg load_base)" />
+    <arg name="load_ati_sensor" default="$(arg load_ati_sensor)" />
+    <arg name="load_calib_tool" default="$(arg load_calib_tool)" />
+    <arg name="load_handle" default="$(arg load_handle)" />
+    <arg name="initial_joint_positions" default="$(arg initial_joint_positions)" />
 </include>
-
 </launch>
