@@ -17,11 +17,11 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(gazebo REQUIRED)
-if(${GAZEBO_VERSION})
-    if(${GAZEBO_VERSION} GREATER 6)
-        list(APPEND CMAKE_CXX_FLAGS "-std=c++11")
-    endif()
+if(${GAZEBO_VERSION} GREATER 6)
+    add_definitions(-DGAZEBO_6)
 endif()
+
+list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
 
 find_package(Eigen REQUIRED)
 find_package(orocos_kdl REQUIRED)
@@ -35,7 +35,8 @@ include_directories(
     ${GAZEBO_INCLUDE_DIRS}
 )
 
-orocos_component(${PROJECT_NAME} src/${PROJECT_NAME}.cpp)
+file(GLOB srcs src/*.cpp)
+orocos_component(${PROJECT_NAME} ${srcs})
 set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY COMPILE_DEFINITIONS RTT_COMPONENT)
 
 target_link_libraries(
