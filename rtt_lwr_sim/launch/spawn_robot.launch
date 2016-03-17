@@ -13,6 +13,7 @@
     <arg name="load_ati_sensor" default="false" />
     <arg name="load_calib_tool" default="false" />
     <arg name="load_handle" default="false" />
+    <arg name="initial_joint_positions" default="[0, 0, -1.57, 0, 1.57, 0, 0]"/>
 
     <group ns="$(arg robot_ns)">
         <!--group ns="$(arg robot_name)"-->
@@ -24,10 +25,12 @@
                 kcd_default: [0.7, 0.7, 0.7, 0.7, 0.7, 0.7]
             </rosparam>
 
-            <param name="tf_prefix" value="$(arg tf_prefix)"/>
-            <param name="robot_name" value="$(arg robot_name)"/>
-            <param name="root_link" value="$(arg root_link)"/>
-            <param name="tip_link" value="$(arg tip_link)"/>
+            <param name="tf_prefix" type="str" value="$(arg tf_prefix)"/>
+            <param name="robot_name" type="str" value="$(arg robot_name)"/>
+            <param name="robot_ns" type="str" value="$(arg robot_ns)"/>
+            <param name="root_link" type="str" value="$(arg root_link)"/>
+            <param name="tip_link" type="str" value="$(arg tip_link)"/>
+            <param name="is_sim" type="bool" value="true"/>
 
             <include file="$(find lwr_description)/launch/lwr_upload.launch">
                 <arg name="load_base" value="$(arg load_base)" />
@@ -42,7 +45,19 @@
                 args="-param robot_description -urdf
                     -model $(arg robot_name)
                     -x $(arg x) -y $(arg y) -z $(arg z)"
-                respawn="false" output="screen" />
+                respawn="false" output="screen" >
+                <!--rosparam subst_value="true">
+                  initial_joint_names:
+                    - "joint_0"
+                    - "joint_1"
+                    - "joint_2"
+                    - "joint_3"
+                    - "joint_4"
+                    - "joint_5"
+                    - "joint_6"
+                  initial_joint_positions: $(arg initial_joint_positions)
+              </rosparam-->
+            </node>
 
         <!--/group-->
     </group>
