@@ -1,0 +1,96 @@
+// Start LWR SIMULATION
+import("rtt_ros")
+ros.import("rtt_rospack")
+ros.import("rtt_rosclock")
+ros.import("rtt_lwr_abstract")
+
+ros.import("conman")
+ros.import("conman_ros")
+
+loadComponent("scheme","conman::Scheme")
+setActivity("scheme",0.001,10,ORO_SCHED_RT)
+scheme.loadService("conman_ros")
+
+// Load sim clock
+loadService("scheme","sim_clock_activity")
+ros.clock.useROSClockTopic()
+ros.clock.enableSimClock()
+
+loadService("Deployer","ros_helper")
+var string robot_name = ros_helper.getRobotName()
+
+runScript(ros.find("lwr_launch")+"/scripts/lwr_loader.ops")
+runScript(ros.find("rtt_state_publisher")+"/scripts/loader.ops")
+runScript(ros.find("rtt_lwr_krl_tool")+"/scripts/krl_loader.ops")
+
+krl_tool.setJointImpedanceControlMode()
+
+//lwr_sim.setInitialJointPosition(array(1.0,0.,0.0,-1.57,0.0,1.57,0.))
+//lwr_sim.synchronize_with_commands = false
+
+ros.import("lcsr_controllers")
+
+loadComponent("pid","lcsr_controllers::JointPIDController")
+
+connectPeers("pid",robot_name)
+connect(robot_name+".JointPosition","pid.joint_position_in",ConnPolicy())
+connect(robot_name+".JointVelocity","pid.joint_velocity_in",ConnPolicy())
+//////////connect("pid.joint_effort_out",robot_name+".JointTorqueCommand",ConnPolicy())
+
+
+loadComponent("traj_rml","lcsr_controllers::JointTrajGeneratorRML")
+
+connectPeers("traj_rml",robot_name)
+connect(robot_name+".JointPosition", "traj_rml.joint_position_in",ConnPolicy());
+connect(robot_name+".JointVelocity", "traj_rml.joint_velocity_in",ConnPolicy());
+connect("traj_rml.joint_position_out", "pid.joint_position_cmd_in",ConnPolicy());
+connect("traj_rml.joint_velocity_out", "pid.joint_velocity_cmd_in",ConnPolicy());
+connect("traj_rml.joint_position_out", robot_name+".JointPositionCommand",ConnPolicy());
+connect("traj_rml.joint_acceleration_out", "pid.joint_acceleration_cmd_in",ConnPolicy());
+
+//loadComponent("traj_rml","lcsr_controllers::JointTrajGeneratorKDL")
+
+pid.configure()
+traj_rml.configure()
+
+
+connectPeers("scheme",robot_name)
+connectPeers("scheme","state_pub")
+connectPeers("scheme","krl_tool")
+connectPeers("scheme","pid")
+connectPeers("scheme","traj_rml")
+
+scheme.addBlock(robot_name)
+scheme.addBlock("state_pub")
+scheme.addBlock("krl_tool")
+scheme.addBlock("pid")
+scheme.addBlock("traj_rml")
+
+scheme.addGroup("robots")
+scheme.addGroup("state_estimation")
+scheme.addGroup("joint_control")
+scheme.addGroup("traj_control")
+
+scheme.addToGroup(robot_name,"robots")
+scheme.addToGroup("state_pub","state_estimation")
+scheme.addToGroup("krl_tool","state_estimation")
+
+scheme.addToGroup("pid","joint_control")
+scheme.addToGroup("traj_rml","traj_control")
+
+
+//scheme.latchOutputs(robot_name,true)
+//scheme.latchConnections("joint_control","traj_control",true)
+
+scheme.configure()
+
+
+//scheme.enableBlock("robots",true)
+//scheme.enableBlock("state_estimation",true)
+scheme.enableBlock("joint_control",true)
+scheme.enableBlock("traj_control",true)
+
+
+state_pub.start()
+krl_tool.start()
+scheme.start()

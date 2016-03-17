@@ -5,6 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /RobotModel1
       Splitter Ratio: 0.74256
     Tree Height: 341
   - Class: rviz/Help
@@ -41,7 +42,7 @@ Visualization Manager:
       MoveIt_Goal_Tolerance: 0
       MoveIt_Planning_Attempts: 10
       MoveIt_Planning_Time: 5
-      MoveIt_Use_Constraint_Aware_IK: true
+      MoveIt_Use_Constraint_Aware_IK: false
       MoveIt_Warehouse_Host: 127.0.0.1
       MoveIt_Warehouse_Port: 33829
       Name: MotionPlanning
@@ -254,41 +255,15 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
       Name: RobotModel
-      Robot Description: robot_description
-      TF Prefix: ""
+      Robot Description: /gazebo/lwr_sim/robot_description
+      TF Prefix: lwr_sim
       Update Interval: 0
       Value: true
       Visual Enabled: true
-    - Alpha: 1
-      Class: rviz/Effort
-      Enabled: true
-      History Length: 1
-      Joints:
-        {}
-      Name: Effort
-      Robot Description: robot_description
-      Scale: 0.5
-      Topic: /depl_sim/pid/joint_state_desired
-      Value: true
-      Width: 0.01
-      joint_0:
-        Value: true
-      joint_1:
-        Value: true
-      joint_2:
-        Value: true
-      joint_3:
-        Value: true
-      joint_4:
-        Value: true
-      joint_5:
-        Value: true
-      joint_6:
-        Value: true
   Enabled: true
   Global Options:
     Background Color: 21; 21; 21
-    Fixed Frame: world
+    Fixed Frame: lwr_sim/world
     Frame Rate: 30
   Name: root
   Tools:
@@ -331,5 +306,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1871
-  X: 1969
+  X: 49
   Y: 24
