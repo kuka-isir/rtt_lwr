@@ -236,9 +236,14 @@ class RTTLWRAbstract : public RTT::TaskContext{
     template<class T>
     RTT::FlowStatus readData(RTT::InputPort<T>& port,T& data)
     {
+        static bool printed = false;
         if(port.connected() == false)
         {
-            RTT::log(RTT::Error) << port.getName() << " not connected "<< RTT::endlog();
+            if(!printed){
+                RTT::log(RTT::Error) << port.getName()
+                    << " not connected "<< RTT::endlog();
+                printed  = true;
+            }
             return RTT::NoData;
         }
         return port.read(data);
@@ -247,9 +252,14 @@ class RTTLWRAbstract : public RTT::TaskContext{
     template<class T>
     void writeData(RTT::InputPort<T>& port,const T& data)
     {
+        static bool printed = false;
         if(port.connected() == false)
         {
-            RTT::log(RTT::Error) << port.getName() << " not connected "<< RTT::endlog();
+            if(!printed){
+                RTT::log(RTT::Error) << port.getName()
+                    << " not connected "<< RTT::endlog();
+                printed = true;
+            }
             return false;
         }
         port.write(data);
@@ -263,9 +273,10 @@ class RTTLWRAbstract : public RTT::TaskContext{
     bool connectAllPortsMQueue(const std::string& robot_name="lwr");
 
 protected:
+    bool connectPorts(const std::string& robot_name, RTT::ConnPolicy cp);
     static const unsigned int n_joints = LBR_MNJ;
 
-    bool init(bool connect_all_ports=true);
+    bool init(bool connect_all_ports=false);
     /**
      * @brief Shared arrays from the remote pc to the KRC
      */
@@ -355,7 +366,7 @@ protected:
     KDL::Vector gravity_vector;
     SegmentIndice seg_names_idx;
 
-    bool connect_all_ports_at_startup,use_sim_time;
+    bool connect_all_ports_at_startup,use_sim_time,is_sim;
 };
 }
 #endif
