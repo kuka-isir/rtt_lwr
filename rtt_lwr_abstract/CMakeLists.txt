@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
     kdl_conversions
     eigen_conversions
     lwr_fri
+    rtt_ros_kdl_tools
     cmake_modules
 )
 
