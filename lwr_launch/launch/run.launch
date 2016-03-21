@@ -5,8 +5,8 @@
     <arg name="debug" default="false" />
     <arg name="rviz" default="false" />
     <arg name="respawn" default="false" />
-    <arg name="gazebo_gui" default="true"/>
-    <arg name="launch_gazebo" default="true"/>
+    <arg name="gazebo_gui" default="$(arg sim)"/>
+    <arg name="launch_gazebo" default="$(arg sim)"/>
     <arg name="start_paused" default="false"/>
     <!-- Tools -->
     <arg name="load_base" default="false" />

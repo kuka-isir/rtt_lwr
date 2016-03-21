@@ -40,7 +40,7 @@
     <param name="robot_ns" type="str" value="$(arg robot_ns)"/>
     <param name="root_link" type="str" value="$(arg root_link)"/>
     <param name="tip_link" type="str" value="$(arg tip_link)"/>
-    <param name="is_sim" type="bool" value="true"/>
+    <param name="is_sim" type="bool" value="$(arg sim)"/>
 
     <!-- Gazebo launches it if sim, otherwise here so that lwr_gazebo is standalone (hacky) -->
     <include file="$(find lwr_description)/launch/lwr_upload.launch">
@@ -76,7 +76,7 @@
     <arg name="initial_joint_positions" value="$(arg initial_joint_positions)"/>
     <arg name="use_sim_time" value="$(arg use_sim_time)"/>
 </include-->
-<include file="$(find rtt_lwr_sim)/launch/spawn_robot.launch">
+<include if="$(arg launch_gazebo)" file="$(find rtt_lwr_sim)/launch/spawn_robot.launch">
     <arg name="robot_ns" value="$(arg robot_ns)"/>
     <arg name="robot_name" value="$(arg robot_name)"/>
     <arg name="x" value="0.0"/>
