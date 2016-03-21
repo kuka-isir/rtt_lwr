@@ -53,6 +53,25 @@ global bool setRobotInitialJointConfiguration(double q0,double q1,double q2,doub
     return true;
 }
 
+global bool loadKRLTool(bool start_component)
+{
+  var string robot_name = getRobotName()
+  print.ln("\033[34;1m[Info] Loading KRL Tool \033[0m\n")
+  import("rtt_lwr_krl_tool")
+  loadComponent("krl_tool","lwr::KRLTool")
+  setActivity("krl_tool",0.01,10,ORO_SCHED_OTHER)
+
+
+  connectPeers("krl_tool",robot_name)
+  connect("krl_tool.toKRL",robot_name+".toKRL",ConnPolicy())
+  connect("krl_tool.fromKRL",robot_name+".fromKRL",ConnPolicy())
+  connect("krl_tool.JointImpedanceCommand",robot_name+".JointImpedanceCommand",ConnPolicy())
+  configureComponent("krl_tool")
+  if(start_component) then
+      startComponent("krl_tool")
+  return true
+}
+
 global string loadRobot(bool start_component)
 {
     #importRequiredPackages()
@@ -111,8 +130,13 @@ global string loadRobot(bool start_component)
 
         runScript(robot_hw_script_path)
 
+        if(start_component) then
+            startComponent(robot_name)
+
         print.ln("\033[34;1m[Info]["+robot_name+"] RUNNING ON HARDWARE \033[0m\n")
     }
+
+    loadKRLTool(start_component)
 
     #if(scripting.eval(robot_name+".isRunning()")) then{
     #    print.ln("\033[32;1m[Info]["+robot_name+"] Gazebo component running \033[0m\n")
