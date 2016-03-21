@@ -14,10 +14,11 @@ find_package(catkin REQUIRED COMPONENTS
   kdl_conversions
   eigen_conversions
   lwr_fri
+  rtt_ros_kdl_tools
 )
 
 find_package(gazebo REQUIRED)
-if(${GAZEBO_VERSION} GREATER 6)
+if(${GAZEBO_VERSION} AND ${GAZEBO_VERSION} GREATER 6)
     add_definitions(-DGAZEBO_6)
 endif()
 

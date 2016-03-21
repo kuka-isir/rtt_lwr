@@ -28,7 +28,11 @@ void LWRSim::updateHook()
     if(set_joint_pos_no_dynamics_)
     {
         for(unsigned j=0; j<joints_idx_.size(); j++)
+#ifdef GAZEBO_6
             gazebo_joints_[joints_idx_[j]]->SetPosition(0,jnt_pos_no_dyn_[j]);
+#else
+	    gazebo_joints_[joints_idx_[j]]->SetAngle(0,jnt_pos_no_dyn_[j]);
+#endif
         // Set jnt pos
         jnt_pos_cmd_ = jnt_pos_ = jnt_pos_no_dyn_;
         set_joint_pos_no_dynamics_ = false;
