@@ -19,6 +19,9 @@
         <!--group ns="$(arg robot_name)"-->
 
             <rosparam ns="$(arg robot_name)">
+                upper_joint_limits: [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0]
+                lower_joint_limits: [-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0]
+                joint_limits: ["joint_0","joint_1","joint_2","joint_3","joint_4","joint_5","joint_6"]
                 kp_default: [450.0, 450.0, 200.0, 200.0, 200.0, 20.0, 10.0]
                 kd_default: [1.0, 1.0, 1.0, 0.7, 0.7, 0.1, 0.0]
                 kcp_default: [1000.0, 1000.0, 1000.0, 200.0, 200.0, 200.0]

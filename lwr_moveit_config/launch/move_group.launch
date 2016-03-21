@@ -31,14 +31,14 @@
   <!-- Trajectory Execution Functionality -->
   <group unless="$(arg gazebo_sim)">
     <include ns="move_group" file="$(find lwr_moveit_config)/launch/trajectory_execution.launch.xml" if="$(arg allow_trajectory_execution)">
-      <arg name="moveit_manage_controllers" value="true" />
+      <arg name="moveit_manage_controllers" value="false" />
       <arg name="moveit_controller_manager" value="lwr" unless="$(arg fake_execution)"/>
       <arg name="moveit_controller_manager" value="fake" if="$(arg fake_execution)"/>
     </include>
   </group>
   <group if="$(arg gazebo_sim)">
     <include ns="move_group" file="$(find lwr_moveit_config)/launch/trajectory_execution.launch.xml" if="$(arg allow_trajectory_execution)">
-      <arg name="moveit_manage_controllers" value="true" />
+      <arg name="moveit_manage_controllers" value="false" />
       <arg name="moveit_controller_manager" value="lwr_gazebo_sim" unless="$(arg fake_execution)"/>
       <arg name="moveit_controller_manager" value="fake" if="$(arg fake_execution)"/>
     </include>

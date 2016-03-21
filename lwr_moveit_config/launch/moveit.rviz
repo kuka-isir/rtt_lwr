@@ -45,8 +45,18 @@ Visualization Manager:
       MoveIt_Use_Constraint_Aware_IK: false
       MoveIt_Warehouse_Host: 127.0.0.1
       MoveIt_Warehouse_Port: 33829
+      MoveIt_Workspace:
+        Center:
+          X: 0
+          Y: 0
+          Z: 0
+        Size:
+          X: 2
+          Y: 2
+          Z: 2
       Name: MotionPlanning
       Planned Path:
+        Interrupt Display: false
         Links:
           All Links Enabled: true
           Expand Joint Details: false
@@ -255,15 +265,15 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
       Name: RobotModel
-      Robot Description: /gazebo/lwr_sim/robot_description
-      TF Prefix: lwr_sim
+      Robot Description: robot_description
+      TF Prefix: ""
       Update Interval: 0
       Value: true
       Visual Enabled: true
   Enabled: true
   Global Options:
     Background Color: 21; 21; 21
-    Fixed Frame: lwr_sim/world
+    Fixed Frame: world
     Frame Rate: 30
   Name: root
   Tools:
