@@ -59,7 +59,7 @@
     <!--/group-->
 </group>
 
-
+<node if="$(arg gazebo_gui)" name="gazebo_gui" pkg="gazebo_ros" type="gzclient" respawn="false" output="screen"/>
 <!--include if="$(arg launch_gazebo)" file="$(find rtt_lwr_sim)/launch/lwr_gazebo.launch">
     <arg name="robot_ns" value="$(arg robot_ns)"/>
     <arg name="tf_prefix" value="$(arg tf_prefix)"/>
