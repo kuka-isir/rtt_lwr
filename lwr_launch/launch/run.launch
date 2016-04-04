@@ -5,8 +5,8 @@
     <arg name="debug" default="false" />
     <arg name="rviz" default="false" />
     <arg name="respawn" default="false" />
-    <arg name="gazebo_gui" default="true"/>
-    <arg name="launch_gazebo" default="true"/>
+    <arg name="gazebo_gui" default="$(arg sim)"/>
+    <arg name="launch_gazebo" default="$(arg sim)"/>
     <arg name="start_paused" default="false"/>
     <!-- Tools -->
     <arg name="load_base" default="false" />
@@ -26,6 +26,8 @@
     <arg unless="$(arg sim)" name="robot_ns" default="/" />
 
     <arg name="tf_prefix" default="$(arg robot_ns)"/>
+
+    <arg name="ros_controllers" default=""/>
 
     <rosparam if="$(arg sim)" command="load" file="$(find lwr_launch)/launch/sim_ros_control_controllers.yml" />
     <rosparam unless="$(arg sim)" command="load" file="$(find lwr_launch)/launch/hw_ros_control_controllers.yml" />

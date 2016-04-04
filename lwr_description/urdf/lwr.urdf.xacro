@@ -3,7 +3,7 @@
       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
    name="lwr" >
    <xacro:property name="velocity_scale" value="1.0"/>
-   <xacro:property name="effort_scale" value="50.0"/>
+   <xacro:property name="effort_scale" value="1.0"/>
 
    <xacro:property name="M_PI" value="3.1415926535897931" />
 

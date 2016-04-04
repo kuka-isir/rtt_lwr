@@ -18,8 +18,10 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(gazebo REQUIRED)
-if(${GAZEBO_VERSION} AND ${GAZEBO_VERSION} GREATER 6)
-    add_definitions(-DGAZEBO_6)
+if(GAZEBO_VERSION)
+  if(${GAZEBO_VERSION} GREATER 6)
+      add_definitions(-DGAZEBO_6)
+  endif()
 endif()
 
 list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
