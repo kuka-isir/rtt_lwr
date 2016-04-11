@@ -52,7 +52,7 @@ Then make sure omniorb nameserver is launched (a simple reboot can also do the t
 Try to launch lwr_sim inside the gazebo process:
 
 ```
-roslaunch rtt_lwr_sim lwr_gazebo.launch
+roslaunch lwr_utils lwr_gazebo.launch
 ```
 
 Should output ```[Info][lwr_sim] Gazebo component running```

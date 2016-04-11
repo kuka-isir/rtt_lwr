@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- roslaunch arguments -->
+    <arg name="debug" default="false"/>
+    <arg name="x" default="0.0"/>
+    <arg name="y" default="0.0"/>
+    <arg name="z" default="0.0"/>
+    <arg name="gui" default="true"/>
+    <arg name="TAO" default="false"/>
+    <arg name="robot_ns" default="/"/>
+    <arg name="robot_name" default="lwr_sim"/>
+    <!--PTP {a1 0,a2 87,a3 87,a4 0,a5 -55,a6 0,e1 0} -->
+    <arg name="initial_joint_positions" default="[0, 0, 0, 0, 0, 0, 0]"/>
+    <arg name="paused" default="false"/>
+    <arg name="use_sim_time" default="true"/>
+
+    <arg name="load_robot_description" default="true"/>
+    <!-- Tools -->
+    <arg name="load_base" default="false" />
+    <arg name="load_ati_sensor" default="false" />
+    <arg name="load_calib_tool" default="false" />
+    <arg name="load_handle" default="false" />
+
+    <arg name="root_link" default="link_0"/>
+    <arg name="tip_link" default="link_7"/>
+    <arg name="tf_prefix" default="$(arg robot_ns)"/>
+
+    <include file="$(find lwr_utils)/launch/empty_world.launch">
+        <arg name="debug" value="$(arg debug)" />
+        <arg name="gui" value="$(arg gui)" />
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+        <arg name="headless" value="false"/>
+        <arg name="world_name" value="$(find lwr_utils)/launch/lwr.world"/>
+        <arg name="extra_args" value="
+            robot_name=$(arg robot_name)
+            is_sim=true
+            robot_ns=$(arg robot_ns)
+            tf_prefix=$(arg tf_prefix)
+        "/>
+    </include>
+
+    <include file="$(find lwr_utils)/launch/spawn_robot.launch">
+        <arg name="robot_ns" value="$(arg robot_ns)"/>
+        <arg name="robot_name" value="$(arg robot_name)"/>
+        <arg name="x" value="$(arg x)"/>
+        <arg name="y" value="$(arg y)"/>
+        <arg name="z" value="$(arg z)"/>
+        <arg name="tf_prefix" value="$(arg tf_prefix)"/>
+        <arg name="root_link" value="$(arg root_link)"/>
+        <arg name="tip_link" value="$(arg tip_link)"/>
+        <arg name="load_base" default="$(arg load_base)" />
+        <arg name="load_ati_sensor" default="$(arg load_ati_sensor)" />
+        <arg name="load_calib_tool" default="$(arg load_calib_tool)" />
+        <arg name="load_handle" default="$(arg load_handle)" />
+        <arg name="initial_joint_positions" default="$(arg initial_joint_positions)" />
+    </include>
+
+    <!-- Launch the CORBA TO naming service -->
+    <node if="$(arg TAO)" name="corba_naming_service"
+        pkg="rtt_ros" type="corba-naming-service" args="-m 1"/>
+
+    <!--node name="$(arg robot_name)_set_initial_joint_positions"
+        pkg="rosservice" type="rosservice" output="screen"
+        args="call /gazebo/set_model_configuration
+        '{ model_name: $(arg robot_name),
+        joint_names: [ joint_0, joint_1, joint_2,
+                        joint_3, joint_4, joint_5, joint_6 ],
+        joint_positions: $(arg initial_joint_positions)}' wait -v"/-->
+
+</launch>

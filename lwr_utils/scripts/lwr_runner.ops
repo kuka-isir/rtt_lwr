@@ -1,0 +1,6 @@
+import("rtt_ros")
+ros.import("rtt_rospack")
+import("lwr_utils")
+
+runScript(ros.find("lwr_utils")+"/scripts/utils.ops")
+loadRobot(true)

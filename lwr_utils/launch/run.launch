@@ -1,0 +1,84 @@
+<launch>
+    <arg name="sim" default="false" />
+    <arg name="ops_script" />
+
+    <arg name="debug" default="false" />
+    <arg name="rviz" default="false" />
+    <arg name="respawn" default="false" />
+    <arg name="gazebo_gui" default="$(arg sim)"/>
+    <arg name="launch_gazebo" default="$(arg sim)"/>
+    <arg name="start_paused" default="false"/>
+    <!-- Tools -->
+    <arg name="load_base" default="false" />
+    <arg name="load_ati_sensor" default="false" />
+    <arg name="load_calib_tool" default="false" />
+    <arg name="load_handle" default="false" />
+    <arg name="initial_joint_positions" default="[1.6036007404327393, 0.3993358612060547, -0.10944951325654984, -1.7840847969055176, 0.1192147508263588, 0.9727375507354736, 0.1688145101070404]"/>
+    <arg name="use_sim_time" default="true"/>
+    <!-- The end effector Frame -->
+    <arg name="tip_link" default="link_7"/>
+    <arg name="root_link" default="link_0"/>
+
+    <arg if="$(arg sim)"     name="robot_name" default="lwr_sim"/>
+    <arg unless="$(arg sim)" name="robot_name" default="lwr"/>
+
+    <arg if="$(arg sim)"     name="robot_ns" default="/" />
+    <arg unless="$(arg sim)" name="robot_ns" default="/" />
+
+    <arg name="tf_prefix" default="$(arg robot_ns)"/>
+
+    <arg name="ros_controllers" default=""/>
+
+    <rosparam if="$(arg sim)" command="load" file="$(find lwr_utils)/launch/sim_ros_control_controllers.yml" />
+    <rosparam unless="$(arg sim)" command="load" file="$(find lwr_utils)/launch/hw_ros_control_controllers.yml" />
+
+    <arg name="ops_args" value="
+        robot_name=$(arg robot_name)
+        is_sim=$(arg sim)
+        robot_ns=$(arg robot_ns)
+        tf_prefix=$(arg tf_prefix)
+        "/>
+    <!-- Run inside the gazebo process -->
+    <arg name="spawn_in_gazebo_process" default="false"/>
+    <!-- Orocos log level (never, fatal, critical, error, warning, info, debug, realtime) -->
+    <arg name="log_level" default="warning"/>
+
+    <include file="$(find lwr_utils)/launch/lwr.launch">
+        <arg name="tf_prefix"   value="$(arg tf_prefix)"/>
+        <arg name="robot_ns"    value="$(arg robot_ns)"/>
+        <arg name="robot_name"  value="$(arg robot_name)"/>
+        <arg name="sim"         value="$(arg sim)"/>
+        <arg name="rviz"        value="$(arg rviz)"/>
+        <arg name="gazebo_gui"  value="$(arg gazebo_gui)"/>
+        <arg name="load_base"   value="$(arg load_base)" />
+        <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
+        <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
+        <arg name="load_handle"     value="$(arg load_handle)" />
+        <arg name="root_link"       value="$(arg root_link)"/>
+        <arg name="tip_link"        value="$(arg tip_link)"/>
+        <arg name="launch_gazebo"   value="false" unless="$(arg sim)"/>
+        <arg name="launch_gazebo"   value="$(arg launch_gazebo)" if="$(arg sim)"/>
+        <arg name="start_paused"    value="$(arg start_paused)"/>
+        <arg name="initial_joint_positions" value="$(arg initial_joint_positions)"/>
+        <arg name="use_sim_time"    value="$(arg use_sim_time)"/>
+    </include>
+
+
+    <node if="$(arg spawn_in_gazebo_process)"
+        name="$(arg robot_name)_controllers_launcher"
+        pkg="rosservice" type="rosservice"
+        args="call /gazebo/gazebo/run_script $(arg ops_script) --wait -v"/>
+
+    <group ns="$(arg robot_ns)" unless="$(arg spawn_in_gazebo_process)">
+        <include file="$(find lwr_utils)/launch/deployer.launch">
+            <arg name="CORBA" value="false" if="$(arg sim)"/>
+            <arg name="DEPLOYER_ARGS" value="-s $(arg ops_script)"/>
+            <arg name="NAME" value="gazebo" if="$(arg sim)"/>
+            <arg name="NAME" value="Deployer" unless="$(arg sim)"/>
+            <arg name="LOG_LEVEL" value="$(arg log_level)"/>
+            <arg name="DEBUG" value="$(arg debug)"/>
+            <arg name="RESPAWN" value="$(arg respawn)"/>
+            <arg name="EXTRA_DEPLOYER_ARGS" value="$(arg ops_args)"/>
+        </include>
+    </group>
+</launch>

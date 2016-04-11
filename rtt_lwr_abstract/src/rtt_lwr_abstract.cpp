@@ -71,7 +71,7 @@ RTTLWRAbstract::~RTTLWRAbstract(){
 
 bool RTTLWRAbstract::init(bool connect_all_ports){
     // Set the Robot name (lwr or lwr_sim) For other components to know it
-    boost::shared_ptr<rtt_rosparam::ROSParam> rosparam =
+/*    boost::shared_ptr<rtt_rosparam::ROSParam> rosparam =
         this->getProvider<rtt_rosparam::ROSParam>("rosparam");
 
 
@@ -90,7 +90,7 @@ bool RTTLWRAbstract::init(bool connect_all_ports){
         RTT::log(RTT::Error) << "ROS Param could not be loaded "<< RTT::endlog();
         return false;
     }
-
+*/
     jnt_pos_cmd.setZero();
     jnt_trq_cmd.setZero();
 
@@ -103,33 +103,33 @@ bool RTTLWRAbstract::init(bool connect_all_ports){
     std::fill(jnt_imp_cmd.stiffness.begin(),jnt_imp_cmd.stiffness.end(),0.0);
     std::fill(jnt_imp_cmd.damping.begin(),jnt_imp_cmd.damping.end(),0.0);
 
-    if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(this,kdl_tree,kdl_chain))
+    if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(/*this,*/kdl_tree,kdl_chain))
         return false;
 
     rtt_ros_kdl_tools::printChain(kdl_chain);
-
-    for(unsigned int i=0;i<kdl_chain.getNrOfSegments();++i)
-    {
-        const std::string name = kdl_chain.getSegment(i).getName();
-        seg_names_idx.add(name,i+1);
-        RTT::log(RTT::Warning) << "Segment " << i << "-> " << name << " idx -> "<< seg_names_idx[name] <<RTT::endlog();
-    }
-
-    RTT::log(RTT::Warning) << "KDL Chain Joints : " << kdl_chain.getNrOfJoints()<< RTT::endlog();
-    RTT::log(RTT::Warning) << "KDL Chain Segments : " << kdl_chain.getNrOfSegments()<< RTT::endlog();
-
-    try{
-        if(use_sim_time){
-            RTT::Logger::Instance()->in(getName());
-            RTT::log(RTT::Warning) << "Using ROS Sim Clock" << RTT::endlog();
-            //rtt_rosclock::use_ros_clock_topic();
-            //rtt_rosclock::enable_sim();
-            //rtt_rosclock::set_sim_clock_activity(this);
-        }
-    }catch(const std::exception& e)
-    {
-        log(Warning) << e.what() << endlog();
-    }
+    //
+    // for(unsigned int i=0;i<kdl_chain.getNrOfSegments();++i)
+    // {
+    //     const std::string name = kdl_chain.getSegment(i).getName();
+    //     seg_names_idx.add(name,i+1);
+    //     RTT::log(RTT::Warning) << "Segment " << i << "-> " << name << " idx -> "<< seg_names_idx[name] <<RTT::endlog();
+    // }
+    //
+    // RTT::log(RTT::Warning) << "KDL Chain Joints : " << kdl_chain.getNrOfJoints()<< RTT::endlog();
+    // RTT::log(RTT::Warning) << "KDL Chain Segments : " << kdl_chain.getNrOfSegments()<< RTT::endlog();
+    //
+    // try{
+    //     if(use_sim_time){
+    //         RTT::Logger::Instance()->in(getName());
+    //         RTT::log(RTT::Warning) << "Using ROS Sim Clock" << RTT::endlog();
+    //         //rtt_rosclock::use_ros_clock_topic();
+    //         //rtt_rosclock::enable_sim();
+    //         //rtt_rosclock::set_sim_clock_activity(this);
+    //     }
+    // }catch(const std::exception& e)
+    // {
+    //     log(Warning) << e.what() << endlog();
+    // }
 
     id_dyn_solver.reset(new KDL::ChainDynParam(kdl_chain,gravity_vector));
     id_rne_solver.reset(new KDL::ChainIdSolver_RNE(kdl_chain,gravity_vector));
@@ -145,15 +145,15 @@ bool RTTLWRAbstract::init(bool connect_all_ports){
     coriolis_kdl.resize(kdl_chain.getNrOfJoints());
     f_ext_kdl.resize(kdl_chain.getNrOfSegments());
 
-    jnt_pos.resize(kdl_chain.getNrOfJoints());
-    jnt_pos_old.resize(kdl_chain.getNrOfJoints());
-    jnt_trq.resize(kdl_chain.getNrOfJoints());
-    jnt_trq_raw.resize(kdl_chain.getNrOfJoints());
-    jnt_pos_fri_offset.resize(kdl_chain.getNrOfJoints());
-    jnt_grav.resize(kdl_chain.getNrOfJoints());
-    jnt_vel.resize(kdl_chain.getNrOfJoints());
-    jnt_pos_cmd.resize(kdl_chain.getNrOfJoints());
-    jnt_trq_cmd.resize(kdl_chain.getNrOfJoints());
+    jnt_pos.setZero(kdl_chain.getNrOfJoints());
+    jnt_pos_old.setZero(kdl_chain.getNrOfJoints());
+    jnt_trq.setZero(kdl_chain.getNrOfJoints());
+    jnt_trq_raw.setZero(kdl_chain.getNrOfJoints());
+    jnt_pos_fri_offset.setZero(kdl_chain.getNrOfJoints());
+    jnt_grav.setZero(kdl_chain.getNrOfJoints());
+    jnt_vel.setZero(kdl_chain.getNrOfJoints());
+    jnt_pos_cmd.setZero(kdl_chain.getNrOfJoints());
+    jnt_trq_cmd.setZero(kdl_chain.getNrOfJoints());
 
     std::fill(f_ext_kdl.begin(),f_ext_kdl.end(),KDL::Wrench::Zero());
     SetToZero(jnt_pos_kdl);
@@ -163,8 +163,6 @@ bool RTTLWRAbstract::init(bool connect_all_ports){
     SetToZero(gravity_kdl);
     SetToZero(coriolis_kdl);
 
-    jnt_pos_cmd.setZero();
-    jnt_trq_cmd.setZero();
     port_JointPositionCommand.setDataSample(jnt_pos_cmd);
     port_JointTorqueCommand.setDataSample(jnt_trq_cmd);
     port_CartesianImpedanceCommand.setDataSample(cart_imp_cmd);
@@ -174,9 +172,9 @@ bool RTTLWRAbstract::init(bool connect_all_ports){
     port_ToKRL.setDataSample(fri_to_krl);
 
     // Use connectAllPorts("lwr","mycontroller",ConnPolicy()) in ops
-    if(false && connect_all_ports || connect_all_ports_at_startup)
+    /*if(false && connect_all_ports || connect_all_ports_at_startup)
         if(!connectAllPorts(robot_name))
-            connectAllPortsMQueue(robot_name);
+            connectAllPortsMQueue(robot_name);*/
 
     return true;
 }
@@ -194,7 +192,7 @@ bool RTTLWRAbstract::getAllComponentRelative()
             if(rosparam->getParam(getName() +"/"+(*it)->getName(),(*it)->getName()))
                 RTT::log(RTT::Info) << getName() +"/"+(*it)->getName() << " => "<< this->getProperty((*it)->getName())<< RTT::endlog();
             else
-                RTT::log(RTT::Warning) << "No param found for "<<getName() +"/"+(*it)->getName()<< RTT::endlog();
+                RTT::log(RTT::Info) << "No param found for "<<getName() +"/"+(*it)->getName()<< RTT::endlog();
         }
     }else{
         RTT::log(RTT::Error) << "ROS Param could not be loaded "<< RTT::endlog();

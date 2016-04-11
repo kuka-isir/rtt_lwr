@@ -1,6 +1,0 @@
-import("rtt_ros")
-ros.import("rtt_rospack")
-import("lwr_launch")
-
-runScript(ros.find("lwr_launch")+"/scripts/lwr_loader.ops")
-loadRobot(true)

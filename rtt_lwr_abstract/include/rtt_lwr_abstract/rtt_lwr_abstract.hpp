@@ -88,7 +88,7 @@ class RTTLWRAbstract : public RTT::TaskContext{
      * We choose by convention to trigger fri_start() in
      * the KRL program if $FRI_FRM_INT[1] == 1
      */
-    virtual bool configureHook(){this->init(true);}
+    virtual bool configureHook(){this->init(false);}
     /** @brief Orocos Start Hook
      * Send arrays to KRC and call doStart()
      */

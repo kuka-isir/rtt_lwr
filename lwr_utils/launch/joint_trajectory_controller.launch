@@ -1,0 +1,8 @@
+<launch>
+  <!-- load configuration -->
+  <rosparam command="load" file="$(find lwr_utils)/launch/gazebo_controllers.yml" />
+
+  <!-- spawn controllers -->
+  <node name="joint_state_controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="joint_state_controller" />
+  <node name="joint_trajectory_controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="joint_trajectory_controller" />
+</launch>

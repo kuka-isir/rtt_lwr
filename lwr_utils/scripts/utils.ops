@@ -1,0 +1,243 @@
+
+require("print")
+require("os")
+import("rtt_rospack")
+import("rtt_roscomm")
+import("lwr_utils")
+
+var string env_name = "Deployer"
+
+if(!this.loadService("Deployer","ros_helper")) then
+{
+    env_name = "gazebo"
+    print.ln("Detected in process call");
+    import("lwr_utils")
+    this.loadService("gazebo","ros_helper");
+}
+
+
+global string getRobotName()
+{
+    return this.ros_helper.getRobotName();
+}
+
+global string getRobotNs()
+{
+    return this.ros_helper.getRobotNs();
+}
+
+global string getTfPrefix()
+{
+    return this.ros_helper.getTfPrefix();
+}
+
+global bool isSim()
+{
+    return this.ros_helper.isSim();
+}
+
+global bool importRequiredPackages()
+{
+    # This is gonna load all the <export><plugin_depends> tags
+    require("scripting")
+    import("rtt_ros")
+    scripting.eval("ros.import(\"lwr_utils\")")
+    return true;
+}
+
+
+global bool setRobotInitialJointConfiguration(double q0,double q1,double q2,double q3,double q4,double q5,double q6)
+{
+    # Example : setRobotInitialJointConfiguration(1.0,0.,0.0,-1.57,0.0,1.57,0.)
+    this.ros_helper.rosServiceCall("/gazebo/set_model_configuration '{ model_name: "+getRobotName()+",joint_names: [ joint_0, joint_1, joint_2,joint_3, joint_4, joint_5, joint_6 ],joint_positions: ["+q0+", "+q1+", "+q2+", "+q3+", "+q4+", "+q5+", "+q6+"]}' --wait -v");
+    return true;
+}
+
+global bool loadKRLTool(bool start_component)
+{
+  var string robot_name = getRobotName()
+  print.ln("\033[34;1m[Info] Loading KRL Tool \033[0m\n")
+  import("rtt_lwr_krl_tool")
+  loadComponent("krl_tool","lwr::KRLTool")
+  setActivity("krl_tool",0.01,10,ORO_SCHED_OTHER)
+
+
+  connectPeers("krl_tool",robot_name)
+  connect("krl_tool.toKRL",robot_name+".toKRL",ConnPolicy())
+  connect("krl_tool.fromKRL",robot_name+".fromKRL",ConnPolicy())
+  connect("krl_tool.JointImpedanceCommand",robot_name+".JointImpedanceCommand",ConnPolicy())
+  configureComponent("krl_tool")
+  if(start_component) then
+      startComponent("krl_tool")
+  return true
+}
+
+global void setJointTorqueControlMode()
+{
+    scripting.eval("krl_tool.setJointTorqueControlMode()")
+}
+
+global void setCartesianImpedanceControlMode()
+{
+    scripting.eval("krl_tool.setCartesianImpedanceControlMode()")
+}
+
+global void setJointImpedanceControlMode()
+{
+    scripting.eval("krl_tool.setJointImpedanceControlMode()")
+}
+
+global string loadRobot(bool start_component)
+{
+    #importRequiredPackages()
+    var bool is_sim = isSim();
+    var string robot_name = getRobotName()
+
+    if(is_sim) then
+    {
+        # if(env_name != "gazebo" ) then
+        # {
+        #     var string robot_sim_script_path = ros.find("rtt_gazebo_embedded")+"/gz_test.ops"
+        #
+        #     print.ln("Loading robot config from : "+robot_sim_script_path)
+        #
+        #     runScript(robot_sim_script_path)
+        # }
+        import("rtt_std_srvs")
+        import("rtt_roscomm")
+        import("rtt_gazebo_embedded")
+
+        loadComponent(robot_name,"RTTGazebo")
+        loadComponent("timer","OCL::TimerComponent")
+        setActivity(robot_name,0.001,10,ORO_SCHED_OTHER)
+
+        scripting.eval(robot_name+".argv = strings(\"--verbose\")")
+
+        scripting.eval(robot_name+".add_plugin(\"libgazebo_ros_paths_plugin.so\")")
+        scripting.eval(robot_name+".add_plugin(\"libgazebo_ros_api_plugin.so\")")
+
+        #var string world_path = ros.find(\"lwr_utils\")+\"/launch/lwr.world\"
+        scripting.eval(robot_name+".world_path = ros.find(\"lwr_utils\")+\"/launch/lwr.world\"")
+
+        configureComponent(robot_name)
+        #scripting.eval(robot_name+".gazeboConfigure()");
+
+        #loadService(robot_name,"rosservice")
+        #scripting.eval(robot_name+".rosservice.connect(\"readyROSService\",\""+robot_name+"/ready\", \"std_srvs/Empty\")")
+
+        if(start_component) then
+            startComponent(robot_name)
+
+        #if(this.ros_helper.waitForROSService(robot_name + "/ready",20)) then
+        #{
+        #    print.ln("\033[32;1m[Info]["+robot_name+"] Component successfully imported to Deployer \033[0m\n")
+        #}else{
+        #    print.ln("\033[31;1m[ERROR]["+robot_name+"] Robot NOT ready\033[0m\n")
+        #}
+        print.ln("\033[34;1m[Info]["+robot_name+"] RUNNING ON SIMULATION \033[0m\n")
+    }
+    else
+    {
+
+        var string robot_hw_script_path = ros.find("lwr_fri")+"/lwr_fri_loader.ops"
+
+        print.ln("Loading robot config from : "+robot_hw_script_path)
+
+        runScript(robot_hw_script_path)
+
+        if(start_component) then
+            startComponent(robot_name)
+
+        print.ln("\033[34;1m[Info]["+robot_name+"] RUNNING ON HARDWARE \033[0m\n")
+    }
+
+    loadKRLTool(start_component)
+
+    #if(scripting.eval(robot_name+".isRunning()")) then{
+    #    print.ln("\033[32;1m[Info]["+robot_name+"] Gazebo component running \033[0m\n")
+    #}else{
+    #    print.ln("\033[31;1m[ERROR]["+robot_name+"] Gazebo component NOT running \033[0m\n")
+    #}
+
+    return robot_name;
+}
+
+var strings ports_names = strings("JointPosition","JointVelocity","JointTorque","JointPositionCommand","JointTorqueCommand","fromKRL","toKRL","RobotState","FRIState");
+
+global bool connectAllPorts(string controller_name,string robot_name, ConnPolicy cp)
+{
+    print.ln("Connecting all ports from "+controller_name+" to robot "+robot_name);
+    connectPeers(controller_name,robot_name);
+    var bool connected = false;
+    for(var int i = 0 ; i < ports_names.size ; i = i + 1)
+    {
+        connected = connect(robot_name+"."+ports_names[i],controller_name+"."+ports_names[i],cp);
+        print.ln("- "+robot_name+"."+ports_names[i]+" => "+controller_name+"."+ports_names[i]+" : "+connected);
+    }
+    return true
+}
+
+global bool loadStatePublisher(bool start_component)
+{
+    var string robot_name = getRobotName()
+
+    #var string state_pub_path = ros.find("rtt_state_publisher")+"/scripts/loader.ops"
+    #print.ln("Loading state publisher at "+state_pub_path)
+    #runScript(state_pub_path)
+    import("rtt_state_publisher")
+    import("rtt_sensor_msgs")
+
+    loadComponent("state_pub","RTTStatePublisher")
+
+    setActivity("state_pub",0.01,LowestPriority,ORO_SCHED_OTHER)
+    #setActivity("state_pub",0,LowestPriority,ORO_SCHED_OTHER)
+    #loadService("state_pub","sim_clock_activity")
+    #ros.clock.useROSClockTopic()
+    #ros.clock.enableSimClock()
+    if(!configureComponent("state_pub")) then
+        return false
+
+    print.ln("\033[34;1m[Info] Loading state publisher \033[0m\n")
+
+    connectPeers("state_pub",robot_name)
+    connect("state_pub.JointPosition",robot_name+".JointPosition",ConnPolicy())
+    connect("state_pub.JointVelocity",robot_name+".JointVelocity",ConnPolicy())
+    connect("state_pub.JointTorque",robot_name+".JointTorque",ConnPolicy())
+
+    stream("state_pub.JointStates",ros.comm.topic("joint_states"))
+
+    if(start_component) then
+        startComponent("state_pub")
+    return true
+}
+
+global bool loadConman()
+{
+    print.ln("\033[34;1m[Info]Loading ConMan \033[0m\n")
+    var string robot_name = getRobotName()
+
+    scripting.eval("ros.import(\"conman\")")
+    scripting.eval("ros.import(\"conman_ros\")")
+    loadComponent("scheme","conman::Scheme")
+    setActivity("scheme",0.001,10,ORO_SCHED_RT)
+    scripting.eval("scheme.loadService(\"conman_ros\")")
+    scripting.eval("scheme.addGroup(\"robots\")")
+    scripting.eval("scheme.addGroup(\"state_estimation\")")
+    scripting.eval("scheme.addGroup(\"controllers\")")
+
+    scripting.eval("connectPeers(\"scheme\",\""+robot_name+"\")")
+    scripting.eval("connectPeers(\"scheme\",\"state_pub\")")
+    stopComponent("state_pub")
+    stopComponent(robot_name)
+    scripting.eval("scheme.addToGroup(\""+robot_name+"\",\"robots\")")
+    scripting.eval("scheme.addToGroup(\"state_pub\",\"state_estimation\")")
+
+    return true
+}
+global bool addControllerToConman(string component_name)
+{
+    stopComponent(component_name)
+    connectPeers("scheme",component_name)
+    scripting.eval("scheme.addToGroup(\""+component_name+"\",\"controllers\")")
+    return scripting.eval("scheme.latchConnections(\"robots\",\"controllers\",true)")
+}

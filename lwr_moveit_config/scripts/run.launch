@@ -52,7 +52,7 @@
 
 <!--============ LWR Runner script ===============-->
 
-<include file="$(find lwr_launch)/launch/run.launch">
+<include file="$(find lwr_utils)/launch/run.launch">
     <arg name="sim" value="$(arg sim)" />
     <!-- Default ops script location for real robot -->
     <arg name="ops_script" value="$(find lwr_moveit_config)/scripts/moveit_runner.ops"/>

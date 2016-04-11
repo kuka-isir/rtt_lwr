@@ -33,7 +33,7 @@
 		<!-- <gazebo>
 			<plugin name="rtt_gazebo" filename="librtt_gazebo_deployer.so">
 			  <component>
-			    <package>rtt_lwr_sim</package>
+			    <package>lwr_utils</package>
 			    <type>lwr::LWRSim</type>
 			    <name>$(arg robot_name)</name>
 			  </component>
@@ -50,8 +50,8 @@
                         import("rtt_rospack");
                         ros.import("kuka_lwr_fri");
                         ros.import("lwr_fri");
-                        import("lwr_launch");
-                        runScript("$(find lwr_launch)"+"/scripts/lwr_loader.ops");
+                        import("lwr_utils");
+                        runScript("$(find lwr_utils)"+"/scripts/utils.ops");
 
                         setActivity("$(arg robot_name)",0,HighestPriority,ORO_SCHED_RT);
 

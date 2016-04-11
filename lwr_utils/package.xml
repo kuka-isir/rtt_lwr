@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<package>
+  <name>lwr_utils</name>
+  <version>2.0.0</version>
+  <description>The lwr_utils package</description>
+
+  <maintainer email="hoarau.robotics@gmail.com">Antoine Hoarau</maintainer>
+
+  <license>LGPLv3</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>lwr_description</run_depend>
+
+
+  <export>
+    <rtt_ros>
+      <plugin_depend>rtt_rosnode</plugin_depend>
+      <plugin_depend>rtt_rospack</plugin_depend>
+      <plugin_depend>rtt_rosparam</plugin_depend>
+      <plugin_depend>rtt_rosclock</plugin_depend>
+      <plugin_depend>rtt_roscomm</plugin_depend>
+      <plugin_depend>rtt_trajectory_msgs</plugin_depend>
+      <plugin_depend>rtt_actionlib_msgs</plugin_depend>
+      <plugin_depend>rtt_control_msgs</plugin_depend>
+      <plugin_depend>rtt_std_msgs</plugin_depend>
+      <plugin_depend>rtt_diagnostic_msgs</plugin_depend>
+      <plugin_depend>rtt_geometry_msgs</plugin_depend>
+      <plugin_depend>rtt_sensor_msgs</plugin_depend>
+      <plugin_depend>rtt_controller_manager_msgs</plugin_depend>
+      <plugin_depend>rtt_shape_msgs</plugin_depend>
+      <plugin_depend>kdl_typekit</plugin_depend>
+      <plugin_depend>eigen_typekit</plugin_depend>
+      <plugin_depend>rtt_tf</plugin_depend>
+      <plugin_depend>rtt_nav_msgs</plugin_depend>
+      <!-- <plugin_depend>kuka_lwr_fri</plugin_depend>
+      <plugin_depend>lwr_fri</plugin_depend> -->
+    </rtt_ros>
+  </export>
+</package>

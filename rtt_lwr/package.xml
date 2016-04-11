@@ -4,6 +4,7 @@
   <version>2.0.0</version>
   <description>The rtt_lwr package</description>
 
+  <author email="hoarau@isir.upmc.fr">Antoine Hoarau</author>
   <maintainer email="hoarau.robotics@gmail.com">Antoine Hoarau</maintainer>
 
   <license>LGPLv3</license>
@@ -11,12 +12,10 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <run_depend>lwr_description</run_depend>
-  <run_depend>rtt_lwr_sim</run_depend>
   <run_depend>rtt_lwr_abstract</run_depend>
   <run_depend>kuka_lwr_fri</run_depend>
   <run_depend>lwr_fri</run_depend>
-  <run_depend>lwr_scripts</run_depend>
-  <run_depend>lwr_launch</run_depend>
+  <run_depend>lwr_utils</run_depend>
 
   <export>
   </export>
