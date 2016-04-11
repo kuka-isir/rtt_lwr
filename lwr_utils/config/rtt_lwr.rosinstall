@@ -8,6 +8,6 @@
 - git: {local-name: rtt_ros_kdl_tools, uri: 'https://github.com/kuka-isir/rtt_ros_kdl_tools'}
 - git: {local-name: lwr_project_creator, uri: 'https://github.com/kuka-isir/lwr_project_creator'}
 - git: {local-name: rtt_lwr_controllers, uri: 'https://github.com/kuka-isir/rtt_lwr_controllers'}
-- git: {local-name: rtt_gazebo, uri: 'https://github.com/kuka-isir/rtt_gazebo'}
-- git: {local-name: rtt_ros_integration, uri: 'https://github.com/kuka-isir/rtt_ros_integration'}
+- git: {local-name: rtt_gazebo_embedded, uri: 'https://github.com/kuka-isir/rtt_gazebo_embedded'}
+- git: {local-name: rtt_ros_control_embedded, uri: 'https://github.com/kuka-isir/rtt_ros_control_embedded'}
 - git: {local-name: rtt_geometry, uri: 'https://github.com/kuka-isir/rtt_geometry'}
