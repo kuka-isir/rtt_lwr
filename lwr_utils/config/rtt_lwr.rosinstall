@@ -10,4 +10,3 @@
 - git: {local-name: rtt_lwr_controllers, uri: 'https://github.com/kuka-isir/rtt_lwr_controllers'}
 - git: {local-name: rtt_gazebo_embedded, uri: 'https://github.com/kuka-isir/rtt_gazebo_embedded'}
 - git: {local-name: rtt_ros_control_embedded, uri: 'https://github.com/kuka-isir/rtt_ros_control_embedded'}
-- git: {local-name: rtt_geometry, uri: 'https://github.com/kuka-isir/rtt_geometry'}
