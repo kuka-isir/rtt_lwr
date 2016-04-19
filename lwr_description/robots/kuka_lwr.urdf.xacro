@@ -38,9 +38,6 @@
     <child link="base_link"/>
     <origin xyz="0 0 0"/>
   </joint>
-  <xacro:lwr parent="base_link">
-    <origin xyz="0 0 0.02" rpy="0 0 ${2*M_PI/3}" />
-  </xacro:lwr>
 
   <!-- lbr_base -->
   <xacro:if value="$(arg load_base)">
@@ -49,6 +46,11 @@
   <xacro:unless value="$(arg load_base)">
     <link name="base_link"/>
   </xacro:unless>
+
+  <!-- LWR -->
+  <xacro:lwr parent="base_link">
+    <origin xyz="0 0 0.02" rpy="0 0 ${2*M_PI/3}" />
+  </xacro:lwr>
 
   <!-- ati_sensor -->
   <xacro:if value="$(arg load_ati_sensor)">
