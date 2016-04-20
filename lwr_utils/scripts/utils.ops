@@ -234,10 +234,28 @@ global bool loadConman()
 
     return true
 }
+
 global bool addControllerToConman(string component_name)
 {
-    stopComponent(component_name)
-    connectPeers("scheme",component_name)
-    scripting.eval("scheme.addToGroup(\""+component_name+"\",\"controllers\")")
-    return scripting.eval("scheme.latchConnections(\"robots\",\"controllers\",true)")
+    stopComponent(component_name);
+    connectPeers("scheme",component_name);
+    scripting.eval("scheme.addToGroup(\""+component_name+"\",\"controllers\")");
+    return scripting.eval("scheme.latchConnections(\"robots\",\"controllers\",true)");
+}
+
+global bool loadFBSched()
+{
+    import("fbsched");
+    var bool res = loadComponent("fbs","FBSched");
+    setActivity("fbs",0.001,10,ORO_SCHED_RT);
+    return res;
+}
+global bool addControllerToFBSched(string component_name)
+{
+    stopComponent(component_name);
+    scripting.eval(component_name+".setPeriod(0)");
+    startComponent(component_name);
+    connectPeers("fbs",component_name);
+    setMasterSlaveActivity("fbs",component_name)
+    return true;
 }
