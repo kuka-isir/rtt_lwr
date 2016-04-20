@@ -257,3 +257,23 @@ global void generateGraph()
     loadService("this","dot")
     print.ln("You can now run \n\n\t xdot ~/.ros/orograph.dot")
 }
+
+
+global bool loadJointTrajectoryGeneratorKDL(bool start_component)
+{
+  var string robot_name = getRobotName()
+
+  scripting.eval("ros.import(\"rtt_joint_traj_generator_kdl\")")
+  loadComponent("traj_kdl","JointTrajGeneratorKDL")
+  setActivity("traj_kdl",0.001,10,ORO_SCHED_RT);
+
+  connect("traj_kdl.joint_position_in",robot_name+".JointPosition",ConnPolicy())
+  connect("traj_kdl.joint_velocity_in",robot_name+".JointVelocity",ConnPolicy())
+  connect("traj_kdl.joint_position_out",robot_name+".JointPositionCommand",ConnPolicy())
+
+  configureComponent("traj_kdl")
+
+  if(start_component) then
+      startComponent("traj_kdl")
+  return true;
+}
