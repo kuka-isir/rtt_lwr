@@ -1,0 +1,7 @@
+<launch>
+
+  <include file="$(find lwr_utils)/launch/run.launch">
+    <arg name="ops_script" value="$(find lwr_utils)/scripts/utils.ops"/>
+  </include>
+
+</launch>
