@@ -5,7 +5,7 @@ import("rtt_rospack")
 import("rtt_roscomm")
 import("lwr_utils")
 
-this.loadService("this","ros_helper"))
+this.loadService("this","ros_helper")
 
 global string getRobotName()
 {
