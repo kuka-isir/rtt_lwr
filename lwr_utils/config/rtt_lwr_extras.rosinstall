@@ -11,3 +11,6 @@
 - git: {local-name: reflexxes_type2, uri: 'https://github.com/jhu-lcsr/reflexxes_type2'}
 - git: {local-name: lcsr_telemanip, uri: 'https://github.com/jhu-lcsr/lcsr_telemanip'}
 - git: {local-name: rqt_dot, uri: 'https://github.com/jbohren/rqt_dot'}
+- git: {local-name: fbsched, uri: 'https://github.com/kuka-isir/fbsched.git'}
+- git: {local-name: rtt_geometry, uri: 'https://github.com/kuka-isir/rtt_geometry.git'}
+- git: {local-name: rtt_ros_integration, uri: 'https://github.com/kuka-isir/rtt_ros_integration.git'}
