@@ -1,0 +1,14 @@
+# IT IS UNLIKELY YOU WANT TO EDIT THIS FILE BY HAND,
+# UNLESS FOR REMOVING ENTRIES.
+# IF YOU WANT TO CHANGE THE ROS ENVIRONMENT VARIABLES
+# USE THE rosinstall TOOL INSTEAD.
+# IF YOU CHANGE IT, USE rosinstall FOR THE CHANGES TO TAKE EFFECT
+
+- git: {local-name: conman, uri: 'https://github.com/jbohren/conman'}
+- git: {version: 0.2.0, local-name: cartesian_trajectory_msgs, uri: 'https://github.com/jhu-lcsr/cartesian_trajectory_msgs'}
+- git: {version: 0.7.1, local-name: lcsr_controllers, uri: 'https://github.com/jhu-lcsr/lcsr_controllers'}
+- git: {version: 0.2.0, local-name: lcsr_ros_orocos_tools, uri: 'https://github.com/jhu-lcsr/lcsr_ros_orocos_tools'}
+- git: {local-name: reflexxes_type2, uri: 'https://github.com/jhu-lcsr/reflexxes_type2'}
+- git: {local-name: lcsr_telemanip, uri: 'https://github.com/jhu-lcsr/lcsr_telemanip'}
+- git: {local-name: rqt_dot, uri: 'https://github.com/jbohren/rqt_dot'}
+- git: {local-name: xdot, uri: 'https://github.com/jbohren/xdot'}
