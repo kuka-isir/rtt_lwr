@@ -259,3 +259,10 @@ global bool addControllerToFBSched(string component_name)
     setMasterSlaveActivity("fbs",component_name)
     return true;
 }
+
+global void generateGraph()
+{
+    import("rtt_dot_service")
+    loadService("this","dot")
+    print.ln("You can now run \n\n\t xdot ~/.ros/orograph.dot")
+}
