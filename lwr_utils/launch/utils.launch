@@ -2,6 +2,8 @@
 
   <include file="$(find lwr_utils)/launch/run.launch">
     <arg name="ops_script" value="$(find lwr_utils)/scripts/utils.ops"/>
+    <arg name="sim" value="true"/>
+    <arg name="log_level" value="debug"/>
   </include>
 
 </launch>
