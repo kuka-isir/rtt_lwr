@@ -32,7 +32,6 @@ public:
     RTT::OperationCaller<std::string(void)> getThisNodeName;
     RTT::OperationCaller<std::string(void)> getThisNodeNamespace;
     RTT::OperationCaller<std::string(const std::string &)> getParam;
-    RTT::OperationCaller<bool(const std::string &,const std::string &)> connectPeerCORBA;
     RTT::OperationCaller<bool(const std::string &,double)> waitForROSService;
     RTT::OperationCaller<bool(const std::vector<std::string>&)> parseArgv;
 

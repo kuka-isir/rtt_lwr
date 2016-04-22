@@ -8,7 +8,6 @@ using namespace std;
 ROSHelper::ROSHelper(RTT::TaskContext *owner) :
 RTT::ServiceRequester("ros_helper",owner),
 getParam("getParam"),
-connectPeerCORBA("connectPeerCORBA"),
 getThisNodeName("getThisNodeName"),
 isSim("isSim"),
 getThisNodeNamespace("getThisNodeNamespace"),
@@ -26,7 +25,6 @@ rosServiceCall("rosServiceCall"),
 printArgv("printArgv")
 {
     this->addOperationCaller(getParam);
-    this->addOperationCaller(connectPeerCORBA);
     this->addOperationCaller(waitForROSService);
     this->addOperationCaller(getThisNodeName);
     this->addOperationCaller(getThisNodeNamespace);
@@ -54,7 +52,6 @@ public:
     owner_(owner),
     has_parsed_arguments_(false)
     {
-        this->addOperation("connectPeerCORBA", &RosHelperService::connectPeerCORBA, this);
         this->addOperation("waitForROSService", &RosHelperService::waitForROSService, this);
         this->addOperation("getParam", &RosHelperService::getParam, this);
         this->addOperation("getRobotName", &RosHelperService::getRobotName, this);
@@ -68,12 +65,10 @@ public:
         this->addOperation("getOwner", &RosHelperService::getOwner, this);
         this->addOperation("parseArgv", &RosHelperService::parseArgv, this);
         this->addOperation("addComponent", &RosHelperService::addComponent, this);
-        this->addOperation("loadGazeboInterface", &RosHelperService::loadGazeboInterface, this);
         this->addOperation("rosServiceCall", &RosHelperService::rosServiceCall, this);
         this->addOperation("printArgv", &RosHelperService::printArgv, this);
 
         argv_ = owner->getProvider<OS>("os")->argv();
-        scripting_ = owner->getProvider<RTT::Scripting>("scripting");
         this->parseArgv(argv_);
     }
     void printArgv()
@@ -87,12 +82,7 @@ public:
         for(int i=0;i<argv_.size();++i)
             std::cout <<argv_[i]<<std::endl;
     }
-    bool loadGazeboInterface()
-    {
-        if(owner_ == NULL) return false;
-        scripting_->eval("loadComponent(\"gazebo\",\"CORBA\");");
-        return true;
-    }
+
     bool parseArgv(const std::vector<std::string>& argv)
     {
         for(int i=0;i<argv.size();++i)
@@ -158,10 +148,15 @@ public:
     }
     string getRobotName()
     {
+        std::string ns = getRobotNs();
+
+        if(*ns.rbegin() != '/') ns +='/';
+
+        if(ros::param::has(ns+"robot_name"))
+            return getParam(ns+"robot_name");
+
         if(has_parsed_arguments_ )
             return robot_name_;
-        else
-            return getParam("robot_name");
     }
     string getThisNodeName()
     {

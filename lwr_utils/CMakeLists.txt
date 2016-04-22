@@ -6,11 +6,8 @@ find_package(catkin REQUIRED COMPONENTS
     cmake_modules
 )
 
-find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting)
+find_package(OROCOS-RTT REQUIRED)
 include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake )
-link_libraries( ${OROCOS-RTT_RTT-SCRIPTING_LIBRARY} )
-
-orocos_use_package(rtt-scripting)
 
 include_directories(
     include
@@ -24,13 +21,12 @@ target_link_libraries(
     ros_helper
     ${catkin_LIBRARIES}
     ${USE_OROCOS_LIBRARIES}
-    ${OROCOS-RTT_RTT-SCRIPTING_LIBRARY}
 )
 
-
 orocos_install_headers(
-        include/${PROJECT_NAME}/ros_helper.h
-    )
+    include/${PROJECT_NAME}/ros_helper.h
+)
+
 orocos_generate_package(INCLUDE_DIRS include)
 
 install(DIRECTORY launch/
