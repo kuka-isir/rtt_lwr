@@ -30,9 +30,11 @@ global bool isSim()
 global bool importRequiredPackages()
 {
     # This is gonna load all the <export><plugin_depends> tags
+    print.ln("Loading all recommended RTT packages")
     require("scripting")
     import("rtt_ros")
     scripting.eval("ros.import(\"lwr_utils\")")
+    print.ln("Done loading recommended RTT packages")
     return true;
 }
 
@@ -47,19 +49,20 @@ global bool setRobotInitialJointConfiguration(double q0,double q1,double q2,doub
 global bool loadKRLTool(bool start_component)
 {
   var string robot_name = getRobotName()
-  print.ln("\033[34;1m[Info] Loading KRL Tool \033[0m\n")
+  var string component_name = robot_name+"_krl_tool"
+  print.ln("\033[34;1m[Info] Loading KRL Tool for robot ["+robot_name+"]\033[0m\n")
   import("rtt_lwr_krl_tool")
-  loadComponent("krl_tool","lwr::KRLTool")
-  setActivity("krl_tool",0.01,10,ORO_SCHED_OTHER)
+  loadComponent(component_name,"lwr::KRLTool")
+  setActivity(component_name,0.01,10,ORO_SCHED_OTHER)
 
 
-  connectPeers("krl_tool",robot_name)
-  connect("krl_tool.toKRL",robot_name+".toKRL",ConnPolicy())
-  connect("krl_tool.fromKRL",robot_name+".fromKRL",ConnPolicy())
-  connect("krl_tool.JointImpedanceCommand",robot_name+".JointImpedanceCommand",ConnPolicy())
-  configureComponent("krl_tool")
+  connectPeers(component_name,robot_name)
+  connect(component_name+".toKRL"  ,robot_name+".toKRL"    ,ConnPolicy())
+  connect(component_name+".fromKRL",robot_name+".fromKRL"  ,ConnPolicy())
+  connect(component_name+".JointImpedanceCommand",robot_name+".JointImpedanceCommand",ConnPolicy())
+  configureComponent(component_name)
   if(start_component) then
-      startComponent("krl_tool")
+      startComponent(component_name)
   return true
 }
 
@@ -77,54 +80,52 @@ global void setJointImpedanceControlMode()
 {
     scripting.eval("krl_tool.setJointImpedanceControlMode()")
 }
+void loadGazeboComponent(string comp_name)
+{
+    import("rtt_std_srvs")
+    import("rtt_roscomm")
+    import("rtt_gazebo_embedded")
 
-global string loadRobot(bool start_component)
+    loadComponent(comp_name,"RTTGazeboEmbedded")
+    setActivity(comp_name,0.1,10,ORO_SCHED_OTHER)
+    scripting.eval(comp_name+".argv = strings(\"--verbose\")")
+
+    scripting.eval(comp_name+".add_plugin(\"libgazebo_ros_paths_plugin.so\")")
+    scripting.eval(comp_name+".add_plugin(\"libgazebo_ros_api_plugin.so\")")
+
+    scripting.eval(comp_name+".world_path = ros.find(\"lwr_utils\")+\"/launch/lwr.world\"")
+
+    configureComponent(comp_name)
+
+    startComponent(comp_name)
+}
+
+var bool gz_loaded = false;
+if(!gz_loaded && isSim()) then
+{
+    loadGazeboComponent("gazebo")
+    gz_loaded = true;
+    importRequiredPackages()
+}
+
+var bool required_packages_loaded = false;
+if(!isSim()) then
+    importRequiredPackages()
+
+global string loadRobot(string robot_name,bool is_sim,bool start_component)
 {
     #importRequiredPackages()
-    var bool is_sim = isSim();
-    var string robot_name = getRobotName()
+    #var bool is_sim = isSim();
+    #var string robot_name = getRobotName()
 
     if(is_sim) then
     {
-        # if(env_name != "gazebo" ) then
-        # {
-        #     var string robot_sim_script_path = ros.find("rtt_gazebo_embedded")+"/gz_test.ops"
-        #
-        #     print.ln("Loading robot config from : "+robot_sim_script_path)
-        #
-        #     runScript(robot_sim_script_path)
-        # }
-        import("rtt_std_srvs")
-        import("rtt_roscomm")
-        import("rtt_gazebo_embedded")
-
-        loadComponent(robot_name,"RTTGazebo")
-        loadComponent("timer","OCL::TimerComponent")
-        setActivity(robot_name,0.001,10,ORO_SCHED_OTHER)
-
-        scripting.eval(robot_name+".argv = strings(\"--verbose\")")
-
-        scripting.eval(robot_name+".add_plugin(\"libgazebo_ros_paths_plugin.so\")")
-        scripting.eval(robot_name+".add_plugin(\"libgazebo_ros_api_plugin.so\")")
-
-        #var string world_path = ros.find(\"lwr_utils\")+\"/launch/lwr.world\"
-        scripting.eval(robot_name+".world_path = ros.find(\"lwr_utils\")+\"/launch/lwr.world\"")
-
+        import("rtt_lwr_sim")
+        loadComponent(robot_name,"lwr::LWRSim")
+        connectPeers("gazebo",robot_name)
+        scripting.eval(robot_name+".getModel(\"gazebo\",\""+robot_name+"\",30.0)")
         configureComponent(robot_name)
-        #scripting.eval(robot_name+".gazeboConfigure()");
 
-        #loadService(robot_name,"rosservice")
-        #scripting.eval(robot_name+".rosservice.connect(\"readyROSService\",\""+robot_name+"/ready\", \"std_srvs/Empty\")")
-
-        if(start_component) then
-            startComponent(robot_name)
-
-        #if(this.ros_helper.waitForROSService(robot_name + "/ready",20)) then
-        #{
-        #    print.ln("\033[32;1m[Info]["+robot_name+"] Component successfully imported to Deployer \033[0m\n")
-        #}else{
-        #    print.ln("\033[31;1m[ERROR]["+robot_name+"] Robot NOT ready\033[0m\n")
-        #}
         print.ln("\033[34;1m[Info]["+robot_name+"] RUNNING ON SIMULATION \033[0m\n")
     }
     else
@@ -136,19 +137,13 @@ global string loadRobot(bool start_component)
 
         runScript(robot_hw_script_path)
 
-        if(start_component) then
-            startComponent(robot_name)
-
         print.ln("\033[34;1m[Info]["+robot_name+"] RUNNING ON HARDWARE \033[0m\n")
     }
 
-    loadKRLTool(start_component)
+    if(start_component) then
+        startComponent(robot_name)
 
-    #if(scripting.eval(robot_name+".isRunning()")) then{
-    #    print.ln("\033[32;1m[Info]["+robot_name+"] Gazebo component running \033[0m\n")
-    #}else{
-    #    print.ln("\033[31;1m[ERROR]["+robot_name+"] Gazebo component NOT running \033[0m\n")
-    #}
+    loadKRLTool(start_component)
 
     return robot_name;
 }
@@ -262,7 +257,7 @@ global void generateGraph()
 global bool loadJointTrajectoryGeneratorKDL(bool start_component)
 {
   var string robot_name = getRobotName()
-
+  import("rtt_ros")
   scripting.eval("ros.import(\"rtt_joint_traj_generator_kdl\")")
   loadComponent("traj_kdl","JointTrajGeneratorKDL")
   setActivity("traj_kdl",0.001,10,ORO_SCHED_RT);
