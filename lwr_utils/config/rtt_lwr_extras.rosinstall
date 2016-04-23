@@ -5,6 +5,5 @@
 # IF YOU CHANGE IT, USE rosinstall FOR THE CHANGES TO TAKE EFFECT
 
 - git: {local-name: fbsched, uri: 'https://github.com/kuka-isir/fbsched.git'}
-- git: {local-name: rtt_geometry, uri: 'https://github.com/kuka-isir/rtt_geometry.git'}
-- git: {local-name: rtt_ros_integration, uri: 'https://github.com/kuka-isir/rtt_ros_integration.git'}
 - git: {local-name: rtt_dot_service, uri: 'https://github.com/orocos-toolchain/rtt_dot_service.git'}
+- git: {local-name: rtt_joint_traj_generator_kdl, uri: 'https://github.com/kuka-isir/rtt_joint_traj_generator_kdl.git'}
