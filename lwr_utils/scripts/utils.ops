@@ -85,6 +85,7 @@ void loadGazeboComponent(string comp_name)
     import("rtt_std_srvs")
     import("rtt_roscomm")
     import("rtt_gazebo_embedded")
+    # import("rtt_rosclock")
 
     loadComponent(comp_name,"RTTGazeboEmbedded")
     setActivity(comp_name,0.1,10,ORO_SCHED_OTHER)
@@ -96,6 +97,8 @@ void loadGazeboComponent(string comp_name)
     scripting.eval(comp_name+".world_path = ros.find(\"lwr_utils\")+\"/launch/lwr.world\"")
 
     configureComponent(comp_name)
+
+    # gazebo.loadService("rosclock")
 
     startComponent(comp_name)
 }
@@ -166,42 +169,40 @@ global bool connectAllPorts(string controller_name,string robot_name, ConnPolicy
 global bool loadStatePublisher(bool start_component)
 {
     var string robot_name = getRobotName()
-
+    var string comp_name = robot_name+"_state_pub"
     #var string state_pub_path = ros.find("rtt_state_publisher")+"/scripts/loader.ops"
     #print.ln("Loading state publisher at "+state_pub_path)
     #runScript(state_pub_path)
     import("rtt_state_publisher")
     import("rtt_sensor_msgs")
 
-    loadComponent("state_pub","RTTStatePublisher")
+    loadComponent(comp_name,"RTTStatePublisher")
 
-    setActivity("state_pub",0.01,LowestPriority,ORO_SCHED_OTHER)
-    #setActivity("state_pub",0,LowestPriority,ORO_SCHED_OTHER)
-    #loadService("state_pub","sim_clock_activity")
+    setActivity(comp_name,0.01,LowestPriority,ORO_SCHED_OTHER)
+    #setActivity(comp_name,0,LowestPriority,ORO_SCHED_OTHER)
+    #loadService(comp_name,"sim_clock_activity")
     #ros.clock.useROSClockTopic()
     #ros.clock.enableSimClock()
-    if(!configureComponent("state_pub")) then
+    if(!configureComponent(comp_name)) then
         return false
 
     print.ln("\033[34;1m[Info] Loading state publisher \033[0m\n")
 
-    connectPeers("state_pub",robot_name)
-    connect("state_pub.JointPosition",robot_name+".JointPosition",ConnPolicy())
-    connect("state_pub.JointVelocity",robot_name+".JointVelocity",ConnPolicy())
-    connect("state_pub.JointTorque",robot_name+".JointTorque",ConnPolicy())
+    connectPeers(comp_name,robot_name)
+    connect(comp_name+".JointPosition",robot_name+".JointPosition",ConnPolicy())
+    connect(comp_name+".JointVelocity",robot_name+".JointVelocity",ConnPolicy())
+    connect(comp_name+".JointTorque",robot_name+".JointTorque",ConnPolicy())
 
-    stream("state_pub.JointStates",ros.comm.topic("joint_states"))
+    stream(comp_name+".JointStates",ros.comm.topic("joint_states"))
 
     if(start_component) then
-        startComponent("state_pub")
+        startComponent(comp_name)
     return true
 }
 
 global bool loadConman()
 {
     print.ln("\033[34;1m[Info]Loading ConMan \033[0m\n")
-    var string robot_name = getRobotName()
-
     scripting.eval("ros.import(\"conman\")")
     scripting.eval("ros.import(\"conman_ros\")")
     loadComponent("scheme","conman::Scheme")
@@ -210,13 +211,6 @@ global bool loadConman()
     scripting.eval("scheme.addGroup(\"robots\")")
     scripting.eval("scheme.addGroup(\"state_estimation\")")
     scripting.eval("scheme.addGroup(\"controllers\")")
-
-    scripting.eval("connectPeers(\"scheme\",\""+robot_name+"\")")
-    scripting.eval("connectPeers(\"scheme\",\"state_pub\")")
-    stopComponent("state_pub")
-    stopComponent(robot_name)
-    scripting.eval("scheme.addToGroup(\""+robot_name+"\",\"robots\")")
-    scripting.eval("scheme.addToGroup(\"state_pub\",\"state_estimation\")")
 
     return true
 }
@@ -257,18 +251,19 @@ global void generateGraph()
 global bool loadJointTrajectoryGeneratorKDL(bool start_component)
 {
   var string robot_name = getRobotName()
+  var string comp_name = robot_name + "_traj_kdl"
   import("rtt_ros")
   scripting.eval("ros.import(\"rtt_joint_traj_generator_kdl\")")
-  loadComponent("traj_kdl","JointTrajGeneratorKDL")
-  setActivity("traj_kdl",0.001,10,ORO_SCHED_RT);
+  loadComponent(comp_name,"JointTrajGeneratorKDL")
+  setActivity(comp_name,0.001,10,ORO_SCHED_RT);
 
-  connect("traj_kdl.joint_position_in",robot_name+".JointPosition",ConnPolicy())
-  connect("traj_kdl.joint_velocity_in",robot_name+".JointVelocity",ConnPolicy())
-  connect("traj_kdl.joint_position_out",robot_name+".JointPositionCommand",ConnPolicy())
+  connect(comp_name+".joint_position_in",robot_name+".JointPosition",ConnPolicy())
+  connect(comp_name+".joint_velocity_in",robot_name+".JointVelocity",ConnPolicy())
+  connect(comp_name+".joint_position_out",robot_name+".JointPositionCommand",ConnPolicy())
 
-  configureComponent("traj_kdl")
+  configureComponent(comp_name)
 
   if(start_component) then
-      startComponent("traj_kdl")
+      startComponent(comp_name)
   return true;
 }
