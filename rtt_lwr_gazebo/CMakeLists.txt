@@ -20,6 +20,7 @@ find_package(gazebo REQUIRED)
 if(${GAZEBO_VERSION})
     if(${GAZEBO_VERSION} GREATER 6)
         list(APPEND CMAKE_CXX_FLAGS "-std=c++11")
+	add_definitions("-DGAZEBO_GREATER_6")
     endif()
 endif()
 

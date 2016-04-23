@@ -50,20 +50,20 @@ public:
         this->ports()->addPort("JointPositionCommand", port_JointPositionCommand).doc("");
         this->ports()->addPort("JointTorqueCommand", port_JointTorqueCommand).doc("");
         this->ports()->addPort("JointVelocityCommand", port_JointVelocityCommand).doc("");
-        
+
         this->ports()->addPort("JointStatesCommand", port_JointStatesCommand).doc("");
         this->ports()->addPort("JointStates", port_JointStates).doc("");
-        
+
         port_JointStates.createStream(rtt_roscomm::topic("/"+getName()+"/joint_states"));
         port_JointStatesCommand.createStream(rtt_roscomm::topic("/"+getName()+"/joint_states_cmd"));
-        
+
         this->ports()->addPort("JointVelocity", port_JointVelocity).doc("");
         this->ports()->addPort("JointTorque", port_JointTorque).doc("");
         this->ports()->addPort("JointPosition", port_JointPosition).doc("");
 
         this->addProperty("use_ros_topics",using_ros_topics);
         this->addProperty("sync_with_cmds",sync_with_cmds_);
-        
+
         this->provides("debug")->addAttribute("jnt_pos",jnt_pos_);
         this->provides("debug")->addAttribute("jnt_vel",jnt_vel_);
         this->provides("debug")->addAttribute("jnt_trq",jnt_trq_);
@@ -81,13 +81,13 @@ public:
     {
         return true;
     }
-    
+
     void setLinkGravityMode(const std::string& link_name,bool gravity_mode)
     {
         // HACK: I want to remove gravity for ati_link (force torque sensor), but
         // <gravity> tag does not work for some reason, so I'm doin' it here.
         // FIXME
-        
+
         for(gazebo::physics::Link_V::iterator it = this->model_links_.begin();
             it != this->model_links_.end();++it)
             {
@@ -98,7 +98,7 @@ public:
                 }
             }
     }
-    
+
     //! Called from gazebo
     virtual bool gazeboConfigureHook(gazebo::physics::ModelPtr model)
     {
@@ -106,26 +106,26 @@ public:
             RTT::log(RTT::Error)<<"No model could be loaded"<<RTT::endlog();
             return false;
         }
-        
+
         // Get the joints
         gazebo_joints_ = model->GetJoints();
         model_links_ = model->GetLinks();
 
         RTT::log(RTT::Warning)<<"Model has "<<gazebo_joints_.size()<<" joints"<<RTT::endlog();
         RTT::log(RTT::Warning)<<"Model has "<<model_links_.size()<<" links"<<RTT::endlog();
-        
+
         //NOTE: Get the joint names and store their indices
         // Because we have base_joint (fixed), j0...j6, ati_joint (fixed)
         int idx = 0;
         for(gazebo::physics::Joint_V::iterator jit=gazebo_joints_.begin();
             jit != gazebo_joints_.end();++jit,++idx)
         {
-            
+
             const std::string name = (*jit)->GetName();
             // NOTE: Remove fake fixed joints (revolute with upper==lower==0
             // NOTE: This is not used anymore thanks to <disableFixedJointLumping>
             // Gazebo option (ati_joint is fixed but gazebo can use it )
-            
+
             if((*jit)->GetLowerLimit(0u) == (*jit)->GetUpperLimit(0u))
             {
                 RTT::log(RTT::Warning)<<"Not adding (fake) fixed joint ["<<name<<"] idx:"<<idx<<RTT::endlog();
@@ -135,13 +135,13 @@ public:
             joint_names_.push_back(name);
             RTT::log(RTT::Warning)<<"Adding joint ["<<name<<"] idx:"<<idx<<RTT::endlog();
         }
-        
+
         if(joints_idx.size() == 0)
         {
             RTT::log(RTT::Error) << "No Joints could be added, exiting" << RTT::endlog();
             return false;
         }
-        
+
         RTT::log(RTT::Warning)<<"Gazebo model found "<<joints_idx.size()<<" joints "<<RTT::endlog();
 
         for(unsigned j=0; j < joints_idx.size(); j++){
@@ -161,10 +161,10 @@ public:
         js.effort = jnt_trq_cmd_;
         js.position = jnt_pos_cmd_;
         js.velocity = jnt_vel_cmd_;
-        
+
         js.name = joint_names_;
         js_cmd.name = joint_names_;
-        
+
         RTT::log(RTT::Warning)<<"Done configuring gazebo"<<RTT::endlog();
         return true;
     }
@@ -173,22 +173,22 @@ public:
     virtual void gazeboUpdateHook(gazebo::physics::ModelPtr model)
     {
         if(model.get() == NULL) {return;}
-        
+
         // Get new data via busy wait
         static ros::Time last_clock,now;
-        
+
         do{
             updateData();
-            
+
             if((nb_cmd_received_==0 && data_fs==RTT::NoData) ||  jnt_pos_fs == RTT::NewData)
                 break;
-            
+
             now = rtt_rosclock::host_now();
-            
+
             if(now != last_clock && data_fs!=RTT::NewData)
                 RTT::log(RTT::Debug) <<  getName() << " " <<"Waiting for UpdateHook at "<<rtt_rosclock::host_now()<<" v:"<<nb_cmd_received_<< data_fs<<RTT::endlog();
             last_clock = now;
-            
+
         }while(!(RTT::NewData == data_fs && nb_cmd_received_) && sync_with_cmds_);
 
         // Increment simulation step counter (debugging)
@@ -213,66 +213,74 @@ public:
         // NOTE: Gazebo is calling the callback very fast, so we might have false positive
         // This is only usefull when using ROS interface (not CORBA) + launching gazebo standalone
         // This allows the controller (launched with launch_gazebo:=false) to be restarted online
-        
+
         switch(data_fs)
         {
             // Not Connected
-            case RTT::NoData: 
+            case RTT::NoData:
                 set_brakes = true;
                 break;
-        
+
             // Connection lost
-            case RTT::OldData: 
-                if(data_timestamp == last_data_timestamp
-                    && nb_no_data_++ >= 2) 
-                    set_brakes = true;
-                break;
-        
+            // case RTT::OldData:
+            //     if(data_timestamp == last_data_timestamp
+            //         && nb_no_data_++ >= 2)
+            //         set_brakes = true;
+            //     break;
+
             // OK
+            case RTT::OldData:
             case RTT::NewData:
                 set_brakes = false;
                 if(nb_no_data_-- <= 0)
                     nb_no_data_ = 0;
                 break;
         }
-        
+
         // Set Gravity Mode or specified links
         for(std::map<gazebo::physics::LinkPtr,bool>::iterator it = this->gravity_mode_.begin();
             it != this->gravity_mode_.end();++it)
             {
                    it->first->SetGravityMode(it->second);
             }
-            
+
         //RTT::log(RTT::Debug) << "Gazebo data_fs : "<<data_fs<<" ts:"<<data_timestamp<<" last ts:"<<last_data_timestamp <<" steps rtt:" <<steps_rtt_<<"last steps:" << last_steps_rtt_<<"brakes:"<<set_brakes<<RTT::endlog();
-        
+
         // Copy Current joint pos in case of brakes
         if(!set_brakes)
             for(unsigned j=0; j<joints_idx.size(); j++)
                 jnt_pos_brakes_[j] = jnt_pos_[j];
-            
+
         // Force Joint Positions in case of a cmd
         if(set_new_pos)
         {
             RTT::log(RTT::Warning) <<  getName() << " " <<jnt_pos_fs<< " Setting Joint Position : \n"<<js_cmd<<RTT::endlog();
-            
+
             // Update specific joints regarding cmd
             for(unsigned j=0; j<joints_idx.size(); j++)
             {
+#ifdef GAZEBO_GREATER_6
+		gazebo_joints_[joints_idx[j]]->SetPosition(0,jnt_pos_cmd_[j]);
+#else
                 gazebo_joints_[joints_idx[j]]->SetAngle(0,jnt_pos_cmd_[j]);
+#endif
                 jnt_pos_brakes_[j] = jnt_pos_cmd_[j];
             }
-            
+
             // Aknowledge the settings
             set_new_pos = false;
-            
+
         }else if(set_brakes)
         {
             for(unsigned j=0; j<joints_idx.size(); j++)
-                gazebo_joints_[joints_idx[j]]->SetAngle(0,jnt_pos_brakes_[j]);
-            
+#ifdef GAZEBO_GREATER_6
+                gazebo_joints_[joints_idx[j]]->SetPosition(0,jnt_pos_brakes_[j]);
+#else
+		gazebo_joints_[joints_idx[j]]->SetAngle(0,jnt_pos_brakes_[j]);
+#endif
         }else{
-            
-            // Write command         
+
+            // Write command
             // Update specific joints regarding cmd
             for(unsigned j=0; j<joints_idx.size(); j++)
                 gazebo_joints_[joints_idx[j]]->SetForce(0,jnt_trq_cmd_[j]);
@@ -284,16 +292,16 @@ public:
     {
         return true;
     }
-    
+
     void updateData()
     {
-        if(port_JointPositionCommand.connected() || 
-           port_JointTorqueCommand.connected() || 
+        if(port_JointPositionCommand.connected() ||
+           port_JointTorqueCommand.connected() ||
            port_JointVelocityCommand.connected())
         {
             using_ros_topics = false;
         }
-        
+
         static double last_update_time_sim;
         period_sim_ = rtt_time_ - last_update_time_sim;
         last_update_time_sim = rtt_time_;
@@ -310,12 +318,12 @@ public:
         // Get command from ports
 
         RTT::os::TimeService::ticks read_start = RTT::os::TimeService::Instance()->getTicks();
-        
+
         if(using_ros_topics)
         {
             data_fs = port_JointStatesCommand.read(js_cmd);
             data_timestamp = js_cmd.header.stamp;
-            
+
             // Checking if new joint position is requested
             if(data_fs!= RTT::NoData && js_cmd.header.frame_id == "POSITION_CMD")
             {
@@ -328,12 +336,12 @@ public:
                 jnt_pos_fs = RTT::NoData;
                 jnt_trq_cmd_ = js_cmd.effort;
             }
-            
+
         }else
         {
             data_fs = port_JointTorqueCommand.read(jnt_trq_cmd_);
             jnt_pos_fs = port_JointPositionCommand.read(jnt_pos_cmd_);
-            
+
             if(jnt_pos_fs == RTT::NewData)
             {
                 set_new_pos = true;
@@ -341,34 +349,35 @@ public:
                 RTT::log(RTT::Warning) <<getName() <<" "<< jnt_pos_fs <<" Joint Position Requested : \n"<<js_cmd<<RTT::endlog();
             }
 
-            data_timestamp = new_pos_timestamp = rtt_rosclock::host_now();  
+            data_timestamp = new_pos_timestamp = rtt_rosclock::host_now();
         }
-        
+
         read_duration_ = RTT::os::TimeService::Instance()->secondsSince(read_start);
 
         // Write state to ports
         RTT::os::TimeService::ticks write_start = RTT::os::TimeService::Instance()->getTicks();
-        
+
         if(!using_ros_topics)
         {
             port_JointVelocity.write(jnt_vel_);
             port_JointPosition.write(jnt_pos_);
             port_JointTorque.write(jnt_trq_);
         }
-        
+
         js.header.stamp = rtt_rosclock::host_now(); // Wall time
         js.effort = jnt_trq_;
         js.position = jnt_pos_;
         js.velocity = jnt_vel_;
-        
+
         port_JointStates.write(js);
         write_duration_ = RTT::os::TimeService::Instance()->secondsSince(write_start);
-        
+
         //RTT::log(RTT::Debug) << "updateData() "<<data_fs<<RTT::endlog();
         switch(data_fs){
+            // case RTT::OldData:
+            //     //RTT::log(RTT::Debug) << data_fs<<" at "<<data_timestamp<<" old "<<last_timestamp<<RTT::endlog();
+            //     break;
             case RTT::OldData:
-                //RTT::log(RTT::Debug) << data_fs<<" at "<<data_timestamp<<" old "<<last_timestamp<<RTT::endlog();
-                break;
             case RTT::NewData:
                 RTT::log(RTT::Debug) << getName() << " " <<data_fs<<" at "<<data_timestamp<<RTT::endlog();
                 nb_cmd_received_++;
@@ -379,13 +388,13 @@ public:
                 break;
         }
     }
-    
+
     virtual void updateHook()
     {
         RTT::log(RTT::Debug) << getName() << " UpdateHook() "<<rtt_rosclock::host_now()<<RTT::endlog();
         return;
     }
-    
+
 protected:
     std::vector<int> joints_idx;
     std::map<gazebo::physics::LinkPtr,bool> gravity_mode_;
@@ -404,10 +413,10 @@ protected:
     RTT::OutputPort<std::vector<double> > port_JointVelocity;
     RTT::OutputPort<std::vector<double> > port_JointTorque;
     RTT::OutputPort<std::vector<double> > port_JointPosition;
-    
+
     RTT::OutputPort<sensor_msgs::JointState> port_JointStates;
     RTT::InputPort<sensor_msgs::JointState> port_JointStatesCommand;
-    
+
     RTT::FlowStatus jnt_pos_fs,
                     data_fs;
 
@@ -436,15 +445,15 @@ protected:
     double period_wall_;
     boost::atomic<bool> new_data,set_new_pos;
     boost::atomic<bool> rtt_done,gazebo_done;
-    
+
     sensor_msgs::JointState js,js_cmd;
     bool using_ros_topics;
     ros::Time last_data_timestamp,data_timestamp,last_timestamp;
     bool set_brakes;
     int nb_cmd_received_;
     bool sync_with_cmds_;
-    
-    
+
+
 };
 
 ORO_LIST_COMPONENT_TYPE(LWRGazeboComponent)

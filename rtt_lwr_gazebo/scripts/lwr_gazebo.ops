@@ -1,8 +1,11 @@
 require("print")
 
 setActivity("lwr_gazebo",0,10,ORO_SCHED_OTHER)
-lwr_gazebo.configure()
 
+lwr_gazebo.sync_with_cmds = false
+
+
+lwr_gazebo.configure()
 
 print.ln("Setting up the <<ready>> service")
 loadService("lwr_gazebo","rosservice")
