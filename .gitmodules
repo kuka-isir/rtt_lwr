@@ -1,3 +1,6 @@
 [submodule "lwr_hardware"]
 	path = lwr_hardware
 	url = https://github.com/kuka-isir/lwr_hardware.git
+[submodule "rtt_lwr_sim"]
+	path = rtt_lwr_sim
+	url = https://github.com/kuka-isir/rtt_lwr_sim.git
