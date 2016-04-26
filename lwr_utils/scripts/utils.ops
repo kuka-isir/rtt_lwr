@@ -5,7 +5,7 @@ import("rtt_rospack")
 import("rtt_roscomm")
 import("lwr_utils")
 
-this.loadService("this","ros_helper")
+this.loadService("Deployer","ros_helper")
 
 global string getRobotName()
 {
@@ -126,6 +126,7 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
         import("rtt_lwr_sim")
         loadComponent(robot_name,"lwr::LWRSim")
         connectPeers("gazebo",robot_name)
+        scripting.eval(robot_name+".synchronize_with_commands = false")
         scripting.eval(robot_name+".getModel(\"gazebo\",\""+robot_name+"\",30.0)")
         configureComponent(robot_name)
 
@@ -243,7 +244,7 @@ global bool addControllerToFBSched(string component_name)
 global void generateGraph()
 {
     import("rtt_dot_service")
-    loadService("this","dot")
+    loadService("Deployer","dot")
     print.ln("You can now run \n\n\t xdot ~/.ros/orograph.dot")
 }
 
@@ -266,4 +267,40 @@ global bool loadJointTrajectoryGeneratorKDL(bool start_component)
   if(start_component) then
       startComponent(comp_name)
   return true;
+}
+
+global bool loadROSControl(bool start_component)
+{
+    var string robot_name = getRobotName()
+    var string comp_name = robot_name + "_ros_control"
+
+    import("rtt_ros")
+    import("rtt_control_msgs")
+    import("rtt_controller_manager_msgs")
+
+    scripting.eval("ros.import(\"rtt_ros_control_embedded\")")
+
+    # Load the RttRosControl component
+    loadComponent(comp_name,"RttRosControl")
+
+    ## Give it a periodic activity
+    setActivity(comp_name,0.001,LowestPriority,ORO_SCHED_RT)
+
+
+    ## Preload controllers
+    scripting.eval(comp_name+".preloadController(\"joint_trajectory_controller\")")
+    scripting.eval(comp_name+".preloadController(\"joint_state_controller\")")
+
+    ## Configure the RttRosControl component
+    configureComponent(comp_name)
+
+    connect(comp_name+".JointPosition",robot_name+".JointPosition",ConnPolicy())
+    connect(comp_name+".JointVelocity",robot_name+".JointVelocity",ConnPolicy())
+    connect(comp_name+".JointTorque",robot_name+".JointTorque",ConnPolicy())
+    connect(comp_name+".JointPositionCommand",robot_name+".JointPositionCommand",ConnPolicy())
+    connect(comp_name+".JointTorqueCommand",robot_name+".JointTorqueCommand",ConnPolicy())
+
+    ## Start it
+    if(start_component) then
+        startComponent(comp_name)
 }
