@@ -304,3 +304,19 @@ global bool loadROSControl(bool start_component)
     if(start_component) then
         startComponent(comp_name)
 }
+
+global bool loadAtiFTSensor(bool start_component)
+{
+    scripting.eval("ros.import(\"rtt_ati_sensor\")")
+
+    loadComponent("ft_sensor","rtt_ati::FTSensor")
+
+    setActivity("ft_sensor",0.001,10,ORO_SCHED_RT)
+    # uncomment for event based update with netft box set at component periodicity
+    #ft_sensor.read_mode = 2
+    #ft_sensor.sample_count = 0
+
+    configureComponent("ft_sensor")
+    if(start_component)
+        startComponent("ft_sensor")
+}
