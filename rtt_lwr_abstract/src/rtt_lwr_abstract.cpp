@@ -3,6 +3,10 @@
 
 #include "rtt_lwr_abstract/rtt_lwr_abstract.hpp"
 #include <rtt_ros_kdl_tools/mqueue_connpolicy.hpp>
+#include <rtt_roscomm/rtt_rostopic.h>
+#include <rtt_rosparam/rosparam.h>
+#include <rtt_rosclock/rtt_rosclock.h>
+
 using namespace lwr;
 using namespace KDL;
 using namespace Eigen;
@@ -18,11 +22,10 @@ connect_all_ports_at_startup(true)
     this->addProperty("robot_name",robot_name);
     this->addProperty("root_link", root_link).doc("");
     this->addProperty("tip_link", tip_link).doc("");
-    this->addProperty("gravity_vector", gravity_vector).doc("");
-    this->addProperty("robot_description",robot_description).doc("The URDF description");
-    this->addProperty("connect_all_ports_at_startup",connect_all_ports_at_startup);
-    this->addProperty("use_sim_time",use_sim_time);
     this->addProperty("is_sim",is_sim);
+
+    this->addProperty("gravity_vector", gravity_vector).doc("");
+    this->addProperty("use_sim_time",use_sim_time);
 
     this->ports()->addPort("CartesianImpedanceCommand", port_CartesianImpedanceCommand).doc("");
     this->ports()->addPort("CartesianWrenchCommand", port_CartesianWrenchCommand).doc("");
@@ -71,7 +74,7 @@ RTTLWRAbstract::~RTTLWRAbstract(){
 
 bool RTTLWRAbstract::init(bool connect_all_ports){
     // Set the Robot name (lwr or lwr_sim) For other components to know it
-/*    boost::shared_ptr<rtt_rosparam::ROSParam> rosparam =
+    boost::shared_ptr<rtt_rosparam::ROSParam> rosparam =
         this->getProvider<rtt_rosparam::ROSParam>("rosparam");
 
 
@@ -80,17 +83,14 @@ bool RTTLWRAbstract::init(bool connect_all_ports){
         rosparam->getRelative("robot_name");
         rosparam->getRelative("root_link");
         rosparam->getRelative("tip_link");
-        rosparam->getRelative("robot_description");
         rosparam->getRelative("gravity_vector");
         rosparam->getRelative("is_sim");
-        rosparam->getParam(getName() + "connect_all_ports_at_startup","connect_all_ports_at_startup");
-        rosparam->getAbsolute("use_sim_time");
-        getAllComponentRelative();
+        rosparam->getRelative("use_sim_time");
     }else{
         RTT::log(RTT::Error) << "ROS Param could not be loaded "<< RTT::endlog();
         return false;
     }
-*/
+
     jnt_pos_cmd.setZero();
     jnt_trq_cmd.setZero();
 
@@ -104,6 +104,9 @@ bool RTTLWRAbstract::init(bool connect_all_ports){
     std::fill(jnt_imp_cmd.damping.begin(),jnt_imp_cmd.damping.end(),0.0);
 
     if(!rtt_ros_kdl_tools::initChainFromROSParamURDF(/*this,*/kdl_tree,kdl_chain))
+        return false;
+
+    if(!arm.init())
         return false;
 
     rtt_ros_kdl_tools::printChain(kdl_chain);
@@ -180,6 +183,7 @@ bool RTTLWRAbstract::init(bool connect_all_ports){
 }
 bool RTTLWRAbstract::getAllComponentRelative()
 {
+    log(Warning) << "\n\n getAllComponentRelative() is deprecated, please use rtt_ros_kdl_tools::getAllPropertiesFromROSParam(this); instead" << endlog();
     // Get RosParameters if available
     boost::shared_ptr<rtt_rosparam::ROSParam> rosparam =
         this->getProvider<rtt_rosparam::ROSParam>("rosparam");

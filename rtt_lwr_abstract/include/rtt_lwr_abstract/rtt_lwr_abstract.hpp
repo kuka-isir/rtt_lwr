@@ -7,46 +7,37 @@
 #include <rtt/RTT.hpp>
 #include <rtt/Attribute.hpp>
 #include <rtt/Component.hpp>
-#include <rtt_rosparam/rosparam.h>
-#include <rtt_rosclock/rtt_rosclock.h>
+
 #include <rtt/os/TimeService.hpp>
 #include <rtt/Logger.hpp>
+
+#include <rtt_rosclock/rtt_rosclock.h>
 #include <rtt_roscomm/rtt_rostopic.h>
 
 #include <kdl/frames.hpp>
 #include <kdl/jntarray.hpp>
 #include <kdl/jacobian.hpp>
-#include <kuka_lwr_fri/friComm.h>
 
+#include <kuka_lwr_fri/friComm.h>
 #include <lwr_fri/CartesianImpedance.h>
 #include <lwr_fri/FriJointImpedance.h>
+
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Wrench.h>
 #include <geometry_msgs/Twist.h>
-
-#include <tf_conversions/tf_kdl.h>
-
-#include <Eigen/Dense>
-
-#include <vector>
-
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <arpa/inet.h>
-#include <boost/circular_buffer.hpp>
-#include <boost/foreach.hpp>
-#include <boost/assign.hpp>
-#include <rtt_ros_kdl_tools/tools.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/shared_ptr.hpp>
 #include <eigen_conversions/eigen_kdl.h>
 #include <eigen_conversions/eigen_msg.h>
 #include <kdl_conversions/kdl_msg.h>
 #include <tf_conversions/tf_eigen.h>
+#include <tf_conversions/tf_kdl.h>
+
+#include <Eigen/Dense>
+
+#include <boost/scoped_ptr.hpp>
+
+#include <rtt_ros_kdl_tools/tools.hpp>
+#include <rtt_ros_kdl_tools/chain_utils.hpp>
+
 namespace lwr{
 class SegmentIndice{
     public: const int operator()(const std::string& segment_name)
@@ -277,6 +268,7 @@ protected:
     static const unsigned int n_joints = LBR_MNJ;
 
     bool init(bool connect_all_ports=false);
+    rtt_ros_kdl_tools::ChainUtils arm;
     /**
      * @brief Shared arrays from the remote pc to the KRC
      */
