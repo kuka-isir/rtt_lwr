@@ -39,7 +39,7 @@ install:
   - curl https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/rtt_lwr.rosinstall | wstool merge -k -
   - curl https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/rtt_lwr_extras.rosinstall | wstool merge -k -
   - curl https://raw.githubusercontent.com/IDSCETHZurich/re_trajectory-generator/master/kuka_IK/include/friComm.h >> $CATKIN_WS_SRC/rtt_lwr/lwr_hardware/kuka_lwr_fri/include/kuka_lwr_fri/friComm.h
-  - wstool update -j2
+  - wstool update -j2 --continue-on-error
   - rosdep install -r --from-paths $CATKIN_WS_SRC/ --rosdistro $ROS_DISTRO -y
   - if [ -n "$USE_GAZEBO7" ] ; then sudo apt-get install -qq -y ros-indigo-gazebo7-*; fi
 
