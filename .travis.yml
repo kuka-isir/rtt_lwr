@@ -10,12 +10,12 @@ env:
     - CATKIN_WS=~/catkin_ws
     - CATKIN_WS_SRC=${CATKIN_WS}/src
   matrix:
-    - CI_ROS_DISTRO="jade" USE_GAZEBO6="true"
+    - CI_ROS_DISTRO="jade" USE_GAZEBO7="true"
     - CI_ROS_DISTRO="indigo"
-    - CI_ROS_DISTRO="indigo" USE_GAZEBO6="true"
+    - CI_ROS_DISTRO="indigo" USE_GAZEBO7="true"
 matrix:
   allow_failures:
-    - env: CI_ROS_DISTRO="jade" USE_GAZEBO6="true"
+    - env: CI_ROS_DISTRO="jade" USE_GAZEBO7="true"
   
 install:
 # Typegen/Orogen Hack : reset the path so rosdep installs 1.9.3 correctly
@@ -25,7 +25,7 @@ install:
   - sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
   - wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
   - sudo apt-get update -qq
-  - sudo apt-get install -qq -y python-rosdep python-catkin-tools
+  - sudo apt-get install -qq -y python-rosdep python-catkin-tools python-wstool
   - sudo apt-get install -qq -y ros-$CI_ROS_DISTRO-catkin ros-$CI_ROS_DISTRO-ros
   - sudo rosdep init
   - rosdep update
@@ -35,13 +35,12 @@ install:
   - cd $CATKIN_WS
   - catkin init
   - cd $CATKIN_WS_SRC
-  - git clone https://github.com/kuka-isir/rtt_gazebo
-  - git clone https://github.com/kuka-isir/rtt_ros_kdl_tools
-  - wget https://raw.githubusercontent.com/IDSCETHZurich/re_trajectory-generator/master/kuka_IK/include/friComm.h
-  - mv friComm.h $CATKIN_WS_SRC/rtt_lwr/lwr_hardware/kuka_lwr_fri/include/kuka_lwr_fri/friComm.h
+  - wstool init
+  - curl https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/rtt_lwr.rosinstall | wstool merge -k -
+  - curl https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/rtt_lwr_extras.rosinstall | wstool merge -k -
+  - curl https://raw.githubusercontent.com/IDSCETHZurich/re_trajectory-generator/master/kuka_IK/include/friComm.h >> $CATKIN_WS_SRC/rtt_lwr/lwr_hardware/kuka_lwr_fri/include/kuka_lwr_fri/friComm.h
   - rosdep install -r --from-paths $CATKIN_WS_SRC/ --rosdistro $ROS_DISTRO -y
-  - if [ -n "$USE_GAZEBO6" ] ; then sudo apt-get install -qq -y ros-indigo-gazebo6-ros-pkgs; fi
-  - source /opt/ros/$CI_ROS_DISTRO/setup.bash
+  - if [ -n "$USE_GAZEBO7" ] ; then sudo apt-get install -qq -y ros-indigo-gazebo7-*; fi
 
 script:
   # Enable install space
