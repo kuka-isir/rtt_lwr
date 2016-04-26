@@ -68,17 +68,17 @@ global bool loadKRLTool(bool start_component)
 
 global void setJointTorqueControlMode()
 {
-    scripting.eval("krl_tool.setJointTorqueControlMode()")
+    scripting.eval(getRobotName()+"_krl_tool.setJointTorqueControlMode()")
 }
 
 global void setCartesianImpedanceControlMode()
 {
-    scripting.eval("krl_tool.setCartesianImpedanceControlMode()")
+    scripting.eval(getRobotName()+"_krl_tool.setCartesianImpedanceControlMode()")
 }
 
 global void setJointImpedanceControlMode()
 {
-    scripting.eval("krl_tool.setJointImpedanceControlMode()")
+    scripting.eval(getRobotName()+"_krl_tool.setJointImpedanceControlMode()")
 }
 void loadGazeboComponent(string comp_name)
 {
