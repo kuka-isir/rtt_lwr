@@ -317,6 +317,6 @@ global bool loadAtiFTSensor(bool start_component)
     #ft_sensor.sample_count = 0
 
     configureComponent("ft_sensor")
-    if(start_component)
+    if(start_component) then
         startComponent("ft_sensor")
 }
