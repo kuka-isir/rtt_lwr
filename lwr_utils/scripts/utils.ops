@@ -115,43 +115,6 @@ var bool required_packages_loaded = false;
 if(!isSim()) then
     importRequiredPackages()
 
-global string loadRobot(string robot_name,bool is_sim,bool start_component)
-{
-    #importRequiredPackages()
-    #var bool is_sim = isSim();
-    #var string robot_name = getRobotName()
-
-    if(is_sim) then
-    {
-        import("rtt_lwr_sim")
-        loadComponent(robot_name,"lwr::LWRSim")
-        connectPeers("gazebo",robot_name)
-        scripting.eval(robot_name+".synchronize_with_commands = false")
-        scripting.eval(robot_name+".getModel(\"gazebo\",\""+robot_name+"\",30.0)")
-        configureComponent(robot_name)
-
-        print.ln("\033[34;1m[Info]["+robot_name+"] RUNNING ON SIMULATION \033[0m\n")
-    }
-    else
-    {
-
-        var string robot_hw_script_path = ros.find("lwr_fri")+"/lwr_fri_loader.ops"
-
-        print.ln("Loading robot config from : "+robot_hw_script_path)
-
-        runScript(robot_hw_script_path)
-
-        print.ln("\033[34;1m[Info]["+robot_name+"] RUNNING ON HARDWARE \033[0m\n")
-    }
-
-    if(start_component) then
-        startComponent(robot_name)
-
-    loadKRLTool(start_component)
-
-    return robot_name;
-}
-
 var strings ports_names = strings("JointPosition","JointVelocity","JointTorque","JointPositionCommand","JointTorqueCommand","fromKRL","toKRL","RobotState","FRIState");
 
 global bool connectAllPorts(string controller_name,string robot_name, ConnPolicy cp)
@@ -319,4 +282,41 @@ global bool loadAtiFTSensor(bool start_component)
     configureComponent("ft_sensor")
     if(start_component) then
         startComponent("ft_sensor")
+}
+
+global string loadRobot(string robot_name,bool is_sim,bool start_component)
+{
+    #importRequiredPackages()
+    #var bool is_sim = isSim();
+    #var string robot_name = getRobotName()
+
+    if(is_sim) then
+    {
+        import("rtt_lwr_sim")
+        loadComponent(robot_name,"lwr::LWRSim")
+        connectPeers("gazebo",robot_name)
+        scripting.eval(robot_name+".synchronize_with_commands = false")
+        scripting.eval(robot_name+".getModel(\"gazebo\",\""+robot_name+"\",30.0)")
+        configureComponent(robot_name)
+
+        print.ln("\033[34;1m[Info]["+robot_name+"] RUNNING ON SIMULATION \033[0m\n")
+    }
+    else
+    {
+
+        var string robot_hw_script_path = ros.find("lwr_fri")+"/lwr_fri_loader.ops"
+
+        print.ln("Loading robot config from : "+robot_hw_script_path)
+
+        runScript(robot_hw_script_path)
+
+        print.ln("\033[34;1m[Info]["+robot_name+"] RUNNING ON HARDWARE \033[0m\n")
+    }
+
+    if(start_component) then
+        startComponent(robot_name)
+
+    loadKRLTool(start_component)
+
+    return robot_name;
 }
