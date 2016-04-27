@@ -203,6 +203,14 @@ global bool loadConman()
     return true
 }
 
+global bool addRobotToConman(string component_name)
+{
+    stopComponent(component_name);
+    connectPeers("scheme",component_name);
+    scripting.eval("scheme.addToGroup(\""+component_name+"\",\"robots\")");
+    return true
+}
+
 global bool addControllerToConman(string component_name)
 {
     stopComponent(component_name);
@@ -325,6 +333,7 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
     {
         import("rtt_lwr_sim")
         loadComponent(robot_name,"lwr::LWRSim")
+        setActivity(robot_name,0,10,ORO_SCHED_OTHER)
         connectPeers("gazebo",robot_name)
         scripting.eval(robot_name+".synchronize_with_commands = false")
         scripting.eval(robot_name+".getModel(\"gazebo\",\""+robot_name+"\",30.0)")
