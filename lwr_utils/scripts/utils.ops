@@ -266,6 +266,7 @@ global bool loadROSControl(bool start_component)
     ## Start it
     if(start_component) then
         startComponent(comp_name)
+    return true;
 }
 
 global bool loadAtiFTSensor(bool start_component)
@@ -282,6 +283,7 @@ global bool loadAtiFTSensor(bool start_component)
     configureComponent("ft_sensor")
     if(start_component) then
         startComponent("ft_sensor")
+    return true
 }
 
 global string loadRobot(string robot_name,bool is_sim,bool start_component)
