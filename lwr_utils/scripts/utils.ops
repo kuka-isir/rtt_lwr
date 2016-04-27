@@ -329,6 +329,7 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
         scripting.eval(robot_name+".synchronize_with_commands = false")
         scripting.eval(robot_name+".getModel(\"gazebo\",\""+robot_name+"\",30.0)")
         configureComponent(robot_name)
+        scripting.eval(robot_name+".setLinkGravityMode(\"ati_link\",false)")
 
         print.ln("\033[34;1m[Info]["+robot_name+"] RUNNING ON SIMULATION \033[0m\n")
     }
