@@ -32,6 +32,10 @@
 
 <arg name="initial_joint_positions" default="[0, 0, 0, 0, 0, 0, 0]"/>
 
+<group if="$(arg use_sim_time)">
+  <param name="/use_sim_time" value="true" />
+</group>
+
 <!-- Description and/or gazebo -->
 <group ns="$(arg robot_ns)">
     <!--group ns="$(arg robot_name)"-->

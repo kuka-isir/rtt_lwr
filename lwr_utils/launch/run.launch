@@ -38,8 +38,6 @@
         robot_ns=$(arg robot_ns)
         tf_prefix=$(arg tf_prefix)
         "/>
-    <!-- Run inside the gazebo process -->
-    <arg name="spawn_in_gazebo_process" default="false"/>
     <!-- Orocos log level (never, fatal, critical, error, warning, info, debug, realtime) -->
     <arg name="log_level" default="warning"/>
 
@@ -63,13 +61,7 @@
         <arg name="use_sim_time"    value="$(arg use_sim_time)"/>
     </include>
 
-
-    <node if="$(arg spawn_in_gazebo_process)"
-        name="$(arg robot_name)_controllers_launcher"
-        pkg="rosservice" type="rosservice"
-        args="call /gazebo/gazebo/run_script $(arg ops_script) --wait -v"/>
-
-    <group ns="$(arg robot_ns)" unless="$(arg spawn_in_gazebo_process)">
+    <group ns="$(arg robot_ns)">
         <include file="$(find lwr_utils)/launch/deployer.launch">
             <arg name="CORBA" value="false" if="$(arg sim)"/>
             <arg name="DEPLOYER_ARGS" value="-s $(arg ops_script)"/>
