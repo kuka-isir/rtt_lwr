@@ -50,7 +50,7 @@ global bool loadKRLTool(bool start_component)
 {
   var string robot_name = getRobotName()
   var string component_name = robot_name+"_krl_tool"
-  print.ln("\033[34;1m[Info] Loading KRL Tool for robot ["+robot_name+"]\033[0m\n")
+  print.ln("\033[34;1m[Info] Loading KRL Tool for "+robot_name+"\033[0m\n")
   import("rtt_lwr_krl_tool")
   loadComponent(component_name,"lwr::KRLTool")
   setActivity(component_name,0.01,10,ORO_SCHED_OTHER)
@@ -115,19 +115,41 @@ var bool required_packages_loaded = false;
 if(!isSim()) then
     importRequiredPackages()
 
-var strings ports_names = strings("JointPosition","JointVelocity","JointTorque","JointPositionCommand","JointTorqueCommand","fromKRL","toKRL","RobotState","FRIState");
+var strings std_ports_names = strings("JointPosition","JointVelocity","JointTorque","JointPositionCommand","JointTorqueCommand");
+var strings lwr_ports_names = strings("fromKRL","toKRL","RobotState","FRIState");
+
+global bool connectPortsFromList(string controller_name,string robot_name,strings ports_list ,ConnPolicy cp)
+{
+    connectPeers(controller_name,robot_name);
+    var bool connected = true;
+    for(var int i = 0 ; i < ports_list.size ; i = i + 1)
+    {
+        connected = connect(robot_name+"."+ports_list[i],controller_name+"."+ports_list[i],cp);
+        print.ln("- "+robot_name+"."+ports_list[i]+" => "+controller_name+"."+ports_list[i]+" : "+connected);
+    }
+    return true;
+}
+global bool connectStandardPorts(string controller_name,string robot_name, ConnPolicy cp)
+{
+    print.ln("Connecting Standard ports from "+controller_name+" to robot "+robot_name);
+    connectPortsFromList(controller_name,robot_name,std_ports_names,cp);
+    return true
+}
+
+global bool connectLWRPorts(string controller_name,string robot_name, ConnPolicy cp)
+{
+    connectStandardPorts(controller_name,robot_name,cp)
+    print.ln("Connecting all ports from "+controller_name+" to robot "+robot_name);
+    connectPortsFromList(controller_name,robot_name,lwr_ports_names,cp);
+    return true
+}
 
 global bool connectAllPorts(string controller_name,string robot_name, ConnPolicy cp)
 {
-    print.ln("Connecting all ports from "+controller_name+" to robot "+robot_name);
-    connectPeers(controller_name,robot_name);
-    var bool connected = false;
-    for(var int i = 0 ; i < ports_names.size ; i = i + 1)
-    {
-        connected = connect(robot_name+"."+ports_names[i],controller_name+"."+ports_names[i],cp);
-        print.ln("- "+robot_name+"."+ports_names[i]+" => "+controller_name+"."+ports_names[i]+" : "+connected);
-    }
-    return true
+    connectStandardPorts(controller_name,robot_name,cp)
+    connectLWRPorts(controller_name,robot_name,cp)
+    print.ln("\033[34;1m[Info] connectAllPorts is deprecated,\n please use connectStandardPorts() + connectLWRPorts() instead for standard + Kuka specific ports\033[0m");
+    return true;
 }
 
 global bool loadStatePublisher(bool start_component)
@@ -150,7 +172,7 @@ global bool loadStatePublisher(bool start_component)
     if(!configureComponent(comp_name)) then
         return false
 
-    print.ln("\033[34;1m[Info] Loading state publisher \033[0m\n")
+    print.ln("\033[34;1m[Info] Loading state publisher for "+robot_name+"\033[0m\n")
 
     connectPeers(comp_name,robot_name)
     connect(comp_name+".JointPosition",robot_name+".JointPosition",ConnPolicy())
@@ -166,7 +188,7 @@ global bool loadStatePublisher(bool start_component)
 
 global bool loadConman()
 {
-    print.ln("\033[34;1m[Info]Loading ConMan \033[0m\n")
+    print.ln("\033[34;1m[Info] Loading ConMan \033[0m\n")
     scripting.eval("ros.import(\"conman\")")
     scripting.eval("ros.import(\"conman_ros\")")
     loadComponent("scheme","conman::Scheme")
@@ -216,6 +238,9 @@ global bool loadJointTrajectoryGeneratorKDL(bool start_component)
 {
   var string robot_name = getRobotName()
   var string comp_name = robot_name + "_traj_kdl"
+
+  print.ln("\033[34;1m[Info] Loading Trajectory generator KDL for "+robot_name+"\033[0m\n")
+
   import("rtt_ros")
   scripting.eval("ros.import(\"rtt_joint_traj_generator_kdl\")")
   loadComponent(comp_name,"JointTrajGeneratorKDL")
@@ -236,6 +261,8 @@ global bool loadROSControl(bool start_component)
 {
     var string robot_name = getRobotName()
     var string comp_name = robot_name + "_ros_control"
+
+    print.ln("\033[34;1m[Info] Loading ROS Control for "+robot_name+"\033[0m\n")
 
     import("rtt_ros")
     import("rtt_control_msgs")
