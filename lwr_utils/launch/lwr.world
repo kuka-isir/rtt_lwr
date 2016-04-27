@@ -9,11 +9,11 @@
     <include>
       <uri>model://ground_plane</uri>
     </include>
-    
+
     <physics type="ode">
       <ode>
         <solver>
-          <iters>1000</iters>
+          <iters>50</iters>
           <!--use_dynamic_moi_rescaling>false</use_dynamic_moi_rescaling-->
         </solver>
       </ode>
