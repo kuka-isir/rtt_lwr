@@ -87,7 +87,6 @@ void loadGazeboComponent(string comp_name)
     import("rtt_std_srvs")
     import("rtt_roscomm")
     import("rtt_gazebo_embedded")
-    # import("rtt_rosclock")
 
     loadComponent(comp_name,"RTTGazeboEmbedded")
     setActivity(comp_name,0.1,10,ORO_SCHED_OTHER)
@@ -100,7 +99,10 @@ void loadGazeboComponent(string comp_name)
 
     configureComponent(comp_name)
 
-    # gazebo.loadService("rosclock")
+    # Sync ros/gazebo/rtt clocks
+    import("rtt_rosclock")
+    scripting.eval("ros.clock.useROSClockTopic()")
+    scripting.eval("ros.clock.enableSimClock()")
 
     startComponent(comp_name)
 }
