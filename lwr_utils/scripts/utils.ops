@@ -347,5 +347,7 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
 
     loadKRLTool(start_component)
 
+    if(is_sim) then
+        setJointTorqueControlMode();
     return robot_name;
 }
