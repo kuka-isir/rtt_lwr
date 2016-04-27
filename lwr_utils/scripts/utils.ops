@@ -1,10 +1,12 @@
 
 require("print")
 require("os")
+import("rtt_ros")
 import("rtt_rospack")
 import("rtt_roscomm")
 import("lwr_utils")
 
+# "this" argument hasn't reach debians yet
 this.loadService("Deployer","ros_helper")
 
 global string getRobotName()
@@ -30,11 +32,11 @@ global bool isSim()
 global bool importRequiredPackages()
 {
     # This is gonna load all the <export><plugin_depends> tags
-    print.ln("Loading all recommended RTT packages")
+    print.ln("[Info] Loading all recommended RTT packages")
     require("scripting")
     import("rtt_ros")
-    scripting.eval("ros.import(\"lwr_utils\")")
-    print.ln("Done loading recommended RTT packages")
+    ros.import("lwr_utils")
+    print.ln("[Info] Done loading recommended RTT packages")
     return true;
 }
 
@@ -189,8 +191,8 @@ global bool loadStatePublisher(bool start_component)
 global bool loadConman()
 {
     print.ln("\033[34;1m[Info] Loading ConMan \033[0m\n")
-    scripting.eval("ros.import(\"conman\")")
-    scripting.eval("ros.import(\"conman_ros\")")
+    ros.import("conman")
+    ros.import("conman_ros")
     loadComponent("scheme","conman::Scheme")
     setActivity("scheme",0.001,10,ORO_SCHED_RT)
     scripting.eval("scheme.loadService(\"conman_ros\")")
@@ -242,7 +244,7 @@ global bool loadJointTrajectoryGeneratorKDL(bool start_component)
   print.ln("\033[34;1m[Info] Loading Trajectory generator KDL for "+robot_name+"\033[0m\n")
 
   import("rtt_ros")
-  scripting.eval("ros.import(\"rtt_joint_traj_generator_kdl\")")
+  ros.import("rtt_joint_traj_generator_kdl")
   loadComponent(comp_name,"JointTrajGeneratorKDL")
   setActivity(comp_name,0.001,10,ORO_SCHED_RT);
 
@@ -268,7 +270,7 @@ global bool loadROSControl(bool start_component)
     import("rtt_control_msgs")
     import("rtt_controller_manager_msgs")
 
-    scripting.eval("ros.import(\"rtt_ros_control_embedded\")")
+    ros.import("rtt_ros_control_embedded")
 
     # Load the RttRosControl component
     loadComponent(comp_name,"RttRosControl")
@@ -298,7 +300,7 @@ global bool loadROSControl(bool start_component)
 
 global bool loadAtiFTSensor(bool start_component)
 {
-    scripting.eval("ros.import(\"rtt_ati_sensor\")")
+    ros.import("rtt_ati_sensor")
 
     loadComponent("ft_sensor","rtt_ati::FTSensor")
 
