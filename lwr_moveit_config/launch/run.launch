@@ -1,0 +1,47 @@
+<launch>
+<!--============ LWR Runner script Params ========-->
+
+    <!-- The end effector frame (you'll be able to use frames <= tip_link for cartesian position, jacobians etc.) -->
+    <arg name="tip_link" default="link_7"/>
+    <!-- Run Simulated robot (need to 'roslaunch rtt_lwr_gazebo lwr_gazebo.launch' first) -->
+    <arg name="sim" default="false" />
+    <!-- Run in GDB -->
+    <arg name="debug" default="false" />
+    <!-- Launch rviz -->
+    <arg name="rviz" default="false" />
+    <!-- The level of verbose (never, fatal, critical, error, warning, info, debug, realtime) -->
+    <arg name="log_level" default="warning" />
+    <!-- Tools -->
+    <arg name="load_base" default="true" />
+    <arg name="load_ati_sensor" default="true" />
+    <arg name="load_calib_tool" default="true" />
+    <arg name="load_handle" default="true" />
+    <!-- Gazebo -->
+    <arg name="gazebo_gui" default="false"/>
+
+    <!-- MoveIt! -->
+    <arg name="launch_moveit" default="true"/>
+
+<!--============ LWR Runner script ===============-->
+
+<include file="$(find lwr_utils)/launch/run.launch">
+    <arg name="sim" value="$(arg sim)" />
+    <arg name="ops_script" value="$(find lwr_moveit_config)/scripts/run.ops"/>
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="log_level" value="$(arg log_level)" />
+    <arg name="tip_link" value="$(arg tip_link)"/>
+    <arg name="load_base" value="$(arg load_base)" />
+    <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
+    <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
+    <arg name="load_handle" value="$(arg load_handle)" />
+    <arg name="gazebo_gui" value="$(arg gazebo_gui)"/>
+</include>
+
+<include file="$(find lwr_moveit_config)/launch/lwr.launch" if="$(arg launch_moveit)"/>
+
+<node name="starter" pkg="controller_manager"
+  type="controller_manager"
+  args="start joint_trajectory_controller joint_state_controller"
+  output="screen"/>
+</launch>
