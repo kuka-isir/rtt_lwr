@@ -14,7 +14,7 @@
     <arg name="load_calib_tool" default="false" />
     <arg name="load_handle" default="false" />
     <arg name="initial_joint_positions" default="[1.6036007404327393, 0.3993358612060547, -0.10944951325654984, -1.7840847969055176, 0.1192147508263588, 0.9727375507354736, 0.1688145101070404]"/>
-    <arg name="use_sim_time" default="true"/>
+
     <!-- The end effector Frame -->
     <arg name="tip_link" default="link_7"/>
     <arg name="root_link" default="link_0"/>
@@ -24,6 +24,9 @@
 
     <arg if="$(arg sim)"     name="robot_ns" default="/" />
     <arg unless="$(arg sim)" name="robot_ns" default="/" />
+
+    <arg if="$(arg sim)"     name="use_sim_time" value="true"/>
+    <arg unless="$(arg sim)" name="use_sim_time" value="false"/>
 
     <arg name="tf_prefix" default="$(arg robot_ns)"/>
 
