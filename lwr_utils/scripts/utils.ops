@@ -89,7 +89,7 @@ void loadGazeboComponent(string comp_name)
     import("rtt_gazebo_embedded")
 
     loadComponent(comp_name,"RTTGazeboEmbedded")
-    setActivity(comp_name,0.1,10,ORO_SCHED_OTHER)
+    setActivity(comp_name,0.001,10,ORO_SCHED_OTHER)
     scripting.eval(comp_name+".argv = strings(\"--verbose\")")
 
     scripting.eval(comp_name+".add_plugin(\"libgazebo_ros_paths_plugin.so\")")
@@ -202,6 +202,14 @@ global bool loadConman()
     scripting.eval("scheme.addGroup(\"state_estimation\")")
     scripting.eval("scheme.addGroup(\"controllers\")")
 
+    return true
+}
+
+global bool addComponentToStateEstimation(string component_name)
+{
+    stopComponent(component_name);
+    connectPeers("scheme",component_name);
+    scripting.eval("scheme.addToGroup(\""+component_name+"\",\"state_estimation\")");
     return true
 }
 
