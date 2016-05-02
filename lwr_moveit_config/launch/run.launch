@@ -40,8 +40,10 @@
 
 <include file="$(find lwr_moveit_config)/launch/lwr.launch" if="$(arg launch_moveit)"/>
 
-<node name="starter" pkg="controller_manager"
+<!-- This causes endless loop, call it when everything is ready -->
+<!--node name="starter" pkg="controller_manager"
   type="controller_manager"
   args="start joint_trajectory_controller joint_state_controller"
-  output="screen"/>
+  output="screen"/-->
+
 </launch>
