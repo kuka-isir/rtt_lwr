@@ -316,11 +316,35 @@ global string loadROSControl(bool start_component)
     return comp_name;
 }
 
+global string getAtiFTSensorDataPort()
+{
+    return "ft_sensor.wrench"
+}
+
+global bool connectToAtiFTSensorPort(string comp_name,string port_name,ConnPolicy cp)
+{
+    if(isSim()) then
+    {
+        import("rtt_geometry_msgs")
+        stream(comp_name+"."+port_name,ros.comm.topic("ft_sensor/wrench"))
+    }else{
+        connectPeers("ft_sensor",comp_name)
+        connect("ft_sensor",comp_name+"."+port_name,cp)
+    }
+    return true
+}
 global string loadAtiFTSensor(bool start_component)
 {
-    ros.import("rtt_ati_sensor")
-
-    loadComponent("ft_sensor","rtt_ati::FTSensor")
+    if(isSim()) then
+    {
+        print.ln("\033[34;1m[Info] Loading ATI F/T Sensor (Simulated)\033[0m\n")
+        print.ln("\033[34;1m=> Please use connectToAtiFTSensorPort(\"my_component\",\"my_geometry_msgs_port\",ConnPolicy())\033[0m\n")
+    }else
+    {
+        ros.import("rtt_ati_sensor")
+        loadComponent("ft_sensor","rtt_ati::FTSensor")
+        print.ln("\033[34;1m[Info] Loading ATI F/T Sensor \033[0m\n")
+    }
 
     setActivity("ft_sensor",0.001,10,ORO_SCHED_RT)
     # uncomment for event based update with netft box set at component periodicity
