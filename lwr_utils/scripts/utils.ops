@@ -174,7 +174,7 @@ global string loadStatePublisher(bool start_component)
     #ros.clock.useROSClockTopic()
     #ros.clock.enableSimClock()
     if(!configureComponent(comp_name)) then
-        return false
+        return ""
 
     print.ln("\033[34;1m[Info] Loading state publisher for "+robot_name+"\033[0m\n")
 
