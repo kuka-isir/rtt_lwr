@@ -48,7 +48,7 @@ global bool setRobotInitialJointConfiguration(double q0,double q1,double q2,doub
     return true;
 }
 
-global bool loadKRLTool(bool start_component)
+global string loadKRLTool(bool start_component)
 {
   var string robot_name = getRobotName()
   var string component_name = robot_name+"_krl_tool"
@@ -65,7 +65,7 @@ global bool loadKRLTool(bool start_component)
   configureComponent(component_name)
   if(start_component) then
       startComponent(component_name)
-  return true
+  return component_name
 }
 
 global void setJointTorqueControlMode()
@@ -156,7 +156,7 @@ global bool connectAllPorts(string controller_name,string robot_name, ConnPolicy
     return true;
 }
 
-global bool loadStatePublisher(bool start_component)
+global string loadStatePublisher(bool start_component)
 {
     var string robot_name = getRobotName()
     var string comp_name = robot_name+"_state_pub"
@@ -187,10 +187,10 @@ global bool loadStatePublisher(bool start_component)
 
     if(start_component) then
         startComponent(comp_name)
-    return true
+    return comp_name
 }
 
-global bool loadConman()
+global string loadConman()
 {
     print.ln("\033[34;1m[Info] Loading ConMan \033[0m\n")
     ros.import("conman")
@@ -202,7 +202,7 @@ global bool loadConman()
     scripting.eval("scheme.addGroup(\"state_estimation\")")
     scripting.eval("scheme.addGroup(\"controllers\")")
 
-    return true
+    return "scheme"
 }
 
 global bool addComponentToStateEstimation(string component_name)
@@ -229,12 +229,12 @@ global bool addControllerToConman(string component_name)
     return scripting.eval("scheme.latchConnections(\"robots\",\"controllers\",true)");
 }
 
-global bool loadFBSched()
+global string loadFBSched()
 {
     import("fbsched");
     var bool res = loadComponent("fbs","FBSched");
     setActivity("fbs",0.001,10,ORO_SCHED_RT);
-    return res;
+    return "fbs";
 }
 global bool addControllerToFBSched(string component_name)
 {
@@ -254,7 +254,7 @@ global void generateGraph()
 }
 
 
-global bool loadJointTrajectoryGeneratorKDL(bool start_component)
+global string loadJointTrajectoryGeneratorKDL(bool start_component)
 {
   var string robot_name = getRobotName()
   var string comp_name = robot_name + "_traj_kdl"
@@ -274,10 +274,10 @@ global bool loadJointTrajectoryGeneratorKDL(bool start_component)
 
   if(start_component) then
       startComponent(comp_name)
-  return true;
+  return comp_name;
 }
 
-global bool loadROSControl(bool start_component)
+global string loadROSControl(bool start_component)
 {
     var string robot_name = getRobotName()
     var string comp_name = robot_name + "_ros_control"
@@ -313,10 +313,10 @@ global bool loadROSControl(bool start_component)
     ## Start it
     if(start_component) then
         startComponent(comp_name)
-    return true;
+    return comp_name;
 }
 
-global bool loadAtiFTSensor(bool start_component)
+global string loadAtiFTSensor(bool start_component)
 {
     ros.import("rtt_ati_sensor")
 
@@ -330,7 +330,7 @@ global bool loadAtiFTSensor(bool start_component)
     configureComponent("ft_sensor")
     if(start_component) then
         startComponent("ft_sensor")
-    return true
+    return "ft_sensor"
 }
 
 global string loadRobot(string robot_name,bool is_sim,bool start_component)
