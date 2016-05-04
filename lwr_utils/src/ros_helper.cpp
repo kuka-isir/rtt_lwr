@@ -19,7 +19,6 @@ getTaskContext("getTaskContext"),
 getOwner("getOwner"),
 parseArgv("parseArgv"),
 getTfPrefix("getTfPrefix"),
-getEnvName("getEnvName"),
 addComponent("addComponent"),
 rosServiceCall("rosServiceCall"),
 printArgv("printArgv")
@@ -36,7 +35,6 @@ printArgv("printArgv")
     this->addOperationCaller(parseArgv);
     this->addOperationCaller(getRobotNs);
     this->addOperationCaller(getTfPrefix);
-    this->addOperationCaller(getEnvName);
     this->addOperationCaller(addComponent);
     this->addOperationCaller(rosServiceCall);
     this->addOperationCaller(printArgv);
@@ -57,7 +55,6 @@ public:
         this->addOperation("getRobotName", &RosHelperService::getRobotName, this);
         this->addOperation("getRobotNs", &RosHelperService::getRobotNs, this);
         this->addOperation("getTfPrefix", &RosHelperService::getTfPrefix, this);
-        this->addOperation("getEnvName", &RosHelperService::getEnvName, this);
         this->addOperation("isSim", &RosHelperService::isSim, this);
         this->addOperation("getThisNodeName", &RosHelperService::getThisNodeName, this);
         this->addOperation("getThisNodeNamespace", &RosHelperService::getThisNodeNamespace, this);
@@ -78,7 +75,7 @@ public:
             RTT::log(Warning) << "No args passed to the deployer" << endlog();
             return ;
         }
-        std::cout << "Arguments passed to the deployer : "<<std::endl;
+        RTT::log(Info) << "Arguments passed to the deployer : "<<RTT::endlog();
         for(int i=0;i<argv_.size();++i)
             std::cout <<argv_[i]<<std::endl;
     }
@@ -146,45 +143,42 @@ public:
             return NULL;
         }
     }
-    string getRobotName()
-    {
-        std::string ns = getRobotNs();
-
-        if(*ns.rbegin() != '/') ns +='/';
-
-        if(ros::param::has(ns+"robot_name"))
-            return getParam(ns+"robot_name");
-
-        if(has_parsed_arguments_ )
-            return robot_name_;
-    }
     string getThisNodeName()
     {
         return ros::this_node::getName();
     }
+    template<typename T> bool getParamInNs(const std::string& param_name,T& param_out)
+    {
+        std::string ns = getRobotNs();
+        if(ros::param::has(ns+param_name)){
+            ros::param::get(ns+param_name,param_out);
+            return true;
+        }
+        return false;
+    }
     bool isSim()
     {
-        if(!has_parsed_arguments_)
-        {
-            std::cout << "Getting Param : is_sim";
-            ros::param::get("is_sim",is_sim_);
-            std::cout << " -> ["<<is_sim_<<"]"<<std::endl;
-        }
+        getParamInNs("is_sim",is_sim_);
         return is_sim_;
+    }
+    string getRobotName()
+    {
+        getParamInNs("robot_name",robot_name_);
+        return robot_name_;
     }
     std::string getRobotNs()
     {
-        if(has_parsed_arguments_)
+        if(ros::param::has("robot_ns"))
+            ros::param::get("robot_ns",robot_name_);
+        else if(has_parsed_arguments_)
             return robot_ns_;
-        else
-            return getParam("robot_ns");
+        if(*robot_ns_.rbegin() != '/') robot_ns_ +='/';
+        return robot_ns_;
     }
     std::string getTfPrefix()
     {
-        if(has_parsed_arguments_)
-            return tf_prefix_;
-        else
-            return getParam("tf_prefix");
+        getParamInNs("tf_prefix",tf_prefix_);
+        return tf_prefix_;
     }
     std::string getThisNodeNamespace()
     {
@@ -198,9 +192,11 @@ public:
     std::string getParam(const std::string& res_param_name)
     {
         std::string param;
-        std::cout << "Getting Param : "<<res_param_name;
+        std::stringstream ss;
+        ss << "Getting Param : "<<res_param_name;
         ros::param::get(res_param_name, param);
-        std::cout << " -> ["<<param<<"]"<<std::endl;
+        ss << " -> ["<<param<<"]"<<std::endl;
+        RTT::log(Info) << ss.str() << RTT::endlog();
         return param;
     }
     bool waitForROSService(std::string service_name, double service_timeout_s)
@@ -214,31 +210,7 @@ public:
             return true;
         return false;
     }
-    std::string getEnvName()
-    {
-        if(has_parsed_arguments_)
-            return env_name_;
-        else
-            return getParam("env_name");
-    }
-    bool connectPeerCORBA(const std::string& interface_name,const std::string& peer_name)
-    {
-        if(getOwner() == NULL) return false;
 
-        if(peer_name.empty() || interface_name.empty()) return false;
-
-        if(this->getOwner()->hasPeer(peer_name) == true) return false;
-
-        if(this->getOwner()->hasPeer(interface_name) == false) return false;
-
-        if(this->getOwner()->getPeer(interface_name)->hasPeer(peer_name) == false) return false;
-
-        return this->getOwner()->connectPeers(this->getOwner()->getPeer(interface_name)->getPeer(peer_name));
-    }
-    RTT::TaskContext * loadRobot()
-    {
-
-    }
     bool hasParsedArgv(){return has_parsed_arguments_;}
 
     virtual ~RosHelperService(){};
