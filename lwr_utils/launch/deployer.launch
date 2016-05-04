@@ -17,14 +17,14 @@
   <arg name="DEBUG" default="false"/>
   <!-- Respawn the node if it creashes (not recommended) -->
   <arg name="RESPAWN" default="false"/>
-  
+
   <arg if="$(arg DEBUG)" name="SUFFIX" value="-debug"/>
   <arg unless="$(arg DEBUG)" name="SUFFIX" value=""/>
 
   <!-- Launch deployer -->
   <node unless="$(arg CORBA)"
     name="$(arg NAME)"
-    pkg="rtt_ros" type="deployer$(arg SUFFIX)" 
+    pkg="rtt_ros" type="deployer$(arg SUFFIX)"
     args="-l $(arg LOG_LEVEL) $(arg DEPLOYER_ARGS) -- $(arg EXTRA_DEPLOYER_ARGS)"
     output="screen" respawn="$(arg RESPAWN)">
     <env name="OROCOS_TARGET" value="$(arg OROCOS_TARGET)"/>
@@ -33,7 +33,7 @@
   <!-- launch corba deployer -->
   <node if="$(arg CORBA)"
     name="$(arg NAME)"
-    pkg="lwr_scripts" type="deployer-corba$(arg SUFFIX)" 
+    pkg="lwr_utils" type="deployer-corba$(arg SUFFIX)" 
     args="-l $(arg LOG_LEVEL) $(arg DEPLOYER_ARGS) -- $(arg EXTRA_DEPLOYER_ARGS)"
     output="screen" respawn="$(arg RESPAWN)">
     <env name="OROCOS_TARGET" value="$(arg OROCOS_TARGET)"/>
