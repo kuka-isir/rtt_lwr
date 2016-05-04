@@ -64,6 +64,7 @@
     <disable_collisions link1="base_link" link2="link_2" reason="Never" />
     <disable_collisions link1="base_link" link2="link_3" reason="Never" />
     <disable_collisions link1="calib_link" link2="handle_link" reason="Default" />
+    <disable_collisions link1="calib_link" link2="link_0" reason="Never" />
     <disable_collisions link1="calib_link" link2="link_1" reason="Never" />
     <disable_collisions link1="calib_link" link2="link_2" reason="Never" />
     <disable_collisions link1="calib_link" link2="link_3" reason="Never" />
@@ -79,7 +80,9 @@
     <disable_collisions link1="link_0" link2="link_2" reason="Never" />
     <disable_collisions link1="link_0" link2="link_3" reason="Never" />
     <disable_collisions link1="link_0" link2="link_4" reason="Never" />
+    <disable_collisions link1="link_0" link2="link_5" reason="User" />
     <disable_collisions link1="link_0" link2="link_6" reason="Never" />
+    <disable_collisions link1="link_0" link2="link_7" reason="Never" />
     <disable_collisions link1="link_1" link2="link_2" reason="Adjacent" />
     <disable_collisions link1="link_1" link2="link_3" reason="Never" />
     <disable_collisions link1="link_1" link2="link_4" reason="Never" />
@@ -99,5 +102,6 @@
     <disable_collisions link1="link_4" link2="link_6" reason="Never" />
     <disable_collisions link1="link_4" link2="link_7" reason="Never" />
     <disable_collisions link1="link_5" link2="link_6" reason="Adjacent" />
+    <disable_collisions link1="link_5" link2="link_7" reason="User" />
     <disable_collisions link1="link_6" link2="link_7" reason="Adjacent" />
 </robot>
