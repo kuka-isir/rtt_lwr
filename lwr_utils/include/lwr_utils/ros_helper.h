@@ -1,16 +1,16 @@
 #ifndef __ROS_HELPER_H__
 #define __ROS_HELPER_H__
-#include <rtt/RTT.hpp>
-#include <rtt/Property.hpp>
-#include <rtt/plugin/ServicePlugin.hpp>
+
+
 #include <ros/service.h>
 #include <ros/param.h>
 #include <ros/this_node.h>
-#include <ocl/DeploymentComponent.hpp>
+#include <ros/master.h>
 
-#include <boost/smart_ptr.hpp>
+#include <rtt/RTT.hpp>
+#include <rtt/Property.hpp>
+#include <rtt/plugin/ServicePlugin.hpp>
 #include <rtt/scripting/Scripting.hpp>
-
 #include <rtt/ServiceRequester.hpp>
 
 class ROSHelper : public RTT::ServiceRequester
