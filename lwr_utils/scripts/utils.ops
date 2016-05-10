@@ -29,17 +29,6 @@ global bool isSim()
     return this.ros_helper.isSim();
 }
 
-global bool importRequiredPackages()
-{
-    # This is gonna load all the <export><plugin_depends> tags
-    print.ln("[Info] Loading all recommended RTT packages")
-    require("scripting")
-    import("rtt_ros")
-    ros.import("lwr_utils")
-    print.ln("[Info] Done loading recommended RTT packages")
-    return true;
-}
-
 
 global bool setRobotInitialJointConfiguration(double q0,double q1,double q2,double q3,double q4,double q5,double q6)
 {
@@ -50,22 +39,31 @@ global bool setRobotInitialJointConfiguration(double q0,double q1,double q2,doub
 
 global string loadKRLTool(bool start_component)
 {
-  var string robot_name = getRobotName()
-  var string component_name = robot_name+"_krl_tool"
-  print.ln("\033[34;1m[Info] Loading KRL Tool for "+robot_name+"\033[0m\n")
-  import("rtt_lwr_krl_tool")
-  loadComponent(component_name,"lwr::KRLTool")
-  setActivity(component_name,0.01,10,ORO_SCHED_OTHER)
+    import("rosservice")
+    var string robot_name = getRobotName()
+    var string component_name = robot_name+"_krl_tool"
+    print.ln("\033[34;1m[Info] Loading KRL Tool for "+robot_name+"\033[0m\n")
+    ros.import("rtt_lwr_krl_tool")
+    loadComponent(component_name,"lwr::KRLTool")
+    setActivity(component_name,0,10,ORO_SCHED_OTHER)
 
 
-  connectPeers(component_name,robot_name)
-  connect(component_name+".toKRL"  ,robot_name+".toKRL"    ,ConnPolicy())
-  connect(component_name+".fromKRL",robot_name+".fromKRL"  ,ConnPolicy())
-  connect(component_name+".JointImpedanceCommand",robot_name+".JointImpedanceCommand",ConnPolicy())
-  configureComponent(component_name)
-  if(start_component) then
+    connectPeers(component_name,robot_name)
+    connect(component_name+".toKRL"  ,robot_name+".toKRL"    ,ConnPolicy())
+    connect(component_name+".fromKRL",robot_name+".fromKRL"  ,ConnPolicy())
+    connect(component_name+".JointImpedanceCommand",robot_name+".JointImpedanceCommand",ConnPolicy())
+    configureComponent(component_name)
+
+    loadService(component_name,"rosservice")
+
+    scripting.eval(component_name+".rosservice.connect(\"setJointImpedanceControlModeROSService\",\""+component_name+"/set_joint_impedance_control_mode\", \"std_srvs/Empty\")")
+    scripting.eval(component_name+".rosservice.connect(\"setJointPositionControlModeROSService\",\""+component_name+"/set_joint_position_control_mode\", \"std_srvs/Empty\")")
+    scripting.eval(component_name+".rosservice.connect(\"setCartesianImpedanceControlModeROSService\",\""+component_name+"/set_cartesian_impedance_control_mode\", \"std_srvs/Empty\")")
+    scripting.eval(component_name+".rosservice.connect(\"setJointTorqueControlModeROSService\",\""+component_name+"/set_joint_torque_control_mode\", \"std_srvs/Empty\")")
+    scripting.eval(component_name+".rosservice.connect(\"getCurrentControlModeROSService\",\""+component_name+"/get_current_control_mode\", \"std_srvs/Trigger\")")
+    if(start_component) then
       startComponent(component_name)
-  return component_name
+    return component_name
 }
 
 global void setJointTorqueControlMode()
@@ -84,6 +82,7 @@ global void setJointImpedanceControlMode()
 }
 void loadGazeboComponent(string comp_name)
 {
+    print.ln("[Info] Loading Gazebo Component "+comp_name)
     import("rtt_std_srvs")
     import("rtt_roscomm")
     import("rtt_gazebo_embedded")
@@ -108,6 +107,20 @@ void loadGazeboComponent(string comp_name)
 }
 
 var bool gz_loaded = false;
+var bool required_packages_loaded = false;
+
+global bool importRequiredPackages()
+{
+    # This is gonna load all the <export><plugin_depends> tags
+    print.ln("[Info] Loading all recommended RTT packages")
+    require("scripting")
+    import("rtt_ros")
+    ros.import("lwr_utils")
+    print.ln("[Info] Done loading recommended RTT packages")
+    required_packages_loaded = true
+    return true;
+}
+
 if(!gz_loaded && isSim()) then
 {
     loadGazeboComponent("gazebo")
@@ -115,9 +128,11 @@ if(!gz_loaded && isSim()) then
     importRequiredPackages()
 }
 
-var bool required_packages_loaded = false;
 if(!isSim()) then
+{
     importRequiredPackages()
+    required_packages_loaded = true
+}
 
 var strings std_ports_names = strings("JointPosition","JointVelocity","JointTorque","JointPositionCommand","JointTorqueCommand");
 var strings lwr_ports_names = strings("fromKRL","toKRL","RobotState","FRIState");
@@ -238,11 +253,11 @@ global string loadFBSched()
 }
 global bool addControllerToFBSched(string component_name)
 {
-    stopComponent(component_name);
-    scripting.eval(component_name+".setPeriod(0)");
-    startComponent(component_name);
-    connectPeers("fbs",component_name);
+    stopComponent(component_name)
+    scripting.eval(component_name+".setPeriod(0)")
+    connectPeers("fbs",component_name)
     setMasterSlaveActivity("fbs",component_name)
+    startComponent(component_name)
     return true;
 }
 
@@ -323,12 +338,12 @@ global string getAtiFTSensorDataPort()
 
 global bool connectToAtiFTSensorPort(string comp_name,string port_name,ConnPolicy cp)
 {
+    connectPeers("ft_sensor",comp_name)
     if(isSim()) then
     {
         import("rtt_geometry_msgs")
         stream(comp_name+"."+port_name,ros.comm.topic("ft_sensor/wrench"))
     }else{
-        connectPeers("ft_sensor",comp_name)
         connect("ft_sensor",comp_name+"."+port_name,cp)
     }
     return true
