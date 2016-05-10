@@ -42,7 +42,7 @@ global string loadKRLTool(bool start_component)
     import("rosservice")
     var string robot_name = getRobotName()
     var string component_name = robot_name+"_krl_tool"
-    print.ln("\033[34;1m[Info] Loading KRL Tool for "+robot_name+"\033[0m\n")
+    print.log(Info,"\033[34;1mLoading KRL Tool for "+robot_name+"\033[0m\n")
     ros.import("rtt_lwr_krl_tool")
     loadComponent(component_name,"lwr::KRLTool")
     setActivity(component_name,0,10,ORO_SCHED_OTHER)
@@ -80,9 +80,11 @@ global void setJointImpedanceControlMode()
 {
     scripting.eval(getRobotName()+"_krl_tool.setJointImpedanceControlMode()")
 }
+
+# Calling a function inside a function does not work in 2.9
 void loadGazeboComponent(string comp_name)
 {
-    print.ln("[Info] Loading Gazebo Component "+comp_name)
+    print.log(Info,"Loading Gazebo Component "+comp_name)
     import("rtt_std_srvs")
     import("rtt_roscomm")
     import("rtt_gazebo_embedded")
@@ -112,11 +114,9 @@ var bool required_packages_loaded = false;
 global bool importRequiredPackages()
 {
     # This is gonna load all the <export><plugin_depends> tags
-    print.ln("[Info] Loading all recommended RTT packages")
-    require("scripting")
-    import("rtt_ros")
+    print.log(Info,"Loading all recommended RTT packages")
     ros.import("lwr_utils")
-    print.ln("[Info] Done loading recommended RTT packages")
+    print.log(Info,"Done loading recommended RTT packages")
     required_packages_loaded = true
     return true;
 }
@@ -124,15 +124,9 @@ global bool importRequiredPackages()
 if(!gz_loaded && isSim()) then
 {
     loadGazeboComponent("gazebo")
-    gz_loaded = true;
-    importRequiredPackages()
 }
 
-if(!isSim()) then
-{
-    importRequiredPackages()
-    required_packages_loaded = true
-}
+importRequiredPackages()
 
 var strings std_ports_names = strings("JointPosition","JointVelocity","JointTorque","JointPositionCommand","JointTorqueCommand");
 var strings lwr_ports_names = strings("fromKRL","toKRL","RobotState","FRIState");
@@ -144,13 +138,13 @@ global bool connectPortsFromList(string controller_name,string robot_name,string
     for(var int i = 0 ; i < ports_list.size ; i = i + 1)
     {
         connected = connect(robot_name+"."+ports_list[i],controller_name+"."+ports_list[i],cp);
-        print.ln("- "+robot_name+"."+ports_list[i]+" => "+controller_name+"."+ports_list[i]+" : "+connected);
+        print.log(Info," - "+robot_name+"."+ports_list[i]+" => "+controller_name+"."+ports_list[i]+" : "+connected);
     }
     return true;
 }
 global bool connectStandardPorts(string controller_name,string robot_name, ConnPolicy cp)
 {
-    print.ln("Connecting Standard ports from "+controller_name+" to robot "+robot_name);
+    print.log(Info,"Connecting Standard ports from "+controller_name+" to robot "+robot_name);
     connectPortsFromList(controller_name,robot_name,std_ports_names,cp);
     return true
 }
@@ -158,7 +152,7 @@ global bool connectStandardPorts(string controller_name,string robot_name, ConnP
 global bool connectLWRPorts(string controller_name,string robot_name, ConnPolicy cp)
 {
     connectStandardPorts(controller_name,robot_name,cp)
-    print.ln("Connecting all ports from "+controller_name+" to robot "+robot_name);
+    print.log(Info,"Connecting all ports from "+controller_name+" to robot "+robot_name);
     connectPortsFromList(controller_name,robot_name,lwr_ports_names,cp);
     return true
 }
@@ -167,7 +161,7 @@ global bool connectAllPorts(string controller_name,string robot_name, ConnPolicy
 {
     connectStandardPorts(controller_name,robot_name,cp)
     connectLWRPorts(controller_name,robot_name,cp)
-    print.ln("\033[34;1m[Info] connectAllPorts is deprecated,\n please use connectStandardPorts() + connectLWRPorts() instead for standard + Kuka specific ports\033[0m");
+    print.log(Info,"\033[34;1mconnectAllPorts is deprecated,\n please use connectStandardPorts() + connectLWRPorts() instead for standard + Kuka specific ports\033[0m");
     return true;
 }
 
@@ -175,23 +169,18 @@ global string loadStatePublisher(bool start_component)
 {
     var string robot_name = getRobotName()
     var string comp_name = robot_name+"_state_pub"
-    #var string state_pub_path = ros.find("rtt_state_publisher")+"/scripts/loader.ops"
-    #print.ln("Loading state publisher at "+state_pub_path)
-    #runScript(state_pub_path)
+
     import("rtt_state_publisher")
     import("rtt_sensor_msgs")
 
     loadComponent(comp_name,"RTTStatePublisher")
 
     setActivity(comp_name,0.01,LowestPriority,ORO_SCHED_OTHER)
-    #setActivity(comp_name,0,LowestPriority,ORO_SCHED_OTHER)
-    #loadService(comp_name,"sim_clock_activity")
-    #ros.clock.useROSClockTopic()
-    #ros.clock.enableSimClock()
+
     if(!configureComponent(comp_name)) then
         return ""
 
-    print.ln("\033[34;1m[Info] Loading state publisher for "+robot_name+"\033[0m\n")
+    print.log(Info,"\033[34;1mLoading state publisher for "+robot_name+"\033[0m\n")
 
     connectPeers(comp_name,robot_name)
     connect(comp_name+".JointPosition",robot_name+".JointPosition",ConnPolicy())
@@ -207,7 +196,7 @@ global string loadStatePublisher(bool start_component)
 
 global string loadConman()
 {
-    print.ln("\033[34;1m[Info] Loading ConMan \033[0m\n")
+    print.log(Info,"\033[34;1mLoading ConMan \033[0m\n")
     ros.import("conman")
     ros.import("conman_ros")
     loadComponent("scheme","conman::Scheme")
@@ -265,7 +254,7 @@ global void generateGraph()
 {
     import("rtt_dot_service")
     loadService("Deployer","dot")
-    print.ln("You can now run \n\n\t xdot ~/.ros/orograph.dot")
+    print.log(Info,"You can now run \n\n\t xdot ~/.ros/orograph.dot")
 }
 
 
@@ -274,7 +263,7 @@ global string loadJointTrajectoryGeneratorKDL(bool start_component)
   var string robot_name = getRobotName()
   var string comp_name = robot_name + "_traj_kdl"
 
-  print.ln("\033[34;1m[Info] Loading Trajectory generator KDL for "+robot_name+"\033[0m\n")
+  print.log(Info,"\033[34;1mLoading Trajectory generator KDL for "+robot_name+"\033[0m\n")
 
   import("rtt_ros")
   ros.import("rtt_joint_traj_generator_kdl")
@@ -297,7 +286,7 @@ global string loadROSControl(bool start_component)
     var string robot_name = getRobotName()
     var string comp_name = robot_name + "_ros_control"
 
-    print.ln("\033[34;1m[Info] Loading ROS Control for "+robot_name+"\033[0m\n")
+    print.log(Info,"\033[34;1mLoading ROS Control for "+robot_name+"\033[0m\n")
 
     import("rtt_ros")
     import("rtt_control_msgs")
@@ -352,13 +341,13 @@ global string loadAtiFTSensor(bool start_component)
 {
     if(isSim()) then
     {
-        print.ln("\033[34;1m[Info] Loading ATI F/T Sensor (Simulated)\033[0m\n")
-        print.ln("\033[34;1m=> Please use connectToAtiFTSensorPort(\"my_component\",\"my_geometry_msgs_port\",ConnPolicy())\033[0m\n")
+        print.log(Info,"\033[34;1mLoading ATI F/T Sensor (Simulated)\033[0m\n")
+        print.log(Info,"\033[34;1m=> Please use connectToAtiFTSensorPort(\"my_component\",\"my_geometry_msgs_port\",ConnPolicy())\033[0m\n")
     }else
     {
         ros.import("rtt_ati_sensor")
         loadComponent("ft_sensor","rtt_ati::FTSensor")
-        print.ln("\033[34;1m[Info] Loading ATI F/T Sensor \033[0m\n")
+        print.log(Info,"\033[34;1mLoading ATI F/T Sensor \033[0m\n")
     }
 
     setActivity("ft_sensor",0.001,10,ORO_SCHED_RT)
@@ -389,18 +378,18 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
         configureComponent(robot_name)
         scripting.eval(robot_name+".setLinkGravityMode(\"ati_link\",false)")
 
-        print.ln("\033[34;1m[Info]["+robot_name+"] RUNNING ON SIMULATION \033[0m\n")
+        print.log(Info,"\033[34;1m"+robot_name+"] RUNNING ON SIMULATION \033[0m\n")
     }
     else
     {
 
         var string robot_hw_script_path = ros.find("lwr_fri")+"/lwr_fri_loader.ops"
 
-        print.ln("Loading robot config from : "+robot_hw_script_path)
+        print.log(Info,"Loading robot config from : "+robot_hw_script_path)
 
         runScript(robot_hw_script_path)
 
-        print.ln("\033[34;1m[Info]["+robot_name+"] RUNNING ON HARDWARE \033[0m\n")
+        print.log(Info,"\033[34;1m"+robot_name+"] RUNNING ON HARDWARE \033[0m\n")
     }
 
     if(start_component) then
