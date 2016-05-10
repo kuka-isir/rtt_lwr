@@ -65,6 +65,8 @@ public:
         this->addOperation("rosServiceCall", &RosHelperService::rosServiceCall, this);
         this->addOperation("printArgv", &RosHelperService::printArgv, this);
 
+        this->addAttribute("is_sim",is_sim_);
+
         argv_ = owner->getProvider<OS>("os")->argv();
         this->parseArgv(argv_);
     }
@@ -106,12 +108,12 @@ public:
         }
         catch(const std::out_of_range& e)
         {
-            RTT::log(Warning) << "Wrong argv arguments, please provide arguments "
+            RTT::log(Warning) << "\x1B[35m\n\nWrong argv arguments, please provide arguments "
             "to the deployer (--) : robot_name=$(arg robot_name) "
             "is_sim=$(arg sim) robot_ns=$(arg robot_ns) "
             "tf_prefix=$(arg tf_prefix)\n\n\t "
             "Example : deployer-corba -- robot_name=lwr_sim is_sim=true "
-            "robot_ns=/ tf_prefix=/" << RTT::endlog();
+            "robot_ns=/ tf_prefix=/\x1B[0m" << RTT::endlog();
             has_parsed_arguments_ = false;
             return false;
         }
@@ -119,7 +121,6 @@ public:
         <<"\n- sim = "<<is_sim_
         <<"\n- robot_ns = "<<robot_ns_
         <<"\n- tf_prefix = "<<tf_prefix_
-        //<<"\n- env_name = "<<env_name_
         <<endlog();
         return true;
     }
@@ -149,6 +150,7 @@ public:
     }
     template<typename T> bool getParamInNs(const std::string& param_name,T& param_out)
     {
+        if(ros::master::check() == false) return false;
         std::string ns = getRobotNs();
         if(ros::param::has(ns+param_name)){
             ros::param::get(ns+param_name,param_out);
@@ -168,10 +170,8 @@ public:
     }
     std::string getRobotNs()
     {
-        if(ros::param::has("robot_ns"))
+        if(ros::master::check() && ros::param::has("robot_ns"))
             ros::param::get("robot_ns",robot_name_);
-        else if(has_parsed_arguments_)
-            return robot_ns_;
         if(*robot_ns_.rbegin() != '/') robot_ns_ +='/';
         return robot_ns_;
     }
