@@ -30,54 +30,6 @@
 	</xacro:macro>
 
 	<xacro:macro name="lwr_gazebo">
-		<!-- <gazebo>
-			<plugin name="rtt_gazebo" filename="librtt_gazebo_deployer.so">
-			  <component>
-			    <package>lwr_utils</package>
-			    <type>lwr::LWRSim</type>
-			    <name>$(arg robot_name)</name>
-			  </component>
-			    <orocosScript>
-                    <inline>
-                        require("print");
-                        import("rtt_ros");
-
-                        ros.import("rtt_geometry_msgs");
-                        ros.import("kdl_typekit");
-                        ros.import("eigen_typekit");
-                        import("rtt_rosparam");
-                        import("rtt_roscomm");
-                        import("rtt_rospack");
-                        ros.import("kuka_lwr_fri");
-                        ros.import("lwr_fri");
-                        import("lwr_utils");
-                        runScript("$(find lwr_utils)"+"/scripts/utils.ops");
-
-                        setActivity("$(arg robot_name)",0,HighestPriority,ORO_SCHED_RT);
-
-                        $(arg robot_name).configure();
-                        $(arg robot_name).synchronize_with_commands = true;
-
-                        stream("$(arg robot_name).JointStates",ros.comm.topic("$(arg robot_name)/joint_states"));
-                        stream("$(arg robot_name).JointStatesCommand",ros.comm.topic("$(arg robot_name)/joint_states_cmd"));
-                        stream("$(arg robot_name).JointStatesDynamicsDecomposition",ros.comm.topic("$(arg robot_name)/joint_states_dynamics"));
-                        stream("$(arg robot_name).CartesianPosition",ros.comm.topic("$(arg robot_name)/cartesian_pose"));
-
-                        /*loadService("$(arg robot_name)","sim_clock_activity");*/
-                        loadService("$(arg robot_name)","rosservice");
-                        $(arg robot_name).rosservice.connect("ready","$(arg robot_name)/ready", "std_srvs/Empty");
-
-                        $(arg robot_name).setLinkGravityMode("ati_link",false);
-
-                        $(arg robot_name).start();
-
-                        if($(arg robot_name).isRunning()) then{print.ln("\033[32;1m[Info][$(arg robot_name)] Gazebo component running \033[0m\n")};
-                        if(!$(arg robot_name).isRunning()) then{print.ln("\033[31;1m[ERROR][$(arg robot_name)] Gazebo component NOT running \033[0m\n")};
-                    </inline>
-                </orocosScript>
-			</plugin>
-  		</gazebo> -->
-
 		<!-- ati_sensor (need gazebo >4.0, see ati_sensor.urdf.xacro) -->
 		<xacro:if value="$(arg load_ati_sensor)">
 
