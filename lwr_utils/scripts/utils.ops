@@ -129,7 +129,7 @@ if(!gz_loaded && isSim()) then
 importRequiredPackages()
 
 var strings std_ports_names = strings("JointPosition","JointVelocity","JointTorque","JointPositionCommand","JointTorqueCommand");
-var strings lwr_ports_names = strings("fromKRL","toKRL","RobotState","FRIState");
+var strings lwr_ports_names = strings("fromKRL","toKRL","RobotState","FRIState", "MassMatrix", "Jacobian", "CartesianVelocity", "CartesianPosition", "GravityTorque", "CartesianImpedanceCommand", "CartesianPositionCommand", "JointImpedanceCommand", "CartesianWrenchCommand");
 
 global bool connectPortsFromList(string controller_name,string robot_name,strings ports_list ,ConnPolicy cp)
 {
