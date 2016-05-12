@@ -1,7 +1,8 @@
+#####################
 OROCOS RTT on Xenomai
-=====================
+#####################
 
-Orocos RTT is fully compatible with Xenomai, but we have to build from source.
+Orocos RTT is fully compatible with Xenomai, but it needs to be built from source.
 The rest of the `installation instructions </install/install.html>`_ remains unchanged.
 
 

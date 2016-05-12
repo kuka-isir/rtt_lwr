@@ -28,7 +28,7 @@ Welcome to the rtt_lwr documentation
     :maxdepth: 2
 
     Getting started with OROCOS <tutos/orocos-tuto>
-    Getting Started with RTT LWR <tutos/getting-started>
+    Getting started with RTT LWR <tutos/getting-started>
     Getting started with ros_control / MoveIt! <tutos/moveit-tuto>
     Creating your first controller <tutos/controller-tuto>
 
