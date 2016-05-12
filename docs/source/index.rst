@@ -34,6 +34,14 @@ Welcome to the rtt_lwr documentation
     Make your life easier with Kdevelop <tutos/kdev-tuto>
 
 .. toctree::
+    :name: adv-tutos
+    :caption: Advanced Tutorials
+    :glob:
+    :maxdepth: 2
+
+    adv-tutos/*
+
+.. toctree::
     :name: rtpc
     :caption: Control PC setup
     :glob:
