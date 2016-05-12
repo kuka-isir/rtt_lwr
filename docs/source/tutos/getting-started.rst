@@ -16,10 +16,10 @@ In lwr_utils, you'll find the main roslaunch to deploy the components :
 
 This uploads the ``robot description`` (tools accessible via ``load_*:=true`` arguments), the ``robot_state_publisher`` ( the ``joint_state_publisher`` is done by an orocos component called ``rtt_state_publisher``), the service to spawn the robot on gazebo and a few parameters to get the robot name, namespace, tf_prefix etc.
 
-By default, this passes the **utils.ops script** that contains a bunch of useful functions to load the robot and a few components that comes with rtt_lwr. This script is located at ``$(rospack find lwr_utils)/scripts/utils.ops``. You can change the script via the **ops_script:=** argument.
+By default, this passes the **utils.ops script** that contains a bunch of useful functions to load the robot and a few components that comes with rtt_lwr. This script is located at ``$(rospack find lwr_utils)/scripts/utils.ops``. You can change the script loaded by ``run.launch`` via the **ops_script:=** argument.
 
 Later on, you're gonna pass your own customized script as argument :
-``touch my_script.ops && nano my_script.ops``
+``touch my_script.ops && nano my_script.ops`` and ``run.launch ops_script:=/path/to/my_script.ops``
 
 .. code-block:: ruby
 
@@ -30,6 +30,28 @@ Later on, you're gonna pass your own customized script as argument :
     # ....
     # Your own functions !
 
+
+Writing your own deployment script (ops file)
+---------------------------------------------
+
+A typical sequence for deploying components would be :
+
+.. code-block:: ruby
+
+    # Load rospack to find packages in the ros workspace
+    import("rtt_rospack")
+    # Load the utility script into the deployer
+    runScript(ros.find("lwr_utils")+"/scripts/utils.ops")
+    # Load the robot
+    loadRobot(getRobotName(),isSim(),true)
+    # Load the state publisher for rviz visualization
+    loadStatePublisher(true)
+
+    # Then you can load your component, connect it etc.
+
+.. note::
+
+        Instead of creating everything **by hand**, please follow the `Controller Tutorial <controller-tuto>`_ and generate a sample project.
 
 Available global functions :
 
@@ -67,22 +89,3 @@ Available global functions :
     global bool connectToAtiFTSensorPort(string comp_name,string port_name,ConnPolicy cp)
     global string loadAtiFTSensor(bool start_component)
     global string loadRobot(string robot_name,bool is_sim,bool start_component)
-
-
-Writing your own deployment script (ops file)
----------------------------------------------
-
-A typical sequence for deploying components would be :
-
-.. code-block:: ruby
-
-    # Load rospack to find packages in the ros workspace
-    import("rtt_rospack")
-    # Load the utility script into the deployer
-    runScript(ros.find("lwr_utils")+"/scripts/utils.ops")
-    # Load the robot
-    loadRobot(getRobotName(),isSim(),true)
-    # Load the state publisher for rviz visualization
-    loadStatePublisher(true)
-
-    # Then you can load your component, connect it etc.
