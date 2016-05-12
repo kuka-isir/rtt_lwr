@@ -51,7 +51,7 @@ source_suffix = ['.rst', '.md']
 master_doc = 'index'
 
 # General information about the project.
-project = u'RTT LWR'
+project = u'rtt_lwr'
 copyright = u'2016, Antoine Hoarau'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -148,7 +148,7 @@ html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
-#html_last_updated_fmt = '%b %d, %Y'
+html_last_updated_fmt = '%b %d, %Y'
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
@@ -177,7 +177,7 @@ html_static_path = ['_static']
 #html_show_sphinx = True
 
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
-#html_show_copyright = True
+html_show_copyright = True
 
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.  The value of this option must be the
@@ -188,7 +188,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'RTTLWRdoc'
+htmlhelp_basename = 'rtt_lwr_docs'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -208,7 +208,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'RTTLWR.tex', u'RTT LWR Documentation',
+  ('index', 'rtt_lwr.tex', u'rtt_lwr Documentation',
    u'Antoine Hoarau', 'manual'),
 ]
 
@@ -238,7 +238,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'rttlwr', u'RTT LWR Documentation',
+    ('index', 'rttlwr', u'rtt_lwr Documentation',
      [u'Antoine Hoarau'], 1)
 ]
 
@@ -252,8 +252,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'RTTLWR', u'RTT LWR Documentation',
-   u'Antoine Hoarau', 'RTTLWR', 'One line description of project.',
+  ('index', 'RTTLWR', u'rtt_lwr Documentation',
+   u'Antoine Hoarau', 'RTTLWR', 'Control Software Architechture for Kuka LWR 4+.',
    'Miscellaneous'),
 ]
 
