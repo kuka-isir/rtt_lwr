@@ -81,6 +81,11 @@ global void setJointImpedanceControlMode()
     scripting.eval(getRobotName()+"_krl_tool.setJointImpedanceControlMode()")
 }
 
+global void setJointPositionControlMode()
+{
+    scripting.eval(getRobotName()+"_krl_tool.setJointPositionControlMode()")
+}
+
 # Calling a function inside a function does not work in 2.9
 void loadGazeboComponent(string comp_name)
 {
