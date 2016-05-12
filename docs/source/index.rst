@@ -18,8 +18,8 @@ Welcome to the rtt_lwr documentation
     :glob:
     :maxdepth: 2
 
-    Installation <install>
-    Test your installation <test-install>
+    Installation <install/install>
+    Test your installation <install/test-install>
 
 .. toctree::
     :name: tutos
@@ -27,10 +27,10 @@ Welcome to the rtt_lwr documentation
     :glob:
     :maxdepth: 2
 
-    Getting started with OROCOS <orocos-tuto>
-    Getting Started with RTT LWR <getting-started>
-    Getting started with ros_control / MoveIt! <moveit-tuto>
-    Creating your first controller <controller-tuto>
+    Getting started with OROCOS <tutos/orocos-tuto>
+    Getting Started with RTT LWR <tutos/getting-started>
+    Getting started with ros_control / MoveIt! <tutos/moveit-tuto>
+    Creating your first controller <tutos/controller-tuto>
 
 .. toctree::
     :name: rtpc
@@ -38,5 +38,5 @@ Welcome to the rtt_lwr documentation
     :glob:
     :maxdepth: 2
 
-    Xenomai 2.6.4 on Ubuntu 14.04 <xenomai>
-    RTnet setup <rtnet>
+    Xenomai 2.6.4 on Ubuntu 14.04 <rtpc/xenomai>
+    RTnet setup <rtpc/rtnet>
