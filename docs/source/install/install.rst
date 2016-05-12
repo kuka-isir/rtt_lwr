@@ -181,7 +181,7 @@ Let's build the entire workspace :
     # Building the packages (takes ~10min)
     catkin build
 
-.. image:: _static/catkin-build.png
+.. image:: /_static/catkin-build.png
 
 .. tip::
     To make sure you have the right ROS environnement loaded you can explicitly tell this workspace only needs ROS from debian ``catkin config --extend /opt/ros/indigo``.

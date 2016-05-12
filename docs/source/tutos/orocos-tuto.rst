@@ -1,6 +1,6 @@
 
 
-.. image:: _static/orocos-logo.png
+.. image:: /_static/orocos-logo.png
     :align: center
 
 Orocos tutorial
@@ -32,7 +32,7 @@ All components are 'deployed' using a single executable called the 'deployer'. T
     deployer
 
 
-.. image:: _static/deployer.png
+.. image:: /_static/deployer.png
 
 Example of a simple 2 components deployement :
 
@@ -93,7 +93,7 @@ For further documentation, please refer to the `Orocos Builder's Manual`_.
 Orocos - ROS bridge
 --------------------
 
-.. image:: _static/rosorg-logo1.png
+.. image:: /_static/rosorg-logo1.png
 
 All the magic is done by rtt_ros_integration https://github.com/orocos/rtt_ros_integration.
 Basically every ROS function that you might be used to call in regular rosnode has been wrapped for orocos to be Real-Time Safe.

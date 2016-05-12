@@ -2,14 +2,14 @@
 Welcome to the rtt_lwr documentation
 ====================================
 
-.. image:: _static/isir.png
+.. image:: /_static/isir.png
     :width: 100px
     :align: left
 
-.. image:: _static/cnrs.jpg
+.. image:: /_static/cnrs.jpg
     :width: 100px
 
-.. image:: _static/upmc.png
+.. image:: /_static/upmc.png
     :width: 250px
 
 .. toctree::

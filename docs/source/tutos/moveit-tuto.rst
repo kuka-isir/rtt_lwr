@@ -22,7 +22,7 @@ And start controllers :
     rosrun controller_manager controller_manager start joint_state_controller joint_trajectory_controller
 
 
-.. image:: _static/move_it.png
+.. image:: /_static/move_it.png
 
 .. note::
 

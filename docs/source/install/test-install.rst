@@ -11,7 +11,7 @@ Gazebo needs to get some models at the first launch, so in a terminal type :
 
     gzserver --verbose
 
-.. image:: _static/gzserver.png
+.. image:: /_static/gzserver.png
 
 Then ``ctrl+C`` to close it and type :
 
@@ -19,7 +19,7 @@ Then ``ctrl+C`` to close it and type :
 
     gazebo
 
-.. image:: _static/gazebo.png
+.. image:: /_static/gazebo.png
 
 
 Gazebo-ROS
@@ -55,4 +55,4 @@ Spawn to robot into Gazebo
 
 .. note:: If the model has been correctly uploaded, this command should also exit immediately
 
-.. image:: _static/gazebo-lwr.png
+.. image:: /_static/gazebo-lwr.png

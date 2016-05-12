@@ -11,7 +11,7 @@ In lwr_utils, you'll find the main roslaunch to deploy the components :
     roslaunch lwr_utils run.launch sim:=true
 
 
-.. image:: _static/main_launch.png
+.. image:: /_static/main_launch.png
     :alt: Simple run.launch without arguments
 
 This uploads the ``robot description`` (tools accessible via ``load_*:=true`` arguments), the ``robot_state_publisher`` ( the ``joint_state_publisher`` is done by an orocos component called ``rtt_state_publisher``), the service to spawn the robot on gazebo and a few parameters to get the robot name, namespace, tf_prefix etc.
