@@ -31,6 +31,7 @@ Welcome to the rtt_lwr documentation
     Getting started with RTT LWR <tutos/getting-started>
     Getting started with ros_control / MoveIt! <tutos/moveit-tuto>
     Creating your first controller <tutos/controller-tuto>
+    Make your life easier with Kdevelop <tutos/kdev-tuto>
 
 .. toctree::
     :name: rtpc

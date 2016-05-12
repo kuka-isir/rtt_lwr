@@ -119,8 +119,8 @@ To install it, just type ``sudo apt-get install kdevelop``, then in a **terminal
 
 
 
-Import a project
-~~~~~~~~~~~~~~~~
+Import a catkin/CMake project
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Click on ``Project --> Open/Import Project...``
 
