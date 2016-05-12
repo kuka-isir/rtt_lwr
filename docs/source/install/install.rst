@@ -179,7 +179,7 @@ Let's build the entire workspace :
     # Load ROS workspace if not already done
     source /opt/ros/indigo/setup.bash
     # Building the packages (takes ~10min)
-    catkin build
+    catkin build -DCMAKE_BUILD_TYPE=Release
 
 .. image:: /_static/catkin-build.png
 
