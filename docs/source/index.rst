@@ -30,8 +30,9 @@ Welcome to the rtt_lwr documentation
     Getting started with OROCOS <tutos/orocos-tuto>
     Getting started with RTT LWR <tutos/getting-started>
     Getting started with ros_control / MoveIt! <tutos/moveit-tuto>
-    Creating your first controller <tutos/controller-tuto>
-    Make your life easier with Kdevelop <tutos/kdev-tuto>
+    tutos/controller-tuto
+    tutos/kdev-tuto
+    tutos/update-rtt-lwr
 
 .. toctree::
     :name: adv-tutos
