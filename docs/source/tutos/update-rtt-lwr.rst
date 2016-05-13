@@ -3,7 +3,7 @@
 #####################
 
 
-We are periodically doing updates on the code (gains updatem bug fixes etc), so keeping it up-to-date can be very useful.
+We are periodically doing updates on the code (gains update, bug fixes etc), so keeping it up-to-date can be very useful.
 
 To update all the packages we're going to use the ``vcs-tools`` utility (https://github.com/dirk-thomas/vcstool).
 
