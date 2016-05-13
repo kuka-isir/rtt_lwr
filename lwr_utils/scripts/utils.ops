@@ -245,7 +245,7 @@ global string loadFBSched()
     setActivity("fbs",0.001,10,ORO_SCHED_RT);
     return "fbs";
 }
-global bool addControllerToFBSched(string component_name)
+global bool addComponentToFBSched(string component_name)
 {
     stopComponent(component_name)
     scripting.eval(component_name+".setPeriod(0)")
