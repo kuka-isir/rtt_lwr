@@ -7,7 +7,7 @@ We are periodically doing updates on the code (gains update, bug fixes etc), so 
 
 To update all the packages we're going to use the ``vcs-tools`` utility (https://github.com/dirk-thomas/vcstool).
 
-It should be already installed during the `installation </install/install.html>`_ procedure, otherwise ``sudo apt-get install python-vcs-tools``.
+It should be already installed during the `installation </install/install.html>`_ procedure, otherwise ``sudo apt-get install python-vcs-tool``.
 
 .. code-block:: bash
 
