@@ -66,4 +66,4 @@ arm:
     - PRMkConfigDefault
     - PRMstarkConfigDefault
   projection_evaluator: joints(joint_0,joint_1)
-  longest_valid_segment_fraction: 0.05
+  longest_valid_segment_fraction: 0.005
