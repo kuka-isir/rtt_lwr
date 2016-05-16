@@ -36,7 +36,7 @@ Launch it :
     roslaunch my_controller run.launch sim:=true
 
 
-..image:: /_static/run_example2.png
+.. image:: /_static/run_example2.png
 
 .. note:: Now you can **delete** this controller and create your own on your ``catkin worskpace`` with a better name :)
 
