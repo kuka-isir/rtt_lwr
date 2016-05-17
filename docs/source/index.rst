@@ -18,8 +18,8 @@ Welcome to the rtt_lwr documentation
     :glob:
     :maxdepth: 2
 
-    Installation <install/install>
-    Test your installation <install/test-install>
+    install/install
+    install/test-install
 
 .. toctree::
     :name: tutos

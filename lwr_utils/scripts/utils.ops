@@ -39,7 +39,6 @@ global bool setRobotInitialJointConfiguration(double q0,double q1,double q2,doub
 
 global string loadKRLTool(bool start_component)
 {
-    import("rosservice")
     var string robot_name = getRobotName()
     var string component_name = robot_name+"_krl_tool"
     print.log(Info,"\033[34;1mLoading KRL Tool for "+robot_name+"\033[0m\n")
@@ -374,14 +373,14 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
 
     if(is_sim) then
     {
-        import("rtt_lwr_sim")
+        ros.import("rtt_lwr_sim")
         loadComponent(robot_name,"lwr::LWRSim")
         setActivity(robot_name,0,10,ORO_SCHED_OTHER)
         connectPeers("gazebo",robot_name)
         scripting.eval(robot_name+".synchronize_with_commands = false")
         scripting.eval(robot_name+".getModel(\"gazebo\",\""+robot_name+"\",30.0)")
         configureComponent(robot_name)
-        scripting.eval(robot_name+".setLinkGravityMode(\"ati_link\",false)")
+        #scripting.eval(robot_name+".setLinkGravityMode(\"ati_link\",false)")
 
         print.log(Info,"\033[34;1m"+robot_name+"] RUNNING ON SIMULATION \033[0m\n")
     }

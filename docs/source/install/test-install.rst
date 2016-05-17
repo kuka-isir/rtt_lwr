@@ -56,3 +56,31 @@ Spawn to robot into Gazebo
 .. note:: If the model has been correctly uploaded, this command should also exit immediately
 
 .. image:: /_static/gazebo-lwr.png
+
+
+Test the rtt_lwr tools
+-----------------------
+
+Close all previous nodes, deployers, windows etc, and start the main deployer with gazebo :
+
+.. code::
+
+    roslaunch lwr_utils run.launch sim:=true
+
+.. note::
+
+    You can see the robot in the gazebi gui because the model is spawned into gazebo via the main launch file.
+    Still, it has no interface to send commands, what we'll do in the next step.
+
+Now type :
+
+.. code-block:: ruby
+
+    # Load the lwr interface in the deployer
+    loadRobot(getRobotName(), isSim(), true)
+    # Let it load, then print the components :
+    ls
+
+You should see all the components ``running [R]`` : 
+
+.. image:: /_static/test-rtt-lwr.png
