@@ -36,7 +36,7 @@ Launch it :
     roslaunch my_controller run.launch sim:=true
 
 
-..image:: /_static/run_example2.png
+.. image:: /_static/run_example2.png
 
 .. note:: Now you can **delete** this controller and create your own on your ``catkin worskpace`` with a better name :)
 
@@ -104,4 +104,4 @@ Inverse Kinematics in not included in ChainUtils as there's not "perfect" soluti
 - `Trac IK <https://bitbucket.org/traclabs/trac_ik.git/>`_ , same interface as KDL
 - Simple Jacobian transpose method
     * Write into the kuka lwr CartesianPositionCommand port some cartesian position increments, but it is not recommended as it is kuka specific.
-    * Instead, use the ChainUtils arm object to compute :math:`Jt.(K(q^{*}-q) + D(\dot{q^{*}}-\dot{q}))`
+    * Instead, use the ChainUtils arm object to compute :math:`J^{t}.(K_{P}(X^{*}-X) + K_{D}(\dot{X^{*}}-\dot{X}))`
