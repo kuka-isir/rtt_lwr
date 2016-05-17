@@ -208,7 +208,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'rtt_lwr.tex', u'rtt_lwr Documentation',
+  ('index', 'rtt_lwr.tex', u'rtt\_lwr Documentation',
    u'Antoine Hoarau', 'manual'),
 ]
 
@@ -238,7 +238,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'rttlwr', u'rtt_lwr Documentation',
+    ('index', 'rttlwr', u'rtt\_lwr Documentation',
      [u'Antoine Hoarau'], 1)
 ]
 
@@ -252,8 +252,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'RTTLWR', u'rtt_lwr Documentation',
-   u'Antoine Hoarau', 'RTTLWR', 'Control Software Architechture for Kuka LWR 4+.',
+  ('index', 'RTTLWR', u'rtt\_lwr Documentation',
+   u'Antoine Hoarau', 'rttlwr', 'Control Software Architechture for Kuka LWR 4+.',
    'Miscellaneous'),
 ]
 
