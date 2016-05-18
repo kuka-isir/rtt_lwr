@@ -45,20 +45,22 @@ Example of a simple 2 components deployement :
     # You can see :
     # Data Flow Ports:
     # Out(U)      string the_results    =>
-    #  In(U)      string the_buffer_port <= ( use 'the_buffer_port.read(sample)' to read a sample from this port)
+    #  In(U)      string the_buffer_port <= ( use 'the_buffer_port.read(sample)'
+    # to read a sample from this port)
     # It means it has 1 input port and 1 output port
     #
     # We'll build another component of the same type
     loadComponent("hello2","OCL::HelloWorld")
 
     # Let's connect their interface
-    # It's a bi-laterial connection that allow hello1 to connect with hello2's ports, attributes etc, and also hello2 to get data from hello
+    # It's a bi-laterial connection that allow hello1 to connect with hello2's
+    # ports, attributes etc, and also hello2 to get data from hello
     connectPeers("hello","hello2")
 
     # Connect ports
     connect("hello.the_buffer_port","hello2.the_results",ConnPolicy())
-    # The last argument ConnPolicy() is a structure that contains the way to send data
-    # from one component to another. Default is "DATA"
+    # The last argument ConnPolicy() is a structure that contains the way
+    # to send data from one component to another. Default is "DATA"
 
     # Let's run everything
 
@@ -71,8 +73,10 @@ Example of a simple 2 components deployement :
 
     setActivity("hello2",0.2,25,ORO_SCHED_OTHER)
 
-    hello.configure() # calls configureHook() - registered as an 'operation' called 'configure'
-    hello.start() # calls updateHook()
+    # call configureHook()
+    hello.configure() #  registered as an 'operation' called 'configure'
+     # call updateHook()
+    hello.start()
 
     hello2.configure()
     hello2.start()
@@ -85,7 +89,9 @@ Example of a simple 2 components deployement :
     # It will show
     # "Hello World !"
 
-.. note: You can open a ``deployer`` and copy/paste the lines one by one to test.
+.. tip::
+
+    Open a ``deployer`` and copy/paste the lines one by one to test.
 
 
 For further documentation, please refer to the `Orocos Builder's Manual`_.
@@ -121,14 +127,24 @@ Now let's build our own Orocos Component (Very simple one with no ports, operati
     class MyComponent : public RTT::TaskContext
     {
        // Constructor
-       MyComponent(const std::string& name)://That's the name you're gonna pass as first argument of "loadComponent"
-       RTT::TaskContext(name){ RTT::log(RTT::Info) << "Constructing ! " << RTT::endlog();  }
+       // That's the name you're gonna pass as first argument of "loadComponent"
+       MyComponent(const std::string& name):
+       RTT::TaskContext(name)
+       {
+            RTT::log(RTT::Info) << "Constructing ! " << RTT::endlog();
+       }
 
        // The function called when writing my_component.configure()
-       void configureHook(){   RTT::log(RTT::Info) << "Configuring  ! " << RTT::endlog();  }
+       void configureHook()
+       {
+            RTT::log(RTT::Info) << "Configuring  ! " << RTT::endlog();
+       }
 
        // The function called (periodically or not) when calling my_component.start()
-       void updateHook()   {   RTT::log(RTT::Info) << "Updating     ! " << RTT::endlog();  }
+       void updateHook()
+       {
+            RTT::log(RTT::Info) << "Updating ! " << RTT::endlog();
+       }
     };
     ORO_CREATE_COMPONENT(MyComponent) //Let Orocos know how to build this component
 
@@ -141,7 +157,9 @@ The ``CmakeLists.txt`` can look like this :
     project(my_component)
 
     find_package(catkin REQUIRED COMPONENTS
-        rtt_ros # This will automatically import all Orocos components in package.xml, and put them in ${USE_OROCOS_LIBRARIES}
+        # This will automatically import all Orocos components in package.xml,
+        # and put them in ${USE_OROCOS_LIBRARIES}
+        rtt_ros
         cmake_modules
     )
 
@@ -152,7 +170,8 @@ The ``CmakeLists.txt`` can look like this :
     )
 
     orocos_component(my_component MyComponent.cpp)
-    set_property(TARGET my_component APPEND PROPERTY COMPILE_DEFINITIONS RTT_COMPONENT)
+    set_property(TARGET my_component APPEND 
+            PROPERTY COMPILE_DEFINITIONS RTT_COMPONENT)
 
     target_link_libraries(my_component
         ${USE_OROCOS_LIBRARIES}
