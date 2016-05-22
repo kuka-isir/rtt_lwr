@@ -1,6 +1,8 @@
 sudo: required
 dist: trusty
-language: generic
+language: c
+cache: ccache
+
 rvm:
   - 1.9.3
 compiler:
