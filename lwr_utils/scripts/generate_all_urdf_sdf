@@ -17,13 +17,15 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument("xacro_path",type=str,help='The xacro file')
 parser.add_argument("--overwrite",type=bool,help='Overwrite existing files')
+parser.add_argument("--generate-sdf",type=bool,help='Generate SDF files for Gazebo')
 args,_ = parser.parse_known_args()
 
 xacro_path = args.xacro_path
 overwrite_files = args.overwrite
+generate_sdf = args.generate_sdf
 
 if not os.path.isfile(xacro_path):
-    print("Path provided does not exists ("+xacro_path+")")
+    print("File does not exists ("+xacro_path+")")
     exit()
 
 urdf_str = ''
@@ -91,6 +93,9 @@ try:
         
 except Exception,e:
     print(e)
+
+if not generate_sdf:
+    exit()
 
 try:
 
