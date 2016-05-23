@@ -1,0 +1,134 @@
+#!/usr/bin/env python
+from __future__ import print_function
+
+import argparse
+import os,sys
+import re
+from subprocess import check_output
+import itertools
+import rospkg
+import ntpath
+
+parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description=' Generate all URDF possibilities for your URDF file',
+    epilog='Maintainer: Antoine Hoarau <hoarau@isir.upmc.fr>')
+                                 
+
+parser.add_argument("xacro_path",type=str,help='The xacro file')
+parser.add_argument("--overwrite",type=bool,help='Overwrite existing files')
+args,_ = parser.parse_known_args()
+
+xacro_path = args.xacro_path
+overwrite_files = args.overwrite
+
+if not os.path.isfile(xacro_path):
+    print("Path provided does not exists ("+xacro_path+")")
+    exit()
+
+urdf_str = ''
+
+with open(xacro_path) as f: xacro_str = f.read()
+    
+m = re.findall('< ?xacro:arg ?name ?= ?"(.*)" +default ?= ?"([a-zA-Z]+)" ?\/>',xacro_str)
+
+bool_args = []
+
+for arg,value in m:
+    if value == "true" or value == "false":
+        bool_args.append(arg)
+
+print(str(bool_args))
+
+prod = itertools.product(['false','true'],repeat=len(bool_args))
+
+
+cmd = {}
+
+print('Generating the following combination matrix')
+for prod_line in prod:
+    cmd_tmp = ''
+    file_output = xacro_path + '_'
+    for boolean,i in zip(prod_line,xrange(len(bool_args))):
+        print(bool_args[i],':=',boolean,'\t',end='|\t')
+        cmd_tmp = cmd_tmp + bool_args[i]+':='+str(boolean)+ ' '
+        file_output = file_output + ('0' if boolean == "false" else '1') 
+    cmd[file_output] = cmd_tmp
+    print('')
+
+urdfs = []
+urdfs_path = []
+
+output_folder = rospkg.get_ros_home() + '/generated_urdfs'
+if not os.path.isdir(output_folder):
+    os.mkdir(output_folder)
+
+try:
+
+    for c,i in zip(cmd,xrange(len(cmd))):
+        # Generate the final URDF
+        
+        file_basename = ntpath.basename(c) + '.urdf'
+        output_path = output_folder + '/' + file_basename
+        
+        print('Processing file %02d /' % (i+1,),len(cmd),' : ',file_basename,end='')
+        
+        urdf_str = check_output(['/bin/bash', '-c','rosrun xacro xacro '+xacro_path+' '+cmd[c]])
+        
+        if urdf_str in urdfs:
+            print(' ==> Combination duplicate, not writing file')
+        else:
+            urdfs.append(urdf_str)
+            urdfs_path.append(output_path)
+            
+            if os.path.isfile(output_path) and not overwrite_files:
+                print(' ==> Not writing (file exists, use --overwrite true)')
+                continue
+            else:
+                with open(output_path,'w') as f:
+                    f.write(urdf_str)
+                    print(" ==> OK ")
+        
+except Exception,e:
+    print(e)
+
+try:
+
+    for urdf_path,i in zip(urdfs_path,xrange(len(urdfs_path))):
+        
+        output_path = os.path.splitext(urdf_path)[0] + '.sdf'  
+        
+        file_basename = ntpath.basename(output_path)
+        
+        print('Processing file %02d /' % (i+1,),len(urdfs_path),' : ',file_basename,end='')
+        
+        sdf_str = check_output(['/bin/bash', '-c','gz sdf -p '+urdf_path])
+                  
+        if os.path.isfile(output_path) and not overwrite_files:
+            print(' ==> Not writing (file exists, use --overwrite true)')
+            continue
+        else:
+            with open(output_path,'w') as f:
+                f.write(sdf_str)
+                print(" ==> OK ")
+                
+    
+except Exception,e:
+        print(e)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
