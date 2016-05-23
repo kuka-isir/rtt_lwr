@@ -12,6 +12,7 @@
 <arg name="load_base" default="false" />
 <arg name="load_ati_sensor" default="false" />
 <arg name="load_calib_tool" default="false" />
+<arg name="load_table" default="false" />
 <arg name="load_handle" default="false" />
 <!-- Start Gazebo here or start it elsewhere and leave it open -->
 <arg if="$(arg sim)"     name="launch_gazebo" default="true" />
@@ -51,6 +52,7 @@
         <arg name="load_base" value="$(arg load_base)" />
         <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
         <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
+        <arg name="load_table" value="$(arg load_table)" />
         <arg name="load_handle" value="$(arg load_handle)" />
         <arg name="robot_name" value="$(arg robot_name)" />
     </include>
@@ -75,6 +77,7 @@
     <arg name="load_base" value="$(arg load_base)" />
     <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
     <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
+    <arg name="load_table" value="$(arg load_table)" />
     <arg name="load_handle" value="$(arg load_handle)" />
     <arg name="paused" value="$(arg start_paused)"/>
     <arg name="initial_joint_positions" value="$(arg initial_joint_positions)"/>
@@ -92,6 +95,7 @@
     <arg name="load_base" default="$(arg load_base)" />
     <arg name="load_ati_sensor" default="$(arg load_ati_sensor)" />
     <arg name="load_calib_tool" default="$(arg load_calib_tool)" />
+    <arg name="load_table" default="$(arg load_table)" />
     <arg name="load_handle" default="$(arg load_handle)" />
     <arg name="initial_joint_positions" default="$(arg initial_joint_positions)" />
 </include>
