@@ -4,6 +4,7 @@
 	<arg name="load_base" default="false" />
 	<arg name="load_ati_sensor" default="false" />
 	<arg name="load_calib_tool" default="false" />
+	<arg name="load_table" default="false" />
 	<arg name="load_handle" default="false" />
 	<arg name="robot_name" default="lwr" />
 
@@ -13,6 +14,7 @@
 		load_base:=$(arg load_base)
 		load_ati_sensor:=$(arg load_ati_sensor)
 		load_calib_tool:=$(arg load_calib_tool)
+		load_table:=$(arg load_table)
 		load_handle:=$(arg load_handle)" />
 
 </launch>

@@ -9,10 +9,13 @@
   <xacro:arg name="load_calib_tool" default="false"/>
   <xacro:arg name="load_handle" default="false"/>
   <xacro:arg name="load_hook" default="false"/>
+  <xacro:arg name="load_table" default="true"/>
   <xacro:arg name="robot_name" default="lwr"/>
 
   <!-- lwr-->
   <xacro:include filename="$(find lwr_description)/urdf/lwr.urdf.xacro" />
+  <!-- table-->
+  <xacro:include filename="$(find lwr_description)/urdf/table.urdf.xacro" />
   <!-- lwr_base -->
   <xacro:include filename="$(find lwr_description)/urdf/lwr_base.urdf.xacro" />
   <!-- ati_sensor -->
@@ -35,9 +38,20 @@
   <!-- lbr -->
   <joint name="base_joint" type="fixed">
     <parent link="world"/>
-    <child link="base_link"/>
-    <origin xyz="0 0 0"/>
+    <xacro:if value="$(arg load_table)">
+      <child link="table_link"/>
+      <origin xyz="0 0 0.845"/>
+    </xacro:if>
+    <xacro:unless value="$(arg load_table)">
+      <child link="base_link"/>
+      <origin xyz="0 0 0.0"/>
+    </xacro:unless>
   </joint>
+
+  <!-- table -->
+  <xacro:if value="$(arg load_table)">
+    <xacro:table/>
+  </xacro:if>
 
   <!-- lbr_base -->
   <xacro:if value="$(arg load_base)">
