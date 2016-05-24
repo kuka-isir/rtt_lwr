@@ -4,7 +4,7 @@
 
   <property name="M_PI" value="3.1415926535897931" />
 
-  <xacro:arg name="load_base" default="false"/>
+  <xacro:arg name="load_base" default="true"/>
   <xacro:arg name="load_ati_sensor" default="false"/>
   <xacro:arg name="load_calib_tool" default="false"/>
   <xacro:arg name="load_handle" default="false"/>
