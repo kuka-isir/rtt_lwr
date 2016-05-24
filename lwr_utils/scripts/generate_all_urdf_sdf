@@ -2,13 +2,14 @@
 from __future__ import print_function
 
 import argparse
-import os,sys
+import os
 import re
 from subprocess import check_output
 import itertools
-import rospkg
 import ntpath
-
+from multiprocessing import Pool 
+import signal       
+        
 parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=' Generate all URDF possibilities for your URDF file',
@@ -16,123 +17,208 @@ parser = argparse.ArgumentParser(
                                  
 
 parser.add_argument("xacro_path",type=str,help='The xacro file')
-parser.add_argument("--overwrite",type=bool,help='Overwrite existing files')
-parser.add_argument("--generate-sdf",type=bool,help='Generate SDF files for Gazebo')
-parser.add_argument("--output-dir",type=str,help='Where to generate the files (defaults in ~/.ros/generated_urdfs')
+parser.add_argument("--overwrite",help='Overwrite existing files',dest='overwrite_files',action='store_true')
+parser.add_argument("--no-overwrite",help='Overwrite existing files',dest='overwrite_files',action='store_false')
+parser.add_argument("--generate-sdf",help='Generate SDF files for Gazebo',dest='generate_sdf',action='store_true')
+parser.add_argument("--no-generate-sdf",help='Generate SDF files for Gazebo',dest='generate_sdf',action='store_false')
+parser.add_argument("--output-dir",type=str,help='Where to generate the files (defaults in ~/.generated_urdfs')
+
+parser.set_defaults(overwrite_files=False)
+parser.set_defaults(generate_sdf=True)
+
 args,_ = parser.parse_known_args()
 
-xacro_path = args.xacro_path
-overwrite_files = args.overwrite
-generate_sdf = args.generate_sdf
-output_dir = args.output_dir
+overwrite_files=args.overwrite_files
+generate_sdf=args.generate_sdf
 
+xacro_path = os.path.expanduser(args.xacro_path)
+output_dir = args.output_dir
+sdf_version='1.6'
+sdf_print_cmd = 'gz sdf -p'
+author='Antoine Hoarau'
+email='hoarau.robotics@gmail.com'
+remove_duplicates = True
+        
 if not os.path.isfile(xacro_path):
     print("File does not exists ("+xacro_path+")")
     exit()
 
-urdf_str = ''
-
-with open(xacro_path) as f: xacro_str = f.read()
+if not output_dir:
+    output_dir = os.path.join(os.path.expanduser("~"), '.generated_files')
+    
+if not os.path.isdir(output_dir):
+    try:
+        os.mkdir(os.path.expanduser(output_dir))
+    except OSError,e:
+        print(e)
+    
+with open(xacro_path,'r') as f: 
+    xacro_str = f.read()
     
 m = re.findall('< ?xacro:arg ?name ?= ?"(.*)" +default ?= ?"([a-zA-Z]+)" ?\/>',xacro_str)
 
-bool_args = []
+bool_args = [arg for arg,value in m if value == "true" or value == "false"]
 
-for arg,value in m:
-    if value == "true" or value == "false":
-        bool_args.append(arg)
-
-print(str(bool_args))
-
+# Generate the n*n matrix of possible combinations
 prod = itertools.product(['false','true'],repeat=len(bool_args))
+n = pow(2,len(bool_args))
 
+urdf_cmds = []
 
-cmd = {}
+print('Generating the following combination matrix : ',n)
 
-print('Generating the following combination matrix')
 for prod_line in prod:
     cmd_tmp = ''
     file_output = xacro_path + '_'
+    command_to_launch = {}
+    
     for boolean,i in zip(prod_line,xrange(len(bool_args))):
         print(bool_args[i],':=',boolean,'\t',end='|\t')
         cmd_tmp = cmd_tmp + bool_args[i]+':='+str(boolean)+ ' '
         file_output = file_output + ('0' if boolean == "false" else '1')
     
-    cmd[file_output] = cmd_tmp
+    # Building the command
+    
+    file_basename = ntpath.basename(file_output)
+    file_final_path = os.path.expanduser(os.path.join(output_dir ,file_basename)) + '.urdf'
+    command_to_launch['output_path'] = file_final_path
+    command_to_launch['file_basename'] = file_basename
+    command_to_launch['cmd'] = ['/bin/bash', '-c','rosrun xacro xacro '+xacro_path+' '+cmd_tmp]
+    
+    urdf_cmds.append( command_to_launch )
     print('')
 
-urdfs = []
-urdfs_path = []
+def generate(c):
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+    b = c['file_basename']
+    print('Processing ',b,end='')    
+    o = c['output_path']
 
-if output_dir:
-    output_folder = output_dir
+    s = None
+    if c.has_key('cmd'):
+        s = check_output(c['cmd'])
+    elif c.has_key('string'):
+        s = c['string']
+
+    print(' ==> OK')
+    return {'output':s,'path':o}
+
+def launch_pool(commands):    
+    pool = Pool()
+    results = pool.map(generate,commands)
+    pool.close()
+    pool.join()
+    return results
+
+print('--------- Generating URDF files ----------')
+results = launch_pool(urdf_cmds)
+# Copying results in dict(path) = urdf
+urdfs = {}
+for res in results:
+    if res:
+        urdfs[res['path']] = res['output']
+
+final_urdfs = {}
+
+if remove_duplicates:
+    
+    for key,value in urdfs.items():
+        if value not in final_urdfs.values():
+            final_urdfs[key] = value
+            
+    print('Removing %d duplicates '%(len(urdfs) - len(final_urdfs),))
 else:
-    output_folder = rospkg.get_ros_home() + '/generated_urdfs'
-    
-if not os.path.isdir(output_folder):
-    try:
-        os.mkdir(os.path.expanduser(output_folder))
-    except OSError,e:
-        print(e)
+    final_urdfs = urdfs
 
-try:
-    print('--------- Generating URDF files ----------')
-    for c,i in zip(cmd,xrange(len(cmd))):
-        # Generate the final URDF
+def write_files(files):
+    i = 0
+    for path,string in files.items():
         
-        file_basename = ntpath.basename(c) + '.urdf'
-        output_path = os.path.expanduser(output_folder + '/' + file_basename)
+        print('Writing file %02d /' % (i+1,),len(files),' : ',ntpath.basename(path),end='')
         
-        print('Processing file %02d /' % (i+1,),len(cmd),' : ',file_basename,end='')
-        
-        urdf_str = check_output(['/bin/bash', '-c','rosrun xacro xacro '+xacro_path+' '+cmd[c]])
-        
-        if urdf_str in urdfs:
-            print(' ==> Combination duplicate, not writing file')
+        if os.path.isfile(path) and not overwrite_files:
+            print(' ==> Not writing (file exists, use --overwrite true)')
+            continue
         else:
-            urdfs.append(urdf_str)
-            urdfs_path.append(output_path)
-            
-            if os.path.isfile(output_path) and not overwrite_files:
-                print(' ==> Not writing (file exists, use --overwrite true)')
-                continue
-            else:
-                with open(output_path,'w') as f:
-                    f.write(urdf_str)
-                    print(" ==> OK ")
-    print("")
-except Exception,e:
-    print(e)
+            if not os.path.exists(os.path.dirname(path)):
+                try:
+                    os.makedirs(os.path.dirname(path))
+                except Exception,e:print(e)
+            with open(path,'w') as f:
+                f.write(string)
+                print(' ==> OK')
+        i=i+1
+  
+print("Writing %d files"%(len(final_urdfs),))
+write_files(final_urdfs)
 
-if generate_sdf:
-    print('--------- Generating SDF files ----------')
-    try:
+sdf_cmds = []
+
+for urdf_path in final_urdfs.keys():
+    # This gives /path/to/file
+    raw_file_path =  os.path.expanduser(os.path.splitext(urdf_path)[0])
+    # This gives /path/to
+    output_dir = os.path.dirname(raw_file_path)
+    # This gives file.params.xacro.sdf
+    raw_sdf_basename =  ntpath.basename(raw_file_path)
+    # We need to create /path/to/file/
+    sdf_dir =  os.path.join(output_dir,raw_sdf_basename) 
+    # We need to create /path/to/file/file.sdf
+    sdf_filename =  raw_sdf_basename + '.sdf'
+    # The model.config file we need to create
+    model_config_filename = 'model.config'
+    # This gives /path/to/file/file.sdf
+    output_sdf_path =  os.path.join(sdf_dir,sdf_filename)
+    # THis fives /path/to/file/model.config
+    output_model_config_path =  os.path.join(sdf_dir,model_config_filename)
+        
+    command_to_launch = {}
+    command_to_launch['output_path'] = output_sdf_path
+    command_to_launch['file_basename'] = sdf_filename
+    command_to_launch['cmd'] = ['/bin/bash', '-c',sdf_print_cmd+' '+urdf_path]
     
-        for urdf_path,i in zip(urdfs_path,xrange(len(urdfs_path))):
-            
-            output_path = os.path.expanduser(os.path.splitext(urdf_path)[0] + '.sdf')
-            
-            file_basename = ntpath.basename(output_path)
-            
-            print('Processing file %02d /' % (i+1,),len(urdfs_path),' : ',file_basename,end='')
-            
-            sdf_str = check_output(['/bin/bash', '-c','gz sdf -p '+urdf_path])
-                      
-            if os.path.isfile(output_path) and not overwrite_files:
-                print(' ==> Not writing (file exists, use --overwrite true)')
-                continue
-            else:
-                with open(output_path,'w') as f:
-                    f.write(sdf_str)
-                    print(" ==> OK ")
-                    
-        print("")
-    except Exception,e:
-            print(e)
+    sdf_cmds.append( command_to_launch )
+    
+    model_config_str ="""
+<?xml version="1.0"?>
+<model>
+    <name>"""+raw_sdf_basename+"""</name>
+    
+    <version>1.0</version>
+    <sdf version='"""+sdf_version+"""'>"""+sdf_filename+"""</sdf>
+    
+    <author>
+        <name>"""+author+"""</name>
+        <email>"""+email+"""</email>
+    </author>
+    
+    <description>
+        """+raw_sdf_basename+"""
+    </description>
+</model>
+"""
+    command_to_launch = {}
+    command_to_launch['output_path'] = output_model_config_path
+    command_to_launch['file_basename'] = model_config_filename
+    command_to_launch['string'] = model_config_str
+    
+    sdf_cmds.append( command_to_launch )
+
+if generate_sdf: 
+    print('--------- Generating SDF files ----------')
+    results = launch_pool(sdf_cmds)
+    files = {}
+    for res in results:
+        if res:
+            files[res['path']] = res['output']
+    write_files(files)
     
 if len(urdfs) > 1 :
-    print('All files have been generated to ',output_folder)
-
+    print("")
+    print('All files have been generated to ',output_dir)
+    print('Note: You can test on gazebo  :\n')
+    print('\t export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:'+output_dir)
+    print('\n Don\'t forget to add the meshes repo : export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:/path/to/the/repo/containing_meshes')
     
     
     
