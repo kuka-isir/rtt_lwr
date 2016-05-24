@@ -125,6 +125,8 @@ if remove_duplicates:
     for key,value in urdfs.items():
         if value not in final_urdfs.values():
             final_urdfs[key] = value
+        else:
+            print(key," is a duplicate, removing it")
             
     print('Removing %d duplicates '%(len(urdfs) - len(final_urdfs),))
 else:
