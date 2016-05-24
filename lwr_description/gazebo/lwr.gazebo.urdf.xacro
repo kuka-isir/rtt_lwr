@@ -28,7 +28,7 @@
             <!--stopErp>0.5</stopErp-->
         </gazebo>
     </xacro:macro>
-    
+
     <xacro:macro name="lwr_gazebo">
         <!-- ati_sensor (need gazebo >4.0, see ati_sensor.urdf.xacro) -->
         <xacro:if value="$(arg load_ati_sensor)">
@@ -65,6 +65,19 @@
                     <gaussianNoise>0.0001</gaussianNoise>
                 </plugin>
             </gazebo>
+            
+            <xacro:if value="$(arg load_handle)">
+                <gazebo reference="handle_link">
+                    <material>Gazebo/White</material>
+                </gazebo>
+            </xacro:if>
+
+            <xacro:if value="$(arg load_calib_tool)">
+                <gazebo reference="calib_link">
+                    <material>Gazebo/White</material>
+                </gazebo>
+            </xacro:if>
+
         </xacro:if>
 
         <!-- The state publisher is done by the RTTStatePublisher() as on the real HW -->
@@ -75,12 +88,6 @@
         <alwaysOn>true</alwaysOn>
     </plugin>
 </gazebo-->
-
-<xacro:if value="$(arg load_handle)">
-    <gazebo reference="handle_link">
-        <material>Gazebo/White</material>
-    </gazebo>
-</xacro:if>
 
 <xacro:if value="$(arg load_base)">
     <gazebo reference="base_link">
@@ -94,12 +101,6 @@
         <material>Gazebo/Orange</material>
     </gazebo>
 </xacro:unless>
-
-<xacro:if value="$(arg load_calib_tool)">
-    <gazebo reference="calib_link">
-        <material>Gazebo/White</material>
-    </gazebo>
-</xacro:if>
 
 <xacro:gz_joint joint_name="joint_0"/>
 <xacro:gz_joint joint_name="joint_1"/>
