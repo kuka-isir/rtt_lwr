@@ -32,9 +32,6 @@
 
     <arg name="ros_controllers" default=""/>
 
-    <rosparam if="$(arg sim)" command="load" file="$(find lwr_utils)/launch/sim_ros_control_controllers.yml" />
-    <rosparam unless="$(arg sim)" command="load" file="$(find lwr_utils)/launch/hw_ros_control_controllers.yml" />
-
     <arg name="ops_args" value="
         robot_name=$(arg robot_name)
         is_sim=$(arg sim)
