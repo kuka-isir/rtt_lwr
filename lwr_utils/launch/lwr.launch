@@ -13,7 +13,7 @@
 <arg name="load_ati_sensor" default="false" />
 <arg name="load_calib_tool" default="false" />
 <arg name="load_handle" default="false" />
-<arg name="load_gazebo_ros_control" default="true" />
+<arg name="load_gazebo_ros_control" default="false" />
 <arg name="world_name" default="$(find lwr_utils)/launch/lwr.world"/>
 <!-- Start Gazebo here or start it elsewhere and leave it open -->
 <arg if="$(arg sim)"     name="launch_gazebo" default="true" />
