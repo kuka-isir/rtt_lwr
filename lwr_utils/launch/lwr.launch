@@ -13,6 +13,8 @@
 <arg name="load_ati_sensor" default="false" />
 <arg name="load_calib_tool" default="false" />
 <arg name="load_handle" default="false" />
+<arg name="load_gazebo_ros_control" default="true" />
+<arg name="world_name" default="$(find lwr_utils)/launch/lwr.world"/>
 <!-- Start Gazebo here or start it elsewhere and leave it open -->
 <arg if="$(arg sim)"     name="launch_gazebo" default="true" />
 <arg unless="$(arg sim)" name="launch_gazebo" default="false" />
@@ -36,6 +38,22 @@
   <param name="/use_sim_time" value="true" />
 </group>
 
+<group ns="$(arg robot_ns)">
+    <rosparam if="$(arg sim)" command="load" file="$(find lwr_utils)/launch/sim_ros_control_controllers.yml" />
+    <rosparam unless="$(arg sim)" command="load" file="$(find lwr_utils)/launch/hw_ros_control_controllers.yml" />
+</group>
+
+<arg unless="$(arg start_paused)" name="command_arg1" value=""/>
+<arg     if="$(arg start_paused)" name="command_arg1" value="-u"/>
+<arg unless="$(arg debug)" name="script_type" value="gzserver"/>
+<arg     if="$(arg debug)" name="script_type" value="debug"/>
+
+<node if="$(arg load_gazebo_ros_control)" name="gazebo" pkg="gazebo_ros" type="$(arg script_type)" respawn="false" output="screen" args="$(arg command_arg1) --verbose $(arg world_name)" />
+<node if="$(arg load_gazebo_ros_control)" name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+    output="screen" ns="$(arg robot_ns)" args="joint_trajectory_controller joint_state_controller"/>
+
+<node if="$(arg gazebo_gui)" name="gazebo_gui" pkg="gazebo_ros" type="gzclient" respawn="false" output="screen"/>
+
 <!-- Description and/or gazebo -->
 <group ns="$(arg robot_ns)">
     <!--group ns="$(arg robot_name)"-->
@@ -45,6 +63,7 @@
     <param name="root_link" type="str" value="$(arg root_link)"/>
     <param name="tip_link" type="str" value="$(arg tip_link)"/>
     <param name="is_sim" type="bool" value="$(arg sim)"/>
+    <param name="start_paused" type="bool" value="$(arg start_paused)"/>
 
     <!-- Gazebo launches it if sim, otherwise here so that lwr_gazebo is standalone (hacky) -->
     <include file="$(find lwr_description)/launch/lwr_upload.launch">
@@ -53,6 +72,7 @@
         <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
         <arg name="load_handle" value="$(arg load_handle)" />
         <arg name="robot_name" value="$(arg robot_name)" />
+        <arg name="load_gazebo_ros_control" value="$(arg load_gazebo_ros_control)" />
     </include>
 
     <!-- world is in the urdf, but sometime we want everything in a different namespace, so we'll have /sub/world. This connects /world to /sub/world-->
@@ -63,23 +83,6 @@
     <!--/group-->
 </group>
 
-<node if="$(arg gazebo_gui)" name="gazebo_gui" pkg="gazebo_ros" type="gzclient" respawn="false" output="screen"/>
-<!--include if="$(arg launch_gazebo)" file="$(find lwr_utils)/launch/lwr_gazebo.launch">
-    <arg name="robot_ns" value="$(arg robot_ns)"/>
-    <arg name="tf_prefix" value="$(arg tf_prefix)"/>
-    <arg name="robot_name" value="lwr_sim"/>
-    <arg name="root_link" value="$(arg root_link)"/>
-    <arg name="tip_link" value="$(arg tip_link)"/>
-    <arg name="gui" value="$(arg gazebo_gui)"/>
-    <arg name="load_robot_description" value="false"/>
-    <arg name="load_base" value="$(arg load_base)" />
-    <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
-    <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
-    <arg name="load_handle" value="$(arg load_handle)" />
-    <arg name="paused" value="$(arg start_paused)"/>
-    <arg name="initial_joint_positions" value="$(arg initial_joint_positions)"/>
-    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
-</include-->
 <include if="$(arg launch_gazebo)" file="$(find lwr_utils)/launch/spawn_robot.launch">
     <arg name="robot_ns" value="$(arg robot_ns)"/>
     <arg name="robot_name" value="$(arg robot_name)"/>
@@ -94,5 +97,7 @@
     <arg name="load_calib_tool" default="$(arg load_calib_tool)" />
     <arg name="load_handle" default="$(arg load_handle)" />
     <arg name="initial_joint_positions" default="$(arg initial_joint_positions)" />
+    <arg name="load_gazebo_ros_control" value="$(arg load_gazebo_ros_control)" />
 </include>
+
 </launch>
