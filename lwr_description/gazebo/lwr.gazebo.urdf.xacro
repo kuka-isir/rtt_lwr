@@ -6,6 +6,7 @@
     <xacro:arg name="load_calib_tool" default="false"/>
     <xacro:arg name="load_handle" default="false"/>
     <xacro:arg name="load_hook" default="false"/>
+    <xacro:arg name="load_gazebo_ros_control" default="false"/>
     <xacro:arg name="robot_name" default="lwr"/>
 
     <xacro:macro name="gz_ft_sensor" params="joint_name">
@@ -30,6 +31,13 @@
     </xacro:macro>
 
     <xacro:macro name="lwr_gazebo">
+        <xacro:if value="$(arg load_gazebo_ros_control)">
+            <gazebo>
+              <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+                <!-- <robotNamespace>/</robotNamespace> -->
+              </plugin>
+            </gazebo>
+        </xacro:if>
         <!-- ati_sensor (need gazebo >4.0, see ati_sensor.urdf.xacro) -->
         <xacro:if value="$(arg load_ati_sensor)">
 
@@ -48,10 +56,44 @@
             </gazebo>
 
             <gazebo reference="ati_link">
-                <!-- gravity tag does not work for some reason ,
-                so we have to update the lwr_gazebo ops
-                with lwr_gazebo.setLinkGravityMode("ati_link",false) -->
+                <sensor name="head_cam" type="camera">
+                  <update_rate>30</update_rate>
+                  <camera name="head_cam">
+                    <horizontal_fov>1.39626</horizontal_fov>
+                    <image>
+                      <width>800</width>
+                      <height>800</height>
+                      <format>R8G8B8</format>
+                    </image>
+                    <clip>
+                      <near>0.02</near>
+                      <far>300</far>
+                    </clip>
+                  </camera>
 
+
+                  <plugin name='camera_controller' filename='libgazebo_ros_camera.so'>
+                    <alwaysOn>true</alwaysOn>
+                    <updateRate>30.0</updateRate>
+                    <cameraName>head_cam</cameraName>
+                    <imageTopicName>image_raw</imageTopicName>
+                    <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+                    <frameName>ati_link</frameName>
+                    <hackBaseline>0.07</hackBaseline>
+                    <distortionK1>0.0</distortionK1>
+                    <distortionK2>0.0</distortionK2>
+                    <distortionK3>0.0</distortionK3>
+                    <distortionT1>0.0</distortionT1>
+                    <distortionT2>0.0</distortionT2>
+                    <CxPrime>0.0</CxPrime>
+                    <Cx>0.0</Cx>
+                    <Cy>0.0</Cy>
+                    <focalLength>50.0</focalLength>
+                  </plugin>
+                </sensor>
+          </gazebo>
+
+            <gazebo reference="ati_link">
                 <gravity>false</gravity>
                 <material>Gazebo/Grey</material>
             </gazebo>
@@ -65,7 +107,7 @@
                     <gaussianNoise>0.0001</gaussianNoise>
                 </plugin>
             </gazebo>
-            
+
             <xacro:if value="$(arg load_handle)">
                 <gazebo reference="handle_link">
                     <material>Gazebo/White</material>
