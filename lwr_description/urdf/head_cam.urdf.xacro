@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+   <xacro:macro name="head_cam">
+
+	  <link name="cam_link" >
+      <inertial>
+        <origin xyz="0 0 0.5" rpy="0 0 0"/>
+        <mass value="0.1"/>
+        <inertia ixx="10"  ixy="0"  ixz="0" iyy="10" iyz="0" izz="10" />
+      </inertial>
+
+      <visual>
+        <origin xyz="${-0.045/2.0} 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.045 0.042 0.032" />
+        </geometry>
+        <material name="Cyan">
+          <color rgba="0 1.0 1.0 1.0"/>
+        </material>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.045 0.042 0.032" />
+        </geometry>
+      </collision>
+	  </link>
+
+	  <joint name="ati_to_cam_joint" type="fixed">
+	    <origin rpy="3.141592 -0.46 3.141592" xyz="0.1 0 0" />
+	    <parent link="ati_link" />
+	    <child link="cam_link" />
+	  </joint>
+
+    <link name="cam_link_optical" >
+	  </link>
+
+    <joint name="cam_optical_joint" type="fixed">
+      <!-- these values have to be these values otherwise the gazebo camera
+          image won't be aligned properly with the frame it is supposedly
+          originating from -->
+      <origin xyz="0 0 0" rpy="-1.570796 0 -1.570796"/>
+      <parent link="cam_link"/>
+      <child link="cam_link_optical"/>
+    </joint>
+   </xacro:macro>
+
+</robot>
