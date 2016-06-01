@@ -12,6 +12,7 @@
     <arg name="load_base" default="false" />
     <arg name="load_ati_sensor" default="false" />
     <arg name="load_calib_tool" default="false" />
+    <arg name="load_table" default="false" />
     <arg name="load_handle" default="false" />
     <arg name="load_gazebo_ros_control" default="false" />
     <arg name="initial_joint_positions" default="[0, 0, -1.57, 0, 1.57, 0, 0]"/>
@@ -40,6 +41,7 @@
                 <arg name="load_base" value="$(arg load_base)" />
                 <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
                 <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
+                <arg name="load_table" value="$(arg load_table)" />
                 <arg name="load_handle" value="$(arg load_handle)" />
                 <arg name="robot_name" value="$(arg robot_name)"/>
                 <arg name="load_gazebo_ros_control" value="$(arg load_gazebo_ros_control)"/>

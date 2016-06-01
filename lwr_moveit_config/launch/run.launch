@@ -15,6 +15,7 @@
     <arg name="load_base" default="true" />
     <arg name="load_ati_sensor" default="true" />
     <arg name="load_calib_tool" default="true" />
+    <arg name="load_table" default="true" />
     <arg name="load_handle" default="true" />
     <!-- Gazebo -->
     <arg name="gazebo_gui" default="false"/>
@@ -34,6 +35,7 @@
     <arg name="load_base" value="$(arg load_base)" />
     <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
     <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
+    <arg name="load_table" value="$(arg load_table)" />
     <arg name="load_handle" value="$(arg load_handle)" />
     <arg name="gazebo_gui" value="$(arg gazebo_gui)"/>
 </include>

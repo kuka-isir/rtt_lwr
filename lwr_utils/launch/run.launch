@@ -12,6 +12,7 @@
     <arg name="load_base" default="false" />
     <arg name="load_ati_sensor" default="false" />
     <arg name="load_calib_tool" default="false" />
+    <arg name="load_table" default="false" />
     <arg name="load_handle" default="false" />
     <arg name="initial_joint_positions" default="[1.6036007404327393, 0.3993358612060547, -0.10944951325654984, -1.7840847969055176, 0.1192147508263588, 0.9727375507354736, 0.1688145101070404]"/>
 
@@ -51,6 +52,7 @@
         <arg name="load_base"   value="$(arg load_base)" />
         <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
         <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
+        <arg name="load_table" value="$(arg load_table)" />
         <arg name="load_handle"     value="$(arg load_handle)" />
         <arg name="root_link"       value="$(arg root_link)"/>
         <arg name="tip_link"        value="$(arg tip_link)"/>

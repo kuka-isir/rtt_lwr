@@ -12,6 +12,7 @@
 <arg name="load_base" default="false" />
 <arg name="load_ati_sensor" default="false" />
 <arg name="load_calib_tool" default="false" />
+<arg name="load_table" default="false" />
 <arg name="load_handle" default="false" />
 <arg name="load_gazebo_ros_control" default="false" />
 <arg name="world_name" default="$(find lwr_utils)/launch/lwr.world"/>
@@ -70,6 +71,7 @@
         <arg name="load_base" value="$(arg load_base)" />
         <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
         <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
+        <arg name="load_table" value="$(arg load_table)" />
         <arg name="load_handle" value="$(arg load_handle)" />
         <arg name="robot_name" value="$(arg robot_name)" />
         <arg name="load_gazebo_ros_control" value="$(arg load_gazebo_ros_control)" />
@@ -95,6 +97,7 @@
     <arg name="load_base" default="$(arg load_base)" />
     <arg name="load_ati_sensor" default="$(arg load_ati_sensor)" />
     <arg name="load_calib_tool" default="$(arg load_calib_tool)" />
+    <arg name="load_table" default="$(arg load_table)" />
     <arg name="load_handle" default="$(arg load_handle)" />
     <arg name="initial_joint_positions" default="$(arg initial_joint_positions)" />
     <arg name="load_gazebo_ros_control" value="$(arg load_gazebo_ros_control)" />
