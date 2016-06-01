@@ -3,7 +3,7 @@
       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
    name="lwr" >
    <xacro:property name="velocity_scale" value="1.0"/>
-   <xacro:property name="effort_scale" value="1.0"/>
+   <xacro:property name="effort_scale" value="10.0"/>
 
    <xacro:property name="M_PI" value="3.1415926535897931" />
 
@@ -44,12 +44,12 @@
             <mass
               value="1.21032454350876" />
             <inertia
-              ixx="0.00262560565710656"
+              ixx="0.0262560565710656"
               ixy="-5.2754950052563E-07"
               ixz="3.77940202490646E-05"
-              iyy="0.00280724642508563"
+              iyy="0.0280724642508563"
               iyz="-2.56972470148208E-07"
-              izz="0.00306998250407766" />
+              izz="0.0306998250407766" />
           </inertial>
          <visual>
             <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
@@ -84,12 +84,12 @@
               <mass
                 value="2.30339938771869" />
             <inertia
-              ixx="0.0156081163626041"
+              ixx="0.156081163626041"
               ixy="5.97319920503909E-08"
               ixz="-1.64780770629425E-07"
-              iyy="0.0153467542173805"
-              iyz="0.00319168949093809"
-              izz="0.00440736079943446" />
+              iyy="0.153467542173805"
+              iyz="0.0319168949093809"
+              izz="0.0440736079943446" />
           </inertial>
          <visual>
             <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
@@ -292,12 +292,12 @@
         <mass
           value="1.49302436988808" />
         <inertia
-          ixx="0.00298541138330797"
+          ixx="0.0298541138330797"
           ixy="-3.97658663154265E-09"
           ixz="-1.71667243685877E-09"
-          iyy="0.00299834927882566"
+          iyy="0.0299834927882566"
           iyz="-2.53647350791604E-05"
-          izz="0.00323627047307316" />
+          izz="0.0323627047307316" />
     </inertial>
          <visual>
             <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
@@ -331,12 +331,12 @@
         <mass
           value="0.108688241139613" />
         <inertia
-          ixx="4.17908737998876E-05"
+          ixx="4.17908737998876E-02"
           ixy="0"
           ixz="0"
-          iyy="4.17908737998876E-05"
+          iyy="4.17908737998876E-02"
           iyz="0"
-          izz="7.00756879151782E-05" />
+          izz="7.00756879151782E-02" />
     </inertial>
          <visual>
             <origin xyz="0 0 0" rpy="0 0 ${M_PI}" />
