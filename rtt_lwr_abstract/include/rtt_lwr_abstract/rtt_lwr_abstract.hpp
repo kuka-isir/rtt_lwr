@@ -251,7 +251,7 @@ class RTTLWRAbstract : public RTT::TaskContext{
                     << " not connected "<< RTT::endlog();
                 printed = true;
             }
-            return false;
+            return;
         }
         port.write(data);
     }
