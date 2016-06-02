@@ -59,7 +59,7 @@
               <sensor name="head_cam" type="camera">
                 <update_rate>30</update_rate>
                 <camera name="head_cam">
-                  <horizontal_fov>2.1500</horizontal_fov>
+                  <horizontal_fov>0.6126</horizontal_fov>
                   <image>
                     <width>1360</width>
                     <height>1024</height>
@@ -84,10 +84,10 @@
                   <distortionK3>-0.004707</distortionK3>
                   <distortionT1>-0.000359</distortionT1>
                   <distortionT2>0.0</distortionT2>
-                  <CxPrime>0.0</CxPrime>
-                  <Cx>0.0</Cx>
-                  <Cy>0.0</Cy>
-                  <focalLength>367.782569</focalLength>
+                  <CxPrime>782.578058</CxPrime>
+                  <Cx>782.578058</Cx>
+                  <Cy>640.635301</Cy>
+                  <focalLength>2150.179542</focalLength>
                   </plugin>
                 </sensor>
               </gazebo>
