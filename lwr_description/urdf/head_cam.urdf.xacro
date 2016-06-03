@@ -21,7 +21,7 @@
       </visual>
 
       <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <origin xyz="${-0.045/2.0} 0 0" rpy="0 0 0"/>
         <geometry>
           <box size="0.045 0.042 0.032" />
         </geometry>
