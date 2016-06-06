@@ -32,6 +32,10 @@ global bool isSim()
 
 global bool setRobotInitialJointConfiguration(double q0,double q1,double q2,double q3,double q4,double q5,double q6)
 {
+    if(isSim()) then{
+        print.log(Info,"Initial joint configuration should be done on the KRL script.")
+        return true
+    }
     # Example : setRobotInitialJointConfiguration(1.0,0.,0.0,-1.57,0.0,1.57,0.)
     this.ros_helper.rosServiceCall("/gazebo/set_model_configuration '{ model_name: "+getRobotName()+",joint_names: [ joint_0, joint_1, joint_2,joint_3, joint_4, joint_5, joint_6 ],joint_positions: ["+q0+", "+q1+", "+q2+", "+q3+", "+q4+", "+q5+", "+q6+"]}' --wait -v");
     return true;
