@@ -32,7 +32,7 @@ global bool isSim()
 
 global bool setRobotInitialJointConfiguration(double q0,double q1,double q2,double q3,double q4,double q5,double q6)
 {
-    if(isSim()) then{
+    if(!isSim()) then{
         print.log(Info,"Initial joint configuration should be done on the KRL script.")
         return true
     }
