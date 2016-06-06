@@ -47,6 +47,7 @@ global string loadKRLTool(bool start_component)
     var string component_name = robot_name+"_krl_tool"
     print.log(Info,"\033[34;1mLoading KRL Tool for "+robot_name+"\033[0m\n")
     ros.import("rtt_lwr_krl_tool")
+    import("rtt_std_srvs")
     loadComponent(component_name,"lwr::KRLTool")
     setActivity(component_name,0,10,ORO_SCHED_OTHER)
 
