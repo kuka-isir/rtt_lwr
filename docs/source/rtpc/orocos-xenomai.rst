@@ -32,7 +32,7 @@ Download the OROCOS toolchain
     # Get rtt + rtt_ros
     cd ~/orocos_ws/src
     wstool init
-    wstool merge https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/rtt_lwr_xenomai.rosinstall
+    wstool merge https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/orocos_toolchain-2.8.rosinstall
 
 Build the toolchain
 ~~~~~~~~~~~~~~~~~~~
@@ -46,4 +46,4 @@ Build the toolchain
 
     # Load the workspace
     unset ROS_PACKAGE_PATH
-    source ~/orocos_ws/install
+    source ~/orocos_ws/install/setup.bash
