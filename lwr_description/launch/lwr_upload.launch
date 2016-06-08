@@ -10,13 +10,13 @@
     <arg name="robot_name" default="lwr" />
 
     <param name="robot_description" command="
-        $(find xacro)/xacro.py '$(find lwr_description)/robots/kuka_lwr.urdf.xacro'
+        $(find xacro)/xacro '$(find lwr_description)/robots/kuka_lwr.urdf.xacro'
         robot_name:=$(arg robot_name)
         load_base:=$(arg load_base)
         load_ati_sensor:=$(arg load_ati_sensor)
         load_calib_tool:=$(arg load_calib_tool)
         load_handle:=$(arg load_handle)
         load_table:=$(arg load_table)
-        load_gazebo_ros_control:=$(arg load_gazebo_ros_control) "/>
+        load_gazebo_ros_control:=$(arg load_gazebo_ros_control) --inorder"/>
 
 </launch>
