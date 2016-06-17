@@ -1,0 +1,1 @@
+- git: {local-name: rtt_ros_integration, uri: 'https://github.com/orocos/rtt_ros_integration.git',version: indigo-devel}
