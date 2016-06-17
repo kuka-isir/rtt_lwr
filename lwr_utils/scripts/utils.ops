@@ -5,7 +5,9 @@ import("rtt_ros")
 import("rtt_rospack")
 import("rtt_roscomm")
 import("lwr_utils")
-
+# to prevent https://github.com/orocos-toolchain/rtt/issues/150
+this.setPeriod(0.1)
+this.start
 # "this" argument hasn't reach debians yet
 this.loadService("Deployer","ros_helper")
 
@@ -384,7 +386,6 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
         scripting.eval(robot_name+".synchronize_with_commands = false")
         scripting.eval(robot_name+".getModel(\"gazebo\",\""+robot_name+"\",30.0)")
         configureComponent(robot_name)
-        #scripting.eval(robot_name+".setLinkGravityMode(\"ati_link\",false)")
 
         print.log(Info,"\033[34;1m"+robot_name+"] RUNNING ON SIMULATION \033[0m\n")
     }
