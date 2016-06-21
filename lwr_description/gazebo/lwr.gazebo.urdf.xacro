@@ -84,9 +84,9 @@
                   <distortionK3>-0.004707</distortionK3>
                   <distortionT1>-0.000359</distortionT1>
                   <distortionT2>0.0</distortionT2>
-                  <CxPrime>782.578058</CxPrime>
-                  <Cx>782.578058</Cx>
-                  <Cy>640.635301</Cy>
+                  <CxPrime>0</CxPrime>
+                  <Cx>0</Cx>
+                  <Cy>0</Cy>
                   <focalLength>2150.179542</focalLength>
                   </plugin>
                 </sensor>
