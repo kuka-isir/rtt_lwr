@@ -10,8 +10,8 @@
   <xacro:arg name="load_handle" default="false"/>
   <xacro:arg name="load_hook" default="false"/>
   <xacro:arg name="load_table" default="true"/>
-  <xacro:arg name="load_head_cam" default="true"/>
-  <xacro:arg name="load_screwdriver" default="true"/>
+  <xacro:arg name="load_head_cam" default="false"/>
+  <xacro:arg name="load_screwdriver" default="false"/>
   <xacro:arg name="robot_name" default="lwr"/>
 
   <!-- lwr-->
