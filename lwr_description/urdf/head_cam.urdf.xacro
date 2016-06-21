@@ -37,5 +37,15 @@
         <child link="head_cam_link" />
         <axis xyz="0 0 0" />
     </joint>
+    <link name="head_cam_link_optical" />
+    <joint name="head_cam_optical_joint" type="fixed">
+      <!-- these values have to be these values otherwise the gazebo camera
+          image won't be aligned properly with the frame it is supposedly
+          originating from -->
+      <origin xyz="0 0 0" rpy="-1.570796 0 -1.570796"/>
+      <parent link="head_cam_link"/>
+      <child link="head_cam_link_optical"/>
+    </joint>
+
   </xacro:macro>
 </robot>
