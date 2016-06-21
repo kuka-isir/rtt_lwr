@@ -43,21 +43,18 @@
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
     <disable_collisions link1="ati_base_link" link2="ati_link" reason="Adjacent" />
     <disable_collisions link1="ati_base_link" link2="calib_link" reason="Adjacent" />
-    <disable_collisions link1="ati_base_link" link2="cam_link" reason="Never" />
-    <disable_collisions link1="ati_base_link" link2="epingle_link" reason="Adjacent" />
     <disable_collisions link1="ati_base_link" link2="handle_link" reason="Adjacent" />
-    <disable_collisions link1="ati_base_link" link2="link_0" reason="Never" />
+    <disable_collisions link1="ati_base_link" link2="head_cam_link" reason="Default" />
     <disable_collisions link1="ati_base_link" link2="link_1" reason="Never" />
     <disable_collisions link1="ati_base_link" link2="link_2" reason="Never" />
     <disable_collisions link1="ati_base_link" link2="link_3" reason="Never" />
     <disable_collisions link1="ati_base_link" link2="link_4" reason="Never" />
     <disable_collisions link1="ati_base_link" link2="link_6" reason="Never" />
     <disable_collisions link1="ati_base_link" link2="link_7" reason="Adjacent" />
-    <disable_collisions link1="ati_link" link2="base_link" reason="User" />
+    <disable_collisions link1="ati_base_link" link2="screwdriver_link" reason="Default" />
     <disable_collisions link1="ati_link" link2="calib_link" reason="Never" />
-    <disable_collisions link1="ati_link" link2="cam_link" reason="Adjacent" />
-    <disable_collisions link1="ati_link" link2="epingle_link" reason="Adjacent" />
     <disable_collisions link1="ati_link" link2="handle_link" reason="Never" />
+    <disable_collisions link1="ati_link" link2="head_cam_link" reason="Adjacent" />
     <disable_collisions link1="ati_link" link2="link_0" reason="Never" />
     <disable_collisions link1="ati_link" link2="link_1" reason="Never" />
     <disable_collisions link1="ati_link" link2="link_2" reason="Never" />
@@ -66,32 +63,34 @@
     <disable_collisions link1="ati_link" link2="link_5" reason="Never" />
     <disable_collisions link1="ati_link" link2="link_6" reason="Never" />
     <disable_collisions link1="ati_link" link2="link_7" reason="Never" />
-    <disable_collisions link1="ati_link" link2="table_link" reason="User" />
+    <disable_collisions link1="ati_link" link2="screwdriver_link" reason="Adjacent" />
     <disable_collisions link1="base_link" link2="link_0" reason="Adjacent" />
     <disable_collisions link1="base_link" link2="link_1" reason="Never" />
     <disable_collisions link1="base_link" link2="link_2" reason="Never" />
     <disable_collisions link1="base_link" link2="link_3" reason="Never" />
     <disable_collisions link1="base_link" link2="table_link" reason="Adjacent" />
-    <disable_collisions link1="calib_link" link2="cam_link" reason="Default" />
     <disable_collisions link1="calib_link" link2="handle_link" reason="Default" />
-    <disable_collisions link1="calib_link" link2="link_0" reason="Never" />
+    <disable_collisions link1="calib_link" link2="head_cam_link" reason="Default" />
     <disable_collisions link1="calib_link" link2="link_1" reason="Never" />
     <disable_collisions link1="calib_link" link2="link_2" reason="Never" />
     <disable_collisions link1="calib_link" link2="link_3" reason="Never" />
     <disable_collisions link1="calib_link" link2="link_4" reason="Never" />
     <disable_collisions link1="calib_link" link2="link_6" reason="Never" />
     <disable_collisions link1="calib_link" link2="link_7" reason="Never" />
-    <disable_collisions link1="cam_link" link2="handle_link" reason="Never" />
-    <disable_collisions link1="cam_link" link2="link_1" reason="Never" />
-    <disable_collisions link1="cam_link" link2="link_2" reason="Never" />
-    <disable_collisions link1="cam_link" link2="link_3" reason="Never" />
-    <disable_collisions link1="cam_link" link2="link_6" reason="Never" />
-    <disable_collisions link1="cam_link" link2="link_7" reason="Never" />
+    <disable_collisions link1="calib_link" link2="screwdriver_link" reason="Never" />
+    <disable_collisions link1="handle_link" link2="head_cam_link" reason="Never" />
     <disable_collisions link1="handle_link" link2="link_1" reason="Never" />
     <disable_collisions link1="handle_link" link2="link_2" reason="Never" />
     <disable_collisions link1="handle_link" link2="link_3" reason="Never" />
     <disable_collisions link1="handle_link" link2="link_6" reason="Never" />
     <disable_collisions link1="handle_link" link2="link_7" reason="Default" />
+    <disable_collisions link1="handle_link" link2="screwdriver_link" reason="Never" />
+    <disable_collisions link1="head_cam_link" link2="link_1" reason="Never" />
+    <disable_collisions link1="head_cam_link" link2="link_2" reason="Never" />
+    <disable_collisions link1="head_cam_link" link2="link_3" reason="Never" />
+    <disable_collisions link1="head_cam_link" link2="link_6" reason="Never" />
+    <disable_collisions link1="head_cam_link" link2="link_7" reason="Never" />
+    <disable_collisions link1="head_cam_link" link2="screwdriver_link" reason="Never" />
     <disable_collisions link1="link_0" link2="link_1" reason="Adjacent" />
     <disable_collisions link1="link_0" link2="link_2" reason="Never" />
     <disable_collisions link1="link_0" link2="link_3" reason="Never" />
@@ -106,22 +105,29 @@
     <disable_collisions link1="link_1" link2="link_5" reason="Never" />
     <disable_collisions link1="link_1" link2="link_6" reason="Never" />
     <disable_collisions link1="link_1" link2="link_7" reason="Never" />
+    <disable_collisions link1="link_1" link2="screwdriver_link" reason="Never" />
     <disable_collisions link1="link_1" link2="table_link" reason="Never" />
     <disable_collisions link1="link_2" link2="link_3" reason="Adjacent" />
     <disable_collisions link1="link_2" link2="link_4" reason="Never" />
     <disable_collisions link1="link_2" link2="link_5" reason="Never" />
     <disable_collisions link1="link_2" link2="link_6" reason="Never" />
     <disable_collisions link1="link_2" link2="link_7" reason="Never" />
+    <disable_collisions link1="link_2" link2="screwdriver_link" reason="Never" />
     <disable_collisions link1="link_2" link2="table_link" reason="Never" />
     <disable_collisions link1="link_3" link2="link_4" reason="Adjacent" />
     <disable_collisions link1="link_3" link2="link_5" reason="Never" />
     <disable_collisions link1="link_3" link2="link_6" reason="Never" />
     <disable_collisions link1="link_3" link2="link_7" reason="Never" />
+    <disable_collisions link1="link_3" link2="screwdriver_link" reason="Never" />
     <disable_collisions link1="link_3" link2="table_link" reason="Never" />
     <disable_collisions link1="link_4" link2="link_5" reason="Adjacent" />
     <disable_collisions link1="link_4" link2="link_6" reason="Never" />
     <disable_collisions link1="link_4" link2="link_7" reason="Never" />
+    <disable_collisions link1="link_4" link2="screwdriver_link" reason="Never" />
     <disable_collisions link1="link_5" link2="link_6" reason="Adjacent" />
-    <disable_collisions link1="link_5" link2="link_7" reason="User" />
+	<disable_collisions link1="link_5" link2="link_7" reason="User" />
+    <disable_collisions link1="link_5" link2="screwdriver_link" reason="Never" />
     <disable_collisions link1="link_6" link2="link_7" reason="Adjacent" />
+    <disable_collisions link1="link_6" link2="screwdriver_link" reason="Never" />
+    <disable_collisions link1="link_7" link2="screwdriver_link" reason="Never" />
 </robot>
