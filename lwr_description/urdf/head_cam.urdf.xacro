@@ -3,15 +3,15 @@
   <xacro:macro name="head_cam">
     <link name="head_cam_link">
       <inertial>
-        <origin xyz="-0.001317 0.032906 -0.0621" rpy="0 0 0" />
-        <mass value="0.23396" />
+        <origin xyz="-0.0621004664004336 -0.00131697898890089 0.0329063947179623" rpy="0 0 0" />
+        <mass value="0.233958232943254" />
         <inertia
-          ixx="0.00047366"
-          ixy="-5.9303E-07"
-          ixz="1.6112E-06"
-          iyy="0.00016812"
-          iyz="-1.0497E-05"
-          izz="0.00043559" />
+          ixx="0.000435587148701726"
+          ixy="1.6112175747291E-06"
+          ixz="-1.04965927091446E-05"
+          iyy="0.000473661487000832"
+          iyz="-5.93028607241656E-07"
+          izz="0.000168118719518926" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -19,7 +19,7 @@
           <mesh filename="package://lwr_description/meshes/head_cam/head_cam.stl" />
         </geometry>
         <material name="">
-          <color rgba="0.49804 0.49804 0.49804 1" />
+          <color rgba="0.498039215686275 0.498039215686275 0.498039215686275 1" />
         </material>
       </visual>
       <collision>
@@ -30,12 +30,12 @@
       </collision>
     </link>
     <joint name="ati_to_cam_joint" type="fixed">
-        <origin
-          xyz="0.00138820343559641 -0.113248229330811 0.053096412734154"
-          rpy="-0.436332312998576 8.73838564895237E-16 3.05311331771918E-15" />
-        <parent link="ati_link" />
-        <child link="head_cam_link" />
-        <axis xyz="0 0 0" />
+      <origin
+        xyz="0.00138820343559641 -0.113248229330811 0.053096412734154"
+        rpy="-3.14159265358979 -1.13446401379632 1.5707963267949" />
+      <parent link="ati_link" />
+      <child link="head_cam_link" />
+      <axis xyz="0 0 0" />
     </joint>
     <link name="head_cam_link_optical" />
     <joint name="head_cam_optical_joint" type="fixed">
