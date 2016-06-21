@@ -44,6 +44,7 @@
     <disable_collisions link1="ati_base_link" link2="ati_link" reason="Adjacent" />
     <disable_collisions link1="ati_base_link" link2="calib_link" reason="Adjacent" />
     <disable_collisions link1="ati_base_link" link2="cam_link" reason="Never" />
+    <disable_collisions link1="ati_base_link" link2="epingle_link" reason="Adjacent" />
     <disable_collisions link1="ati_base_link" link2="handle_link" reason="Adjacent" />
     <disable_collisions link1="ati_base_link" link2="link_0" reason="Never" />
     <disable_collisions link1="ati_base_link" link2="link_1" reason="Never" />
@@ -55,6 +56,7 @@
     <disable_collisions link1="ati_link" link2="base_link" reason="User" />
     <disable_collisions link1="ati_link" link2="calib_link" reason="Never" />
     <disable_collisions link1="ati_link" link2="cam_link" reason="Adjacent" />
+    <disable_collisions link1="ati_link" link2="epingle_link" reason="Adjacent" />
     <disable_collisions link1="ati_link" link2="handle_link" reason="Never" />
     <disable_collisions link1="ati_link" link2="link_0" reason="Never" />
     <disable_collisions link1="ati_link" link2="link_1" reason="Never" />

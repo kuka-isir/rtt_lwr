@@ -1,11 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+   <xacro:property name="epingle_length" value="0.09" />
+   <xacro:property name="epingle_radius" value="0.002" />
+   <xacro:property name="motor_length" value="0.02" />
+   <xacro:property name="motor_radius" value="0.025" />
+
    <xacro:macro name="head_cam">
+
+     <link name="epingle_link" >
+       <inertial>
+         <origin xyz="0 0 0.5" rpy="0 0 0"/>
+         <mass value="0.1"/>
+         <inertia ixx="0.001"  ixy="0"  ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+       </inertial>
+
+       <visual name="motor">
+         <origin xyz="0 0 0" rpy="0 0 0" />
+         <geometry>
+           <cylinder length="${motor_length}" radius="${motor_radius}" />
+         </geometry>
+       </visual>
+
+       <visual name="epingle">
+         <origin xyz="0 0 ${epingle_length/2.0}" rpy="0 0 0" />
+         <geometry>
+           <cylinder length="${epingle_length}" radius="${epingle_radius}" />
+         </geometry>
+       </visual>
+
+       <collision name="motor_collision">
+         <origin xyz="0 0 0" rpy="0 0 0" />
+         <geometry>
+           <cylinder length="${motor_length}" radius="${motor_radius}" />
+         </geometry>
+       </collision>
+
+       <collision name="epingle_collision">
+         <origin xyz="0 0 ${epingle_length/2.0}" rpy="0 0 0" />
+         <geometry>
+           <cylinder length="${epingle_length}" radius="${epingle_radius}" />
+         </geometry>
+      </collision>
+    </link>
+
+    <joint name="epingle_joint" type="fixed">
+      <origin xyz="0 0 ${motor_length/2.0}" rpy="0 0 0"/>
+      <parent link="ati_link"/>
+      <child link="epingle_link"/>
+    </joint>
 
 	  <link name="cam_link" >
       <inertial>
-        <origin xyz="0 0 0.5" rpy="0 0 0"/>
+        <origin xyz="${-0.045/2.0} ${-0.042/2.0} ${-0.032/2.0}" rpy="0 0 0"/>
         <mass value="0.1"/>
         <inertia ixx="0.001"  ixy="0"  ixz="0" iyy="0.001" iyz="0" izz="0.001" />
       </inertial>
@@ -28,8 +75,17 @@
       </collision>
 	  </link>
 
+    <link name="epingle_tip_link" />
+
+    <joint name="ati_to_tip_joint" type="fixed">
+      <origin rpy="${M_PI} 0 0" xyz="0 0 ${motor_length+epingle_length}" />
+	    <parent link="ati_link" />
+	    <child link="epingle_tip_link" />
+	  </joint>
+
 	  <joint name="ati_to_cam_joint" type="fixed">
-	    <origin rpy="3.141592 -0.46 3.141592" xyz="0.1 0 0" />
+	    <!--origin rpy="${M_PI} ${-M_PI/2.0+atan(0.1/(motor_length+epingle_length))} ${M_PI}" xyz="0.1 0 0" /-->
+      	<origin rpy="${M_PI} -0.8329812666744316 ${M_PI}" xyz="0.1 0 0" />
 	    <parent link="ati_link" />
 	    <child link="cam_link" />
 	  </joint>
