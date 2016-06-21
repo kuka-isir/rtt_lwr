@@ -1,106 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-
-   <xacro:property name="epingle_length" value="0.09" />
-   <xacro:property name="epingle_radius" value="0.002" />
-   <xacro:property name="motor_length" value="0.02" />
-   <xacro:property name="motor_radius" value="0.025" />
-
-   <xacro:macro name="head_cam">
-
-     <link name="epingle_link" >
-       <inertial>
-         <origin xyz="0 0 0.5" rpy="0 0 0"/>
-         <mass value="0.1"/>
-         <inertia ixx="0.001"  ixy="0"  ixz="0" iyy="0.001" iyz="0" izz="0.001" />
-       </inertial>
-
-       <visual name="motor">
-         <origin xyz="0 0 0" rpy="0 0 0" />
-         <geometry>
-           <cylinder length="${motor_length}" radius="${motor_radius}" />
-         </geometry>
-       </visual>
-
-       <visual name="epingle">
-         <origin xyz="0 0 ${epingle_length/2.0}" rpy="0 0 0" />
-         <geometry>
-           <cylinder length="${epingle_length}" radius="${epingle_radius}" />
-         </geometry>
-       </visual>
-
-       <collision name="motor_collision">
-         <origin xyz="0 0 0" rpy="0 0 0" />
-         <geometry>
-           <cylinder length="${motor_length}" radius="${motor_radius}" />
-         </geometry>
-       </collision>
-
-       <collision name="epingle_collision">
-         <origin xyz="0 0 ${epingle_length/2.0}" rpy="0 0 0" />
-         <geometry>
-           <cylinder length="${epingle_length}" radius="${epingle_radius}" />
-         </geometry>
-      </collision>
-    </link>
-
-    <joint name="epingle_joint" type="fixed">
-      <origin xyz="0 0 ${motor_length/2.0}" rpy="0 0 0"/>
-      <parent link="ati_link"/>
-      <child link="epingle_link"/>
-    </joint>
-
-	  <link name="cam_link" >
+  <xacro:macro name="head_cam">
+    <link name="head_cam_link">
       <inertial>
-        <origin xyz="${-0.045/2.0} ${-0.042/2.0} ${-0.032/2.0}" rpy="0 0 0"/>
-        <mass value="0.1"/>
-        <inertia ixx="0.001"  ixy="0"  ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+        <origin xyz="-0.001317 0.032906 -0.0621" rpy="0 0 0" />
+        <mass value="0.23396" />
+        <inertia
+          ixx="0.00047366"
+          ixy="-5.9303E-07"
+          ixz="1.6112E-06"
+          iyy="0.00016812"
+          iyz="-1.0497E-05"
+          izz="0.00043559" />
       </inertial>
-
       <visual>
-        <origin xyz="${-0.045/2.0} 0 0" rpy="0 0 0" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <box size="0.045 0.042 0.032" />
+          <mesh filename="package://lwr_description/meshes/head_cam/head_cam.stl" />
         </geometry>
-        <material name="Cyan">
-          <color rgba="0 1.0 1.0 1.0"/>
+        <material name="">
+          <color rgba="0.49804 0.49804 0.49804 1" />
         </material>
       </visual>
-
       <collision>
-        <origin xyz="${-0.045/2.0} 0 0" rpy="0 0 0"/>
+        <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <box size="0.045 0.042 0.032" />
+          <mesh filename="package://lwr_description/meshes/head_cam/head_cam.stl" />
         </geometry>
       </collision>
-	  </link>
-
-    <link name="epingle_tip_link" />
-
-    <joint name="ati_to_tip_joint" type="fixed">
-      <origin rpy="${M_PI} 0 0" xyz="0 0 ${motor_length+epingle_length}" />
-	    <parent link="ati_link" />
-	    <child link="epingle_tip_link" />
-	  </joint>
-
-	  <joint name="ati_to_cam_joint" type="fixed">
-	    <!--origin rpy="${M_PI} ${-M_PI/2.0+atan(0.1/(motor_length+epingle_length))} ${M_PI}" xyz="0.1 0 0" /-->
-      	<origin rpy="${M_PI} -0.8329812666744316 ${M_PI}" xyz="0.1 0 0" />
-	    <parent link="ati_link" />
-	    <child link="cam_link" />
-	  </joint>
-
-    <link name="cam_link_optical" >
-	  </link>
-
-    <joint name="cam_optical_joint" type="fixed">
-      <!-- these values have to be these values otherwise the gazebo camera
-          image won't be aligned properly with the frame it is supposedly
-          originating from -->
-      <origin xyz="0 0 0" rpy="-1.570796 0 -1.570796"/>
-      <parent link="cam_link"/>
-      <child link="cam_link_optical"/>
+    </link>
+    <joint name="ati_to_cam_joint" type="fixed">
+        <origin
+          xyz="0.00138820343559641 -0.113248229330811 0.053096412734154"
+          rpy="-0.436332312998576 8.73838564895237E-16 3.05311331771918E-15" />
+        <parent link="ati_link" />
+        <child link="head_cam_link" />
+        <axis xyz="0 0 0" />
     </joint>
-   </xacro:macro>
-
+  </xacro:macro>
 </robot>

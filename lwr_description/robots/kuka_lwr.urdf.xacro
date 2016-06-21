@@ -11,6 +11,7 @@
   <xacro:arg name="load_hook" default="false"/>
   <xacro:arg name="load_table" default="true"/>
   <xacro:arg name="load_head_cam" default="true"/>
+  <xacro:arg name="load_screwdriver" default="true"/>
   <xacro:arg name="robot_name" default="lwr"/>
 
   <!-- lwr-->
@@ -29,6 +30,8 @@
   <xacro:include filename="$(find lwr_description)/urdf/hook.urdf.xacro" />
   <!-- head_cam -->
   <xacro:include filename="$(find lwr_description)/urdf/head_cam.urdf.xacro" />
+  <!-- screwdriver -->
+  <xacro:include filename="$(find lwr_description)/urdf/screwdriver.urdf.xacro" />
   <!-- generic simulator_gazebo plugins -->
   <xacro:include filename="$(find lwr_description)/gazebo/lwr.gazebo.urdf.xacro"/>
   <xacro:include filename="$(find lwr_description)/urdf/lwr.transmission.xacro"/>
@@ -91,6 +94,11 @@
     <!-- head_cam -->
     <xacro:if value="$(arg load_head_cam)">
       <xacro:head_cam/>
+    </xacro:if>
+
+    <!-- screwdriver -->
+    <xacro:if value="$(arg load_screwdriver)">
+      <xacro:screwdriver/>
     </xacro:if>
 
   </xacro:if>
