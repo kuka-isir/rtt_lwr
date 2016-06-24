@@ -4,16 +4,16 @@
     <link name="screwdriver_link">
       <inertial>
         <origin
-          xyz="6.93889390390723E-18 6.93889390390723E-18 -0.0710432844406097"
+          xyz="-2.08166817117217E-17 -1.38777878078145E-17 -0.0728518735920298"
           rpy="0 0 0" />
-        <mass value="0.122887323635982" />
+        <mass value="0.123766969578987" />
         <inertia
-          ixx="0.000154793314803634"
+          ixx="0.000168714135052911"
           ixy="0"
-          ixz="-4.966674522813E-21"
-          iyy="0.000154793314803634"
-          iyz="9.10679255368707E-21"
-          izz="3.48079006878619E-05" />
+          ixz="-5.18908039078516E-20"
+          iyy="0.000168714135052911"
+          iyz="-5.87098767652812E-21"
+          izz="3.49811909386339E-05" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -33,7 +33,7 @@
     </link>
     <joint name="ati_to_screwdriver_joint" type="fixed">
       <origin
-        xyz="0 0 0.11"
+        xyz="0 0 0.115"
         rpy="-4.6259E-16 9.0159E-16 9.992E-16" />
       <parent link="ati_link" />
       <child link="screwdriver_link" />
