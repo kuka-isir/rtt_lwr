@@ -31,8 +31,8 @@
     </link>
     <joint name="ati_to_cam_joint" type="fixed">
       <origin
-        xyz="0.00238820343559641 -0.113248229330811 0.053096412734154"
-        rpy="-3.14159265358979 -1.13446401379632 1.5707963267949" />
+        xyz="0.0023882 -0.11747 0.044033"
+        rpy="-3.1416 -1.1345 1.5708" />
       <parent link="ati_link" />
       <child link="head_cam_link" />
       <axis xyz="0 0 0" />
