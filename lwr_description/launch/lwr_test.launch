@@ -7,6 +7,8 @@
 <arg name="load_calib_tool" default="false" />
 <arg name="load_table" default="false" />
 <arg name="load_handle" default="false" />
+<arg name="load_head_cam" default="false" />
+<arg name="load_screwdriver" default="false" />
 
 
 <node pkg="rviz" type="rviz" output="screen" name="rviz" />
@@ -22,6 +24,8 @@
         <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
 				<arg name="load_table" value="$(arg load_table)" />
         <arg name="load_handle" value="$(arg load_handle)" />
+				<arg name="load_head_cam" value="$(arg load_head_cam)" />
+				<arg name="load_screwdriver" value="$(arg load_screwdriver)" />
     </include>
 
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>

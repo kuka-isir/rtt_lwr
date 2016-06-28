@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="screwdriver">
+    <link name="screwdriver_link">
+      <inertial>
+        <origin
+          xyz="-2.08166817117217E-17 -1.38777878078145E-17 -0.0728518735920298"
+          rpy="0 0 0" />
+        <mass value="0.123766969578987" />
+        <inertia
+          ixx="0.000168714135052911"
+          ixy="0"
+          ixz="-5.18908039078516E-20"
+          iyy="0.000168714135052911"
+          iyz="-5.87098767652812E-21"
+          izz="3.49811909386339E-05" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://lwr_description/meshes/screwdriver/screwdriver.stl" />
+        </geometry>
+        <material name="">
+          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://lwr_description/meshes/screwdriver/screwdriver.stl" />
+        </geometry>
+      </collision>
+    </link>
+    <joint name="ati_to_screwdriver_joint" type="fixed">
+      <origin
+        xyz="0 0 0.115"
+        rpy="-4.6259E-16 9.0159E-16 9.992E-16" />
+      <parent link="ati_link" />
+      <child link="screwdriver_link" />
+      <axis xyz="0 0 1" />
+    </joint>
+  </xacro:macro>
+</robot>

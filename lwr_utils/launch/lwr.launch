@@ -14,6 +14,8 @@
 <arg name="load_calib_tool" default="false" />
 <arg name="load_table" default="false" />
 <arg name="load_handle" default="false" />
+<arg name="load_head_cam" default="false" />
+<arg name="load_screwdriver" default="false" />
 <arg name="load_gazebo_ros_control" default="false" />
 
 <arg name="world_name" default="$(find lwr_utils)/launch/lwr.world"/>
@@ -73,6 +75,8 @@
         <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
         <arg name="load_table" value="$(arg load_table)" />
         <arg name="load_handle" value="$(arg load_handle)" />
+        <arg name="load_head_cam" value="$(arg load_head_cam)" />
+        <arg name="load_screwdriver" value="$(arg load_screwdriver)" />
         <arg name="robot_name" value="$(arg robot_name)" />
         <arg name="load_gazebo_ros_control" value="$(arg load_gazebo_ros_control)" />
     </include>
@@ -103,6 +107,8 @@
     <arg name="load_calib_tool" default="$(arg load_calib_tool)" />
     <arg name="load_table" default="$(arg load_table)" />
     <arg name="load_handle" default="$(arg load_handle)" />
+    <arg name="load_head_cam" default="$(arg load_head_cam)" />
+    <arg name="load_screwdriver" default="$(arg load_screwdriver)" />
     <arg name="initial_joint_positions" default="$(arg initial_joint_positions)" />
     <arg name="load_gazebo_ros_control" value="$(arg load_gazebo_ros_control)" />
 </include>
