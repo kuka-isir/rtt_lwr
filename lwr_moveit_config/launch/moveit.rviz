@@ -5,8 +5,12 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /MotionPlanning1
+        - /MotionPlanning1/Planning Request1
+        - /TF1
+        - /TF1/Frames1
       Splitter Ratio: 0.74256
-    Tree Height: 206
+    Tree Height: 216
   - Class: rviz/Help
     Name: Help
   - Class: rviz/Views
@@ -77,16 +81,14 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-          calib_link:
+          cam_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-            Value: true
-          handle_link:
+          cam_link_optical:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-            Value: true
           link_0:
             Alpha: 1
             Show Axes: false
@@ -123,6 +125,11 @@ Visualization Manager:
             Show Trail: false
             Value: true
           link_7:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          table_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -189,16 +196,14 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-          calib_link:
+          cam_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-            Value: true
-          handle_link:
+          cam_link_optical:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-            Value: true
           link_0:
             Alpha: 1
             Show Axes: false
@@ -239,6 +244,11 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          table_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
           world:
             Alpha: 1
             Show Axes: false
@@ -272,16 +282,14 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        calib_link:
+        cam_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-          Value: true
-        handle_link:
+        cam_link_optical:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-          Value: true
         link_0:
           Alpha: 1
           Show Axes: false
@@ -322,6 +330,11 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        table_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         world:
           Alpha: 1
           Show Axes: false
@@ -332,6 +345,81 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
+    - Class: rviz/Image
+      Enabled: true
+      Image Topic: /head_cam/image_raw
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Image
+      Normalize Range: true
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
+      Value: true
+    - Class: rviz/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        /world:
+          Value: false
+        All Enabled: false
+        ati_base_link:
+          Value: false
+        ati_link:
+          Value: false
+        base_link:
+          Value: false
+        cam_link:
+          Value: false
+        cam_link_optical:
+          Value: true
+        link_0:
+          Value: false
+        link_1:
+          Value: false
+        link_2:
+          Value: false
+        link_3:
+          Value: false
+        link_4:
+          Value: false
+        link_5:
+          Value: false
+        link_6:
+          Value: false
+        link_7:
+          Value: false
+        table_link:
+          Value: false
+        world:
+          Value: false
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        /world:
+          {}
+        world:
+          table_link:
+            base_link:
+              link_0:
+                link_1:
+                  link_2:
+                    link_3:
+                      link_4:
+                        link_5:
+                          link_6:
+                            link_7:
+                              ati_base_link:
+                                ati_link:
+                                  cam_link:
+                                    cam_link_optical:
+                                      {}
+      Update Interval: 0
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 21; 21; 21
@@ -347,7 +435,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 2.10098
+      Distance: 3.07467
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -359,10 +447,10 @@ Visualization Manager:
         Z: 7.00355e-07
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.399798
+      Pitch: 0.664796
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 4.31497
+      Yaw: 5.26815
     Saved: ~
 Window Geometry:
   Displays:
@@ -372,9 +460,11 @@ Window Geometry:
     collapsed: false
   Hide Left Dock: false
   Hide Right Dock: false
+  Image:
+    collapsed: false
   Motion Planning:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000100000000000002b1000003dafc0200000005fb000000100044006900730070006c00610079007301000000280000010f000000dd00fffffffb0000000800480065006c00700000000342000000bb0000007600fffffffb0000000a0056006900650077007300000003b0000000b0000000b000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e0067010000013d000002c5000001cc00ffffff00000488000003da00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000200000000000002b1000003dafc0200000005fb000000100044006900730070006c006100790073010000002800000119000000dd00fffffffb0000000800480065006c00700000000342000000bb0000007600fffffffb0000000a0056006900650077007300000003b0000000b0000000b000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000147000002bb000001cc00ffffff0000000100000162000003dafc0200000001fb0000000a0049006d0061006700650100000028000003da0000001600ffffff00000320000003da00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
   Width: 1855

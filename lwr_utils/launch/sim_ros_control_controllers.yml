@@ -6,7 +6,7 @@
   # Gazebo Sim - Right and Left Joint Effort Trajectory Controller -------------------
 
   joint_trajectory_controller:
-    type: "effort_controllers/JointTrajectoryController"
+    type: "position_controllers/JointTrajectoryController"
     joints:
       - joint_0
       - joint_1
