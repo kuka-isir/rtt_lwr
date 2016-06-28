@@ -6,7 +6,7 @@
     <arg name="rviz" default="false" />
     <arg name="respawn" default="false" />
     <arg name="gazebo_gui" default="$(arg sim)"/>
-    <arg name="launch_gazebo" default="$(arg sim)"/>
+    <arg name="launch_gazebo" default="false"/>
     <arg name="start_paused" default="false"/>
     <!-- Tools -->
     <arg name="load_base" default="false" />
@@ -56,8 +56,7 @@
         <arg name="load_handle"     value="$(arg load_handle)" />
         <arg name="root_link"       value="$(arg root_link)"/>
         <arg name="tip_link"        value="$(arg tip_link)"/>
-        <arg name="launch_gazebo"   value="false" unless="$(arg sim)"/>
-        <arg name="launch_gazebo"   value="$(arg launch_gazebo)" if="$(arg sim)"/>
+        <arg name="launch_gazebo"   value="$(arg launch_gazebo)"/>
         <arg name="start_paused"    value="$(arg start_paused)"/>
         <arg name="initial_joint_positions" value="$(arg initial_joint_positions)"/>
         <arg name="use_sim_time"    value="$(arg use_sim_time)"/>

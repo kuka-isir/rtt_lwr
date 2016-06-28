@@ -15,10 +15,10 @@
 <arg name="load_table" default="false" />
 <arg name="load_handle" default="false" />
 <arg name="load_gazebo_ros_control" default="false" />
+
 <arg name="world_name" default="$(find lwr_utils)/launch/lwr.world"/>
 <!-- Start Gazebo here or start it elsewhere and leave it open -->
-<arg if="$(arg sim)"     name="launch_gazebo" default="true" />
-<arg unless="$(arg sim)" name="launch_gazebo" default="false" />
+<arg name="launch_gazebo" default="false" />
 
 <arg if="$(arg sim)"     name="robot_name" default="lwr_sim"/>
 <arg unless="$(arg sim)" name="robot_name" default="lwr"/>
@@ -85,7 +85,11 @@
     <!--/group-->
 </group>
 
-<include if="$(arg launch_gazebo)" file="$(find lwr_utils)/launch/spawn_robot.launch">
+<include if="$(arg launch_gazebo)" file="$(find lwr_utils)/launch/empty_world.launch">
+    <arg name="paused" value="$(arg start_paused)"/>
+</include>
+
+<include file="$(find lwr_utils)/launch/spawn_robot.launch">
     <arg name="robot_ns" value="$(arg robot_ns)"/>
     <arg name="robot_name" value="$(arg robot_name)"/>
     <arg name="x" value="0.0"/>
