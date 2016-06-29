@@ -168,20 +168,11 @@
 <xacro:gz_joint joint_name="joint_6"/>
 
 <xacro:enable_self_collision link_name="table_link"/>
-<xacro:enable_self_collision link_name="screwdriver_link"/>
-<!-- <xacro:enable_self_collision link_name="ati_link"/> -->
-<xacro:enable_self_collision link_name="base_link"/>
-<xacro:enable_self_collision link_name="link_0"/>
-<xacro:enable_self_collision link_name="link_1"/>
-<xacro:enable_self_collision link_name="link_2"/>
-<xacro:enable_self_collision link_name="link_3"/>
-<xacro:enable_self_collision link_name="link_4"/>
-<xacro:enable_self_collision link_name="link_5"/>
-<xacro:enable_self_collision link_name="link_6"/>
+<!-- <xacro:enable_self_collision link_name="screwdriver_link"/>
+<xacro:enable_self_collision link_name="ati_link"/>
 <xacro:enable_self_collision link_name="link_7"/>
-<xacro:enable_self_collision link_name="hook_link"/>
 <xacro:enable_self_collision link_name="head_cam_link"/>
-<xacro:enable_self_collision link_name="handle_link"/>
+<xacro:enable_self_collision link_name="handle_link"/> -->
 
 <!-- If you want to add a Joint Torque sensor at each Joint -->
 <!--xacro:gz_ft_sensor joint_name="joint_0"/-->
