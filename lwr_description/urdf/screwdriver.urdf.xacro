@@ -38,6 +38,7 @@
       <parent link="ati_link" />
       <child link="screwdriver_link" />
       <axis xyz="0 0 1" />
+      <limit effort="400" velocity="0" lower="0" upper="0" />
     </joint>
   </xacro:macro>
 </robot>

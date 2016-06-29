@@ -38,6 +38,7 @@
 	      rpy="0 0 0" />
 	    <parent link="ati_base_link" />
 	    <child link="handle_link" />
+        <limit effort="400" velocity="0" lower="0" upper="0" />
 	  </joint>
    </xacro:macro>
 

@@ -36,6 +36,7 @@
       <parent link="ati_link" />
       <child link="head_cam_link" />
       <axis xyz="0 0 0" />
+      <limit effort="400" velocity="0" lower="0" upper="0" />
     </joint>
     <link name="head_cam_link_optical" />
     <joint name="head_cam_optical_joint" type="fixed">
@@ -45,6 +46,7 @@
       <origin xyz="0 0 0" rpy="-1.570796 0 -1.570796"/>
       <parent link="head_cam_link"/>
       <child link="head_cam_link_optical"/>
+      <limit effort="400" velocity="0" lower="0" upper="0" />
     </joint>
 
   </xacro:macro>

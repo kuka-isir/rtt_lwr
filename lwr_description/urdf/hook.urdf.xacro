@@ -41,6 +41,7 @@
 		  <child
 		    link="hook_link" />
 		  <axis xyz="0 0 0" />
+          <limit effort="400" velocity="0" lower="0" upper="0" />
 		</joint>
   </xacro:macro>
 
