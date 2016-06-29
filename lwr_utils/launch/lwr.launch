@@ -16,6 +16,7 @@
 <arg name="load_handle" default="false" />
 <arg name="load_head_cam" default="false" />
 <arg name="load_screwdriver" default="false" />
+<!-- Gazebo ros control plugin for debugging -->
 <arg name="load_gazebo_ros_control" default="false" />
 
 <arg name="world_name" default="$(find lwr_utils)/launch/lwr.world"/>
