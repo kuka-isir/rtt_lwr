@@ -398,6 +398,8 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
             }
             ros.import("rtt_lwr_sim")
             loadComponent(robot_name,"lwr::LWRSim")
+            stream(robot_name+".JointStates",ros.comm.topic(robot_name+"/joint_states"))
+            stream(robot_name+".JointStatesCommand",ros.comm.topic(robot_name+"/joint_states_command"))
             connectPeers("gazebo",robot_name)
             scripting.eval(robot_name+".synchronize_with_commands = false")
             scripting.eval(robot_name+".getModel(\"gazebo\",\""+robot_name+"\",30.0)")
@@ -422,7 +424,7 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
     if(start_component) then
         startComponent(robot_name)
 
-    loadKRLTool(start_component)
+    loadKRLTool(true)
 
     if(is_sim) then
         setJointImpedanceControlMode();
