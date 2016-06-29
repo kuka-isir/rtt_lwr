@@ -7,6 +7,7 @@
     <xacro:arg name="load_handle" default="false"/>
     <xacro:arg name="load_hook" default="false"/>
     <xacro:arg name="load_gazebo_ros_control" default="false"/>
+    <xacro:arg name="load_model_joint_plugin" default="false"/>
     <xacro:arg name="robot_name" default="lwr"/>
 
     <xacro:macro name="gz_ft_sensor" params="joint_name">
@@ -29,7 +30,13 @@
             <!--stopErp>0.5</stopErp-->
         </gazebo>
     </xacro:macro>
-
+    
+    <xacro:macro  name="enable_self_collision" params="link_name">
+        <gazebo reference="${link_name}">
+            <self_collide>true</self_collide>
+        </gazebo>
+    </xacro:macro>
+    
     <xacro:macro name="lwr_gazebo">
         <xacro:if value="$(arg load_gazebo_ros_control)">
             <gazebo>
@@ -120,14 +127,16 @@
             </xacro:if>
 
         </xacro:if>
-
-        <gazebo>
-            <plugin name="model_joint_plugin" filename="libmodel_joint_plugin.so">
-                <!-- <robotNamespace>~</robotNamespace> -->
-                <topicName>~/$(arg robot_name)/joint_states</topicName>
-                <numberOfStepsBeforeSync>10</numberOfStepsBeforeSync>
-            </plugin>
-        </gazebo>
+        
+        <xacro:if value="$(arg load_model_joint_plugin)">
+            <gazebo>
+                <plugin name="model_joint_plugin" filename="libmodel_joint_plugin.so">
+                    <!-- <robotNamespace>~</robotNamespace> -->
+                    <topicName>~/$(arg robot_name)/joint_states</topicName>
+                    <numberOfStepsBeforeSync>10</numberOfStepsBeforeSync>
+                </plugin>
+            </gazebo>
+        </xacro:if>
         <!-- The state publisher is done by the RTTStatePublisher() as on the real HW -->
         <!--gazebo>
         <plugin name="gz_state_pub" filename="libgazebo_ros_joint_state_publisher.so">
@@ -157,6 +166,22 @@
 <xacro:gz_joint joint_name="joint_4"/>
 <xacro:gz_joint joint_name="joint_5"/>
 <xacro:gz_joint joint_name="joint_6"/>
+
+<xacro:enable_self_collision link_name="table_link"/>
+<xacro:enable_self_collision link_name="screwdriver_link"/>
+<!-- <xacro:enable_self_collision link_name="ati_link"/> -->
+<xacro:enable_self_collision link_name="base_link"/>
+<xacro:enable_self_collision link_name="link_0"/>
+<xacro:enable_self_collision link_name="link_1"/>
+<xacro:enable_self_collision link_name="link_2"/>
+<xacro:enable_self_collision link_name="link_3"/>
+<xacro:enable_self_collision link_name="link_4"/>
+<xacro:enable_self_collision link_name="link_5"/>
+<xacro:enable_self_collision link_name="link_6"/>
+<xacro:enable_self_collision link_name="link_7"/>
+<xacro:enable_self_collision link_name="hook_link"/>
+<xacro:enable_self_collision link_name="head_cam_link"/>
+<xacro:enable_self_collision link_name="handle_link"/>
 
 <!-- If you want to add a Joint Torque sensor at each Joint -->
 <!--xacro:gz_ft_sensor joint_name="joint_0"/-->
