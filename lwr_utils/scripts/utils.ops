@@ -318,8 +318,10 @@ global string loadROSControl(bool start_component)
     connect(comp_name+".JointTorqueCommand",robot_name+".JointTorqueCommand",ConnPolicy())
 
     ## Start it
-    if(start_component) then
+    if(start_component) then{
         startComponent(comp_name)
+        scripting.eval(comp_name+".startControllers()")
+    }
     return comp_name;
 }
 
