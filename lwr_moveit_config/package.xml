@@ -21,7 +21,7 @@
   <run_depend>robot_state_publisher</run_depend>
   <run_depend>xacro</run_depend>
   <run_depend>lwr_description</run_depend>
-  <run_depend>trac_ik</run_depend>
+  <run_depend>trac_ik_kinematics_pluginy</run_depend>
 
 
   <buildtool_depend>catkin</buildtool_depend>
