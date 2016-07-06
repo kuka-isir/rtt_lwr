@@ -16,40 +16,26 @@
       - joint_5
       - joint_6
 
+    action_monitor_rate: 20
     constraints:
-      goal_time: 1.0                   # Defaults to zero
-      stopped_velocity_tolerance: 0.03 # Defaults to 0.01
-      joint_0:
-        trajectory: 0.05
-        goal: 0.02
-      joint_1:
-        trajectory: 0.05
-        goal: 0.02
-      joint_2:
-        trajectory: 0.05
-        goal: 0.02
-      joint_3:
-        trajectory: 0.05
-        goal: 0.02
-      joint_4:
-        trajectory: 0.05
-        goal: 0.02
-      joint_5:
-        trajectory: 0.05
-        goal: 0.02
-      joint_6:
-        trajectory: 0.05
-        goal: 0.02
-
-    gains: # Needed to map position+velocity commands to an effort command
-      joint_0: {p: 450,  i: 10, d: 15, i_clamp: 1}
-      joint_1: {p: 450,  i: 10, d: 15, i_clamp: 1}
-      joint_2: {p: 350,  i: 8, d: 2, i_clamp: 1}
-      joint_3: {p: 200,  i: 5, d: 2, i_clamp: 1}
-      joint_4: {p: 150,  i: 5, d: 0.01, i_clamp: 1}
-      joint_5: {p: 10,  i: 0.1, d: 0.01, i_clamp: 1}
-      joint_6: {p: 1,  i: 0.01, d: 0.001, i_clamp: 0.5}
-
-    state_publish_rate:  25 # Defaults to 50
-    action_monitor_rate: 10 # Defaults to 20
-    stop_trajectory_duration: 0.5 # Defaults to 0.5
+      goal_time: 0.0
+      joint_0: {goal: 0.02, trajectory: 0.05}
+      joint_1: {goal: 0.02, trajectory: 0.05}
+      joint_2: {goal: 0.02, trajectory: 0.05}
+      joint_3: {goal: 0.02, trajectory: 0.05}
+      joint_4: {goal: 0.02, trajectory: 0.05}
+      joint_5: {goal: 0.02, trajectory: 0.05}
+      joint_6: {goal: 0.02, trajectory: 0.05}
+      stopped_velocity_tolerance: 0.01
+    gains:
+      joint_0: {d: 40.0, i: 10.0, i_clamp: 1, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 500.0}
+      joint_1: {d: 40.0, i: 10.0, i_clamp: 1, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 500.0}
+      joint_2: {d: 20.0, i: 8.0, i_clamp: 1, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 350.0}
+      joint_3: {d: 15.0, i: 5.0, i_clamp: 1, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 250.0}
+      joint_4: {d: 10.0, i: 5.0, i_clamp: 1, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 150.0}
+      joint_5: {d: 5.0, i: 5.0, i_clamp: 1, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 50.0}
+      joint_6: {d: 5.0, i: 5.0, i_clamp: 0.5, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 40.0}
+    joints: [joint_0, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6]
+    state_publish_rate: 45
+    stop_trajectory_duration: 0.5
+    type: effort_controllers/JointTrajectoryController
