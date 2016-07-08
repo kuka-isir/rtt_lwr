@@ -81,11 +81,22 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-          cam_link:
+          calib_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          cam_link_optical:
+            Value: true
+          handle_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          head_cam_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          head_cam_link_optical:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -129,6 +140,11 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          screwdriver_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
           table_link:
             Alpha: 1
             Show Axes: false
@@ -156,10 +172,10 @@ Visualization Manager:
         Colliding Link Color: 255; 0; 0
         Goal State Alpha: 1
         Goal State Color: 250; 128; 0
-        Interactive Marker Size: 0.3
+        Interactive Marker Size: 0.25
         Joint Violation Color: 255; 0; 255
         Planning Group: arm
-        Query Goal State: false
+        Query Goal State: true
         Query Start State: false
         Show Workspace: false
         Start State Alpha: 1
@@ -196,11 +212,22 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-          cam_link:
+          calib_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          cam_link_optical:
+            Value: true
+          handle_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          head_cam_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          head_cam_link_optical:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -240,6 +267,11 @@ Visualization Manager:
             Show Trail: false
             Value: true
           link_7:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          screwdriver_link:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -282,11 +314,22 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        cam_link:
+        calib_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        cam_link_optical:
+          Value: true
+        handle_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_cam_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_cam_link_optical:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -326,6 +369,11 @@ Visualization Manager:
           Show Trail: false
           Value: true
         link_7:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        screwdriver_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -370,9 +418,13 @@ Visualization Manager:
           Value: false
         base_link:
           Value: false
-        cam_link:
-          Value: false
-        cam_link_optical:
+        calib_link:
+          Value: true
+        handle_link:
+          Value: true
+        head_cam_link:
+          Value: true
+        head_cam_link_optical:
           Value: true
         link_0:
           Value: false
@@ -390,11 +442,13 @@ Visualization Manager:
           Value: false
         link_7:
           Value: false
+        screwdriver_link:
+          Value: true
         table_link:
           Value: false
         world:
           Value: false
-      Marker Scale: 1
+      Marker Scale: 0.35
       Name: TF
       Show Arrows: true
       Show Axes: true
@@ -415,9 +469,15 @@ Visualization Manager:
                             link_7:
                               ati_base_link:
                                 ati_link:
-                                  cam_link:
-                                    cam_link_optical:
+                                  head_cam_link:
+                                    head_cam_link_optical:
                                       {}
+                                  screwdriver_link:
+                                    {}
+                                calib_link:
+                                  {}
+                                handle_link:
+                                  {}
       Update Interval: 0
       Value: true
   Enabled: true
@@ -442,15 +502,15 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.175593
-        Y: -0.0771744
+        X: 0.248521
+        Y: 0.289698
         Z: 7.00355e-07
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.664796
+      Pitch: 0.609796
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 5.26815
+      Yaw: 5.39315
     Saved: ~
 Window Geometry:
   Displays:
@@ -468,5 +528,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1855
-  X: 1985
-  Y: 330
+  X: 65
+  Y: 24
