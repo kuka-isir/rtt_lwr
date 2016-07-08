@@ -413,6 +413,7 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
     }
     else
     {
+        import("lwr_fri")
         loadComponent(robot_name,"FRIComponent")
         setActivity(robot_name,0,90,ORO_SCHED_RT)
 
