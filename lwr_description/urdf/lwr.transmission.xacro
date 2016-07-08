@@ -8,9 +8,11 @@
             <type>transmission_interface/SimpleTransmission</type>
             <joint name="joint_0">
                 <hardwareInterface>EffortJointInterface</hardwareInterface>
+                <hardwareInterface>PositionJointInterface</hardwareInterface>
             </joint>
             <actuator name="motor_0">
                 <hardwareInterface>EffortJointInterface</hardwareInterface>
+                <hardwareInterface>PositionJointInterface</hardwareInterface>
                 <mechanicalReduction>1</mechanicalReduction>
             </actuator>
         </transmission>
@@ -19,9 +21,11 @@
             <type>transmission_interface/SimpleTransmission</type>
             <joint name="joint_1">
                 <hardwareInterface>EffortJointInterface</hardwareInterface>
+                <hardwareInterface>PositionJointInterface</hardwareInterface>
             </joint>
             <actuator name="motor_1">
                 <hardwareInterface>EffortJointInterface</hardwareInterface>
+                <hardwareInterface>PositionJointInterface</hardwareInterface>
                 <mechanicalReduction>1</mechanicalReduction>
             </actuator>
         </transmission>
@@ -30,9 +34,11 @@
             <type>transmission_interface/SimpleTransmission</type>
             <joint name="joint_2">
                 <hardwareInterface>EffortJointInterface</hardwareInterface>
+                <hardwareInterface>PositionJointInterface</hardwareInterface>
             </joint>
             <actuator name="motor_2">
                 <hardwareInterface>EffortJointInterface</hardwareInterface>
+                <hardwareInterface>PositionJointInterface</hardwareInterface>
                 <mechanicalReduction>1</mechanicalReduction>
             </actuator>
         </transmission>
@@ -41,9 +47,11 @@
             <type>transmission_interface/SimpleTransmission</type>
             <joint name="joint_3">
                 <hardwareInterface>EffortJointInterface</hardwareInterface>
+                <hardwareInterface>PositionJointInterface</hardwareInterface>
             </joint>
             <actuator name="motor_3">
                 <hardwareInterface>EffortJointInterface</hardwareInterface>
+                <hardwareInterface>PositionJointInterface</hardwareInterface>
                 <mechanicalReduction>1</mechanicalReduction>
             </actuator>
         </transmission>
@@ -52,9 +60,11 @@
             <type>transmission_interface/SimpleTransmission</type>
             <joint name="joint_4">
                 <hardwareInterface>EffortJointInterface</hardwareInterface>
+                <hardwareInterface>PositionJointInterface</hardwareInterface>
             </joint>
             <actuator name="motor_4">
                 <hardwareInterface>EffortJointInterface</hardwareInterface>
+                <hardwareInterface>PositionJointInterface</hardwareInterface>
                 <mechanicalReduction>1</mechanicalReduction>
             </actuator>
         </transmission>
@@ -63,9 +73,11 @@
             <type>transmission_interface/SimpleTransmission</type>
             <joint name="joint_5">
                 <hardwareInterface>EffortJointInterface</hardwareInterface>
+                <hardwareInterface>PositionJointInterface</hardwareInterface>
             </joint>
             <actuator name="motor_5">
                 <hardwareInterface>EffortJointInterface</hardwareInterface>
+                <hardwareInterface>PositionJointInterface</hardwareInterface>
                 <mechanicalReduction>1</mechanicalReduction>
             </actuator>
         </transmission>
@@ -74,9 +86,11 @@
             <type>transmission_interface/SimpleTransmission</type>
             <joint name="joint_6">
                 <hardwareInterface>EffortJointInterface</hardwareInterface>
+                <hardwareInterface>PositionJointInterface</hardwareInterface>
             </joint>
             <actuator name="motor_6">
                 <hardwareInterface>EffortJointInterface</hardwareInterface>
+                <hardwareInterface>PositionJointInterface</hardwareInterface>
                 <mechanicalReduction>1</mechanicalReduction>
             </actuator>
         </transmission>

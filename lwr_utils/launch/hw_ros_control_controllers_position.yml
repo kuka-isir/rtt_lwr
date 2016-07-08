@@ -1,0 +1,40 @@
+  # Publish all joint states -----------------------------------
+
+  joint_state_controller:
+    type: "joint_state_controller/JointStateController"
+    publish_rate: 50
+  # Gazebo Sim - Right and Left Joint Effort Trajectory Controller -------------------
+
+  joint_trajectory_controller:
+    joints:
+      - joint_0
+      - joint_1
+      - joint_2
+      - joint_3
+      - joint_4
+      - joint_5
+      - joint_6
+
+    # action_monitor_rate: 20
+    # constraints:
+    #   goal_time: 0.0
+    #   joint_0: {goal: 0.02, trajectory: 0.05}
+    #   joint_1: {goal: 0.02, trajectory: 0.05}
+    #   joint_2: {goal: 0.02, trajectory: 0.05}
+    #   joint_3: {goal: 0.02, trajectory: 0.05}
+    #   joint_4: {goal: 0.02, trajectory: 0.05}
+    #   joint_5: {goal: 0.02, trajectory: 0.05}
+    #   joint_6: {goal: 0.02, trajectory: 0.05}
+    #   stopped_velocity_tolerance: 0.01
+    # gains:
+    #   joint_0: {d: 35.0, i: 10.0, i_clamp: 1, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 450.0}
+    #   joint_1: {d: 30.0, i: 10.0, i_clamp: 1, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 450.0}
+    #   joint_2: {d: 20.0, i: 8.0, i_clamp: 1, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 350.0}
+    #   joint_3: {d: 15.0, i: 5.0, i_clamp: 1, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 250.0}
+    #   joint_4: {d: 10.0, i: 5.0, i_clamp: 1, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 150.0}
+    #   joint_5: {d: 5.0, i: 5.0, i_clamp: 1, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 50.0}
+    #   joint_6: {d: 5.0, i: 5.0, i_clamp: 0.5, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 40.0}
+    # joints: [joint_0, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6]
+    # state_publish_rate: 45
+    # stop_trajectory_duration: 0.5
+    type: position_controllers/JointTrajectoryController
