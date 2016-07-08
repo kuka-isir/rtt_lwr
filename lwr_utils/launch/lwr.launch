@@ -94,7 +94,7 @@
     <arg name="paused" value="$(arg start_paused)"/>
 </include>
 
-<include file="$(find lwr_utils)/launch/spawn_robot.launch">
+<include if="$(arg sim)" file="$(find lwr_utils)/launch/spawn_robot.launch">
     <arg name="robot_ns" value="$(arg robot_ns)"/>
     <arg name="robot_name" value="$(arg robot_name)"/>
     <arg name="x" value="0.0"/>
