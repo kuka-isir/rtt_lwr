@@ -301,7 +301,7 @@ global string loadROSControl(bool start_component)
     loadComponent(comp_name,"RttRosControl")
 
     ## Give it a periodic activity
-    setActivity(comp_name,0.001,LowestPriority,ORO_SCHED_RT)
+    setActivity(comp_name,0.001,LowestPriority+25,ORO_SCHED_RT)
 
 
     ## Preload controllers
@@ -314,7 +314,7 @@ global string loadROSControl(bool start_component)
     connect(comp_name+".JointPosition",robot_name+".JointPosition",ConnPolicy())
     connect(comp_name+".JointVelocity",robot_name+".JointVelocity",ConnPolicy())
     connect(comp_name+".JointTorque",robot_name+".JointTorque",ConnPolicy())
-    connect(comp_name+".JointPositionCommand",robot_name+".JointPositionCommand",ConnPolicy())
+    # connect(comp_name+".JointPositionCommand",robot_name+".JointPositionCommand",ConnPolicy())
     connect(comp_name+".JointTorqueCommand",robot_name+".JointTorqueCommand",ConnPolicy())
 
     ## Start it
@@ -374,7 +374,7 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
 
     if(is_sim) then
     {
-        
+
         if(new_gazebo_interface) then
         {
             ros.import("rtt_lwr_sim")
