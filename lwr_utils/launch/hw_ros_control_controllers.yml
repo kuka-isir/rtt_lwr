@@ -37,5 +37,5 @@
       joint_6: {d: 5.0, i: 5.0, i_clamp: 0.5, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 40.0}
     joints: [joint_0, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6]
     state_publish_rate: 45
-    stop_trajectory_duration: 0.5
+    stop_trajectory_duration: 0.250
     type: effort_controllers/JointTrajectoryController
