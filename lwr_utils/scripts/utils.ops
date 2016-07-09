@@ -314,6 +314,7 @@ global string loadROSControl(bool start_component)
     connect(comp_name+".JointPosition",robot_name+".JointPosition",ConnPolicy())
     connect(comp_name+".JointVelocity",robot_name+".JointVelocity",ConnPolicy())
     connect(comp_name+".JointTorque",robot_name+".JointTorque",ConnPolicy())
+    # WARNING : Connect ONLY the one matching the current control mode !
     # connect(comp_name+".JointPositionCommand",robot_name+".JointPositionCommand",ConnPolicy())
     connect(comp_name+".JointTorqueCommand",robot_name+".JointTorqueCommand",ConnPolicy())
 
@@ -374,7 +375,7 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
 
     if(is_sim) then
     {
-        
+
         if(new_gazebo_interface) then
         {
             ros.import("rtt_lwr_sim")
@@ -413,7 +414,11 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
     }
     else
     {
-        import("lwr_fri")
+        if(!required_packages_loaded) then{
+            importRequiredPackages()
+            required_packages_loaded = true
+        }
+        ros.import("lwr_fri")
         loadComponent(robot_name,"FRIComponent")
         setActivity(robot_name,0,90,ORO_SCHED_RT)
 
