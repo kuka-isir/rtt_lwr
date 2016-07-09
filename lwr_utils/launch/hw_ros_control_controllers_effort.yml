@@ -6,15 +6,6 @@
   # Gazebo Sim - Right and Left Joint Effort Trajectory Controller -------------------
 
   joint_trajectory_controller:
-    joints:
-      - joint_0
-      - joint_1
-      - joint_2
-      - joint_3
-      - joint_4
-      - joint_5
-      - joint_6
-
     action_monitor_rate: 20
     constraints:
       goal_time: 0.0
@@ -25,7 +16,7 @@
       joint_4: {goal: 0.02, trajectory: 0.05}
       joint_5: {goal: 0.02, trajectory: 0.05}
       joint_6: {goal: 0.02, trajectory: 0.05}
-      stopped_velocity_tolerance: 0.01
+      stopped_velocity_tolerance: 0.00001
     gains:
       joint_0: {d: 35.0, i: 10.0, i_clamp: 1, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 450.0}
       joint_1: {d: 30.0, i: 10.0, i_clamp: 1, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 450.0}
@@ -36,5 +27,5 @@
       joint_6: {d: 5.0, i: 5.0, i_clamp: 0.5, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 40.0}
     joints: [joint_0, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6]
     state_publish_rate: 45
-    stop_trajectory_duration: 0.5
+    stop_trajectory_duration: 2.0
     type: effort_controllers/JointTrajectoryController
