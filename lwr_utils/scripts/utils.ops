@@ -374,7 +374,7 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
 
     if(is_sim) then
     {
-
+        
         if(new_gazebo_interface) then
         {
             ros.import("rtt_lwr_sim")
@@ -413,12 +413,11 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
     }
     else
     {
+        import("lwr_fri")
+        loadComponent(robot_name,"FRIComponent")
+        setActivity(robot_name,0,90,ORO_SCHED_RT)
 
-        var string robot_hw_script_path = ros.find("lwr_fri")+"/lwr_fri_loader.ops"
-
-        print.log(Info,"Loading robot config from : "+robot_hw_script_path)
-
-        runScript(robot_hw_script_path)
+        configureComponent(robot_name)
 
         print.log(Info,"\033[34;1m"+robot_name+"] RUNNING ON HARDWARE \033[0m\n")
     }

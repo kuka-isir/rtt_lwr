@@ -1,0 +1,23 @@
+  # Publish all joint states -----------------------------------
+
+  joint_state_controller:
+    type: "joint_state_controller/JointStateController"
+    publish_rate: 50
+  # Gazebo Sim - Right and Left Joint Effort Trajectory Controller -------------------
+
+  joint_trajectory_controller:
+    action_monitor_rate: 100
+    constraints:
+      goal_time: 0.0
+      joint_0: {goal: 0.02, trajectory: 0.05}
+      joint_1: {goal: 0.02, trajectory: 0.05}
+      joint_2: {goal: 0.02, trajectory: 0.05}
+      joint_3: {goal: 0.02, trajectory: 0.05}
+      joint_4: {goal: 0.02, trajectory: 0.05}
+      joint_5: {goal: 0.02, trajectory: 0.05}
+      joint_6: {goal: 0.02, trajectory: 0.05}
+      stopped_velocity_tolerance: 0.00001
+    joints: [joint_0, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6]
+    state_publish_rate: 50
+    stop_trajectory_duration: 2.0
+    type: position_controllers/JointTrajectoryController

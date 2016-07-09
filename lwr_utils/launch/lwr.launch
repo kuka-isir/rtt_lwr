@@ -43,8 +43,8 @@
 </group>
 
 <group ns="$(arg robot_ns)">
-    <rosparam if="$(arg sim)" command="load" file="$(find lwr_utils)/launch/sim_ros_control_controllers.yml" />
-    <rosparam unless="$(arg sim)" command="load" file="$(find lwr_utils)/launch/hw_ros_control_controllers.yml" />
+    <rosparam if="$(arg sim)" command="load" file="$(find lwr_utils)/launch/sim_ros_control_controllers_effort.yml" />
+    <rosparam unless="$(arg sim)" command="load" file="$(find lwr_utils)/launch/hw_ros_control_controllers_effort.yml" />
 </group>
 
 <arg unless="$(arg start_paused)" name="command_arg1" value=""/>
