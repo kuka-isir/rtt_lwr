@@ -9,13 +9,13 @@
     action_monitor_rate: 20
     constraints:
       goal_time: 0.0
-      joint_0: {goal: 0.02, trajectory: 0.05}
-      joint_1: {goal: 0.02, trajectory: 0.05}
-      joint_2: {goal: 0.02, trajectory: 0.05}
-      joint_3: {goal: 0.02, trajectory: 0.05}
-      joint_4: {goal: 0.02, trajectory: 0.05}
-      joint_5: {goal: 0.02, trajectory: 0.05}
-      joint_6: {goal: 0.02, trajectory: 0.05}
+      joint_0: {goal: 0.02, trajectory: 0.2}
+      joint_1: {goal: 0.02, trajectory: 0.2}
+      joint_2: {goal: 0.02, trajectory: 0.2}
+      joint_3: {goal: 0.02, trajectory: 0.2}
+      joint_4: {goal: 0.02, trajectory: 0.2}
+      joint_5: {goal: 0.02, trajectory: 0.2}
+      joint_6: {goal: 0.02, trajectory: 0.2}
       stopped_velocity_tolerance: 0.01
     gains:
       joint_0: {d: 35.0, i: 10.0, i_clamp: 1, i_clamp_max: 1.0, i_clamp_min: -1.0, p: 450.0}
