@@ -15,13 +15,6 @@ Then you can list available ros_control controllers :
     rosrun controller_manager controller_manager list
 
 
-And start controllers :
-
-.. code::
-
-    rosrun controller_manager controller_manager start joint_state_controller joint_trajectory_controller
-
-
 .. image:: /_static/move_it.png
 
 .. note::
@@ -36,4 +29,5 @@ And start controllers :
             --> controller_manager
             --> hardware interface
 
-    Then you have access to the full ``ros_control`` interface as a normal ROS module.
+    Then you have access to the full ``ros_control`` interface as a normal ROS module, so you can create you own ros_controllers.
+    http://wiki.ros.org/ros_control.

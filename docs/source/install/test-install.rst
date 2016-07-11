@@ -61,7 +61,7 @@ Spawn to robot into Gazebo
 Test the rtt_lwr tools
 -----------------------
 
-Close all previous nodes, deployers, windows etc, and start the main deployer with gazebo :
+**Close** all previous nodes, deployers, windows etc, and start the main deployer with gazebo :
 
 .. code::
 
@@ -81,6 +81,12 @@ Now type :
     # Let it load, then print the components :
     ls
 
-You should see all the components ``running [R]`` : 
+You should see all the components ``running [R]`` :
 
 .. image:: /_static/test-rtt-lwr.png
+
+.. warning::
+
+    The Gazebo server is launched **inside** the ``gazebo`` component (that you can see if you type ``ls``).
+    You **will not** be able to launch gazebo separately, it has to be instanciated inside the orocos deployer via this method.
+    This component is provided by the https://github.com/kuka-isir/rtt_gazebo_embedded package.
