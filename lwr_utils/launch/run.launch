@@ -33,8 +33,6 @@
 
     <arg name="tf_prefix" default="$(arg robot_ns)"/>
 
-    <arg name="ros_controllers" default=""/>
-
     <arg name="ops_args" value="
         robot_name=$(arg robot_name)
         is_sim=$(arg sim)

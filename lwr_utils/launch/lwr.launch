@@ -53,8 +53,6 @@
 <arg     if="$(arg debug)" name="script_type" value="debug"/>
 
 <node if="$(arg load_gazebo_ros_control)" name="gazebo" pkg="gazebo_ros" type="$(arg script_type)" respawn="false" output="screen" args="$(arg command_arg1) --verbose $(arg world_name)" />
-<node if="$(arg load_gazebo_ros_control)" name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" ns="$(arg robot_ns)" args="joint_trajectory_controller joint_state_controller"/>
 
 <node if="$(arg gazebo_gui)" name="gazebo_gui" pkg="gazebo_ros" type="gzclient" respawn="false" output="screen"/>
 
