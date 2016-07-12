@@ -305,8 +305,8 @@ global string loadROSControl(bool start_component)
 
 
     ## Preload controllers
-    scripting.eval(comp_name+".preloadController(\"joint_trajectory_controller\")")
-    scripting.eval(comp_name+".preloadController(\"joint_state_controller\")")
+    # scripting.eval(comp_name+".preloadController(\"joint_trajectory_controller\")")
+    # scripting.eval(comp_name+".preloadController(\"joint_state_controller\")")
 
     ## Configure the RttRosControl component
     configureComponent(comp_name)
@@ -321,7 +321,7 @@ global string loadROSControl(bool start_component)
     ## Start it
     if(start_component) then{
         startComponent(comp_name)
-        scripting.eval(comp_name+".startControllers()")
+        # scripting.eval(comp_name+".startControllers()")
     }
     return comp_name;
 }

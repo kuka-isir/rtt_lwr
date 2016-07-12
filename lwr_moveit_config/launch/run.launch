@@ -24,7 +24,7 @@
 
     <!-- MoveIt! -->
     <arg name="launch_moveit" default="true"/>
-    
+
     <arg name="spawn_ros_controllers" default="joint_state_controller joint_trajectory_controller"/>
 
 <!--============ LWR Runner script ===============-->
@@ -44,12 +44,11 @@
     <arg name="load_head_cam" value="$(arg load_head_cam)" />
     <arg name="load_screwdriver" value="$(arg load_screwdriver)" />
     <arg name="gazebo_gui" value="$(arg gazebo_gui)"/>
-    <arg name="spawn_ros_controllers" value="$(arg spawn_ros_controllers)"/>
 </include>
 
 <include file="$(find lwr_moveit_config)/launch/lwr.launch" if="$(arg launch_moveit)"/>
 
 <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" ns="$(arg robot_ns)" args="$(arg spawn_ros_controllers)"/>
+    output="screen" args="$(arg spawn_ros_controllers)"/>
 
 </launch>
