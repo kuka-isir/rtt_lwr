@@ -82,6 +82,8 @@ From http://gazebosim.org/tutorials?tut=install_ubuntu&cat=install.
     curl -ssL http://get.gazebosim.org | sh
     # The ros packages
     sudo apt-get install ros-indigo-gazebo7-*
+    
+.. note:: Don't forget to put source ``source /usr/share/gazebo/setup.sh`` in your ``~/.bashrc`` or you won't have access to the gazebo plugins (Simulated cameras, lasers, etc).
 
 ROS Control
 -----------
