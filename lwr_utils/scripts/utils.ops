@@ -257,7 +257,7 @@ global void generateGraph()
 {
     import("rtt_dot_service")
     loadService("Deployer","dot")
-    print.log(Info,"You can now run \n\n\t xdot ~/.ros/orograph.dot")
+    print.ln("Graph generated. You can now run \n\n\t xdot ~/.ros/orograph.dot")
 }
 
 
