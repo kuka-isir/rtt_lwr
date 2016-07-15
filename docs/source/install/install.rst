@@ -1,6 +1,6 @@
-############
+#########################
 Installation instructions
-############
+#########################
 
 Requirements
 ------------
@@ -28,8 +28,8 @@ Required tools
 
     sudo sh -c "echo 'deb http://packages.ros.org/ros/ubuntu $(lsb_release -cs) main' > /etc/apt/sources.list.d/ros-latest.list"
     wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
-    sudo apt-get update
-    sudo apt-get install python-rosdep python-catkin-tools ros-indigo-catkin python-wstool python-vcstool
+    sudo apt update
+    sudo apt install python-rosdep python-catkin-tools ros-indigo-catkin python-wstool python-vcstool
 
 ROS Indigo Desktop
 ~~~~~~~~~~~~~~~~~~
@@ -37,7 +37,7 @@ ROS Indigo Desktop
 .. code-block:: bash
 
     # ROS Desktop (NOT DESKTOP-FULL)
-    sudo apt-get install ros-indigo-desktop
+    sudo apt install ros-indigo-desktop
 
 MoveIt!
 ~~~~~~~
@@ -45,7 +45,7 @@ MoveIt!
 .. code-block:: bash
 
     # MoveIt!
-    sudo apt-get install ros-indigo-moveit-full
+    sudo apt install ros-indigo-moveit-full
 
 After Install
 ~~~~~~~~~~~~~
@@ -59,30 +59,94 @@ After Install
     rosdep update
 
 
-OROCOS 2.8
-----------
+OROCOS 2.8 + rtt_ros_integration (via debians)
+----------------------------------------------
 
-.. note:: Version 2.9 was released recently (April 2016) , but no tests have been done yet. It is soon-to-be-supported.
-
+OROCOS toolchain 2.8
+~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-    sudo apt-get install ros-indigo-orocos-toolchain ros-indigo-rtt-*
+    sudo apt install ros-indigo-orocos-toolchain
+
+rtt_ros_integration 2.9
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    sudo apt install ros-indigo-rtt-* ros-indigo-eigen-typekit ros-indigo-kdl-typekit
+
+OROCOS 2.9 + rtt_ros_integration (from source)
+----------------------------------------------
+
+You are upgrading from orocos 2.8 :
+
+- If you installed orocos 2.8 from the debians, you need to remove them ``sudo apt remote ros-indigo-orocos-toolchain ros-indigo-rtt-*``.
+- If you installed orocos 2.8 from source, they can live side by side in a **different** workspace, but always check ``catkin config`` on you lwr_ws to make sure which workspace you're extending.
+
+OROCOS toolchain 2.9
+~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    mkdir -p ~/orocos-2.9_ws/src
+    cd ~/orocos-2.9_ws/src
+    wstool init
+    wstool merge https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/orocos_toolchain-2.9.rosinstall
+    wstool update -j2
+    # Get the latest updates
+    cd orocos_toolchain
+    git submodule foreach git checkout toolchain-2.9
+    git submodule foreach git pull
+    # Configure the workspace
+    cd ~/orocos-2.9_ws/
+    catkin config --install --extend /opt/ros/indigo/
+    # Build
+    catkin build -DCMAKE_BUILD_TYPE=Release
+
+rtt_ros_integration 2.9
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    mkdir -p ~/rtt_ros-2.9_ws/src
+    cd ~/rtt_ros-2.9_ws/src
+    wstool init
+    wstool merge https://github.com/kuka-isir/rtt_lwr/raw/rtt_lwr-2.0/lwr_utils/config/rtt_ros-2.9.rosinstall
+    wstool update -j2
+    # Configure the workspace
+    cd ~/rtt_ros-2.9_ws/
+    catkin config --install --extend ~/orocos-2.9_ws/install
+    # Build (this can take a while)
+    catkin build -DCMAKE_BUILD_TYPE=Release
+
+.. note::
+
+    Your ``lwr_ws`` catkin now be configured with ``catkin config --extend ~/rtt_ros-2.9_ws/install``
+
+Additoonnaly, please make sure that these repos are in the right branches (with fixes for rtt) :
+
+.. code-block:: bash
+
+    roscd rtt_dot_service && git remote set-url origin https://github.com/kuka-isir/rtt_dot_service.git && git pull
+    roscd fbsched && git remote set-url origin https://github.com/kuka-isir/fbsched.git && git pull
+    roscd conman && git remote set-url origin https://github.com/kuka-isir/conman.git && git pull
+
 
 Gazebo 7
 --------
 
 From http://gazebosim.org/tutorials?tut=install_ubuntu&cat=install.
 
-.. note:: If you already have gazebo 2.2 installed, please remove it : `sudo apt-get remove gazebo libgazebo-dev ros-indigo-gazebo-*`
+.. note:: If you already have gazebo 2.2 installed, please remove it : `sudo apt remove gazebo libgazebo-dev ros-indigo-gazebo-*`
 
 .. code-block:: bash
 
     # Gazebo 7
     curl -ssL http://get.gazebosim.org | sh
     # The ros packages
-    sudo apt-get install ros-indigo-gazebo7-*
-    
+    sudo apt install ros-indigo-gazebo7-*
+
 .. note:: Don't forget to put source ``source /usr/share/gazebo/setup.sh`` in your ``~/.bashrc`` or you won't have access to the gazebo plugins (Simulated cameras, lasers, etc).
 
 ROS Control
@@ -92,7 +156,7 @@ Just an extra feature for the whole rtt_lwr package.
 
 .. code-block:: bash
 
-    sudo apt-get install ros-indigo-ros-control* ros-indigo-control*
+    sudo apt install ros-indigo-ros-control* ros-indigo-control*
 
 RTT LWR packages
 ----------------

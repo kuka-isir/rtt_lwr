@@ -12,7 +12,7 @@ Remove OROCOS from debians
 .. code-block:: bash
 
     # First remove any occurence of debians rtt
-    sudo apt-get remove ros-indigo-rtt* ros-indigo-orocos-toolchain
+    sudo apt remove ros-indigo-rtt* ros-indigo-orocos-toolchain
 
 Compile OROCOS for Xenomai
 --------------------------

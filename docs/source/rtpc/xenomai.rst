@@ -32,7 +32,7 @@ Prepare the kernel
 
 .. code-block:: bash
 
-    sudo apt-get install kernel-package
+    sudo apt install kernel-package
 
 Patch the Linux kernel with Xenomai ipipe patch.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -232,7 +232,7 @@ This loop will allow you to monitor a xenomai latency. Here's the output for a i
 .. tip::
 
     To get pertinent results, you need to **stress** your system.
-    to do so, you can use ``stress`` or ``dohell`` from the ``apt-get``.
+    to do so, you can use ``stress`` or ``dohell`` from the ``apt``.
 
     .. code-block:: bash
 
