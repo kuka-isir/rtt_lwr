@@ -197,7 +197,7 @@ global string loadStatePublisher(bool start_component)
     return comp_name
 }
 
-global string loadConman()
+global bool loadConman()
 {
     print.ln("\033[34;1mLoading ConMan \033[0m\n")
     ros.import("conman")
@@ -209,7 +209,7 @@ global string loadConman()
     scripting.eval("scheme.addGroup(\"state_estimation\")")
     scripting.eval("scheme.addGroup(\"controllers\")")
 
-    return scheme.getGroups()
+    return scripting.eval("scheme.getGroups()")
 }
 
 global bool addComponentToStateEstimation(string component_name)
