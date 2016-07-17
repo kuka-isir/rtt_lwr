@@ -28,7 +28,7 @@ Configuration
 -------------
 
 Prepare the kernel
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 

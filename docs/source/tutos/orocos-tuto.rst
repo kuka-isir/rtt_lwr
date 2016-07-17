@@ -9,7 +9,7 @@ Orocos tutorial
 Orocos Basics
 -------------
 
-First, make you have the lwr workspace loaded ``echo `source ~/lwr_ws/devel/setup.bash``
+First, make you have the lwr workspace loaded ``source ~/lwr_ws/devel/setup.bash``
 
 .. note::
 
@@ -170,7 +170,7 @@ The ``CmakeLists.txt`` can look like this :
     )
 
     orocos_component(my_component MyComponent.cpp)
-    set_property(TARGET my_component APPEND 
+    set_property(TARGET my_component APPEND
             PROPERTY COMPILE_DEFINITIONS RTT_COMPONENT)
 
     target_link_libraries(my_component

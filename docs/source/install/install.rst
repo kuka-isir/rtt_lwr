@@ -10,11 +10,15 @@ Requirements
 - **OROCOS 2.8** ``(from the ros debian repos if not on xenomai)``
 - **Gazebo 7** ``(you can work with older version, but please prefer the latest)``
 
-.. note:: We are not installing ros-indigo-desktop-full because this will install gazebo 2.2. We work with gazebo 7.
-
 .. note:: If you are working on Xenomai, you need to compile the OROCOS toolchain from source to build the ``deployer-xenomai`` executable.
 
 .. warning:: This installation assumes you have a freshly installed Ubuntu 14.04 LTS **without** ROS installed. Otherwise, please make sure this does not break any of your packages.
+
+.. note:: We'll use the nice `catkin tools <http://catkin-tools.readthedocs.org/en/latest/>`_ (``catkin build`` instead of ``catkin_make``) to build the packages, it is the recommended way.
+
+.. note::
+    * If you're a new user, we recommend to follow the "via debians".
+    * If you're a developer, please build everything from source.
 
 ROS Indigo ++
 -------------
@@ -39,13 +43,33 @@ ROS Indigo Desktop
     # ROS Desktop (NOT DESKTOP-FULL)
     sudo apt install ros-indigo-desktop
 
-MoveIt!
-~~~~~~~
+.. warning:: Do not install **desktop-full** (desktop + gazebo 2.2) as we'll use Gazebo 7.
+
+MoveIt! (via debians)
+~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
     # MoveIt!
     sudo apt install ros-indigo-moveit-full
+
+MoveIt! (from source)
+~~~~~~~~~~~~~~~~~~~~~
+
+If you need bleeing-edge features of moveit, compile it from source :
+
+.. code-block:: bash
+
+    mkdir -p ~/moveit_ws/src
+    cd ~/moveit_ws/src
+    wstool init
+    wstool merge https://raw.githubusercontent.com/ros-planning/moveit_docs/indigo-devel/moveit.rosinstall
+    wstool update -j2
+    cd ~/moveit_ws/
+    catkin init
+    catkin config --install --extend /opt/ros/indigo
+    catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release
+    catkin build
 
 After Install
 ~~~~~~~~~~~~~
@@ -100,9 +124,11 @@ OROCOS toolchain 2.9
     git submodule foreach git pull
     # Configure the workspace
     cd ~/orocos-2.9_ws/
+    catkin init
     catkin config --install --extend /opt/ros/indigo/
+    catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release
     # Build
-    catkin build -DCMAKE_BUILD_TYPE=Release
+    catkin build
 
 rtt_ros_integration 2.9
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -116,9 +142,11 @@ rtt_ros_integration 2.9
     wstool update -j2
     # Configure the workspace
     cd ~/rtt_ros-2.9_ws/
+    catkin init
     catkin config --install --extend ~/orocos-2.9_ws/install
+    catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release
     # Build (this can take a while)
-    catkin build -DCMAKE_BUILD_TYPE=Release
+    catkin build
 
 .. note::
 
@@ -132,6 +160,16 @@ Additoonnaly, please make sure that these repos are in the right branches (with 
     roscd fbsched && git remote set-url origin https://github.com/kuka-isir/fbsched.git && git pull
     roscd conman && git remote set-url origin https://github.com/kuka-isir/conman.git && git pull
 
+Use OROCOS with CORBA
+---------------------
+
+In order to use the corba interface (connect multiple deployers together), you'll need to build the orocos_ws and rtt_ros_ws with :
+
+.. code-block:: bash
+
+    catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release -DENABLE_MQ=ON -DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB
+
+Reference : http://www.orocos.org/stable/documentation/rtt/v2.x/doc-xml/orocos-components-manual.html#orocos-corba
 
 Gazebo 7
 --------
@@ -178,8 +216,6 @@ Then you can initialize it :
     cd ~/lwr_ws/
     catkin init
 
-.. note:: We'll use the nice `catkin tools <http://catkin-tools.readthedocs.org/en/latest//>` instead of ``catkin_make``, but of course you can use ``catkin_make`` if you want to.
-
 Download
 ~~~~~~~~
 
@@ -196,7 +232,7 @@ We use wstool (aka workspace tool) to get all the git repos :
     wstool merge https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/rtt_lwr_extras.rosinstall
 
     # Download
-    wstool update -j$(nproc)
+    wstool update -j2
 
     # Create some extra ros messages (optional, only for ros control)
     source /opt/ros/indigo/setup.bash
@@ -245,7 +281,8 @@ Let's build the entire workspace :
     # Load ROS workspace if not already done
     source /opt/ros/indigo/setup.bash
     # Building the packages (takes ~10min)
-    catkin build -DCMAKE_BUILD_TYPE=Release
+    catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release
+    catkin build
 
 .. image:: /_static/catkin-build.png
 
