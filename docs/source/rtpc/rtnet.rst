@@ -1,5 +1,5 @@
-RTnet setup on Xenomai (2.6.4)
-======
+RTnet setup on Xenomai
+======================
 
 Official website : http://www.rtnet.org/index.html
 

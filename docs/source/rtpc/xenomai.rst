@@ -1,27 +1,27 @@
-Xenomai 2.6.4 on Ubuntu 14.04
-#####################################
+Xenomai 2.6.5 on Ubuntu 14.04
+#############################
 
 .. note::
 
     Nvidia Drivers are NOT supported (creates a lot of interruptions that breaks the real-time).
     Please consider removing the dedicated graphic card and use the integrated graphics (Intel HD graphics).
 
-Download Xenomai 2.6.4
+Download Xenomai 2.6.5
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-    wget http://xenomai.org/downloads/xenomai/stable/latest/xenomai-2.6.4.tar.bz2
-    tar xfvj xenomai-2.6.4.tar.bz2
+    wget http://xenomai.org/downloads/xenomai/stable/latest/xenomai-2.6.5.tar.bz2
+    tar xfvj xenomai-2.6.5.tar.bz2
 
 
-Get Linux kernel 3.14.17
+Get Linux kernel 3.18.20
 ------------------------
 
 .. code-block:: bash
 
-    wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.14.17.tar.gz
-    tar xfv linux-3.14.17.tar.gz
+    wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.18.20.tar.gz
+    tar xfv linux-3.18.20.tar.gz
 
 
 Configuration
@@ -39,8 +39,8 @@ Patch the Linux kernel with Xenomai ipipe patch.
 
 .. code-block:: bash
 
-    cd linux-3.14.17
-    ../xenomai-2.6.4/scripts/prepare-kernel.sh
+    cd linux-3.18.20
+    ../xenomai-2.6.5/scripts/prepare-kernel.sh
 
 Press Enter to use the default options.
 
@@ -75,7 +75,7 @@ Some guidelines to configure the linux kernel:
 
     Optional Options (RECOMMENDED):
     * General setup
-      --> Local version - append to kernel release: -xenomai-2.6.4
+      --> Local version - append to kernel release: -xenomai-2.6.5
       --> Timers subsystem
           --> High Resolution Timer Support (Verify you have HRT ON)
     * Pocessor type and features
@@ -131,7 +131,7 @@ Install the kernel
 .. code-block:: bash
 
     cd ..
-    sudo dpkg -i linux-headers-3.14.17-xenomai-2.6.4_3.14.17-xenomai-2.6.4-10.00.Custom_amd64.deb linux-image-3.14.17-xenomai-2.6.4_3.14.17-xenomai-2.6.4-10.00.Custom_amd64.deb
+    sudo dpkg -i linux-headers-3.18.20-xenomai-2.6.5_3.18.20-xenomai-2.6.5-10.00.Custom_amd64.deb linux-image-3.18.20-xenomai-2.6.5_3.18.20-xenomai-2.6.5-10.00.Custom_amd64.deb
 
 
 Configure GRUB
@@ -182,7 +182,7 @@ Install Xenomai libraries
 
 .. code-block:: bash
 
-    cd xenomai-2.6.4/
+    cd xenomai-2.6.5/
     ./configure
     make -j$(nproc)
     sudo make install

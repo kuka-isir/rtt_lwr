@@ -48,6 +48,6 @@ Welcome to the rtt_lwr documentation
     :glob:
     :maxdepth: 2
 
-    Xenomai 2.6.4 on Ubuntu 14.04 <rtpc/xenomai>
-    RTnet setup <rtpc/rtnet>
-    OROCOS for Xenomai <rtpc/orocos-xenomai>
+    rtpc/xenomai
+    rtpc/rtnet
+    rtpc/orocos-xenomai
