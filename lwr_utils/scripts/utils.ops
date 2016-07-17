@@ -47,7 +47,7 @@ global string loadKRLTool(bool start_component)
 {
     var string robot_name = getRobotName()
     var string component_name = robot_name+"_krl_tool"
-    print.log(Info,"\033[34;1mLoading KRL Tool for "+robot_name+"\033[0m\n")
+    print.ln("\033[34;1mLoading KRL Tool for "+robot_name+"\033[0m\n")
     ros.import("rtt_lwr_krl_tool")
     import("rtt_std_srvs")
     loadComponent(component_name,"lwr::KRLTool")
@@ -164,7 +164,7 @@ global bool connectAllPorts(string controller_name,string robot_name, ConnPolicy
 {
     connectStandardPorts(controller_name,robot_name,cp)
     connectLWRPorts(controller_name,robot_name,cp)
-    print.log(Info,"\033[34;1mconnectAllPorts is deprecated,\n please use connectStandardPorts() + connectLWRPorts() instead for standard + Kuka specific ports\033[0m");
+    print.ln("\033[34;1mconnectAllPorts is deprecated,\n please use connectStandardPorts() + connectLWRPorts() instead for standard + Kuka specific ports\033[0m");
     return true;
 }
 
@@ -183,7 +183,7 @@ global string loadStatePublisher(bool start_component)
     if(!configureComponent(comp_name)) then
         return ""
 
-    print.log(Info,"\033[34;1mLoading state publisher for "+robot_name+"\033[0m\n")
+    print.ln("\033[34;1mLoading state publisher for "+robot_name+"\033[0m\n")
 
     connectPeers(comp_name,robot_name)
     connect(comp_name+".JointPosition",robot_name+".JointPosition",ConnPolicy())
@@ -199,7 +199,7 @@ global string loadStatePublisher(bool start_component)
 
 global string loadConman()
 {
-    print.log(Info,"\033[34;1mLoading ConMan \033[0m\n")
+    print.ln("\033[34;1mLoading ConMan \033[0m\n")
     ros.import("conman")
     ros.import("conman_ros")
     loadComponent("scheme","conman::Scheme")
@@ -209,7 +209,7 @@ global string loadConman()
     scripting.eval("scheme.addGroup(\"state_estimation\")")
     scripting.eval("scheme.addGroup(\"controllers\")")
 
-    return "scheme"
+    return scheme.getGroups()
 }
 
 global bool addComponentToStateEstimation(string component_name)
@@ -266,7 +266,7 @@ global string loadJointTrajectoryGeneratorKDL(bool start_component)
   var string robot_name = getRobotName()
   var string comp_name = robot_name + "_traj_kdl"
 
-  print.log(Info,"\033[34;1mLoading Trajectory generator KDL for "+robot_name+"\033[0m\n")
+  print.ln("\033[34;1mLoading Trajectory generator KDL for "+robot_name+"\033[0m\n")
 
   import("rtt_ros")
   ros.import("rtt_joint_traj_generator_kdl")
@@ -289,7 +289,7 @@ global string loadROSControl(bool start_component)
     var string robot_name = getRobotName()
     var string comp_name = robot_name + "_ros_control"
 
-    print.log(Info,"\033[34;1mLoading ROS Control for "+robot_name+"\033[0m\n")
+    print.ln("\033[34;1mLoading ROS Control for "+robot_name+"\033[0m\n")
 
     import("rtt_ros")
     import("rtt_control_msgs")
@@ -347,13 +347,13 @@ global string loadAtiFTSensor(bool start_component)
 {
     if(isSim()) then
     {
-        print.log(Info,"\033[34;1mLoading ATI F/T Sensor (Simulated)\033[0m\n")
-        print.log(Info,"\033[34;1m=> Please use connectToAtiFTSensorPort(\"my_component\",\"my_geometry_msgs_port\",ConnPolicy())\033[0m\n")
+        print.ln("\033[34;1mLoading ATI F/T Sensor (Simulated)\033[0m\n")
+        print.ln("\033[34;1m=> Please use connectToAtiFTSensorPort(\"my_component\",\"my_geometry_msgs_port\",ConnPolicy())\033[0m\n")
     }else
     {
         ros.import("rtt_ati_sensor")
         loadComponent("ft_sensor","rtt_ati::FTSensor")
-        print.log(Info,"\033[34;1mLoading ATI F/T Sensor \033[0m\n")
+        print.ln("\033[34;1mLoading ATI F/T Sensor \033[0m\n")
     }
 
     setActivity("ft_sensor",0.001,10,ORO_SCHED_RT)
@@ -410,7 +410,7 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
         setActivity(robot_name,0,10,ORO_SCHED_OTHER)
         configureComponent(robot_name)
 
-        print.log(Info,"\033[34;1m"+robot_name+"] RUNNING ON SIMULATION \033[0m\n")
+        print.ln("\033[34;1m"+robot_name+"] RUNNING ON SIMULATION \033[0m\n")
     }
     else
     {
@@ -424,7 +424,7 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
 
         configureComponent(robot_name)
 
-        print.log(Info,"\033[34;1m"+robot_name+"] RUNNING ON HARDWARE \033[0m\n")
+        print.ln("\033[34;1m"+robot_name+"] RUNNING ON HARDWARE \033[0m\n")
     }
 
     if(start_component) then
