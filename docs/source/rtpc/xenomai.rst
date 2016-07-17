@@ -11,7 +11,7 @@ Download Xenomai 2.6.5
 
 .. code-block:: bash
 
-    wget http://xenomai.org/downloads/xenomai/stable/latest/xenomai-2.6.5.tar.bz2
+    wget http://xenomai.org/downloads/xenomai/stable/xenomai-2.6.5.tar.bz2
     tar xfvj xenomai-2.6.5.tar.bz2
 
 
