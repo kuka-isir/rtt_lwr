@@ -173,4 +173,4 @@ And in your CMakeLists.txt :
     endif()
 
 
-..note:: You'll need [FindRTnet.cmake which can be found here](https://github.com/kuka-isir/ati_sensor/tree/master/cmake/Modules)
+.. note:: You'll need `FindRTnet.cmake which can be found here <https://github.com/kuka-isir/ati_sensor/tree/master/cmake/Modules>`_.
