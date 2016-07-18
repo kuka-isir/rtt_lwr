@@ -15,8 +15,8 @@ Download Xenomai 2.6.5
     tar xfvj xenomai-2.6.5.tar.bz2
 
 
-Get Linux kernel 3.18.20
-------------------------
+Download Linux kernel 3.18.20
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -25,17 +25,17 @@ Get Linux kernel 3.18.20
 
 
 Configuration
--------------
+~~~~~~~~~~~~~
 
 Prepare the kernel
-~~~~~~~~~~~~~~~~~~
+------------------
 
 .. code-block:: bash
 
     sudo apt install kernel-package
 
 Patch the Linux kernel with Xenomai ipipe patch.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------------
 
 .. code-block:: bash
 
@@ -45,7 +45,7 @@ Patch the Linux kernel with Xenomai ipipe patch.
 Press Enter to use the default options.
 
 Configure the kernel
-~~~~~~~~~~~~~~~~~~~~
+--------------------
 
 Now it's time to configure :
 
@@ -119,14 +119,14 @@ Now it's time to compile.
 Take a coffee and come back in 20min.
 
 Compile faster with distcc
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 .. code-block:: bash
 
     MAKEFLAGS="CC=distcc" BUILD_TIME="/usr/bin/time" CONCURRENCY_LEVEL=$(distcc -j) make-kpkg --rootcmd fakeroot --initrd kernel_image kernel_headers
 
 Install the kernel
-------------------
+~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -178,7 +178,7 @@ Allow non-root users
 
 
 Install Xenomai libraries
------------------------------
+-------------------------
 
 .. code-block:: bash
 
