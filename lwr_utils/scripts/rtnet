@@ -35,7 +35,7 @@ bringup_slave()
         slave_name=$2
         slave_number=$3
         sleep_time_s=1.0
-        max_trials=3
+        max_trials=10
         rc=0
         count=$max_trials                   # Maximum number to try.
         while [ $count -ne 0 ] ; do
