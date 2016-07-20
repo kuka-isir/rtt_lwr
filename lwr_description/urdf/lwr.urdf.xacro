@@ -66,7 +66,7 @@
          </collision>
       </link>
       <!-- joint between lwr_0_link and lwr_1_link -->
-      <joint name="joint_0" type="revolute">
+      <joint name="lbr4_j0" type="revolute">
 
          <parent link="link_0" />
          <child link="link_1" />
@@ -106,7 +106,7 @@
          </collision>
       </link>
       <!-- joint between lwr_1_link and lwr_2_link -->
-      <joint name="joint_1" type="revolute">
+      <joint name="lbr4_j1" type="revolute">
 
          <parent link="link_1" />
          <child link="link_2" />
@@ -154,7 +154,7 @@
          </collision>
       </link>
       <!-- joint between lwr_2_link and lwr_3_link -->
-      <joint name="joint_2" type="revolute">
+      <joint name="lbr4_j2" type="revolute">
 
          <parent link="link_2" />
          <child link="link_3" />
@@ -194,7 +194,7 @@
          </collision>
       </link>
       <!-- joint between lwr_3_link and lwr_4_link -->
-      <joint name="joint_3" type="revolute">
+      <joint name="lbr4_j3" type="revolute">
 
          <parent link="link_3" />
          <child link="link_4" />
@@ -234,7 +234,7 @@
          </collision>
       </link>
       <!-- joint between lwr_4_link and lwr_5_link -->
-      <joint name="joint_4" type="revolute">
+      <joint name="lbr4_j4" type="revolute">
 
          <parent link="link_4" />
          <child link="link_5" />
@@ -274,7 +274,7 @@
          </collision>
       </link>
       <!-- joint between lwr_5_link and lwr_6_link -->
-      <joint name="joint_5" type="revolute">
+      <joint name="lbr4_j5" type="revolute">
 
          <parent link="link_5" />
          <child link="link_6" />
@@ -314,7 +314,7 @@
          </collision>
       </link>
       <!-- joint between lwr_6_link and lwr_7_link -->
-      <joint name="joint_6" type="revolute">
+      <joint name="lbr4_j6" type="revolute">
 
          <parent link="link_6" />
          <child link="link_7" />
