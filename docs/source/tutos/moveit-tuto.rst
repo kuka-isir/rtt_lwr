@@ -1,5 +1,5 @@
 MoveIt! with rtt_ros_control_embedded
-==============
+=====================================
 
 As the other packages, we'll use the ``run.launch`` from ``lwr_utils`` that we duplicated in the ``lwr_moveit_config`` package for custom arguments.
 

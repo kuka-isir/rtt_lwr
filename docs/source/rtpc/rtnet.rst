@@ -5,7 +5,7 @@ Official website : http://www.rtnet.org/index.html
 
 RTnet allows you to send and receive data with very strict constraints, in a real-time environment (RTAI, Xenomai). It only works with a very limited set of ethernet cards (RTnet includes "real-time" re-written drivers) : Intel PRO/1000, 82574L, any card with r8169 and others.
 
-First make sure your followed the `Xenomai installation instructions <https://github.com/kuka-isir/rtt_lwr/wiki/Xenomai-Setup/>`_ and you are running the Xenomai kernel (uname -a).
+First make sure your followed the `Xenomai installation instructions <rtpc/xenomai.html>`_ and you are running the Xenomai kernel (uname -a).
 
 Check which kernel driver you use
 ---------------------------------

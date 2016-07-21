@@ -4,7 +4,7 @@
     :align: center
 
 Orocos tutorial
-=============
+===============
 
 Orocos Basics
 -------------

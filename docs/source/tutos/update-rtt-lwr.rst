@@ -1,6 +1,5 @@
-#####################
 **How to update rtt_lwr**
-#####################
+#########################
 
 We are periodically doing updates on the code (gains update, bug fixes etc), so keeping it up-to-date can be very useful.
 
@@ -21,6 +20,11 @@ Update the documentation
 
 Locally using sphinx
 ~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+        sudo -E pip install sphinx sphinx-autobuild recommonmark sphinx_rtd_theme
+
 
 If you're **not** part of the rtt_lwr developers :
 
