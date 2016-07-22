@@ -34,7 +34,7 @@ Prepare the kernel
 
     sudo apt install kernel-package
 
-Patch the Linux kernel with Xenomai ipipe patch.
+Patch the Linux kernel with Xenomai ipipe patch
 -----------------------------------------------
 
 .. code-block:: bash
