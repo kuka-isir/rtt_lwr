@@ -14,7 +14,7 @@ Check which kernel driver you use
 
     lspci -vvv -nn | grep -C 10 Ethernet
 
-And check if the "rt_" version exists in `RTnet's drivers <https://github.com/konradb3/RTnet/tree/master/drivers/>`_.
+And check if the **rt_** version exists in `RTnet's drivers <https://github.com/konradb3/RTnet/tree/master/drivers/>`_.
 
 .. note::
 
@@ -80,7 +80,7 @@ Test your installation
 ----------------------
 
 Using the test script
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 A launch script can be found `here <https://github.com/kuka-isir/rtt_lwr/blob/master/lwr_scripts/scripts/rtnet/>`_.
 Just adjust the following settings to your needs :

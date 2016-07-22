@@ -240,9 +240,9 @@ This loop will allow you to monitor a xenomai latency. Here's the output for a i
         stress -v -c 8 -i 10 -d 8
 
 Negative latency issues
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
-You need to be in root ``sudo -s``, then you cat set values to the calibration :
+You need to be in root ``sudo -s``, then you can set values to the latency calibration variable :
 
 .. code-block:: bash
 
