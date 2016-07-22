@@ -24,10 +24,17 @@ And check if the **rt_** version exists in `RTnet's drivers <https://github.com/
 Download
 --------
 
+If on kernel < 3.18 :
+
 .. code-block:: bash
 
     git clone https://github.com/konradb3/RTnet.git
 
+if on kernel >= 3.18 (same with a fix) :
+
+.. code-block:: bash
+
+    git clone https://github.com/kuka-isir/RTnet.git
 
 Installation
 ------------
