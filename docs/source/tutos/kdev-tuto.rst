@@ -1,6 +1,5 @@
-##################################
 Make you life easier with Kdevelop
-##################################
+==================================
 
 Kdevelop is a nice IDE that supports cmake natively.
 To install it, just type ``sudo apt install kdevelop``, then in a **terminal**, type ``kdevelop``.

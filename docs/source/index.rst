@@ -1,6 +1,6 @@
 
-Welcome to the rtt_lwr documentation
-====================================
+Control Software Architechture for Kuka LWR 4+
+==============================================
 
 .. image:: /_static/isir.png
     :width: 100px

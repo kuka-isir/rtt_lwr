@@ -5,7 +5,7 @@ Official website : http://www.rtnet.org/index.html
 
 RTnet allows you to send and receive data with very strict constraints, in a real-time environment (RTAI, Xenomai). It only works with a very limited set of ethernet cards (RTnet includes "real-time" re-written drivers) : Intel PRO/1000, 82574L, any card with r8169 and others.
 
-First make sure your followed the `Xenomai installation instructions <https://github.com/kuka-isir/rtt_lwr/wiki/Xenomai-Setup/>`_ and you are running the Xenomai kernel (uname -a).
+First make sure your followed the `Xenomai installation instructions <rtpc/xenomai.html>`_ and you are running the Xenomai kernel (uname -a).
 
 Check which kernel driver you use
 ---------------------------------
@@ -14,7 +14,7 @@ Check which kernel driver you use
 
     lspci -vvv -nn | grep -C 10 Ethernet
 
-And check if the "rt_" version exists in `RTnet's drivers <https://github.com/konradb3/RTnet/tree/master/drivers/>`_.
+And check if the **rt_** version exists in `RTnet's drivers <https://github.com/konradb3/RTnet/tree/master/drivers/>`_.
 
 .. note::
 
@@ -24,10 +24,17 @@ And check if the "rt_" version exists in `RTnet's drivers <https://github.com/ko
 Download
 --------
 
+If on kernel < 3.18 :
+
 .. code-block:: bash
 
     git clone https://github.com/konradb3/RTnet.git
 
+if on kernel >= 3.18 (same with a fix) :
+
+.. code-block:: bash
+
+    git clone https://github.com/kuka-isir/RTnet.git
 
 Installation
 ------------
@@ -80,7 +87,7 @@ Test your installation
 ----------------------
 
 Using the test script
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 A launch script can be found `here <https://github.com/kuka-isir/rtt_lwr/blob/master/lwr_scripts/scripts/rtnet/>`_.
 Just adjust the following settings to your needs :

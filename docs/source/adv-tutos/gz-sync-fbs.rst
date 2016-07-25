@@ -1,6 +1,5 @@
-####################################
 Gazebo Synchronization using FBSched
-####################################
+====================================
 
 As an example you can launch ``roslaunch rtt_joint_traj_generator_kdl run.launch sim:=true``.
 Then in the deployer's console :
