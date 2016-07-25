@@ -30,11 +30,11 @@
 
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 
-	<node pkg="joint_state_publisher" type="joint_state_publisher" output="screen" name="joint_state_publisher">
+	<!--node pkg="joint_state_publisher" type="joint_state_publisher" output="screen" name="joint_state_publisher">
 		<param name="use_gui" value="true"/>
 		<param name="publish_default_velocities" value="true"/>
 		<param name="publish_default_efforts" value="true"/>
 		<param name="rate" value="100"/>
-	</node>
+	</node-->
 </group>
 </launch>
