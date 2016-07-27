@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
    
    <xacro:macro name="calib_tool">
 	  <link name="calib_link">
@@ -38,6 +38,7 @@
 		xyz="0.0688 0 ${0.0195-0.0488}" />
 	    <parent link="ati_base_link" />
 	    <child link="calib_link" />
+        <limit effort="400" velocity="0" lower="0" upper="0" />
 	  </joint>
    </xacro:macro>
 
