@@ -34,7 +34,7 @@ Prepare the kernel
 
     sudo apt install kernel-package
 
-Patch the Linux kernel with Xenomai ipipe patch.
+Patch the Linux kernel with Xenomai ipipe patch
 -----------------------------------------------
 
 .. code-block:: bash
@@ -238,3 +238,18 @@ This loop will allow you to monitor a xenomai latency. Here's the output for a i
 
         # Using stress
         stress -v -c 8 -i 10 -d 8
+
+Negative latency issues
+-----------------------
+
+You need to be in root ``sudo -s``, then you can set values to the latency calibration variable :
+
+.. code-block:: bash
+
+    $ echo 0 > /proc/xenomai/latency
+    (run the native calibration test)
+    
+    If the minimum latency value is positive, then:
+    $ echo abs(min-latency-value) > /proc/xenomai/latency
+
+Source : https://xenomai.org/pipermail/xenomai/2007-May/009063.html

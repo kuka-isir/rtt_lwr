@@ -1,5 +1,5 @@
 Getting started with rtt_lwr 2.0
-=======
+================================
 
 The main launch file
 --------------------
