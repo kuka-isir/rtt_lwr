@@ -172,7 +172,7 @@ Allow non-root users
 
 .. code-block:: bash
 
-    sudo addgroup xenomai
+    sudo addgroup xenomai --gid 128
     sudo addgroup root xenomai
     sudo usermod -a -G xenomai $USER
 
