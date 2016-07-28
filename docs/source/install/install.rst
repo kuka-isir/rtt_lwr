@@ -155,11 +155,7 @@ rtt_ros_integration 2.9
     # Build (this can take a while)
     catkin build
 
-.. note::
-
-    Your ``lwr_ws`` catkin now be configured with ``catkin config --extend ~/rtt_ros-2.9_ws/install``
-
-Additoonnaly, please make sure that these repos are in the right branches (with fixes for rtt) :
+Additoonnaly, please make sure that these repos (if you have them) are in the right branches (with fixes for rtt) :
 
 .. code-block:: bash
 
@@ -247,6 +243,9 @@ We use wstool (aka workspace tool) to get all the git repos :
     rosrun rtt_roscomm create_rtt_msgs control_msgs
     rosrun rtt_roscomm create_rtt_msgs controller_manager_msgs
 
+.. warning::
+
+    If you have built rtt_ros **from source**, please configure your ``lwr_ws`` catkin with ``catkin config --extend ~/rtt_ros-2.9_ws/install``
 
 Get the kuka **friComm.h** file (description of the data passing on the ethernet port) :
 
