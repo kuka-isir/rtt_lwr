@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="head_cam">
+    <link name="head_cam_link">
+      <inertial>
+        <origin xyz="-0.0621004664004336 -0.00186849655878642 0.0329063947179623" rpy="0 0 0" />
+        <mass value="0.233958232943254" />
+        <inertia
+          ixx="0.000435876167618103"
+          ixy="2.30524748763368E-06"
+          ixz="-1.04965927091447E-05"
+          iyy="0.000473661487000832"
+          iyz="-4.07790014097315E-06"
+          izz="0.000168407738435303" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://lwr_description/meshes/head_cam/head_cam.stl" />
+        </geometry>
+        <material name="">
+          <color rgba="0.498039215686275 0.498039215686275 0.498039215686275 1" />
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://lwr_description/meshes/head_cam/head_cam.stl" />
+        </geometry>
+      </collision>
+    </link>
+    <joint name="ati_to_cam_joint" type="fixed">
+      <origin
+        xyz="0.0023882 -0.11747 0.044033"
+        rpy="-3.1416 -1.1345 1.5708" />
+      <parent link="ati_link" />
+      <child link="head_cam_link" />
+      <axis xyz="0 0 0" />
+      <limit effort="400" velocity="0" lower="0" upper="0" />
+    </joint>
+    <link name="head_cam_link_optical" />
+    <joint name="head_cam_optical_joint" type="fixed">
+      <!-- these values have to be these values otherwise the gazebo camera
+          image won't be aligned properly with the frame it is supposedly
+          originating from -->
+      <origin xyz="0 0 0" rpy="-1.570796 0 -1.570796"/>
+      <parent link="head_cam_link"/>
+      <child link="head_cam_link_optical"/>
+      <limit effort="400" velocity="0" lower="0" upper="0" />
+    </joint>
+
+  </xacro:macro>
+</robot>
