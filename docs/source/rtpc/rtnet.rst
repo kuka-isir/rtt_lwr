@@ -24,6 +24,10 @@ And check if the **rt_** version exists in `RTnet's drivers <https://github.com/
 Download
 --------
 
+.. code-block:: bash
+
+    sudo apt install git
+
 If on kernel < 3.18 :
 
 .. code-block:: bash
@@ -56,6 +60,10 @@ We'll need the following options:
       --> RTnet Application Examples
           --> Enable
 
+
+.. code-block:: bash
+
+    sudo apt install libncurses
 
 .. code-block:: bash
 
