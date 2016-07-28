@@ -238,14 +238,22 @@ We use wstool (aka workspace tool) to get all the git repos :
     wstool update -j2
 
     # Create some extra ros messages (optional, only for ros control)
+    
+    #
+    # If you are using the DEBIANS :
+    #
+    
     source /opt/ros/indigo/setup.bash
-
+    
+    #
+    # Otherwise, if you have built rtt_ros from source 
+    # 
+    
+    source ~/rtt_ros-2.9_ws/install/setup.bash
+    
+    
     rosrun rtt_roscomm create_rtt_msgs control_msgs
     rosrun rtt_roscomm create_rtt_msgs controller_manager_msgs
-
-.. warning::
-
-    If you have built rtt_ros **from source**, please configure your ``lwr_ws`` catkin with ``catkin config --extend ~/rtt_ros-2.9_ws/install``
 
 Get the kuka **friComm.h** file (description of the data passing on the ethernet port) :
 
@@ -276,6 +284,26 @@ If there are **other** missing dependencies :
     cd ~/lwr_ws
     rosdep install --from-path src/ -i
 
+Configure the workspace
+~~~~~~~~~~~~~~~~~~~~~~~
+
+If using the **debians** :
+
+.. code-block:: bash
+
+    cd ~/lwr_ws
+    # Load ROS workspace if not already done
+    source /opt/ros/indigo/setup.bash
+
+    catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release
+
+If building rtt_ros **from source** :
+
+.. code-block:: bash
+
+    cd ~/lwr_ws
+    catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release --extend ~/rtt_ros-2.9_ws/install
+
 Build the workspace
 ~~~~~~~~~~~~~~~~~~~
 
@@ -283,11 +311,7 @@ Let's build the entire workspace :
 
 .. code-block:: bash
 
-    cd ~/lwr_ws
-    # Load ROS workspace if not already done
-    source /opt/ros/indigo/setup.bash
-    # Building the packages (takes ~10min)
-    catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release
+    cd ~/lwr_ws #it can be anywhere inside the workspace, see catkin_tools docs
     catkin build
 
 .. image:: /_static/catkin-build.png
