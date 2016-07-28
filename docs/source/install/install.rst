@@ -82,6 +82,13 @@ After Install
     sudo rosdep init
     rosdep update
 
+Required librairies
+~~~~~~~~~~~~~~~~~~~
+
+.. code::
+
+    sudo apt ruby1.9.3 ruby-dev libreadline-dev
+
 
 OROCOS 2.8 + rtt_ros_integration (via debians)
 ----------------------------------------------
