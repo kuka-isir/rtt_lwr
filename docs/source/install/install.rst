@@ -1,6 +1,5 @@
-#########################
 Installation instructions
-#########################
+=========================
 
 Requirements
 ------------
@@ -82,14 +81,6 @@ After Install
     sudo rosdep init
     rosdep update
 
-Required librairies
-~~~~~~~~~~~~~~~~~~~
-
-.. code::
-
-    sudo apt ruby1.9.3 ruby-dev libreadline-dev
-
-
 OROCOS 2.8 + rtt_ros_integration (via debians)
 ----------------------------------------------
 
@@ -98,7 +89,7 @@ OROCOS toolchain 2.8
 
 .. code-block:: bash
 
-    sudo apt install ros-indigo-orocos-toolchain
+    sudo apt install ros-indigo-orocos-toolchain ruby1.9.3 ruby-dev libreadline-dev
 
 rtt_ros_integration 2.9
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -117,6 +108,10 @@ You are upgrading from orocos 2.8 :
 
 OROCOS toolchain 2.9
 ~~~~~~~~~~~~~~~~~~~~
+
+.. code::
+
+    sudo apt ruby1.9.3 ruby-dev libreadline-dev
 
 .. code-block:: bash
 
@@ -238,20 +233,20 @@ We use wstool (aka workspace tool) to get all the git repos :
     wstool update -j2
 
     # Create some extra ros messages (optional, only for ros control)
-    
+
     #
     # If you are using the DEBIANS :
     #
-    
+
     source /opt/ros/indigo/setup.bash
-    
+
     #
-    # Otherwise, if you have built rtt_ros from source 
-    # 
-    
+    # Otherwise, if you have built rtt_ros from source
+    #
+
     source ~/rtt_ros-2.9_ws/install/setup.bash
-    
-    
+
+
     rosrun rtt_roscomm create_rtt_msgs control_msgs
     rosrun rtt_roscomm create_rtt_msgs controller_manager_msgs
 
