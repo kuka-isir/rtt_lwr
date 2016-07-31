@@ -45,13 +45,7 @@ If you run catkin profile list :
 For Xenomai
 -----------
 
-Use the xenomai profile : ``catkin profile set xenomai``
-Whatever we sourced in the bashrc, we'll force catkin to use OUR env vars.
-First let's export some variables :
-
-.. code-block:: bash
-
-    export XENOMAI_ROOT_DIR=~/xenomai-2.6.5/install
+Use the xenomai profile : ``catkin profile set xenomai``.
 
 Let's configure the workspace, the important option is --env-cache as it will save the current environment in a static file (inside orocos-2.9_ws/.catkin_tools).
 It is only saving when running catkin build !
@@ -73,7 +67,11 @@ Now you can build !
 
 .. code-block:: bash
 
-    OROCOS_TARGET=xenomai catkin build
+    OROCOS_TARGET=xenomai XENOMAI_ROOT_DIR=~/xenomai-2.6.5/install catkin build
+
+.. note:: 
+
+    Now the env var OROCOS_TARGET and XENOMAI_ROOT_DIR are **set/fixed** for all the packages. If you modify them using export, it **won't** affect the ones written for the packages during build.
 
 Once it's done you'll have :
 
