@@ -42,7 +42,7 @@
   <link name="world"/>
 
   <!-- lbr -->
-  <joint name="base_joint" type="fixed">
+  <joint name="world_joint" type="fixed">
     <parent link="world"/>
     <xacro:if value="$(arg load_table)">
       <child link="table_link"/>

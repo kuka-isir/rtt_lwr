@@ -1,5 +1,6 @@
 <launch>
 <arg name="debug" default="false"/>
+<arg name="robot_description_upload_file" default="$(find lwr_description)/launch/lwr_upload.launch"/>
 <arg name="rviz" default="false"/>
 <arg name="gazebo_gui" default="false"/>
 <arg name="TAO" default="false"/>
@@ -59,6 +60,17 @@
 <!-- Description and/or gazebo -->
 <group ns="$(arg robot_ns)">
     <!--group ns="$(arg robot_name)"-->
+    
+    <rosparam ns="$(arg robot_name)">
+        upper_joint_limits: [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0]
+        lower_joint_limits: [-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0]
+        joint_limits: ["joint_0","joint_1","joint_2","joint_3","joint_4","joint_5","joint_6"]
+        kp_default: [450.0, 450.0, 200.0, 200.0, 200.0, 20.0, 10.0]
+        kd_default: [1.0, 1.0, 1.0, 0.7, 0.7, 0.1, 0.0]
+        kcp_default: [1000.0, 1000.0, 1000.0, 200.0, 200.0, 200.0]
+        kcd_default: [0.7, 0.7, 0.7, 0.7, 0.7, 0.7]
+    </rosparam>
+    
     <param name="tf_prefix" type="str" value="$(arg tf_prefix)"/>
     <param name="robot_name" type="str" value="$(arg robot_name)"/>
     <param name="robot_ns" type="str" value="$(arg robot_ns)"/>
@@ -68,7 +80,7 @@
     <param name="start_paused" type="bool" value="$(arg start_paused)"/>
 
     <!-- Gazebo launches it if sim, otherwise here so that lwr_gazebo is standalone (hacky) -->
-    <include file="$(find lwr_description)/launch/lwr_upload.launch">
+    <include file="$(arg robot_description_upload_file)">
         <arg name="load_base" value="$(arg load_base)" />
         <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
         <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
@@ -101,15 +113,16 @@
     <arg name="tf_prefix" value="$(arg tf_prefix)"/>
     <arg name="root_link" value="$(arg root_link)"/>
     <arg name="tip_link" value="$(arg tip_link)"/>
-    <arg name="load_base" default="$(arg load_base)" />
-    <arg name="load_ati_sensor" default="$(arg load_ati_sensor)" />
-    <arg name="load_calib_tool" default="$(arg load_calib_tool)" />
-    <arg name="load_table" default="$(arg load_table)" />
-    <arg name="load_handle" default="$(arg load_handle)" />
-    <arg name="load_head_cam" default="$(arg load_head_cam)" />
-    <arg name="load_screwdriver" default="$(arg load_screwdriver)" />
-    <arg name="initial_joint_positions" default="$(arg initial_joint_positions)" />
+    <arg name="load_base" value="$(arg load_base)" />
+    <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
+    <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
+    <arg name="load_table" value="$(arg load_table)" />
+    <arg name="load_handle" value="$(arg load_handle)" />
+    <arg name="load_head_cam" value="$(arg load_head_cam)" />
+    <arg name="load_screwdriver" value="$(arg load_screwdriver)" />
+    <arg name="initial_joint_positions" value="$(arg initial_joint_positions)" />
     <arg name="load_gazebo_ros_control" value="$(arg load_gazebo_ros_control)" />
+    <arg name="robot_description_upload_file" value="$(arg robot_description_upload_file)"/>
 </include>
 
 </launch>

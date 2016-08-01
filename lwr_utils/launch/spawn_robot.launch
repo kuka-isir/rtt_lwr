@@ -4,6 +4,7 @@
     <arg name="x" default="0.0"/>
     <arg name="y" default="0.0"/>
     <arg name="z" default="0.0"/>
+    <arg name="robot_description_upload_file" default="$(find lwr_description)/launch/lwr_upload.launch"/>
     <!-- For the KDL chain -->
     <arg name="root_link" default="link_0"/>
     <arg name="tip_link" default="link_7"/>
@@ -22,16 +23,6 @@
     <group ns="$(arg robot_ns)">
         <!--group ns="$(arg robot_name)"-->
 
-            <rosparam ns="$(arg robot_name)">
-                upper_joint_limits: [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0]
-                lower_joint_limits: [-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0]
-                joint_limits: ["joint_0","joint_1","joint_2","joint_3","joint_4","joint_5","joint_6"]
-                kp_default: [450.0, 450.0, 200.0, 200.0, 200.0, 20.0, 10.0]
-                kd_default: [1.0, 1.0, 1.0, 0.7, 0.7, 0.1, 0.0]
-                kcp_default: [1000.0, 1000.0, 1000.0, 200.0, 200.0, 200.0]
-                kcd_default: [0.7, 0.7, 0.7, 0.7, 0.7, 0.7]
-            </rosparam>
-
             <param name="tf_prefix" type="str" value="$(arg tf_prefix)"/>
             <param name="robot_name" type="str" value="$(arg robot_name)"/>
             <param name="robot_ns" type="str" value="$(arg robot_ns)"/>
@@ -39,7 +30,7 @@
             <param name="tip_link" type="str" value="$(arg tip_link)"/>
             <param name="is_sim" type="bool" value="true"/>
 
-            <include file="$(find lwr_description)/launch/lwr_upload.launch">
+            <include ns="/gazebo" file="$(arg robot_description_upload_file)">
                 <arg name="load_base" value="$(arg load_base)" />
                 <arg name="load_ati_sensor" value="$(arg load_ati_sensor)" />
                 <arg name="load_calib_tool" value="$(arg load_calib_tool)" />
@@ -53,7 +44,7 @@
 
             <node name="spawn_$(arg robot_name)" pkg="gazebo_ros"
                 type="spawn_model"
-                args="-param robot_description -urdf
+                args="-param /gazebo/robot_description -urdf
                     -model $(arg robot_name)
                     -x $(arg x) -y $(arg y) -z $(arg z)"
                 respawn="false" output="screen" >

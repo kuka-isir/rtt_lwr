@@ -1,5 +1,6 @@
 <launch>
     <arg name="sim" default="false" />
+    
     <arg name="ops_script" default="$(find lwr_utils)/scripts/utils.ops"/>
     <arg name="corba" default="false" />
     <arg name="debug" default="false" />
@@ -18,6 +19,9 @@
     <arg name="load_screwdriver" default="false" />
     <arg name="initial_joint_positions" default="[1.6036007404327393, 0.3993358612060547, -0.10944951325654984, -1.7840847969055176, 0.1192147508263588, 0.9727375507354736, 0.1688145101070404]"/>
 
+    <!-- Upload the robot description to the ROS parameter server -->
+    <arg name="robot_description_upload_file" default="$(find lwr_description)/launch/lwr_upload.launch" />
+    
     <!-- The end effector Frame -->
     <arg name="tip_link" default="link_7"/>
     <arg name="root_link" default="link_0"/>
@@ -62,6 +66,7 @@
         <arg name="start_paused"    value="$(arg start_paused)"/>
         <arg name="initial_joint_positions" value="$(arg initial_joint_positions)"/>
         <arg name="use_sim_time"    value="$(arg use_sim_time)"/>
+        <arg name="robot_description_upload_file"    value="$(arg robot_description_upload_file)"/>
     </include>
 
     <group ns="$(arg robot_ns)">
