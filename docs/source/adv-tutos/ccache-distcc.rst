@@ -36,4 +36,4 @@ Configuration
 
 .. note::
 
-    If you've already built your workspace without distcc, yo'll need to **clean** it first ``catkin clean -y``.
+    If you've already built your workspace without distcc, you'll need to **clean** it first ``catkin clean -y``.

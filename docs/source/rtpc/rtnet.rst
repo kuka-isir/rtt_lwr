@@ -26,8 +26,19 @@ Download
 
 .. code-block:: bash
 
+    sudo apt install git
+
+If on kernel < 3.18 :
+
+.. code-block:: bash
+
     git clone https://github.com/konradb3/RTnet.git
 
+if on kernel >= 3.18 (same with a fix) :
+
+.. code-block:: bash
+
+    git clone https://github.com/kuka-isir/RTnet.git
 
 Installation
 ------------
@@ -49,6 +60,10 @@ We'll need the following options:
       --> RTnet Application Examples
           --> Enable
 
+
+.. code-block:: bash
+
+    sudo apt install libncurses
 
 .. code-block:: bash
 
@@ -76,6 +91,32 @@ Take a look at [this configuration file](https://github.com/kuka-isir/rtt_lwr/bl
 * **TDMA_CYCLE="450"** and **TDMA_OFFSET="50"** Data from robot/ sensor takes about 350us to receive (using Wireshark).
 
 
+Allow non-root users
+--------------------
+
+To allow commands like ``rtnet start`` etc to be used without ``sudo``, we will use ``visudo``.
+We remove password in certain commands *only for people in the xenomai group*.
+
+.. code-block:: bash
+
+    sudo visudo
+    # then add the following at the end
+    %xenomai ALL=(root) NOPASSWD:/sbin/insmod
+    %xenomai ALL=(root) NOPASSWD:/sbin/rmmod
+    %xenomai ALL=(root) NOPASSWD:/sbin/modprobe
+    %xenomai ALL=(root) NOPASSWD:/bin/echo
+    %xenomai ALL=(root) NOPASSWD:/bin/mknod
+    %xenomai ALL=(root) NOPASSWD:/usr/bin/service
+    %xenomai ALL=(root) NOPASSWD:/usr/sbin/service
+    %xenomai ALL=(root) NOPASSWD:/usr/local/rtnet/sbin/rtcfg
+    %xenomai ALL=(root) NOPASSWD:/usr/local/rtnet/sbin/rtifconfig
+    %xenomai ALL=(root) NOPASSWD:/usr/local/rtnet/sbin/rtiwconfig
+    %xenomai ALL=(root) NOPASSWD:/usr/local/rtnet/sbin/rtnet
+    %xenomai ALL=(root) NOPASSWD:/usr/local/rtnet/sbin/rtping
+    %xenomai ALL=(root) NOPASSWD:/usr/local/rtnet/sbin/rtroute
+    %xenomai ALL=(root) NOPASSWD:/usr/local/rtnet/sbin/tdmacfg
+
+
 Test your installation
 ----------------------
 
@@ -83,17 +124,16 @@ Using the test script
 ~~~~~~~~~~~~~~~~~~~~~
 
 A launch script can be found `here <https://github.com/kuka-isir/rtt_lwr/blob/master/lwr_scripts/scripts/rtnet/>`_.
-Just adjust the following settings to your needs :
+Adjust the following settings to your needs :
 
 * SLAVES="192.168.100.102 192.168.100.103"
 * SLAVES_NAMES="Kuka ATISensor"
 
-Then
+Then to use it :
 
 .. code-block:: bash
 
-    ./rtnet start
-    ./rtping 192.168.100.102
+    ./path/to/script/rtnet start
 
 Manually
 ~~~~~~~~~
@@ -151,6 +191,7 @@ To make sure it compiles on every platform, add the following to your headers :
     #define rt_dev_recvfrom   recvfrom
     #define rt_dev_sendto     sendto
     #define rt_dev_close      close
+    #define rt_dev_connect    connect
 
     #else
     // Use RTnet in Xenomai
@@ -161,16 +202,19 @@ And in your CMakeLists.txt :
 
 .. code-block:: cmake
 
+    # Add the path to the FindRTnet.cmake folder
+    # Let's assume you put it in /path/to/project/cmake
+    list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
     if($ENV{OROCOS_TARGET} STREQUAL "xenomai")
       find_package(RTnet)
       if(NOT ${RTnet_FOUND})
         message(ERROR "RTnet cannot be used without Xenomai")
       else()
-        message(STATUS "Using RTnet")
+        message(STATUS "RTnet support enabled")
         set_property(TARGET ${TARGET_NAME} APPEND PROPERTY COMPILE_DEFINITIONS HAVE_RTNET XENOMAI)
-        # Xenomai def is optional
       endif()
     endif()
 
 
-.. note:: You'll need `FindRTnet.cmake which can be found here <https://github.com/kuka-isir/ati_sensor/tree/master/cmake/Modules>`_.
+.. note:: `FindRTnet.cmake can be found here <https://github.com/kuka-isir/ati_sensor/tree/master/cmake/Modules>`_.

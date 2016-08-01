@@ -149,8 +149,11 @@ Minimal config (``xeno_nucleus.xenomai_gid=128 xenomai.allowed_group=128`` allow
     GRUB_CMDLINE_LINUX_DEFAULT="quiet splash xeno_nucleus.xenomai_gid=128 xenomai.allowed_group=128"
     GRUB_CMDLINE_LINUX=""
 
+.. tip::
+    
+    Please note the xenomai group 128, you might need to change it after the ''Allow non-root users'' section.
 
-.. tip:: `noapic`` option might be added if the screen goes black at startup
+.. tip:: `noapic`` option might be added if the screen goes black at startup and you can't boot.
 
 If you have an Intel HD Graphics integrated GPU :
 
@@ -172,9 +175,11 @@ Allow non-root users
 
 .. code-block:: bash
 
-    sudo addgroup xenomai
+    sudo addgroup xenomai --gid 128
     sudo addgroup root xenomai
     sudo usermod -a -G xenomai $USER
+
+.. tip:: If the addgroup: The GID `xenomai' is already in use, change it to a different radom value, and update your ``grub`` accordingly.
 
 
 Install Xenomai libraries
@@ -242,14 +247,16 @@ This loop will allow you to monitor a xenomai latency. Here's the output for a i
 Negative latency issues
 -----------------------
 
-You need to be in root ``sudo -s``, then you can set values to the latency calibration variable :
+You need to be in root ``sudo -s``, then you can set values to the latency calibration variable in **nanoseconds**:
 
 .. code-block:: bash
 
     $ echo 0 > /proc/xenomai/latency
-    (run the native calibration test)
+    # Now run the latency test
     
-    If the minimum latency value is positive, then:
-    $ echo abs(min-latency-value) > /proc/xenomai/latency
+    # If the minimum latency value is positive, 
+    # then get the lowest value from the latency test (ex: 0.088 us)
+    # and write it to the calibration file ( here you have to write 88 ns) : 
+    $ echo my_super_value_in_ns > /proc/xenomai/latency
 
 Source : https://xenomai.org/pipermail/xenomai/2007-May/009063.html

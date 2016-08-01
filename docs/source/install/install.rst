@@ -1,6 +1,5 @@
-#########################
 Installation instructions
-#########################
+=========================
 
 Requirements
 ------------
@@ -82,7 +81,6 @@ After Install
     sudo rosdep init
     rosdep update
 
-
 OROCOS 2.8 + rtt_ros_integration (via debians)
 ----------------------------------------------
 
@@ -91,7 +89,7 @@ OROCOS toolchain 2.8
 
 .. code-block:: bash
 
-    sudo apt install ros-indigo-orocos-toolchain
+    sudo apt install ros-indigo-orocos-toolchain ruby1.9.3 ruby-dev libreadline-dev
 
 rtt_ros_integration 2.9
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -110,6 +108,10 @@ You are upgrading from orocos 2.8 :
 
 OROCOS toolchain 2.9
 ~~~~~~~~~~~~~~~~~~~~
+
+.. code::
+
+    sudo apt ruby1.9.3 ruby-dev libreadline-dev
 
 .. code-block:: bash
 
@@ -148,11 +150,7 @@ rtt_ros_integration 2.9
     # Build (this can take a while)
     catkin build
 
-.. note::
-
-    Your ``lwr_ws`` catkin now be configured with ``catkin config --extend ~/rtt_ros-2.9_ws/install``
-
-Additoonnaly, please make sure that these repos are in the right branches (with fixes for rtt) :
+Additoonnaly, please make sure that these repos (if you have them) are in the right branches (with fixes for rtt) :
 
 .. code-block:: bash
 
@@ -235,11 +233,22 @@ We use wstool (aka workspace tool) to get all the git repos :
     wstool update -j2
 
     # Create some extra ros messages (optional, only for ros control)
+
+    #
+    # If you are using the DEBIANS :
+    #
+
     source /opt/ros/indigo/setup.bash
+
+    #
+    # Otherwise, if you have built rtt_ros from source
+    #
+
+    source ~/rtt_ros-2.9_ws/install/setup.bash
+
 
     rosrun rtt_roscomm create_rtt_msgs control_msgs
     rosrun rtt_roscomm create_rtt_msgs controller_manager_msgs
-
 
 Get the kuka **friComm.h** file (description of the data passing on the ethernet port) :
 
@@ -270,6 +279,26 @@ If there are **other** missing dependencies :
     cd ~/lwr_ws
     rosdep install --from-path src/ -i
 
+Configure the workspace
+~~~~~~~~~~~~~~~~~~~~~~~
+
+If using the **debians** :
+
+.. code-block:: bash
+
+    cd ~/lwr_ws
+    # Load ROS workspace if not already done
+    source /opt/ros/indigo/setup.bash
+
+    catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release
+
+If building rtt_ros **from source** :
+
+.. code-block:: bash
+
+    cd ~/lwr_ws
+    catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release --extend ~/rtt_ros-2.9_ws/install
+
 Build the workspace
 ~~~~~~~~~~~~~~~~~~~
 
@@ -277,11 +306,7 @@ Let's build the entire workspace :
 
 .. code-block:: bash
 
-    cd ~/lwr_ws
-    # Load ROS workspace if not already done
-    source /opt/ros/indigo/setup.bash
-    # Building the packages (takes ~10min)
-    catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release
+    cd ~/lwr_ws #it can be anywhere inside the workspace, see catkin_tools docs
     catkin build
 
 .. image:: /_static/catkin-build.png
