@@ -118,9 +118,25 @@ void loadGazeboComponent(string comp_name)
     startComponent(comp_name)
 }
 
-var bool gz_loaded = false;
+var bool gz_loaded = false
 var bool required_packages_loaded = false;
 
+global bool isGazeboLoaded()
+{
+    return gz_loaded
+}
+global void setGazeboLoaded(bool gzloaded)
+{
+    gz_loaded = gzloaded
+}
+global bool isRequiredPackagesLoaded()
+{
+    return required_packages_loaded
+}
+global void setRequiredPackagesLoaded(bool req)
+{
+    required_packages_loaded = req
+}
 global bool importRequiredPackages()
 {
     # This is gonna load all the <export><plugin_depends> tags
