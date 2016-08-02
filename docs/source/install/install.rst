@@ -34,6 +34,21 @@ Required tools
     sudo apt update
     sudo apt install python-rosdep python-catkin-tools ros-indigo-catkin python-wstool python-vcstool
 
+Fix Locales
+~~~~~~~~~~~~~~
+
+.. code-block:: bash
+   
+   sudo locale-gen en_US #warnings might occur
+   sudo locale-gen en_US-UTF-8
+   sudo nano /etc/environment
+   # put theses lines
+   LANGUAGE=en_US
+   LC_ALL=en_US
+   # Reboot !
+   
+If you type ``perl`` you should not see any warnings.
+
 ROS Indigo Desktop
 ~~~~~~~~~~~~~~~~~~
 
