@@ -146,12 +146,12 @@ Minimal config (``xeno_nucleus.xenomai_gid=128 xenomai.allowed_group=128`` allow
     #GRUB_HIDDEN_TIMEOUT=0
     GRUB_HIDDEN_TIMEOUT_QUIET=true
     GRUB_TIMEOUT=5
-    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash xeno_nucleus.xenomai_gid=128 xenomai.allowed_group=128"
+    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash xeno_nucleus.xenomai_gid=1234 xenomai.allowed_group=1234"
     GRUB_CMDLINE_LINUX=""
 
 .. tip::
     
-    Please note the xenomai group 128, you might need to change it after the ''Allow non-root users'' section.
+    Please note the xenomai group 1234, you might need to change it after the ''Allow non-root users'' section.
 
 .. tip:: `noapic`` option might be added if the screen goes black at startup and you can't boot.
 
@@ -159,7 +159,7 @@ If you have an Intel HD Graphics integrated GPU :
 
 .. code-block:: bash
 
-    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash i915.i915_enable_rc6=0 i915.powersave=0 noapic xeno_nucleus.xenomai_gid=128 xenomai.allowed_group=128"
+    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash i915.i915_enable_rc6=0 i915.powersave=0 noapic xeno_nucleus.xenomai_gid=1234 xenomai.allowed_group=1234"
     # This removes powersavings from the graphics, that creates disturbing interruptions.
 
 
@@ -175,11 +175,11 @@ Allow non-root users
 
 .. code-block:: bash
 
-    sudo addgroup xenomai --gid 128
+    sudo addgroup xenomai --gid 1234
     sudo addgroup root xenomai
     sudo usermod -a -G xenomai $USER
 
-.. tip:: If the addgroup: The GID `xenomai' is already in use, change it to a different radom value, and update your ``grub`` accordingly.
+.. tip:: If the addgroup: The GID ``xenomai`` is already in use, change it to a different radom value, and update your ``grub`` accordingly.
 
 
 Install Xenomai libraries
