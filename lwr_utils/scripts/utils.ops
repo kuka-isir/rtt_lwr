@@ -213,7 +213,7 @@ global string loadStatePublisher(bool start_component)
     return comp_name
 }
 
-global bool loadConman()
+global string loadConman()
 {
     print.ln("\033[34;1mLoading ConMan \033[0m\n")
     ros.import("conman")
@@ -224,12 +224,17 @@ global bool loadConman()
     scripting.eval("scheme.loadService(\"conman_ros\")")
     scripting.eval("scheme.addGroup(\"robots\")")
     scripting.eval("scheme.addGroup(\"state_estimation\")")
+    scripting.eval("scheme.addGroup(\"trajectory_generation\")")
     scripting.eval("scheme.addGroup(\"controllers\")")
+    scripting.eval("scheme.enableBlock(\"robots\",false)")
+    scripting.eval("scheme.enableBlock(\"state_estimation\",false)")
+    scripting.eval("scheme.enableBlock(\"trajectory_generation\",false)")
+    scripting.eval("scheme.enableBlock(\"controllers\",false)")
 
-    return scripting.eval("scheme.getGroups()")
+    return "scheme"
 }
 
-global bool addComponentToStateEstimation(string component_name)
+global bool conmanAddStateEstimationComponent(string component_name)
 {
     stopComponent(component_name);
     connectPeers("scheme",component_name);
@@ -237,7 +242,7 @@ global bool addComponentToStateEstimation(string component_name)
     return true
 }
 
-global bool addRobotToConman(string component_name)
+global bool conmanAddRobotComponent(string component_name)
 {
     stopComponent(component_name);
     connectPeers("scheme",component_name);
@@ -245,12 +250,20 @@ global bool addRobotToConman(string component_name)
     return true
 }
 
-global bool addControllerToConman(string component_name)
+global bool conmanAddTrajectoryComponent(string component_name)
+{
+    stopComponent(component_name);
+    connectPeers("scheme",component_name);
+    scripting.eval("scheme.addToGroup(\""+component_name+"\",\"trajectory_generation\")");
+    return true
+}
+
+global bool conmanAddControllerComponent(string component_name)
 {
     stopComponent(component_name);
     connectPeers("scheme",component_name);
     scripting.eval("scheme.addToGroup(\""+component_name+"\",\"controllers\")");
-    return scripting.eval("scheme.latchConnections(\"robots\",\"controllers\",true)");
+    return true
 }
 
 global string loadFBSched()
