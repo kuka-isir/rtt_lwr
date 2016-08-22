@@ -53,11 +53,13 @@ global string loadKRLTool(bool start_component)
     loadComponent(component_name,"lwr::KRLTool")
     setActivity(component_name,0,10,ORO_SCHED_OTHER)
 
+    var ConnPolicy cp
+    cp.lock_policy = 1
 
     connectPeers(component_name,robot_name)
-    connect(component_name+".toKRL"  ,robot_name+".toKRL"    ,ConnPolicy())
-    connect(component_name+".fromKRL",robot_name+".fromKRL"  ,ConnPolicy())
-    connect(component_name+".JointImpedanceCommand",robot_name+".JointImpedanceCommand",ConnPolicy())
+    connect(component_name+".toKRL"  ,robot_name+".toKRL"    ,cp)
+    connect(component_name+".fromKRL",robot_name+".fromKRL"  ,cp)
+    connect(component_name+".JointImpedanceCommand",robot_name+".JointImpedanceCommand",cp)
     configureComponent(component_name)
 
     loadService(component_name,"rosservice")
@@ -202,9 +204,13 @@ global string loadStatePublisher(bool start_component)
     print.ln("\033[34;1mLoading state publisher for "+robot_name+"\033[0m\n")
 
     connectPeers(comp_name,robot_name)
-    connect(comp_name+".JointPosition",robot_name+".JointPosition",ConnPolicy())
-    connect(comp_name+".JointVelocity",robot_name+".JointVelocity",ConnPolicy())
-    connect(comp_name+".JointTorque",robot_name+".JointTorque",ConnPolicy())
+
+    var ConnPolicy cp
+    cp.lock_policy = 1
+
+    connect(comp_name+".JointPosition",robot_name+".JointPosition",cp)
+    connect(comp_name+".JointVelocity",robot_name+".JointVelocity",cp)
+    connect(comp_name+".JointTorque",robot_name+".JointTorque",cp)
 
     stream(comp_name+".JointStates",ros.comm.topic("joint_states"))
 
@@ -303,9 +309,12 @@ global string loadJointTrajectoryGeneratorKDL(bool start_component)
   loadComponent(comp_name,"JointTrajGeneratorKDL")
   setActivity(comp_name,0.001,10,ORO_SCHED_RT);
 
-  connect(comp_name+".joint_position_in",robot_name+".JointPosition",ConnPolicy())
-  connect(comp_name+".joint_velocity_in",robot_name+".JointVelocity",ConnPolicy())
-  connect(comp_name+".joint_position_out",robot_name+".JointPositionCommand",ConnPolicy())
+  var ConnPolicy cp
+  cp.lock_policy = 1
+
+  connect(comp_name+".joint_position_in",robot_name+".JointPosition",cp)
+  connect(comp_name+".joint_velocity_in",robot_name+".JointVelocity",cp)
+  connect(comp_name+".joint_position_out",robot_name+".JointPositionCommand",cp)
 
   configureComponent(comp_name)
 
@@ -341,12 +350,15 @@ global string loadROSControl(bool start_component)
     ## Configure the RttRosControl component
     configureComponent(comp_name)
 
-    connect(comp_name+".JointPosition",robot_name+".JointPosition",ConnPolicy())
-    connect(comp_name+".JointVelocity",robot_name+".JointVelocity",ConnPolicy())
-    connect(comp_name+".JointTorque",robot_name+".JointTorque",ConnPolicy())
+    var ConnPolicy cp
+    cp.lock_policy = 1
+
+    connect(comp_name+".JointPosition",robot_name+".JointPosition",cp)
+    connect(comp_name+".JointVelocity",robot_name+".JointVelocity",cp)
+    connect(comp_name+".JointTorque",robot_name+".JointTorque",cp)
     # WARNING : Connect ONLY the one matching the current control mode !
-    # connect(comp_name+".JointPositionCommand",robot_name+".JointPositionCommand",ConnPolicy())
-    connect(comp_name+".JointTorqueCommand",robot_name+".JointTorqueCommand",ConnPolicy())
+    # connect(comp_name+".JointPositionCommand",robot_name+".JointPositionCommand",cp)
+    connect(comp_name+".JointTorqueCommand",robot_name+".JointTorqueCommand",cp)
 
     ## Start it
     if(start_component) then{
