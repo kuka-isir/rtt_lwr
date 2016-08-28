@@ -232,12 +232,13 @@ global string loadConman()
     scripting.eval("scheme.addGroup(\"state_estimation\")")
     scripting.eval("scheme.addGroup(\"trajectory_generation\")")
     scripting.eval("scheme.addGroup(\"controllers\")")
-    scripting.eval("scheme.enableBlock(\"robots\",false)")
-    scripting.eval("scheme.enableBlock(\"state_estimation\",false)")
-    scripting.eval("scheme.enableBlock(\"trajectory_generation\",false)")
-    scripting.eval("scheme.enableBlock(\"controllers\",false)")
 
     return "scheme"
+}
+
+global void conmanEnableBlocks()
+{
+    scripting.eval("scheme.setEnabledBlocks(strings(\"robots\",\"state_estimation\",\"trajectory_generation\",\"controllers\"),true)")
 }
 
 global bool conmanAddStateEstimationComponent(string component_name)
