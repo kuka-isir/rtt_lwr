@@ -32,6 +32,7 @@
       <plugin_depend>eigen_typekit</plugin_depend>
       <plugin_depend>rtt_tf</plugin_depend>
       <plugin_depend>rtt_nav_msgs</plugin_depend>
+      <plugin_depend>rtt_krl_msgs</plugin_depend>
       <!-- <plugin_depend>kuka_lwr_fri</plugin_depend>
       <plugin_depend>lwr_fri</plugin_depend> -->
     </rtt_ros>
