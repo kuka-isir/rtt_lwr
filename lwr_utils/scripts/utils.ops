@@ -69,6 +69,13 @@ global string loadKRLTool(bool start_component)
     scripting.eval(component_name+".rosservice.connect(\"setCartesianImpedanceControlModeROSService\",\""+component_name+"/set_cartesian_impedance_control_mode\", \"std_srvs/Empty\")")
     scripting.eval(component_name+".rosservice.connect(\"setJointTorqueControlModeROSService\",\""+component_name+"/set_joint_torque_control_mode\", \"std_srvs/Empty\")")
     scripting.eval(component_name+".rosservice.connect(\"getCurrentControlModeROSService\",\""+component_name+"/get_current_control_mode\", \"std_srvs/Trigger\")")
+
+    ros.import("rtt_actionlib")
+    ros.import("rtt_krl_msgs")
+    loadService(getRobotName()+"_krl_tool","actionlib")
+    scripting.eval(getRobotName()+"_krl_tool.actionlib.connectSub(\"PTP\",\"ptp\")")
+    scripting.eval(getRobotName()+"_krl_tool.actionlib.connectSub(\"LIN\",\"lin\")")
+
     if(start_component) then
       startComponent(component_name)
     return component_name
