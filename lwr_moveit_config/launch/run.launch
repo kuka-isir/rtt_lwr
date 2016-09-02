@@ -9,6 +9,7 @@
     <arg name="debug" default="false" />
     <!-- Launch rviz -->
     <arg name="rviz" default="false" />
+    <arg name="moveit_rviz" default="true"/>
     <!-- The level of verbose (never, fatal, critical, error, warning, info, debug, realtime) -->
     <arg name="log_level" default="warning" />
     <!-- Tools -->
@@ -46,7 +47,9 @@
     <arg name="gazebo_gui" value="$(arg gazebo_gui)"/>
 </include>
 
-<include file="$(find lwr_moveit_config)/launch/lwr.launch" if="$(arg launch_moveit)"/>
+<include file="$(find lwr_moveit_config)/launch/lwr.launch" if="$(arg launch_moveit)">
+	<arg name="moveit_rviz" value="$(arg moveit_rviz)"/>
+</include>
 
 <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
     output="screen" args="$(arg spawn_ros_controllers)"/>
