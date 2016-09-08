@@ -6,7 +6,7 @@ import("rtt_rospack")
 import("rtt_roscomm")
 import("lwr_utils")
 # to prevent https://github.com/orocos-toolchain/rtt/issues/150
-this.setPeriod(0.01)
+this.setPeriod(0.001)
 this.start
 # "this" argument hasn't reach debians yet
 this.loadService("Deployer","ros_helper")
@@ -30,6 +30,9 @@ global bool isSim()
 {
     return this.ros_helper.isSim();
 }
+
+if(!isSim()) then
+    import("rtt_rosnode")
 
 
 global bool setRobotInitialJointConfiguration(double q0,double q1,double q2,double q3,double q4,double q5,double q6)
@@ -464,14 +467,16 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
     }
     else
     {
+        print.ln("\033[34;1m["+robot_name+"] Importing required packages \033[0m\n")
         if(!required_packages_loaded) then{
             importRequiredPackages()
             required_packages_loaded = true
         }
+        print.ln("\033[34;1m["+robot_name+"] Loading robot component  \033[0m\n")
         ros.import("lwr_fri")
         loadComponent(robot_name,"FRIComponent")
         setActivity(robot_name,0,90,ORO_SCHED_RT)
-
+        print.ln("\033[34;1m["+robot_name+"] Configuring robot component  \033[0m\n")
         configureComponent(robot_name)
 
         print.ln("\033[34;1m["+robot_name+"] RUNNING ON HARDWARE \033[0m\n")
@@ -480,7 +485,7 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
     if(start_component) then
         startComponent(robot_name)
 
-    loadKRLTool(true)
+    //loadKRLTool(true)
 
     if(is_sim) then
         setJointImpedanceControlMode();
