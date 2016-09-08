@@ -485,7 +485,7 @@ global string loadRobot(string robot_name,bool is_sim,bool start_component)
     if(start_component) then
         startComponent(robot_name)
 
-    //loadKRLTool(true)
+    loadKRLTool(true)
 
     if(is_sim) then
         setJointImpedanceControlMode();
