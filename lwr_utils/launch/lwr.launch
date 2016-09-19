@@ -6,7 +6,7 @@
 <arg name="TAO" default="false"/>
 <arg name="sim" default="false"/>
 <arg name="start_paused" default="false"/>
-<arg name="use_sim_time" default="true"/>
+<arg name="use_sim_time" default="false"/>
 <arg name="root_link" default="link_0"/>
 <arg name="tip_link" default="link_7"/>
 <!-- Tools -->
