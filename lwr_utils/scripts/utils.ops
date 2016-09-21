@@ -46,6 +46,47 @@ global bool setRobotInitialJointConfiguration(double q0,double q1,double q2,doub
     return true;
 }
 
+global string getAtiFTSensorDataPort()
+{
+    return "ft_sensor.WrenchStamped"
+}
+
+global bool connectToAtiFTSensorPort(string comp_name,string port_name,ConnPolicy cp)
+{
+    connectPeers("ft_sensor",comp_name)
+    if(isSim()) then
+    {
+        import("rtt_geometry_msgs")
+        stream(comp_name+"."+port_name,ros.comm.topic("ft_sensor/wrench"))
+    }else{
+        connect(getAtiFTSensorDataPort(),comp_name+"."+port_name,cp)
+    }
+    return true
+}
+global string loadAtiFTSensor(bool start_component)
+{
+    if(isSim()) then
+    {
+        print.ln("\033[34;1mLoading ATI F/T Sensor (Simulated)\033[0m\n")
+        print.ln("\033[34;1m=> Please use connectToAtiFTSensorPort(\"my_component\",\"my_geometry_msgs_port\",ConnPolicy())\033[0m\n")
+    }else
+    {
+        ros.import("rtt_ati_sensor")
+        loadComponent("ft_sensor","rtt_ati::FTSensor")
+        print.ln("\033[34;1mLoading ATI F/T Sensor \033[0m\n")
+    }
+
+    setActivity("ft_sensor",0.001,10,ORO_SCHED_RT)
+    # uncomment for event based update with netft box set at component periodicity
+    #ft_sensor.read_mode = 2
+    #ft_sensor.sample_count = 0
+
+    configureComponent("ft_sensor")
+    if(start_component) then
+        startComponent("ft_sensor")
+    return "ft_sensor"
+}
+
 global string loadKRLTool(bool start_component)
 {
     var string robot_name = getRobotName()
@@ -78,6 +119,10 @@ global string loadKRLTool(bool start_component)
     loadService(getRobotName()+"_krl_tool","actionlib")
     scripting.eval(getRobotName()+"_krl_tool.actionlib.connectSub(\"PTP\",\"ptp\")")
     scripting.eval(getRobotName()+"_krl_tool.actionlib.connectSub(\"LIN\",\"lin\")")
+
+
+    loadAtiFTSensor(true)
+    connectToAtiFTSensorPort(component_name,"ft_sensor_in",cp)
 
     if(start_component) then
       startComponent(component_name)
@@ -377,47 +422,6 @@ global string loadROSControl(bool start_component)
         # scripting.eval(comp_name+".startControllers()")
     }
     return comp_name;
-}
-
-global string getAtiFTSensorDataPort()
-{
-    return "ft_sensor.WrenchStamped"
-}
-
-global bool connectToAtiFTSensorPort(string comp_name,string port_name,ConnPolicy cp)
-{
-    connectPeers("ft_sensor",comp_name)
-    if(isSim()) then
-    {
-        import("rtt_geometry_msgs")
-        stream(comp_name+"."+port_name,ros.comm.topic("ft_sensor/wrench"))
-    }else{
-        connect(getAtiFTSensorDataPort(),comp_name+"."+port_name,cp)
-    }
-    return true
-}
-global string loadAtiFTSensor(bool start_component)
-{
-    if(isSim()) then
-    {
-        print.ln("\033[34;1mLoading ATI F/T Sensor (Simulated)\033[0m\n")
-        print.ln("\033[34;1m=> Please use connectToAtiFTSensorPort(\"my_component\",\"my_geometry_msgs_port\",ConnPolicy())\033[0m\n")
-    }else
-    {
-        ros.import("rtt_ati_sensor")
-        loadComponent("ft_sensor","rtt_ati::FTSensor")
-        print.ln("\033[34;1mLoading ATI F/T Sensor \033[0m\n")
-    }
-
-    setActivity("ft_sensor",0.001,10,ORO_SCHED_RT)
-    # uncomment for event based update with netft box set at component periodicity
-    #ft_sensor.read_mode = 2
-    #ft_sensor.sample_count = 0
-
-    configureComponent("ft_sensor")
-    if(start_component) then
-        startComponent("ft_sensor")
-    return "ft_sensor"
 }
 
 global string loadRobot(string robot_name,bool is_sim,bool start_component)
