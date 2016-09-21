@@ -11,3 +11,5 @@
 - git: {local-name: rtt_lwr_controllers, uri: 'https://github.com/kuka-isir/rtt_lwr_controllers'}
 - git: {local-name: rtt_gazebo_embedded, uri: 'https://github.com/kuka-isir/rtt_gazebo_embedded'}
 - git: {local-name: rtt_ros_control_embedded, uri: 'https://github.com/kuka-isir/rtt_ros_control_embedded'}
+- git: {local-name: rtt_ati_sensor, uri: 'https://github.com/kuka-isir/rtt_ati_sensor'}
+- git: {local-name: ati_sensor, uri: 'https://github.com/kuka-isir/ati_sensor'}
