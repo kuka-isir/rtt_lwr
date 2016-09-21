@@ -381,7 +381,7 @@ global string loadROSControl(bool start_component)
 
 global string getAtiFTSensorDataPort()
 {
-    return "ft_sensor.wrench"
+    return "ft_sensor.WrenchStamped"
 }
 
 global bool connectToAtiFTSensorPort(string comp_name,string port_name,ConnPolicy cp)
@@ -392,7 +392,7 @@ global bool connectToAtiFTSensorPort(string comp_name,string port_name,ConnPolic
         import("rtt_geometry_msgs")
         stream(comp_name+"."+port_name,ros.comm.topic("ft_sensor/wrench"))
     }else{
-        connect("ft_sensor",comp_name+"."+port_name,cp)
+        connect(getAtiFTSensorDataPort(),comp_name+"."+port_name,cp)
     }
     return true
 }
