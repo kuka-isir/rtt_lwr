@@ -1,5 +1,6 @@
 <launch>
 <!--arg name="robot_ns" default="/"/-->
+<arg name="moveit_rviz" default="true"/>
 
 <!--group ns="$(arg robot_ns)"-->
   <!--param name="tf_prefix" value="$(arg robot_ns)"/-->
@@ -24,7 +25,7 @@
   </include>
 
   <!-- Run Rviz and load the default config to see the state of the move_group node -->
-  <include file="$(find lwr_moveit_config)/launch/moveit_rviz.launch">
+  <include if="$(arg moveit_rviz)" file="$(find lwr_moveit_config)/launch/moveit_rviz.launch">
     <arg name="config" value="true"/>
     <arg name="debug" value="$(arg debug)"/>
   </include>

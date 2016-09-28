@@ -3,7 +3,7 @@ RTnet setup on Xenomai
 
 Official website : http://www.rtnet.org/index.html
 
-RTnet allows you to send and receive data with very strict constraints, in a real-time environment (RTAI, Xenomai). It only works with a very limited set of ethernet cards (RTnet includes "real-time" re-written drivers) : Intel PRO/1000, 82574L, any card with r8169 and others.
+RTnet allows you to send and receive data with very strict constraints, in a real-time environment (RTAI, Xenomai). It only works with a very limited set of ethernet cards (RTnet includes "real-time" re-written drivers) : Intel PRO/1000, 82574L, any card with r8169 (xenomai < 2.6.4 only) and others.
 
 First make sure your followed the `Xenomai installation instructions <rtpc/xenomai.html>`_ and you are running the Xenomai kernel (uname -a).
 
@@ -146,7 +146,7 @@ Manually
     # Bringup connection
     sudo ./rtifconfig rteth0 up 192.168.100.101 netmask 255.255.255.0
     # Bringup slaves
-    sudo ./rtroute solicit 192.168.100.101 dev rteth0
+    sudo ./rtroute solicit 192.168.100.102 dev rteth0
     # Ping Slave
     sudo ./rtping 192.168.100.102
     # Stop everything

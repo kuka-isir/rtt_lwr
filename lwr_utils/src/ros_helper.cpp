@@ -129,11 +129,13 @@ public:
     }
     bool addComponent(TaskContext * c)
     {
+        log(Debug) << " addComponent "<<endlog();
         if(!owner_) return false;
         return owner_->addPeer(c,c->getName());
     }
     TaskContext * getTaskContext(const std::string& task_name)
     {
+        log(Debug) << " getTaskContext "<<endlog();
         if(!owner_) return NULL;
         if(task_name == owner_->getName())
             return owner_;
@@ -146,10 +148,12 @@ public:
     }
     string getThisNodeName()
     {
+        log(Debug) << " getThisNodeName "<<endlog();
         return ros::this_node::getName();
     }
     template<typename T> bool getParamInNs(const std::string& param_name,T& param_out)
     {
+        log(Debug) << " getParamInNs "<<param_name<<endlog();
         if(ros::master::check() == false) return false;
         std::string ns = getRobotNs();
         if(ros::param::has(ns+param_name)){
@@ -160,16 +164,19 @@ public:
     }
     bool isSim()
     {
-        getParamInNs("is_sim",is_sim_);
+        log(Debug) << " isSim "<<endlog();
+        // getParamInNs("is_sim",is_sim_);
         return is_sim_;
     }
     string getRobotName()
     {
+        log(Debug) << " getRobotName "<<endlog();
         getParamInNs("robot_name",robot_name_);
         return robot_name_;
     }
     std::string getRobotNs()
     {
+        log(Debug) << " getRobotNs "<<endlog();
         if(ros::master::check() && ros::param::has("robot_ns"))
             ros::param::get("robot_ns",robot_name_);
         if(*robot_ns_.rbegin() != '/') robot_ns_ +='/';
@@ -177,11 +184,13 @@ public:
     }
     std::string getTfPrefix()
     {
+        log(Debug) << " getTfPrefix "<<endlog();
         getParamInNs("tf_prefix",tf_prefix_);
         return tf_prefix_;
     }
     std::string getThisNodeNamespace()
     {
+        log(Debug) << " getThisNodeNamespace "<<endlog();
         std::string ns(ros::this_node::getNamespace());
         size_t pos = ns.find( "//" );
         if ( pos != std::string::npos ) {
@@ -191,6 +200,7 @@ public:
     }
     std::string getParam(const std::string& res_param_name)
     {
+        log(Debug) << " getParam "<<endlog();
         std::string param;
         std::stringstream ss;
         ss << "Getting Param : "<<res_param_name;
@@ -201,10 +211,12 @@ public:
     }
     bool waitForROSService(std::string service_name, double service_timeout_s)
     {
+        log(Debug) << " waitForROSService "<<endlog();
         return ros::service::waitForService(service_name, service_timeout_s*1E3);
     }
     bool rosServiceCall(const std::string& call_args)
     {
+        log(Debug) << " rosServiceCall "<<endlog();
         std::string rosservice_func("rosservice call ");
         if(!system((rosservice_func+call_args).c_str()))
             return true;
