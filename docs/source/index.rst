@@ -12,6 +12,13 @@ Control Software Architechture for Kuka LWR 4+
 .. image:: /_static/upmc.png
     :width: 250px
 
+
+Experimental setup
+------------------
+
+.. image:: https://docs.google.com/drawings/d/1E0KbzYNJTc-1nIdF8U4vIk07o5m0t-UEVZyddy6xKDc/pub?w=1802&amp;h=1195
+
+
 .. toctree::
     :name: install
     :caption: Installation and Configuration
