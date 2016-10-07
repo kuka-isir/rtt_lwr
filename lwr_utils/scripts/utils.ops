@@ -5,10 +5,11 @@ import("rtt_ros")
 import("rtt_rospack")
 import("rtt_roscomm")
 import("lwr_utils")
-# to prevent https://github.com/orocos-toolchain/rtt/issues/150
+import("rtt_geometry_msgs")
+// to prevent https://github.com/orocos-toolchain/rtt/issues/150
 this.setPeriod(0.001)
 this.start
-# "this" argument hasn't reach debians yet
+// "this" argument hasn't reach debians yet
 this.loadService("Deployer","ros_helper")
 
 global string getRobotName()
@@ -37,11 +38,30 @@ if(!isSim()) then
 
 global bool setRobotInitialJointConfiguration(double q0,double q1,double q2,double q3,double q4,double q5,double q6)
 {
-    if(!isSim()) then{
-        print.log(Info,"Initial joint configuration should be done on the KRL script.")
+    if(!isSim()) then
+    {
+        // Super hack/fix because if q = 0. , then double(q0) sees an int
+        // and can't build the array(int,int)...
+
+        if(q0 == 0) then
+            q0 = 0.00000001
+        if(q1 == 0) then
+            q1 = 0.00000001        
+        if(q2 == 0) then
+            q2 = 0.00000001
+        if(q3 == 0) then
+            q3 = 0.00000001
+        if(q4 == 0) then
+            q4 = 0.00000001
+        if(q5 == 0) then
+            q5 = 0.00000001
+        if(q6 == 0) then
+            q6 = 0.00000001
+
+        scripting.eval(getRobotName()+"_krl_tool.PTP.moveJoint(array("+double(q0)+","+double(q1)+","+double(q2)+","+double(q3)+","+double(q4)+","+double(q5)+","+double(q6)+"),array(1.,1.,1.,1.,1.,1.,1.),false,30.0)")
         return true
     }
-    # Example : setRobotInitialJointConfiguration(1.0,0.,0.0,-1.57,0.0,1.57,0.)
+    // Example : setRobotInitialJointConfiguration(1.0,0.,0.0,-1.57,0.0,1.57,0.)
     this.ros_helper.rosServiceCall("/gazebo/set_model_configuration '{ model_name: "+getRobotName()+",joint_names: [ joint_0, joint_1, joint_2,joint_3, joint_4, joint_5, joint_6 ],joint_positions: ["+q0+", "+q1+", "+q2+", "+q3+", "+q4+", "+q5+", "+q6+"]}' --wait -v");
     return true;
 }
@@ -77,9 +97,9 @@ global string loadAtiFTSensor(bool start_component)
     }
 
     setActivity("ft_sensor",0.001,10,ORO_SCHED_RT)
-    # uncomment for event based update with netft box set at component periodicity
-    #ft_sensor.read_mode = 2
-    #ft_sensor.sample_count = 0
+    // uncomment for event based update with netft box set at component periodicity
+    //ft_sensor.read_mode = 2
+    //ft_sensor.sample_count = 0
 
     configureComponent("ft_sensor")
     if(start_component) then
@@ -167,7 +187,7 @@ void loadGazeboComponent(string comp_name)
 
     configureComponent(comp_name)
 
-    # Sync ros/gazebo/rtt clocks
+    // Sync ros/gazebo/rtt clocks
     import("rtt_rosclock")
     scripting.eval("ros.clock.useROSClockTopic()")
     scripting.eval("ros.clock.enableSimClock()")
@@ -196,7 +216,7 @@ global void setRequiredPackagesLoaded(bool req)
 }
 global bool importRequiredPackages()
 {
-    # This is gonna load all the <export><plugin_depends> tags
+    // This is gonna load all the <export><plugin_depends> tags
     print.log(Info,"Loading all recommended RTT packages")
     ros.import("lwr_utils")
     print.log(Info,"Done loading recommended RTT packages")
@@ -392,18 +412,18 @@ global string loadROSControl(bool start_component)
 
     ros.import("rtt_ros_control_embedded")
 
-    # Load the RttRosControl component
+    // Load the RttRosControl component
     loadComponent(comp_name,"RttRosControl")
 
-    ## Give it a periodic activity
+    //// Give it a periodic activity
     setActivity(comp_name,0.001,LowestPriority+25,ORO_SCHED_RT)
 
 
-    ## Preload controllers
-    # scripting.eval(comp_name+".preloadController(\"joint_trajectory_controller\")")
-    # scripting.eval(comp_name+".preloadController(\"joint_state_controller\")")
+    //// Preload controllers
+    // scripting.eval(comp_name+".preloadController(\"joint_trajectory_controller\")")
+    // scripting.eval(comp_name+".preloadController(\"joint_state_controller\")")
 
-    ## Configure the RttRosControl component
+    //// Configure the RttRosControl component
     configureComponent(comp_name)
 
     var ConnPolicy cp
@@ -412,22 +432,22 @@ global string loadROSControl(bool start_component)
     connect(comp_name+".JointPosition",robot_name+".JointPosition",cp)
     connect(comp_name+".JointVelocity",robot_name+".JointVelocity",cp)
     connect(comp_name+".JointTorque",robot_name+".JointTorque",cp)
-    # WARNING : Connect ONLY the one matching the current control mode !
-    # connect(comp_name+".JointPositionCommand",robot_name+".JointPositionCommand",cp)
+    // WARNING : Connect ONLY the one matching the current control mode !
+    // connect(comp_name+".JointPositionCommand",robot_name+".JointPositionCommand",cp)
     connect(comp_name+".JointTorqueCommand",robot_name+".JointTorqueCommand",cp)
 
-    ## Start it
+    //// Start it
     if(start_component) then{
         startComponent(comp_name)
-        # scripting.eval(comp_name+".startControllers()")
+        // scripting.eval(comp_name+".startControllers()")
     }
     return comp_name;
 }
 
 global string loadRobot(string robot_name,bool is_sim,bool start_component)
 {
-    #var bool is_sim = isSim();
-    #var string robot_name = getRobotName()
+    //var bool is_sim = isSim();
+    //var string robot_name = getRobotName()
     var bool new_gazebo_interface = false
 
     if(is_sim) then
