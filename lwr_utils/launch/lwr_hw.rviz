@@ -5,9 +5,11 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /LWR Hw Model1
         - /TF1/Frames1
+        - /WrenchStamped2
         - /PoseArray2
-      Splitter Ratio: 0.409664
+      Splitter Ratio: 0.516667
     Tree Height: 747
   - Class: rviz/Selection
     Name: Selection
@@ -50,17 +52,19 @@ Visualization Manager:
       Reference Frame: <Fixed Frame>
       Value: true
     - Alpha: 1
-      Arrow Scale: 2
       Arrow Width: 0.5
       Class: rviz/WrenchStamped
       Enabled: false
+      Force Arrow Scale: 2
       Force Color: 204; 51; 51
       History Length: 1
       Name: WrenchStamped
       Topic: /ft_sensor/wrench
+      Torque Arrow Scale: 2
       Torque Color: 204; 204; 51
+      Unreliable: false
       Value: false
-    - Alpha: 0.1
+    - Alpha: 0.6
       Class: rviz/RobotModel
       Collision Enabled: false
       Enabled: true
@@ -70,275 +74,22 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-      Name: LWR Hw Model
-      Robot Description: /robot_description
-      TF Prefix: ""
-      Update Interval: 0
-      Value: true
-      Visual Enabled: true
-    - Class: rviz/TF
-      Enabled: true
-      Frame Timeout: 15
-      Frames:
-        All Enabled: true
-        sim/ati_link:
+        ati_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
           Value: true
-        sim/ati_polaris_link:
-          Value: true
-        sim/ati_rot_link:
-          Value: true
-        sim/base_link:
-          Value: true
-        sim/calib_link:
-          Value: true
-        sim/link_0:
-          Value: true
-        sim/link_1:
-          Value: true
-        sim/link_2:
-          Value: true
-        sim/link_3:
-          Value: true
-        sim/link_4:
-          Value: true
-        sim/link_5:
-          Value: true
-        sim/link_6:
-          Value: true
-        sim/link_7:
-          Value: true
-        sim/world:
-          Value: true
-        world:
-          Value: true
-      Marker Scale: 0.1
-      Name: TF
-      Show Arrows: false
-      Show Axes: true
-      Show Names: true
-      Tree:
-        world:
-          sim/world:
-            sim/base_link:
-              sim/link_0:
-                sim/link_1:
-                  sim/link_2:
-                    sim/link_3:
-                      sim/link_4:
-                        sim/link_5:
-                          sim/link_6:
-                            sim/link_7:
-                              sim/ati_link:
-                                sim/ati_polaris_link:
-                                  {}
-                                sim/ati_rot_link:
-                                  sim/calib_link:
-                                    {}
-      Update Interval: 0
-      Value: true
-    - Alpha: 0.5
-      Arrow Scale: 0.01
-      Arrow Width: 0.05
-      Class: rviz/WrenchStamped
-      Enabled: true
-      Force Color: 204; 51; 51
-      History Length: 1
-      Name: WrenchStamped
-      Topic: /ft_sensor/wrench
-      Torque Color: 204; 204; 51
-      Value: true
-    - Alpha: 0.5
-      Axes Length: 0.1
-      Axes Radius: 0.005
-      Class: rviz/Pose
-      Color: 255; 255; 2
-      Enabled: true
-      Head Length: 0.01
-      Head Radius: 0.01
-      Name: Pose Current
-      Shaft Length: 0.08
-      Shaft Radius: 0.005
-      Shape: Arrow
-      Topic: /lwr/cart_ctrl/pos_curr
-      Value: true
-    - Alpha: 0.5
-      Axes Length: 0.08
-      Axes Radius: 0.001
-      Class: rviz/Pose
-      Color: 255; 0; 0
-      Enabled: true
-      Head Length: 0.01
-      Head Radius: 0.01
-      Name: Pose Desired
-      Shaft Length: 0.15
-      Shaft Radius: 0.005
-      Shape: Arrow
-      Topic: /lwr/cart_ctrl/pos_des
-      Value: true
-    - Alpha: 1
-      Axes Length: 0.1
-      Axes Radius: 0.001
-      Class: rviz/Pose
-      Color: 17; 255; 0
-      Enabled: true
-      Head Length: 0.01
-      Head Radius: 0.01
-      Name: Pose Sent
-      Shaft Length: 0.1
-      Shaft Radius: 0.005
-      Shape: Arrow
-      Topic: /lwr/cart_ctrl/pos_tmp
-      Value: true
-    - Alpha: 0.5
-      Buffer Length: 10
-      Class: rviz/Path
-      Color: 5; 255; 205
-      Enabled: true
-      Line Style: Lines
-      Line Width: 0.03
-      Name: Trajectory
-      Offset:
-        X: 0
-        Y: 0
-        Z: 0
-      Topic: /lwr/cart_ctrl/cart_traj_des
-      Value: true
-    - Arrow Length: 0.05
-      Class: rviz/PoseArray
-      Color: 255; 25; 0
-      Enabled: true
-      Name: PoseArray
-      Topic: /lwr/cart_ctrl/traj_poses
-      Value: true
-    - Alpha: 0.5
-      Axes Length: 1
-      Axes Radius: 0.1
-      Class: rviz/Pose
-      Color: 255; 0; 243
-      Enabled: true
-      Head Length: 0.01
-      Head Radius: 0.01
-      Name: Pose Corr
-      Shaft Length: 0.1
-      Shaft Radius: 0.005
-      Shape: Arrow
-      Topic: /lwr/cart_ctrl/pos_corr
-      Value: true
-    - Alpha: 0.9
-      Class: rviz/PointStamped
-      Color: 138; 148; 204
-      Enabled: true
-      History Length: 100
-      Name: PointStamped
-      Radius: 0.015
-      Topic: /PolarisCalibration/target_pt_out
-      Value: true
-    - Alpha: 0.9
-      Class: rviz/PointStamped
-      Color: 140; 204; 135
-      Enabled: true
-      History Length: 100
-      Name: PointStamped
-      Radius: 0.01
-      Topic: /PolarisCalibration/polaris_pt_out
-      Value: true
-    - Alpha: 0.5
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 0.364314
-        Min Value: 0.206385
-        Value: true
-      Axis: Z
-      Channel Name: intensity
-      Class: rviz/PointCloud
-      Color: 255; 255; 255
-      Color Transformer: AxisColor
-      Decay Time: 0
-      Enabled: true
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Max Intensity: 4096
-      Min Color: 0; 0; 0
-      Min Intensity: 0
-      Name: PointCloud
-      Position Transformer: XYZ
-      Queue Size: 10
-      Selectable: true
-      Size (Pixels): 3
-      Size (m): 0.01
-      Style: Boxes
-      Topic: /pointsA
-      Use Fixed Frame: true
-      Use rainbow: true
-      Value: true
-    - Alpha: 0.5
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 0.364351
-        Min Value: 0.20606
-        Value: true
-      Axis: Z
-      Channel Name: intensity
-      Class: rviz/PointCloud
-      Color: 255; 255; 255
-      Color Transformer: AxisColor
-      Decay Time: 0
-      Enabled: true
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Max Intensity: 4096
-      Min Color: 0; 0; 0
-      Min Intensity: 0
-      Name: PointCloud
-      Position Transformer: XYZ
-      Queue Size: 10
-      Selectable: true
-      Size (Pixels): 3
-      Size (m): 0.01
-      Style: Spheres
-      Topic: /pointsB
-      Use Fixed Frame: true
-      Use rainbow: true
-      Value: true
-    - Alpha: 1
-      Arrow Scale: 0.01
-      Arrow Width: 0.05
-      Class: rviz/WrenchStamped
-      Enabled: true
-      Force Color: 204; 51; 51
-      History Length: 1
-      Name: WrenchStamped
-      Topic: /lwr/cart_ctrl/wrench_world
-      Torque Color: 204; 204; 51
-      Value: true
-    - Alpha: 0.5
-      Class: rviz/RobotModel
-      Collision Enabled: false
-      Enabled: true
-      Links:
-        All Links Enabled: true
-        Expand Joint Details: false
-        Expand Link Details: false
-        Expand Tree: false
-        Link Tree Style: Links in Alphabetic Order
         ati_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        ati_polaris_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        ati_rot_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
         base_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        calib_link:
+          Value: true
+        handle_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -387,6 +138,269 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+      Name: LWR Hw Model
+      Robot Description: /robot_description
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Class: rviz/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        /world:
+          Value: true
+        All Enabled: true
+        ati_base_link:
+          Value: true
+        ati_link:
+          Value: true
+        base_link:
+          Value: true
+        handle_link:
+          Value: true
+        link_0:
+          Value: true
+        link_1:
+          Value: true
+        link_2:
+          Value: true
+        link_3:
+          Value: true
+        link_4:
+          Value: true
+        link_5:
+          Value: true
+        link_6:
+          Value: true
+        link_7:
+          Value: true
+        world:
+          Value: true
+      Marker Scale: 0.1
+      Name: TF
+      Show Arrows: false
+      Show Axes: true
+      Show Names: true
+      Tree:
+        /world:
+          {}
+        world:
+          base_link:
+            link_0:
+              link_1:
+                link_2:
+                  link_3:
+                    link_4:
+                      link_5:
+                        link_6:
+                          link_7:
+                            ati_base_link:
+                              ati_link:
+                                {}
+                              handle_link:
+                                {}
+      Update Interval: 0
+      Value: true
+    - Alpha: 0.5
+      Arrow Width: 0.05
+      Class: rviz/WrenchStamped
+      Enabled: true
+      Force Arrow Scale: 0.05
+      Force Color: 204; 51; 51
+      History Length: 1
+      Name: WrenchStamped
+      Topic: /ft_sensor/wrench
+      Torque Arrow Scale: 0.05
+      Torque Color: 204; 204; 51
+      Unreliable: false
+      Value: true
+    - Alpha: 0.5
+      Axes Length: 0.1
+      Axes Radius: 0.005
+      Class: rviz/Pose
+      Color: 255; 255; 2
+      Enabled: true
+      Head Length: 0.01
+      Head Radius: 0.01
+      Name: Pose Current
+      Shaft Length: 0.08
+      Shaft Radius: 0.005
+      Shape: Arrow
+      Topic: /lwr/cart_ctrl/pos_curr
+      Unreliable: false
+      Value: true
+    - Alpha: 0.5
+      Axes Length: 0.08
+      Axes Radius: 0.001
+      Class: rviz/Pose
+      Color: 255; 0; 0
+      Enabled: true
+      Head Length: 0.01
+      Head Radius: 0.01
+      Name: Pose Desired
+      Shaft Length: 0.15
+      Shaft Radius: 0.005
+      Shape: Arrow
+      Topic: /lwr/cart_ctrl/pos_des
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Axes Length: 0.1
+      Axes Radius: 0.001
+      Class: rviz/Pose
+      Color: 17; 255; 0
+      Enabled: true
+      Head Length: 0.01
+      Head Radius: 0.01
+      Name: Pose Sent
+      Shaft Length: 0.1
+      Shaft Radius: 0.005
+      Shape: Arrow
+      Topic: /lwr/cart_ctrl/pos_tmp
+      Unreliable: false
+      Value: true
+    - Alpha: 0.5
+      Buffer Length: 10
+      Class: rviz/Path
+      Color: 5; 255; 205
+      Enabled: true
+      Line Style: Lines
+      Line Width: 0.03
+      Name: Trajectory
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Topic: /lwr/cart_ctrl/cart_traj_des
+      Unreliable: false
+      Value: true
+    - Arrow Length: 0.05
+      Class: rviz/PoseArray
+      Color: 255; 25; 0
+      Enabled: true
+      Name: PoseArray
+      Topic: /lwr/cart_ctrl/traj_poses
+      Unreliable: false
+      Value: true
+    - Alpha: 0.5
+      Axes Length: 1
+      Axes Radius: 0.1
+      Class: rviz/Pose
+      Color: 255; 0; 243
+      Enabled: true
+      Head Length: 0.01
+      Head Radius: 0.01
+      Name: Pose Corr
+      Shaft Length: 0.1
+      Shaft Radius: 0.005
+      Shape: Arrow
+      Topic: /lwr/cart_ctrl/pos_corr
+      Unreliable: false
+      Value: true
+    - Alpha: 0.9
+      Class: rviz/PointStamped
+      Color: 138; 148; 204
+      Enabled: true
+      History Length: 100
+      Name: PointStamped
+      Radius: 0.015
+      Topic: /PolarisCalibration/target_pt_out
+      Unreliable: false
+      Value: true
+    - Alpha: 0.9
+      Class: rviz/PointStamped
+      Color: 140; 204; 135
+      Enabled: true
+      History Length: 100
+      Name: PointStamped
+      Radius: 0.01
+      Topic: /PolarisCalibration/polaris_pt_out
+      Unreliable: false
+      Value: true
+    - Alpha: 0.5
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 0.364314
+        Min Value: 0.206385
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud
+      Color: 255; 255; 255
+      Color Transformer: AxisColor
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.01
+      Style: Boxes
+      Topic: /pointsA
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Alpha: 0.5
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 0.364351
+        Min Value: 0.20606
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud
+      Color: 255; 255; 255
+      Color Transformer: AxisColor
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.01
+      Style: Spheres
+      Topic: /pointsB
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Alpha: 1
+      Arrow Width: 0.05
+      Class: rviz/WrenchStamped
+      Enabled: true
+      Force Arrow Scale: 2
+      Force Color: 204; 51; 51
+      History Length: 1
+      Name: WrenchStamped
+      Topic: /lwr/cart_ctrl/wrench_world
+      Torque Arrow Scale: 2
+      Torque Color: 204; 204; 51
+      Unreliable: false
+      Value: true
+    - Alpha: 0.5
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
       Name: LWR Sim Model
       Robot Description: /sim/robot_description
       TF Prefix: /sim
@@ -399,6 +413,7 @@ Visualization Manager:
       Enabled: true
       Name: PoseArray
       Topic: /sim/lwr_sim/CartOptCtrl/traj_poses
+      Unreliable: false
       Value: true
     - Alpha: 1
       Buffer Length: 1
@@ -413,6 +428,7 @@ Visualization Manager:
         Y: 0
         Z: 0
       Topic: /sim/lwr_sim/CartOptCtrl/cart_traj_des
+      Unreliable: false
       Value: true
   Enabled: true
   Global Options:
@@ -438,30 +454,30 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.26167
+      Distance: 0.897017
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.213298
-        Y: 0.0451338
-        Z: 0.534516
+        X: 0.488391
+        Y: 0.000986708
+        Z: 0.465717
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.160204
+      Pitch: 0.155204
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.88676
+      Yaw: 5.93677
     Saved: ~
 Window Geometry:
   Displays:
-    collapsed: false
+    collapsed: true
   Height: 1028
-  Hide Left Dock: false
+  Hide Left Dock: true
   Hide Right Dock: true
-  QMainWindow State: 000000ff00000000fd00000004000000000000010f0000037afc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006400fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c00610079007301000000280000037a000000dd00fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f0000037afc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0056006900650077007300000000280000037a000000b000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000003a70000003efc0100000002fb0000000800540069006d00650100000000000003a7000002f600fffffffb0000000800540069006d00650100000000000004500000000000000000000002920000037a00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000004000000000000016a0000037afc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006400fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c00610079007300000000280000037a000000dd00fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f0000037afc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0056006900650077007300000000280000037a000000b000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000003a70000003efc0100000002fb0000000800540069006d00650100000000000003a7000002f600fffffffb0000000800540069006d00650100000000000004500000000000000000000003a70000037a00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -471,5 +487,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 935
-  X: 974
+  X: 954
   Y: 14
