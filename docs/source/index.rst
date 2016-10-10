@@ -42,6 +42,14 @@ Experimental setup
     tutos/update-rtt-lwr
 
 .. toctree::
+    :name: tools
+    :caption: Tools
+    :glob:
+    :maxdepth: 2
+
+    tools/*
+
+.. toctree::
     :name: adv-tutos
     :caption: Advanced Tutorials
     :glob:
