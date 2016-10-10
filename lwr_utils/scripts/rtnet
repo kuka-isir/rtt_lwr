@@ -39,7 +39,7 @@ bringup_slave()
         rc=0
         count=$max_trials                   # Maximum number to try.
         while [ $count -ne 0 ] ; do
-        	  sudo ${prefix_bin}/rtroute solicit $slave dev rteth$slave_number
+      	  sudo ${prefix_bin}/rtroute solicit $slave dev rteth0  #$slave_number
             sudo ${prefix_bin}/rtping -c 1 $slave              # Try once.
             rc=$?
             if [ $rc -eq 0 ] ; then
