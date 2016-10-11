@@ -29,6 +29,9 @@ All those parameters must live in the relative namespace (http://wiki.ros.org/Na
 
     If you use the ``rtt_lwr`` tools, like the generated ``run.launch`` linked to ``lwr_utils``, the params are **automatically** sent when you'll run your controller.
 
+.. image:: https://docs.google.com/drawings/d/1IsCpcNgwbicAzSDBb1ejsGLNkccFDNkBfcELeXQbdK8/pub?w=668&amp;h=602
+
+
 Build your ChainUtils model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -94,9 +97,9 @@ Inverse kinematics with trac_ik
 
     // Call the inverse function:
     // ChainUtils::cartesianToJoint(KDL::JntArray joint_seed,
-                                    KDL::Frame desired_end_effector_pose,
-                                    KDL::JntArray& return_joints,
-                                    KDL::Twist tolerances)
+    //                              KDL::Frame desired_end_effector_pose,
+    //                              KDL::JntArray& return_joints,
+    //                              KDL::Twist tolerances)
 
     if(arm.cartesianToJoint(jnt_pos_kdl,
                             desired_end_effector_pose,
