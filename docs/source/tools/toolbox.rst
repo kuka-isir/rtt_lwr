@@ -8,10 +8,7 @@ This set of tools helps you build and use a robot kinematic model via a provided
 Robot Kinematic Model
 ---------------------
 
-The ``ChainUtils`` class provides tools to compute forward kinematics, external torques etc.
-
-* `ChainUtilsBase <https://github.com/kuka-isir/rtt_ros_kdl_tools/blob/master/include/rtt_ros_kdl_tools/chain_utils_base.hpp>`_
-* `ChainUtilsBase + IK <https://github.com/kuka-isir/rtt_ros_kdl_tools/blob/master/include/rtt_ros_kdl_tools/chain_utils.hpp>`_
+The `ChainUtils <https://github.com/kuka-isir/rtt_ros_kdl_tools/blob/master/include/rtt_ros_kdl_tools/chain_utils.hpp>`_ class provides tools to compute forward kinematics, external torques etc. It devrives from `ChainUtilsBase <https://github.com/kuka-isir/rtt_ros_kdl_tools/blob/master/include/rtt_ros_kdl_tools/chain_utils_base.hpp>`_ and adds **non-realtime** *inverse kinematics* with `trac_ik <https://github.com/kuka-isir/rtt_ros_kdl_tools/blob/master/include/rtt_ros_kdl_tools/chain_utils_base.hpp>`_.
 
 
 Frames of reference / ROS params
@@ -71,40 +68,155 @@ In your ``.cpp`` :
 
     arm.init();
 
+Internal Model
+~~~~~~~~~~~~~~
+
+.. graphviz::
+    
+    digraph example {
+       graph [rankdir=LR];
+       node[shape=box];
+       q[label="Joint Position q"]
+       qd[label="Joint Velocity dq"]
+       subgraph cluster_0 {
+           style=filled;
+           href="https://github.com/kuka-isir/rtt_ros_kdl_tools/blob/master/include/rtt_ros_kdl_tools/chain_utils.hpp";
+           target="_top";
+           color=lightgrey;
+           label="ChainUtils arm"
+           node [style=filled,color=white];
+           model[label="setState(q,dq)\nupdateModel()"]
+       }
+       
+       q -> model
+       qd -> model
+       model -> getSegmentPosition
+       model -> getSegmentVelocity
+       model -> getSegmentJacobian
+       model -> getSegmentJdot
+       model -> getSegmentJdotQdot
+    }
+
+You need to tell ``ChainUtils`` the state of the robot and compute some internal model variables.
+
+.. code-block:: c++
+
+    // Ex : read from orocos port in an Eigen::VectorXd
+    port_joint_position_in.read(jnt_pos_in); // Check if RTT::NewData
+    port_joint_velocity_in.read(jnt_vel_in); // Check if RTT::NewData
+
+    // Feed the internal state
+    arm.setState(jnt_pos_in,jnt_vel_in);
+    // Update the internal model
+    arm.updateModel();
+
+
+Forward kinematics
+~~~~~~~~~~~~~~~~~~
+
+.. graphviz::
+
+     digraph example {
+        graph [rankdir=LR];
+        node[shape=box];
+        q[label="Joint Positions\nq"]
+        subgraph cluster_0 {
+            style=filled;
+            href="https://github.com/kuka-isir/rtt_ros_kdl_tools/blob/master/include/rtt_ros_kdl_tools/chain_utils.hpp";
+            target="_top";
+            color=lightgrey;
+            node [style=filled,color=white];
+            fk[label="Forward Kinematics\nF(q)"]
+            label="ChainUtils arm"
+        }
+        
+        x[label="Segment Position w.r.t root link\nX"]
+        q -> fk -> x
+     }
+
+.. code-block:: c++
+
+    // Ex : read from orocos port in an Eigen::VectorXd
+    port_joint_position_in.read(jnt_pos_in); // Check if RTT::NewData
+    port_joint_velocity_in.read(jnt_vel_in); // Check if RTT::NewData
+
+    // Feed the internal state
+    arm.setState(jnt_pos_in,jnt_vel_in);
+    // Update the internal model
+    arm.updateModel();
+
+    // Ex : get a specific segment position
+    KDL::Frame& X = arm.getSegmentPosition("link_7");
+    
+    // Ex : get the 5th segment
+    KDL::Frame& X = arm.getSegmentPosition(5);
+    
+    // Get Root Link
+    std::string root_link = arm.getRootSegmentName();
+
+
 Inverse kinematics with trac_ik
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. graphviz::
+
+     digraph example {
+        graph [rankdir=LR];
+        node[shape=box];
+        x[label="Tip Link Position\nX"]
+        subgraph cluster_0 {
+            style=filled;
+            href="https://github.com/kuka-isir/rtt_ros_kdl_tools/blob/master/include/rtt_ros_kdl_tools/chain_utils.hpp";
+            target="_top";
+            color=lightgrey;
+            node [style=filled,color=white];
+            ik[label="Inverse Kinematics\nF(X)"]
+            label="ChainUtils arm"
+        }
+        
+        q[label="Joint Positions\nq"]
+        x -> ik -> q
+     }
+     
 .. code-block:: cpp
 
     // Ex : read from orocos port in an Eigen::VectorXd
-    port_joint_position_in.read(jnt_pos_in)
+    port_joint_position_in.read(jnt_pos_in); // Check if RTT::NewData
+    port_joint_velocity_in.read(jnt_vel_in); // Check if RTT::NewData
+
+    // Feed the internal state
+    arm.setState(jnt_pos_in,jnt_vel_in);
+    // Update the internal model
+    arm.updateModel();
 
     // Transform it to a KDL JntArray
-    KDL::JntArray jnt_pos_current_kdl(jnt_pos_in.size());
-    jnt_pos_current_kdl.data = jnt_pos_in;
+    KDL::JntArray joint_seed(jnt_pos_in.size());
+    joint_seed.data = jnt_pos_in;
 
 
     // Allocate the output of the Inverse Kinematics
-    KDL::JntArray jnt_pos_out_kdl(jnt_pos_in.size());
+    KDL::JntArray return_joints(jnt_pos_in.size());
 
     // Create an desired frame
     KDL::Frame desired_end_effector_pose(
-            KDL::Rotation::RPY(-1.57,0,1.57),
-            KDL::Vector(-0.2,-0.3,0.8));
+        KDL::Rotation::RPY(-1.57,0,1.57), // Rotation rad
+        KDL::Vector(-0.2,-0.3,0.8));      // Position x,y,z in meters
 
     // Define some tolerances
-    KDL::Twist tolerances(KDL::Vector(0.01,0.01,0.01),KDL::Vector(0.01,0.01,0.01))
+    KDL::Twist tolerances(
+        KDL::Vector(0.01,0.01,0.01),   // Tolerance x,y,z in meters
+        KDL::Vector(0.01,0.01,0.01));  // Tolerance Rx,Rz,Rz in rad
 
-    // Call the inverse function:
-    // ChainUtils::cartesianToJoint(KDL::JntArray joint_seed,
-    //                              KDL::Frame desired_end_effector_pose,
-    //                              KDL::JntArray& return_joints,
-    //                              KDL::Twist tolerances)
-
-    if(arm.cartesianToJoint(jnt_pos_kdl,
+    // Call the inverse function
+    if(arm.cartesianToJoint(joint_seed,
                             desired_end_effector_pose,
-                            jnt_pos_out_kdl,
+                            return_joints,
                             tolerances))
     {
-        log(Debug) << "Success !" << endlog();
+        log(Debug) << "Success ! Result : "
+        <<return_joints.data.transpose() << endlog();
     }
+    
+.. warning::
+    
+    ``trac-ik`` is **not realtime-safe** and therefore should not be used in ``updateHook()``
