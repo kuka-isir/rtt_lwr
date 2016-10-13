@@ -32,7 +32,6 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'sphinx.ext.graphviz',
-    'sphinxcontrib.tikz',
 ]
 # Add Svg support
 graphviz_output_format = 'svg'
