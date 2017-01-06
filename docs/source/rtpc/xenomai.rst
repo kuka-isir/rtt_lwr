@@ -66,7 +66,12 @@ Some guidelines to configure the linux kernel:
 
 .. code-block:: text
 
-    Required Options:
+    Recommended options:
+    
+    * General setup
+      --> Local version - append to kernel release: -xenomai-2.6.5
+      --> Timers subsystem
+          --> High Resolution Timer Support (Enable)
     * Real-time sub-system
       --> Xenomai (Enable)
       --> Nucleus (Enable)
@@ -81,17 +86,6 @@ Some guidelines to configure the linux kernel:
     * Pocessor type and features
       --> Processor family
           --> Core 2/newer Xeon (if \"cat /proc/cpuinfo | grep family\" returns 6, set as Generic otherwise)
-
-    Optional Options (RECOMMENDED):
-    * General setup
-      --> Local version - append to kernel release: -xenomai-2.6.5
-      --> Timers subsystem
-          --> High Resolution Timer Support (Verify you have HRT ON)
-    * Pocessor type and features
-      --> Processor family
-          --> SMT (Hyperthreading) scheduler support (Disable)
-          --> Preemption Model
-              --> Voluntary Kernel Preemption (Desktop)
     * Power management and ACPI options
       --> Memory power savings
           --> Intel chipset idle memory power saving driver
