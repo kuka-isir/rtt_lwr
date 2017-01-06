@@ -136,25 +136,39 @@ Install the kernel
     cd ..
     sudo dpkg -i linux-headers-3.18.20-xenomai-2.6.5_3.18.20-xenomai-2.6.5-10.00.Custom_amd64.deb linux-image-3.18.20-xenomai-2.6.5_3.18.20-xenomai-2.6.5-10.00.Custom_amd64.deb
 
+Allow non-root users
+~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    sudo addgroup xenomai --gid 1234
+    sudo addgroup root xenomai
+    sudo usermod -a -G xenomai $USER
+
+.. tip:: If the addgroup command fails (ex: GID ``xenomai`` is already in use), change it to a different random value, and report it in the next section.
 
 Configure GRUB
 ~~~~~~~~~~~~~~
 
-Minimal config (``xeno_nucleus.xenomai_gid=128 xenomai.allowed_group=128`` allows non-root xenomai tasks):
+Edit the grub config :
+
+.. code-block:: bash
+
+    sudo nano /etc/default/grub
 
 .. code-block:: bash
 
     GRUB_DEFAULT=saved
     GRUB_SAVEDEFAULT=true
     #GRUB_HIDDEN_TIMEOUT=0
-    GRUB_HIDDEN_TIMEOUT_QUIET=true
+    #GRUB_HIDDEN_TIMEOUT_QUIET=true
     GRUB_TIMEOUT=5
     GRUB_CMDLINE_LINUX_DEFAULT="quiet splash xeno_nucleus.xenomai_gid=1234 xenomai.allowed_group=1234"
     GRUB_CMDLINE_LINUX=""
 
-.. tip::
+.. note::
     
-    Please note the xenomai group 1234, you might need to change it after the ''Allow non-root users'' section.
+    Please note the xenomai group (here 1234) should match what you set above (allow non-root users).
 
 .. tip:: `noapic`` option might be added if the screen goes black at startup and you can't boot.
 
@@ -172,17 +186,6 @@ Update GRUB and reboot
 
     sudo update-grub
     sudo reboot
-
-Allow non-root users
-~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-    sudo addgroup xenomai --gid 1234
-    sudo addgroup root xenomai
-    sudo usermod -a -G xenomai $USER
-
-.. tip:: If the addgroup: The GID ``xenomai`` is already in use, change it to a different radom value, and update your ``grub`` accordingly.
 
 
 Install Xenomai libraries
