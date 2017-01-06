@@ -49,9 +49,18 @@ Configure the kernel
 
 Now it's time to configure :
 
+Gui version : 
+
 .. code-block:: bash
 
     make xconfig
+ 
+Or without gui :
+
+.. code-block:: bash
+
+    sudo apt install libncurses5-dev
+    make menuconfig
 
 Some guidelines to configure the linux kernel:
 
