@@ -176,7 +176,7 @@ If you have an Intel HD Graphics integrated GPU :
 
 .. code-block:: bash
 
-    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash i915.i915_enable_rc6=0 i915.powersave=0 noapic xeno_nucleus.xenomai_gid=1234 xenomai.allowed_group=1234"
+    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash i915.enable_rc6=0 i915.powersave=0 noapic xeno_nucleus.xenomai_gid=1234 xenomai.allowed_group=1234"
     # This removes powersavings from the graphics, that creates disturbing interruptions.
 
 
