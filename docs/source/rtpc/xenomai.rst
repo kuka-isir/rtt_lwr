@@ -1,4 +1,4 @@
-Xenomai 2.6.5 on Ubuntu 14.04
+Xenomai 2.6.5 on Ubuntu 14.04/16.04
 #############################
 
 .. note::
