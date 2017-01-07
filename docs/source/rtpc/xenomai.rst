@@ -170,15 +170,20 @@ Edit the grub config :
     
     Please note the xenomai group (here 1234) should match what you set above (allow non-root users).
 
-.. tip:: `noapic`` option might be added if the screen goes black at startup and you can't boot.
+.. tip:: ``noapic`` option might be added if the screen goes black at startup and you can't boot.
 
-If you have an Intel HD Graphics integrated GPU :
+If you have an Intel HD Graphics integrated GPU (any type) :
 
 .. code-block:: bash
 
     GRUB_CMDLINE_LINUX_DEFAULT="quiet splash i915.enable_rc6=0 i915.powersave=0 noapic xeno_nucleus.xenomai_gid=1234 xenomai.allowed_group=1234"
     # This removes powersavings from the graphics, that creates disturbing interruptions.
 
+If you have an Intel **Skylake** (2015 processors), you ``need`` to add nosmap to fix the latency hang (https://xenomai.org/pipermail/xenomai/2016-October/036787.html) :
+
+.. code-block:: bash
+
+    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash i915.enable_rc6=0 i915.powersave=0 xeno_nucleus.xenomai_gid=1234 nosmap"
 
 Update GRUB and reboot
 
