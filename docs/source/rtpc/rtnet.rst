@@ -55,15 +55,15 @@ We'll need the following options:
       --> The driver you use (New Intel PRO/1000 in our case)
       --> Loopback (optional)
     * Add-Ons
-      --> Real-Time Capturing Support (for Wireshark debugging)
+      --> Real-Time Capturing Support (optional, for Wireshark debugging)
     * Examples
       --> RTnet Application Examples
-          --> Enable
+          --> Enable (optional)
 
 
 .. code-block:: bash
 
-    sudo apt install libncurses
+    sudo apt install libncurses5-dev
 
 .. code-block:: bash
 
