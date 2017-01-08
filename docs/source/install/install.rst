@@ -106,7 +106,7 @@ OROCOS toolchain 2.8
 
     sudo apt install ros-indigo-orocos-toolchain ruby1.9.3 ruby-dev libreadline-dev
 
-rtt_ros_integration 2.9
+rtt_ros_integration 2.8
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
