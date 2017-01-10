@@ -1,1 +1,2 @@
 - git: {local-name: rtt_ros_integration, uri: 'https://github.com/orocos/rtt_ros_integration.git',version: indigo-devel}
+- git: {local-name: rtt_geometry, uri: 'https://github.com/orocos/rtt_geometry.git',version: indigo-devel}
