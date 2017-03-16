@@ -1,0 +1,16 @@
+- git: {local-name: rtt_lwr, uri: 'https://github.com/kuka-isir/rtt_lwr'}
+- git: {local-name: rtt_ros_kdl_tools, uri: 'https://github.com/kuka-isir/rtt_ros_kdl_tools'}
+- git: {local-name: lwr_project_creator, uri: 'https://github.com/kuka-isir/lwr_project_creator'}
+- git: {local-name: krl_msgs, uri: 'https://github.com/kuka-isir/krl_msgs'}
+- git: {local-name: rtt_lwr_controllers, uri: 'https://github.com/kuka-isir/rtt_lwr_controllers'}
+- git: {local-name: rtt_gazebo_embedded, uri: 'https://github.com/kuka-isir/rtt_gazebo_embedded'}
+- git: {local-name: rtt_ros_control_embedded, uri: 'https://github.com/kuka-isir/rtt_ros_control_embedded'}
+- git: {local-name: rtt_ati_sensor, uri: 'https://github.com/kuka-isir/rtt_ati_sensor'}
+- git: {local-name: ati_sensor, uri: 'https://github.com/kuka-isir/ati_sensor'}
+- git: {local-name: fbsched, uri: 'https://github.com/kuka-isir/fbsched.git'}
+- git: {local-name: rtt_dot_service, uri: 'https://github.com/kuka-isir/rtt_dot_service.git'}
+- git: {local-name: rtt_joint_traj_generator_kdl, uri: 'https://github.com/kuka-isir/rtt_joint_traj_generator_kdl.git'}
+- git: {local-name: qpOASES, uri: 'https://github.com/kuka-isir/qpOASES'}
+- git: {local-name: cart_opt_ctrl, uri: 'https://github.com/kuka-isir/cart_opt_ctrl'}
+- git: {local-name: gazebo_ros_pkgs, uri: 'https://github.com/ros-simulation/gazebo_ros_pkgs.git'}
+
