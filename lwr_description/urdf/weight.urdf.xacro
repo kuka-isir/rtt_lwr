@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+    <xacro:property name="M_PI" value="3.1415926535897931" />
+    <xacro:macro name="weight">
+    <link name="weight_link">
+        <inertial>
+      	<origin	xyz="0.0000000e+00  8.2572741e-03  2.5033778e-02" rpy="0 0 0" />
+	      <mass value="6.6837745" />
+      	<inertia
+	           ixx="7.1708620e-02"
+	           ixy="-2.5302933e-07"
+	           ixz="0.0000000e+00"
+	           iyy="1.4555437e-02"
+	           iyz="-1.3790564e-03"
+             izz="6.7529212e-02" />
+	    </inertial>
+  	  <visual>
+  	    <!-- <origin xyz="-0.016 -0.173 0.02075" rpy="0 0 0" /> -->
+  	    <geometry>
+  	      <mesh filename="package://lwr_description/meshes/weight/weight.stl" />
+  	    </geometry>
+	    <material name="color_j7"/>
+  	  </visual>
+  	  <collision>
+  	    <origin
+  	      xyz="0 0 0"
+  	      rpy="0 0 0" />
+	      <geometry>
+  	      <mesh filename="package://lwr_description/meshes/weight/weight_c.stl" />
+    	  </geometry>
+    	</collision>
+  	</link>
+		<joint name="link_7_to_weight_joint" type="fixed">
+		<origin
+		      xyz="0 0 0"
+		      rpy="0.0 0.0 ${M_PI}" />
+		<parent link="link_7" />
+		  <child
+		    link="weight_link" />
+		  <axis xyz="0 0 0.0" />
+		</joint>
+   </xacro:macro>
+</robot>
