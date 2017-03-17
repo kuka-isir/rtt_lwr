@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+	<xacro:macro name="laser">
+  	<link name="laser_link">
+			<inertial>
+      	<origin	xyz="-5.0911527e-05  1.0165887e-04 1.6216278e-02" rpy="0 0 0" />
+	      <mass value="0.068" />
+      	<inertia
+	        ixx="3.9288111e-05"
+	        ixy="-4.8473476e-10"
+	        ixz="7.9112912e-08"
+	        iyy="3.6408361e-05"
+           	    iyz="-1.5796966e-07"
+                 izz="2.1512325e-05" />
+	    </inertial>
+  	  <visual>
+  	    <origin xyz="0 0 -0.081" rpy="0 0 0" />
+  	    <geometry>
+  	      <mesh filename="package://lwr_description/meshes/laser/laser.stl" />
+  	    </geometry>
+  	    <material name="">
+  	      <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+  	    </material>
+  	  </visual>
+  	  <collision>
+  	    <origin
+  	      xyz="0 0 0"
+  	      rpy="0 0 0" />
+	      <geometry>
+  	      <mesh filename="package://lwr_description/meshes/laser/laser.stl" />
+    	  </geometry>
+    	</collision>
+  	</link>
+		<joint name="ati_to_laser_joint" type="fixed">
+		  <origin
+		      xyz="0 0 0.081"
+		      rpy="0 0 0" />
+		  <parent
+		    link="ati_link" />
+		  <child
+		    link="laser_link" />
+		  <axis xyz="0 0 0" />
+          <limit effort="400" velocity="0" lower="0" upper="0" />
+		</joint>
+		<link name="laser_source"/>
+		<joint name="link_to_laser_source_joint" type="fixed">
+		  <origin
+		      xyz="0 0 0.0"
+		      rpy="0 0.061 0.934" />
+		  <parent
+		    link="laser_link" />
+		  <child
+		    link="laser_source" />
+		  <axis xyz="0 0 0" />
+          <limit effort="400" velocity="0" lower="0" upper="0" />
+		</joint>
+  </xacro:macro>
+
+</robot>

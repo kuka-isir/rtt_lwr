@@ -12,6 +12,7 @@
   <xacro:arg name="load_table" default="true"/>
   <xacro:arg name="load_head_cam" default="false"/>
   <xacro:arg name="load_screwdriver" default="false"/>
+  <xacro:arg name="load_laser" default="false"/>
   <xacro:arg name="robot_name" default="lwr"/>
 
   <!-- lwr-->
@@ -32,6 +33,8 @@
   <xacro:include filename="$(find lwr_description)/urdf/head_cam.urdf.xacro" />
   <!-- screwdriver -->
   <xacro:include filename="$(find lwr_description)/urdf/screwdriver.urdf.xacro" />
+  <!-- laser -->
+  <xacro:include filename="$(find lwr_description)/urdf/laser.urdf.xacro" />
   <!-- generic simulator_gazebo plugins -->
   <xacro:include filename="$(find lwr_description)/gazebo/lwr.gazebo.urdf.xacro"/>
   <xacro:include filename="$(find lwr_description)/urdf/lwr.transmission.xacro"/>
@@ -99,6 +102,11 @@
     <!-- screwdriver -->
     <xacro:if value="$(arg load_screwdriver)">
       <xacro:screwdriver/>
+    </xacro:if>
+    
+    <!-- laser -->
+    <xacro:if value="$(arg load_laser)">
+      <xacro:laser/>
     </xacro:if>
 
   </xacro:if>
