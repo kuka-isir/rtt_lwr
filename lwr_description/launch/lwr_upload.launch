@@ -5,6 +5,8 @@
     <arg name="load_ati_sensor" default="false" />
     <arg name="load_calib_tool" default="false" />
     <arg name="load_handle" default="false" />
+    <arg name="load_laser" default="false" />
+    <arg name="load_weight" default="false" />
     <arg name="load_head_cam" default="false" />
     <arg name="load_screwdriver" default="false" />
     <arg name="load_table" default="false" />
@@ -18,6 +20,8 @@
         load_ati_sensor:=$(arg load_ati_sensor)
         load_calib_tool:=$(arg load_calib_tool)
         load_handle:=$(arg load_handle)
+        load_laser:=$(arg load_laser)
+        load_weight:=$(arg load_weight)
         load_head_cam:=$(arg load_head_cam)
         load_screwdriver:=$(arg load_screwdriver)
         load_table:=$(arg load_table)
