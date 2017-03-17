@@ -112,12 +112,14 @@
       <xacro:laser/>
     </xacro:if>
     
+  </xacro:if>
+  <xacro:unless value="$(arg load_ati_sensor)">
     <!-- weight -->
     <xacro:if value="$(arg load_weight)">
       <xacro:weight/>
     </xacro:if>
+  </xacro:unless>
 
-  </xacro:if>
 
    <xacro:lwr_gazebo/>
    <xacro:lwr_transmission/>
