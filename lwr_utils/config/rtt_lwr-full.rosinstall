@@ -12,5 +12,8 @@
 - git: {local-name: rtt_joint_traj_generator_kdl, uri: 'https://github.com/kuka-isir/rtt_joint_traj_generator_kdl.git'}
 - git: {local-name: qpOASES, uri: 'https://github.com/kuka-isir/qpOASES'}
 - git: {local-name: cart_opt_ctrl, uri: 'https://github.com/kuka-isir/cart_opt_ctrl'}
-- git: {local-name: gazebo_ros_pkgs, uri: 'https://github.com/ros-simulation/gazebo_ros_pkgs.git'}
+
+# As of early 2017, default branch is kinetic-devel, but has a libgazebo7-dev dep, which is not compatible with industrial-ci,
+# even though gazebo 7 can be installed on trusty+indigo. This will be fixed at some point.
+- git: {local-name: gazebo_ros_pkgs, uri: 'https://github.com/ros-simulation/gazebo_ros_pkgs.git', version: indigo-devel}
 
