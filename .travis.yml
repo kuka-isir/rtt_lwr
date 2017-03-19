@@ -1,56 +1,22 @@
 sudo: required
 dist: trusty
-language: c
-cache: ccache
+language: generic
 
-rvm:
-  - 1.9.3
-compiler:
-  - gcc
 env:
   global:
-    - CATKIN_WS=~/catkin_ws
-    - CATKIN_WS_SRC=${CATKIN_WS}/src
+    - UPSTREAM_WORKSPACE=https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/rtt_lwr.rosinstall
+    - ROS_REPOSITORY_PATH=http://packages.ros.org/ros/ubuntu
+    - NOT_TEST_BUILD='true'
   matrix:
-    - CI_ROS_DISTRO="jade" USE_GAZEBO7="true"
-    - CI_ROS_DISTRO="indigo"
-    - CI_ROS_DISTRO="indigo" USE_GAZEBO7="true"
+    - ROS_DISTRO="indigo"
+    - ROS_DISTRO="jade"
+    - ROS_DISTRO="kinetic"
+
 matrix:
   allow_failures:
-    - env: CI_ROS_DISTRO="jade" USE_GAZEBO7="true"
-  
-install:
-# Typegen/Orogen Hack : reset the path so rosdep installs 1.9.3 correctly
-  - export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-  - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
-  - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
-  - sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
-  - wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq -y python-rosdep python-catkin-tools python-wstool
-  - sudo apt-get install -qq -y ros-$CI_ROS_DISTRO-catkin ros-$CI_ROS_DISTRO-ros
-  - sudo rosdep init
-  - rosdep update
-  - source /opt/ros/$CI_ROS_DISTRO/setup.bash
-  - mkdir -p $CATKIN_WS_SRC
-  - ln -s $TRAVIS_BUILD_DIR $CATKIN_WS_SRC
-  - cd $CATKIN_WS
-  - catkin init
-  - cd $CATKIN_WS_SRC
-  - wstool init
-  - curl https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/rtt_lwr.rosinstall | wstool merge -k -
-  - curl https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/rtt_lwr_extras.rosinstall | wstool merge -k -
-  - curl https://raw.githubusercontent.com/IDSCETHZurich/re_trajectory-generator/master/kuka_IK/include/friComm.h >> $CATKIN_WS_SRC/rtt_lwr/lwr_hardware/kuka_lwr_fri/include/kuka_lwr_fri/friComm.h
-  - wstool update -j2 --continue-on-error
-  - rosdep install -r --from-paths $CATKIN_WS_SRC/ --rosdistro $ROS_DISTRO -y -i
-  - if [ -n "$USE_GAZEBO7" ] ; then sudo apt-get install -qq -y ros-$CI_ROS_DISTRO-gazebo7-*;else sudo apt-get install -qq -y ros-$CI_ROS_DISTRO-desktop-full ;fi
+    - env: ROS_DISTRO="kinetic"
 
+install:
+  - git clone https://github.com/ros-industrial/industrial_ci.git .ci_config
 script:
-  # Enable install space
-  - catkin config --install
-  # Build [and Install] packages
-  - catkin build --limit-status-rate 0.1 --no-notify --no-status -j2 -DCATKIN_ENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Debug
-  # Build tests
-  #- catkin build --limit-status-rate 0.1 --no-notify --make-args tests
-  # Run tests
-  #- catkin run_tests
+  - source .ci_config/travis.sh
