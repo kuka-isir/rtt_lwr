@@ -80,9 +80,7 @@ If you need bleeing-edge features of moveit, compile it from source :
     wstool merge https://raw.githubusercontent.com/ros-planning/moveit_docs/indigo-devel/moveit.rosinstall
     wstool update -j2
     cd ~/moveit_ws/
-    catkin init
-    catkin config --install --extend /opt/ros/indigo
-    catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release
+    catkin config --init --install --extend /opt/ros/indigo --cmake-args -DCMAKE_BUILD_TYPE=Release
     catkin build
 
 After Install
@@ -141,9 +139,7 @@ OROCOS toolchain 2.9
     git submodule foreach git pull
     # Configure the workspace
     cd ~/orocos-2.9_ws/
-    catkin init
-    catkin config --install --extend /opt/ros/indigo/
-    catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release
+    catkin config --init --install --extend /opt/ros/indigo/ --cmake-args -DCMAKE_BUILD_TYPE=Release
     # Build
     catkin build
 
@@ -159,9 +155,7 @@ rtt_ros_integration 2.9
     wstool update -j2
     # Configure the workspace
     cd ~/rtt_ros-2.9_ws/
-    catkin init
-    catkin config --install --extend ~/orocos-2.9_ws/install
-    catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release
+    catkin config --init --install --extend ~/orocos-2.9_ws/install --cmake-args -DCMAKE_BUILD_TYPE=Release
     # Build (this can take a while)
     catkin build
 
@@ -220,14 +214,6 @@ First create a workspace for all the packages :
 .. code-block:: bash
 
     mkdir -p ~/lwr_ws/src/
-
-
-Then you can initialize it :
-
-.. code-block:: bash
-
-    cd ~/lwr_ws/
-    catkin init
 
 Download
 ~~~~~~~~
@@ -305,14 +291,14 @@ If using the **debians** :
     # Load ROS workspace if not already done
     source /opt/ros/indigo/setup.bash
 
-    catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release
+    catkin config --init --cmake-args -DCMAKE_BUILD_TYPE=Release
 
 If building rtt_ros **from source** :
 
 .. code-block:: bash
 
     cd ~/lwr_ws
-    catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release --extend ~/rtt_ros-2.9_ws/install
+    catkin config --init --extend ~/rtt_ros-2.9_ws/install --cmake-args -DCMAKE_BUILD_TYPE=Release 
 
 Build the workspace
 ~~~~~~~~~~~~~~~~~~~
