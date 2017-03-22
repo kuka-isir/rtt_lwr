@@ -126,7 +126,7 @@ OROCOS toolchain 2.9
 
 .. code::
 
-    sudo apt ruby1.9.3 ruby-dev libreadline-dev
+    sudo apt install ruby1.9.3 ruby-dev libreadline-dev
 
 .. code-block:: bash
 
