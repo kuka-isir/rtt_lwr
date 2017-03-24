@@ -151,7 +151,7 @@ rtt_ros_integration 2.9
     mkdir -p ~/rtt_ros-2.9_ws/src
     cd ~/rtt_ros-2.9_ws/src
     wstool init
-    wstool merge https://github.com/kuka-isir/rtt_lwr/raw/rtt_lwr-2.0/lwr_utils/config/rtt_ros-2.9.rosinstall
+    wstool merge https://github.com/kuka-isir/rtt_lwr/raw/rtt_lwr-2.0/lwr_utils/config/rtt_ros_integration-2.9.rosinstall
     wstool update -j2
     # Configure the workspace
     cd ~/rtt_ros-2.9_ws/
@@ -159,7 +159,7 @@ rtt_ros_integration 2.9
     # Build (this can take a while)
     catkin build
 
-Additoonnaly, please make sure that these repos (if you have them) are in the right branches (with fixes for rtt) :
+Additionally, please make sure that these repos (if you have them) are in the right branches (with fixes for rtt) :
 
 .. code-block:: bash
 
