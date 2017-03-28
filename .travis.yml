@@ -6,8 +6,8 @@ env:
   global:
     - UPSTREAM_WORKSPACE=https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/rtt_lwr.rosinstall
     - ROS_REPOSITORY_PATH=http://packages.ros.org/ros/ubuntu
-    - BEFORE_SCRIPT="export CXX='ccache g++' CC='ccache gcc' && source <(curl -s https://raw.githubusercontent.com/ahoarau/rtt_ros_integration-build/master/get_latest_rtt_ros_integration.sh)"
-    - ADDITIONAL_DEBS="ccache curl"
+    - BEFORE_SCRIPT="export CXX='ccache g++-5' CC='ccache gcc-5' && source <(curl -s https://raw.githubusercontent.com/ahoarau/rtt_ros_integration-build/master/get_latest_rtt_ros_integration.sh)"
+    - ADDITIONAL_DEBS="ccache curl g++-5 gcc-5"
     - CATKIN_PARALLEL_JOBS="-p6 --cmake-args -DCMAKE_CXX_FLAGS=-std=c++11 --"
     - ROS_PARALLEL_JOBS="-j6"
     
