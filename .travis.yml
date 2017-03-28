@@ -8,6 +8,8 @@ env:
     - ROS_REPOSITORY_PATH=http://packages.ros.org/ros/ubuntu
     - BEFORE_SCRIPT="export CXX='ccache g++' CC='ccache gcc' && source <(curl -s https://raw.githubusercontent.com/ahoarau/rtt_ros_integration-build/master/get_latest_rtt_ros_integration.sh)"
     - ADDITIONAL_DEBS="ccache curl"
+    - CATKIN_PARALLEL_JOBS="-p6 --cmake-args -DCMAKE_CXX_FLAGS=-std-c++11 --"
+    - ROS_PARALLEL_JOBS="-j6"
     
   matrix:
     - ROS_DISTRO="indigo"
