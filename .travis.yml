@@ -6,7 +6,7 @@ env:
   global:
     - UPSTREAM_WORKSPACE=https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/rtt_lwr.rosinstall
     - ROS_REPOSITORY_PATH=http://packages.ros.org/ros/ubuntu
-    - BEFORE_SCRIPT="source <(curl -s https://raw.githubusercontent.com/ahoarau/rtt_ros_integration-build/master/get_latest_rtt_ros_integration.sh)"
+    - BEFORE_SCRIPT="source <(curl -s https://raw.githubusercontent.com/ahoarau/rtt_ros_integration-build/master/get_latest_rtt_ros_integration.sh) && source /usr/share/gazebo/setup.sh"
     - ADDITIONAL_DEBS="curl"
     
   matrix:
