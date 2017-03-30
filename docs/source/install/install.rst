@@ -165,7 +165,7 @@ rtt_ros_integration 2.9
     # Configure the workspace
     cd ~/isir/rtt_ros-2.9_ws/
     # Install dependencies
-    source /opt/ros/indigo/setup.bash
+    source ~/isir/orocos-2.9_ws/install/setup.bash
     rosdep install -q --from-paths ~/isir/rtt_ros-2.9_ws/src --ignore-src --rosdistro indigo -y -r
     catkin config --init --install --extend ~/isir/orocos-2.9_ws/install --cmake-args -DCMAKE_BUILD_TYPE=Release
     # Build (this can take a while)
@@ -230,10 +230,39 @@ Install dependencies
 ~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
-
-    source /opt/ros/indigo/setup.bash
+    # If you compiled rtt_ros from sources
+    source ~/isir/rtt_ros-2.9_ws/install/setup.bash
     # Use rosdep tool
     rosdep install -q --from-paths ~/isir/lwr_ws/src --ignore-src --rosdistro indigo -y -r
+
+..note:: 
+    
+    On **indigo**, rosdep will try to install **gazebo 2**, but will fail as we already installed **gazebo 7**.
+    So you can **ignore** this error if you are running indigo.
+    On ROS kinetic, it will install gazebo7 automatically.
+
+..image:: /_static/rosdep-gazebo2-error.png
+
+..code-block:: bash
+
+    executing command [sudo -H apt-get install gazebo2]
+    Reading package lists... Done
+    Building dependency tree       
+    Reading state information... Done
+    Some packages could not be installed. This may mean that you have
+    requested an impossible situation or if you are using the unstable
+    distribution that some required packages have not yet been created
+    or been moved out of Incoming.
+    The following information may help to resolve the situation:
+
+    The following packages have unmet dependencies:
+     gazebo2 : Depends: libsdformat-dev (>= 1.4.11-1osrf1) but it is not going to be installed
+               Depends: libsdformat-dev (< 2.0.0) but it is not going to be installed
+    E: Unable to correct problems, you have held broken packages.
+    ERROR: the following rosdeps failed to install
+      apt: command [sudo -H apt-get install gazebo2] failed
+      apt: Failed to detect successful installation of [gazebo2]
+
 
 Configure the workspace
 ~~~~~~~~~~~~~~~~~~~~~~~
