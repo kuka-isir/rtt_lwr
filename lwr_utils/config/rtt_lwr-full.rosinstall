@@ -3,7 +3,9 @@
 - git: {local-name: lwr_project_creator, uri: 'https://github.com/kuka-isir/lwr_project_creator'}
 - git: {local-name: krl_msgs, uri: 'https://github.com/kuka-isir/krl_msgs'}
 - git: {local-name: rtt_krl_msgs, uri: 'https://github.com/kuka-isir/rtt_krl_msgs'}
-- git: {local-name: rtt_lwr_controllers, uri: 'https://github.com/kuka-isir/rtt_lwr_controllers'}
+- git: {local-name: rtt_lwr_krl_tool, uri: 'https://github.com/kuka-isir/rtt_lwr_krl_tool'}
+- git: {local-name: rtt_state_publisher, uri: 'https://github.com/kuka-isir/rtt_state_publisher'}
+- git: {local-name: rtt_demo_load_comp, uri: 'https://github.com/kuka-isir/rtt_demo_load_comp'}
 - git: {local-name: rtt_gazebo_embedded, uri: 'https://github.com/kuka-isir/rtt_gazebo_embedded'}
 - git: {local-name: rtt_ros_control_embedded, uri: 'https://github.com/kuka-isir/rtt_ros_control_embedded'}
 - git: {local-name: rtt_control_msgs, uri: 'https://github.com/kuka-isir/rtt_control_msgs'}
