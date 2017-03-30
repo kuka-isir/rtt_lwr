@@ -12,11 +12,11 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <run_depend>lwr_description</run_depend>
-  <!--run_depend>rtt_lwr_abstract</run_depend-->
   <run_depend>kuka_lwr_fri</run_depend>
   <run_depend>lwr_fri</run_depend>
   <run_depend>lwr_utils</run_depend>
-  <run_depend>rqt_lwr</run_depend>
+  <run_depend>lwr_ikfast</run_depend>
+  <run_depend>lwr_moveit_config</run_depend>
 
   <export>
   </export>
