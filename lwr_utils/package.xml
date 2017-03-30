@@ -6,7 +6,7 @@
 
   <maintainer email="hoarau.robotics@gmail.com">Antoine Hoarau</maintainer>
 
-  <license>LGPLv3</license>
+  <license>CeCILL-C</license>
 
   <buildtool_depend>catkin</buildtool_depend>
   <run_depend>lwr_description</run_depend>

@@ -7,7 +7,7 @@
   <author email="hoarau@isir.upmc.fr">Antoine Hoarau</author>
   <maintainer email="hoarau.robotics@gmail.com">Antoine Hoarau</maintainer>
 
-  <license>LGPLv3</license>
+  <license>CeCILL-C</license>
 
   <buildtool_depend>catkin</buildtool_depend>
 
