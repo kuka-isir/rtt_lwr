@@ -9,6 +9,7 @@ RTT Kuka LWR 4+
 - **lwr_ikfast** : Fast inverse kinematics plugin for moveit. Use trac-ik instead. 
 - **lwr_moveit_config** : [MoveIt!](http://moveit.ros.org/) config package for starting moveit and connecting it to the controller manager.
 - **lwr_utils** : Set of **very** useful tools to launch and connect everything.
+- **rtt_lwr_sim** : Simulated interface for the Kuka.
 
 ## Experimental Setup
 
