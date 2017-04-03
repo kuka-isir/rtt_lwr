@@ -25,8 +25,7 @@ Experimental setup
     :glob:
     :maxdepth: 2
 
-    install/install
-    install/test-install
+    install/*
 
 .. toctree::
     :name: tutos
