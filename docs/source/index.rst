@@ -38,7 +38,7 @@ Experimental setup
     Getting started with ros_control / MoveIt! <tutos/moveit-tuto>
     tutos/controller-tuto
     tutos/kdev-tuto
-    tutos/update-rtt-lwr
+    tutos/update-pkgs
 
 .. toctree::
     :name: tools

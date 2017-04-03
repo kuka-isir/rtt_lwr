@@ -9,12 +9,12 @@ Orocos tutorial
 Orocos Basics
 -------------
 
-First, make you have the lwr workspace loaded ``source ~/lwr_ws/devel/setup.bash``
+First, make you have the lwr workspace loaded ``source ~/isir/lwr_ws/devel/setup.bash``
 
 .. note::
 
     Put this source file in your .bashrc :
-    ``echo `source ~/lwr_ws/devel/setup.bash` >> ~/.bashrc``
+    ``echo `source ~/isir/lwr_ws/devel/setup.bash` >> ~/.bashrc``
 
 Official documentation about the Orocos RealTime Toolkit (RTT) can be found here :
 http://www.orocos.org/stable/documentation/rtt/v2.x/doc-xml/orocos-components-manual.html
