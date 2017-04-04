@@ -17,10 +17,10 @@ Required tools
     sudo apt install python-rosdep python-catkin-tools ros-indigo-catkin python-wstool python-vcstool
 
 Fix Locales
-~~~~~~~~~~~~~~
+~~~~~~~~~~~
 
 .. code-block:: bash
-   
+
    sudo locale-gen en_US #warnings might occur
    sudo locale-gen en_US-UTF-8
    sudo nano /etc/environment
@@ -28,7 +28,7 @@ Fix Locales
    LANGUAGE=en_US
    LC_ALL=en_US
    # Reboot !
-   
+
 If you type ``perl`` you should not see any warnings.
 
 ROS Indigo Desktop
@@ -98,7 +98,7 @@ Additionally, please make sure that these repos (if you have them) are in the ri
     roscd rtt_dot_service && git remote set-url origin https://github.com/kuka-isir/rtt_dot_service.git && git pull
     roscd fbsched && git remote set-url origin https://github.com/kuka-isir/fbsched.git && git pull
     roscd conman && git remote set-url origin https://github.com/kuka-isir/conman.git && git pull
-    
+
 OROCOS toolchain 2.9
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -144,7 +144,7 @@ rtt_ros_integration 2.9
     catkin build
 
 Use OROCOS with CORBA + MQUEUE (Advanced)
----------------------
+-----------------------------------------
 
 In order to use the corba interface (connect multiple deployers together), you'll need to build the orocos_ws and rtt_ros_ws with :
 
@@ -173,7 +173,7 @@ From http://gazebosim.org/tutorials?tut=install_ubuntu&cat=install.
 ROS Control
 -----------
 
-This allows you to use MoveIt! or just the ros_control capabilities in an orocos environnement. Let's install everything : 
+This allows you to use MoveIt! or just the ros_control capabilities in an orocos environnement. Let's install everything :
 
 .. code-block:: bash
 
@@ -199,16 +199,15 @@ RTT LWR packages
 .. note:: If you want to install and test cart_opt_ctrl :  ``wstool merge https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/rtt_lwr-full.rosinstall``
 
 Install dependencies
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
-    # If you compiled rtt_ros from sources
+
     source ~/isir/rtt_ros-2.9_ws/install/setup.bash
-    # Use rosdep tool
     rosdep install --from-paths ~/isir/lwr_ws/src --ignore-src --rosdistro indigo -y -r
 
-.. note:: 
-    
+.. note::
+
     On **indigo**, rosdep will try to install **gazebo 2**, but will fail as we already installed **gazebo 7**.
     So you can **ignore** this error if you are running indigo.
     On ROS kinetic, it will install gazebo7 automatically.
@@ -231,7 +230,7 @@ If building rtt_ros **from source** :
 .. code-block:: bash
 
     cd ~/isir/lwr_ws
-    catkin config --init --extend ~/isir/rtt_ros-2.9_ws/install --cmake-args -DCMAKE_BUILD_TYPE=Release 
+    catkin config --init --extend ~/isir/rtt_ros-2.9_ws/install --cmake-args -DCMAKE_BUILD_TYPE=Release
 
 Build the workspace
 ~~~~~~~~~~~~~~~~~~~

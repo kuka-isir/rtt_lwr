@@ -2,7 +2,7 @@ Installation on Ubuntu 16.04
 ============================
 
 ROS Kinetic ++
--------------
+--------------
 
 From  http://wiki.ros.org/kinetic/Installation/Ubuntu.
 
@@ -20,7 +20,7 @@ Fix Locales
 ~~~~~~~~~~~
 
 .. code-block:: bash
-   
+
    sudo locale-gen en_US #warnings might occur
    sudo locale-gen en_US-UTF-8
    sudo nano /etc/environment
@@ -28,11 +28,11 @@ Fix Locales
    LANGUAGE=en_US
    LC_ALL=en_US
    # Reboot !
-   
+
 If you type ``perl`` you should not see any warnings.
 
 ROS Kinetic Desktop
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -134,7 +134,7 @@ From http://gazebosim.org/tutorials?tut=install_ubuntu&cat=install.
 ROS Control
 -----------
 
-This allows you to use MoveIt! or just the ros_control capabilities in an orocos environnement. Let's install everything : 
+This allows you to use MoveIt! or just the ros_control capabilities in an orocos environnement. Let's install everything :
 
 .. code-block:: bash
 
@@ -169,10 +169,10 @@ Install dependencies
     # Use rosdep tool
     rosdep install --from-paths ~/isir/lwr_ws/src --ignore-src --rosdistro kinetic -y -r
 
-.. note:: 
+.. note::
 
     Gazebo 7 is shipped by default with kinetic, so rosdep will try to install it and fail. You can ignore this issue safely as you now have Gazebo 8 installed.
-    
+
 Configure the workspace
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -181,7 +181,7 @@ If building rtt_ros **from source** :
 .. code-block:: bash
 
     cd ~/isir/lwr_ws
-    catkin config --init --extend ~/isir/rtt_ros-2.9_ws/install --cmake-args -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Release 
+    catkin config --init --extend ~/isir/rtt_ros-2.9_ws/install --cmake-args -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Release
 
 Build the workspace
 ~~~~~~~~~~~~~~~~~~~
