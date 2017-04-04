@@ -117,17 +117,17 @@ In order to use the corba interface (connect multiple deployers together), you'l
 
 Reference : http://www.orocos.org/stable/documentation/rtt/v2.x/doc-xml/orocos-components-manual.html#orocos-corba
 
-Gazebo 7
+Gazebo 8
 --------
 
 From http://gazebosim.org/tutorials?tut=install_ubuntu&cat=install.
 
 .. code-block:: bash
 
-    # Gazebo 7
+    # Gazebo 8
     curl -ssL http://get.gazebosim.org | sh
     # The ros packages
-    sudo apt install ros-kinetic-gazebo7-*
+    sudo apt install ros-kinetic-gazebo8-*
 
 .. note:: Don't forget to put source ``source /usr/share/gazebo/setup.sh`` in your ``~/isir/.bashrc`` or you won't have access to the gazebo plugins (Simulated cameras, lasers, etc).
 
