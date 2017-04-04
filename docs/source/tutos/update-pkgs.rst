@@ -43,7 +43,7 @@ Locally using sphinx
 
 .. code-block:: bash
 
-        sudo -E pip install sphinx sphinx-autobuild recommonmark sphinx_rtd_theme
+        sudo -H pip install sphinx sphinx-autobuild recommonmark sphinx_rtd_theme
 
 
 If you're **not** part of the rtt_lwr developers :
