@@ -169,7 +169,10 @@ Install dependencies
     # Use rosdep tool
     rosdep install --from-paths ~/isir/lwr_ws/src --ignore-src --rosdistro kinetic -y -r
 
+.. note:: 
 
+    Gazebo 7 is shipped by default with kinetic, so rosdep will try to install it and fail. You can ignore this issue safely as you now have Gazebo 8 installed.
+    
 Configure the workspace
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -187,7 +190,7 @@ Let's build the entire workspace :
 
 .. code-block:: bash
 
-    catkin build --worspace ~/isir/lwr_ws
+    catkin build --workspace ~/isir/lwr_ws
 
 .. image:: /_static/catkin-build.png
 
