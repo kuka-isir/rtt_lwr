@@ -200,6 +200,6 @@ Once it's done, load the workspace :
 
     source ~/isir/lwr_ws/devel/setup.bash
 
-.. tip:: Put it in you bashrc : ``echo `source ~/isir/lwr_ws/devel/setup.bash` >> ~/.bashrc``
+.. tip:: Put it in you bashrc : ``echo 'source ~/isir/lwr_ws/devel/setup.bash' >> ~/.bashrc``
 
 Now we can :doc:`test the installation <test-install>`.
