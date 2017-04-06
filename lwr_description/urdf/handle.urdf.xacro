@@ -34,8 +34,8 @@
 	  </link>
 	  <joint name="ati_to_handle_joint" type="fixed">
 	    <origin
-	      xyz="0 0.0438 -0.0375"
-	      rpy="0 0 0" />
+	      xyz="${cos(3*pi/4)*0.0438} ${sin(3*pi/4)*0.0438} -0.035"
+	      rpy="0 0 ${pi/4}" />
 	    <parent link="ati_base_link" />
 	    <child link="handle_link" />
         <limit effort="400" velocity="0" lower="0" upper="0" />
