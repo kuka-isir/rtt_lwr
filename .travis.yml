@@ -15,6 +15,6 @@ env:
     - ROS_DISTRO="kinetic" CATKIN_PARALLEL_JOBS="-p6 --cmake-args -DCMAKE_CXX_FLAGS=-std=c++11 --" ADDITIONAL_DEBS="curl libgazebo7-dev"
 
 install:
-  - git clone https://github.com/ipa-mdl/industrial_ci -b fix/install-space .ci_config
+  - git clone https://github.com/ros-industrial/industrial_ci.git .ci_config
 script:
   - source .ci_config/travis.sh
