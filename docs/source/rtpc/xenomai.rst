@@ -27,6 +27,20 @@ Download Linux kernel 3.18.20
 Configuration
 ~~~~~~~~~~~~~
 
+Prevent a bug in make-kpkg in 14.04
+-----------------------------------
+
+From https://bugs.launchpad.net/ubuntu/+source/kernel-package/+bug/1308183 : 
+
+.. code-block:: bash
+
+    cd linux-3.18.20
+    # Paste that in the terminal
+    cat <<EOF > arch/x86/boot/install.sh
+    #!/bin/sh
+    cp -a -- "\$2" "\$4/vmlinuz-\$1"
+    EOF
+
 Prepare the kernel
 ------------------
 
