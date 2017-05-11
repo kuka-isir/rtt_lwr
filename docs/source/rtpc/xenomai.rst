@@ -23,6 +23,9 @@ Download Linux kernel 3.18.20
     wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.18.20.tar.gz
     tar xfv linux-3.18.20.tar.gz
 
+.. note::
+
+    We chose 3.18.20 because it is the latest kernel compatible with xenomai 2.
 
 Configuration
 ~~~~~~~~~~~~~
