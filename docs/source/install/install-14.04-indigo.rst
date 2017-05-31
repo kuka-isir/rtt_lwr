@@ -22,7 +22,7 @@ Fix Locales
 .. code-block:: bash
 
    sudo locale-gen en_US #warnings might occur
-   sudo locale-gen en_US-UTF-8
+   sudo locale-gen en_US.UTF-8
    sudo nano /etc/environment
    # put theses lines
    LANGUAGE=en_US
