@@ -114,18 +114,18 @@ Some guidelines to configure the linux kernel:
 Build the Real-Time kernel
 --------------------------
 
-.. code-blocks:: bash
+.. code-block:: bash
 
     sudo apt install kernel-package
     CONCURRENCY_LEVEL=$(nproc) make-kpkg --rootcmd fakeroot --initrd kernel_image kernel_headers
 
 
-.. code-blocks:: bash
+.. code-block:: bash
 
     cd ..
     sudo dpkg -i linux-headers-4.4.43-xenomai-3.0.4_4.4.43-xenomai-3.0.4-10.00.Custom_amd64.deb linux-image-4.4.43-xenomai-3.0.4_4.4.43-xenomai-3.0.4-10.00.Custom_amd64.deb
-    
-    
+
+
 Installing Xenomai 3.0.4
 ------------------------
 
