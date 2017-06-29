@@ -78,8 +78,8 @@ We'll need the following options:
 Configuration
 -------------
 
-The configuration file is located by default at /usr/local/rtnet/etc/rtnet.conf
-Take a look at [this configuration file](https://github.com/kuka-isir/rtt_lwr/blob/master/lwr_scripts/config/rtnet.conf)
+The configuration file is located by default at ``/usr/local/rtnet/etc/rtnet.conf``
+Take a look at `this configuration file <https://github.com/kuka-isir/rtt_lwr/blob/master/lwr_scripts/config/rtnet.conf>`
 
 * **RT_DRIVER="rt_e1000e"** The driver we use
 * **REBIND_RT_NICS="0000:05:00.0 0000:06:00.0"** NIC addresses of the 2 cards we use for RTnet (you can check the NIC address typing 'lshw -C network' and looking at "bus info: pci@...". It is useful to have a fix master/slave config order (card1->robot, card2->Sensor for example).
