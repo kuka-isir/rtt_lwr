@@ -7,6 +7,12 @@ RTnet allows you to send and receive data with very strict constraints, in a rea
 
 First make sure your followed the `Xenomai installation instructions <rtpc/xenomai.html>`_ and you are running the Xenomai kernel (uname -a).
 
+Recommended hardware
+--------------------
+
+* `Intel Pro/1000 GT <http://amzn.eu/5AxzYzA>`_ : e1000e driver *<-- Recommended*
+* `D-Link DGE-528T <http://amzn.eu/cR3yfe4>`_ : r8169s driver
+
 Check which kernel driver you use
 ---------------------------------
 
@@ -14,12 +20,11 @@ Check which kernel driver you use
 
     lspci -vvv -nn | grep -C 10 Ethernet
 
-And check if the **rt_** version exists in `RTnet's drivers <https://github.com/konradb3/RTnet/tree/master/drivers/>`_.
+And check if the **rt_** version exists in `RTnet's drivers <https://github.com/kuka-isir/RTnet/tree/master/drivers>`_.
 
 .. note::
 
     We're using a custom website that fixes compilation problems for kernel > 3.10 `source <http://sourceforge.net/p/rtnet/mailman/message/33151881//>`_.
-    This is fixed in Xenomai 3 as RTnet is integrated directly.
 
 Download
 --------
@@ -27,14 +32,6 @@ Download
 .. code-block:: bash
 
     sudo apt install git
-
-If on kernel < 3.18 :
-
-.. code-block:: bash
-
-    git clone https://github.com/konradb3/RTnet.git
-
-if on kernel >= 3.18 (same with a fix) :
 
 .. code-block:: bash
 
@@ -81,7 +78,7 @@ Configuration
 The configuration file is located by default at ``/usr/local/rtnet/etc/rtnet.conf``
 Take a look at `this configuration file <https://github.com/kuka-isir/rtt_lwr/blob/master/lwr_scripts/config/rtnet.conf>`_.
 
-* **RT_DRIVER="rt_e1000e"** The driver we use
+* **RT_DRIVER="rt_e1000e"** The driver we use (we have the Intel PRO/1000 GT)
 * **REBIND_RT_NICS="0000:05:00.0 0000:06:00.0"** NIC addresses of the 2 cards we use for RTnet (you can check the NIC address typing 'lshw -C network' and looking at "bus info: pci@...". It is useful to have a fix master/slave config order (card1->robot, card2->Sensor for example).
 * **IPADDR="192.168.100.101"** IP of the master (your computer). ALl the slaves will send/receive to/from master IP.
 * **NETMASK="255.255.255.0"** The other slave will have IPs 192.168.100.XXX.
@@ -198,7 +195,7 @@ To make sure it compiles on every platform, add the following to your headers :
     #include <rtdm/rtdm.h>
     #endif
 
-And in your CMakeLists.txt :
+And in your CMakeLists.txt (example) :
 
 .. code-block:: cmake
 

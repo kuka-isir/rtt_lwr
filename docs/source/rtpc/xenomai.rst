@@ -1,7 +1,14 @@
 Xenomai 2.6.5 on Ubuntu 14.04/16.04
-#############################
+###################################
 
-.. note::
+Recommended Hardware
+~~~~~~~~~~~~~~~~~~~~
+
+* **Intel/AMD Processor i5/i7** (< 2016 is recommended to guaranty full 16.04 support)
+* **Dedicated Ethernet controller for RTnet**, with either e1000e/e1000/r8169 driver (Intel PRO/1000 GT recommended)
+
+
+.. warning::
 
     Nvidia Drivers are NOT supported (creates a lot of interruptions that breaks the real-time).
     Please consider removing the dedicated graphic card and use the integrated graphics (Intel HD graphics).
@@ -33,7 +40,7 @@ Configuration
 Prevent a bug in make-kpkg in 14.04
 -----------------------------------
 
-From https://bugs.launchpad.net/ubuntu/+source/kernel-package/+bug/1308183 : 
+From https://bugs.launchpad.net/ubuntu/+source/kernel-package/+bug/1308183 :
 
 .. code-block:: bash
 
@@ -66,12 +73,12 @@ Configure the kernel
 
 Now it's time to configure :
 
-Gui version : 
+Gui version :
 
 .. code-block:: bash
 
     make xconfig
- 
+
 Or without gui :
 
 .. code-block:: bash
@@ -84,7 +91,7 @@ Some guidelines to configure the linux kernel:
 .. code-block:: text
 
     Recommended options:
-    
+
     * General setup
       --> Local version - append to kernel release: -xenomai-2.6.5
       --> Timers subsystem
@@ -184,7 +191,7 @@ Edit the grub config :
     GRUB_CMDLINE_LINUX=""
 
 .. note::
-    
+
     Please note the xenomai group (here 1234) should match what you set above (allow non-root users).
 
 .. tip:: ``noapic`` option might be added if the screen goes black at startup and you can't boot.
@@ -281,10 +288,10 @@ You need to be in root ``sudo -s``, then you can set values to the latency calib
 
     $ echo 0 > /proc/xenomai/latency
     # Now run the latency test
-    
-    # If the minimum latency value is positive, 
+
+    # If the minimum latency value is positive,
     # then get the lowest value from the latency test (ex: 0.088 us)
-    # and write it to the calibration file ( here you have to write 88 ns) : 
+    # and write it to the calibration file ( here you have to write 88 ns) :
     $ echo my_super_value_in_ns > /proc/xenomai/latency
 
 Source : https://xenomai.org/pipermail/xenomai/2007-May/009063.html
