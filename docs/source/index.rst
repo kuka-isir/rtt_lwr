@@ -1,5 +1,5 @@
 
-Control Software Architechture for Kuka LWR 4+
+OROCOS/ROS Components for Light Weight Robots
 ==============================================
 
 .. image:: /_static/isir.png
@@ -12,6 +12,13 @@ Control Software Architechture for Kuka LWR 4+
 .. image:: /_static/upmc.png
     :width: 250px
 
+Introduction
+------------
+
+**rtt_lwr** is a set of components for controlling the Kuka LWR and IIWA at 1Khz.
+It relies on OROCOS for the real-time part, but also interfaces with ROS such as Rviz, MoveIt, ros-control etc.
+
+It has been designed so researchers/Phd Students/Engineers at ISIR can develop generic controllers for light weight robots and seemlessly test on simulation of the real robot without recompiling their code.
 
 Experimental setup
 ------------------
