@@ -61,7 +61,11 @@ Spawn to robot into Gazebo
 Test the rtt_lwr tools
 -----------------------
 
-**Close** all previous nodes, deployers, windows etc, and start the main deployer with gazebo :
+.. warning::
+
+    **Close** all previous nodes, deployers, windows etc, and start the main deployer with gazebo.
+    
+    Now gazebo is launched **inside** the orocos deployer !
 
 .. code::
 
