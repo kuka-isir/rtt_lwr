@@ -1,7 +1,33 @@
 Test your installation
 ======================
 
-We're gonna test every components to make sure everything is working correctly.
+We're gonna test a few components to make sure everything is working correctly.
+
+* The ``catkin build`` during install command has no errors
+* Gazebo starts normally
+* lwr_utils starts normally
+* Gazebo inside orocos (embedded) starts normally
+
+.. important::
+
+    The Gazebo server in the final setup is launched **inside** the ``gazebo`` component (that you can see if you type ``ls``).
+    You **will not** be able to launch gazebo separately, it has to be instanciated inside the orocos deployer via this method.
+    This component is provided by the `rtt_gazebo_embedded <https://github.com/kuka-isir/rtt_gazebo_embedded>`_ package.
+
+Making sure everything is built
+-------------------------------
+
+Every one of these commands should provide no errors (all green).
+
+.. code-block:: bash
+
+    # Orocos Toolchain 2.9
+    catkin build -s -w ~/isir/orocos-2.9_ws
+    # Orocos-ROS bridge
+    catkin build -s -w ~/isir/rtt_ros-2.9_ws
+    # Rtt lwr
+    catkin build -s -w ~/isir/lwr_ws
+
 
 Gazebo
 ------
@@ -32,14 +58,14 @@ Start the roscore : ``roscore``
 
 Close any instance of gazebo running, and then launch gazebo with the ros plugins :
 
-.. code::
+.. code-block:: ruby
 
     gazebo -s libgazebo_ros_paths_plugin.so -s libgazebo_ros_api_plugin.so --verbose
 
 Upload the robot's URDF
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code::
+.. code-block:: ruby
 
     roslaunch lwr_description lwr_upload.launch
     # you can also pass load_ati_sensor:=true load_handle:=true load_base:=true
@@ -58,22 +84,23 @@ Spawn to robot into Gazebo
 .. image:: /_static/gazebo-lwr.png
 
 
-Test the rtt_lwr tools
------------------------
+Gazebo inside the OROCOS Deployer
+---------------------------------
 
-.. warning::
+.. important::
 
-    **Close** all previous nodes, deployers, windows etc, and start the main deployer with gazebo.
-    
+    **Close** all previous nodes, roscore, deployers, windows etc, and start the main deployer with gazebo.
+
     Now gazebo is launched **inside** the orocos deployer !
 
-.. code::
+.. code-block:: ruby
 
     roslaunch lwr_utils run.launch sim:=true
+    # this launches gazebo inside the orocos deployer
 
 .. note::
 
-    You can see the robot in the gazebi gui because the model is spawned into gazebo via the main launch file.
+    You can see the robot in the gazebo gui because the model is spawned into gazebo via the main launch file.
     Still, it has no interface to send commands, what we'll do in the next step.
 
 Now type :
@@ -88,9 +115,3 @@ Now type :
 You should see all the components ``running [R]`` :
 
 .. image:: /_static/test-rtt-lwr.png
-
-.. warning::
-
-    The Gazebo server is launched **inside** the ``gazebo`` component (that you can see if you type ``ls``).
-    You **will not** be able to launch gazebo separately, it has to be instanciated inside the orocos deployer via this method.
-    This component is provided by the https://github.com/kuka-isir/rtt_gazebo_embedded package.
