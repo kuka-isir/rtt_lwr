@@ -4,7 +4,7 @@ Compile faster with Ccache and Distcc
 * ccache : https://ccache.samba.org/
 * distcc : https://github.com/distcc/distcc
 
-.. warning:: You need to be connected to a high speed network to actually improve your build time
+.. note:: You need to be connected to a high speed network to actually improve your build time
 
 Installation on hosts and clients
 ---------------------------------
@@ -16,13 +16,13 @@ Installation on hosts and clients
 Build server configuration
 --------------------------
 
-On every build computer, you need to install ``distcc`` and ``ccache`` and update the configuration : 
+On every build computer, you need to install ``distcc`` and ``ccache`` and update the configuration :
 
 .. code-block:: bash
 
     sudo nano /etc/default/distcc
-    
-Then set he following variables : 
+
+Then set he following variables :
 
 .. code-block:: bash
 
@@ -79,4 +79,3 @@ Now you can use ``catkin build -p$(distcc -j) -j$(distcc -j) --no-jobserver`` to
 .. tip:: You can use ``distccmon-gnome`` to visualize the distribution.
 
 .. image:: /_static/distcc.png
-
