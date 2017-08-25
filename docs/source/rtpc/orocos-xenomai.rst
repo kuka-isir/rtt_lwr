@@ -59,4 +59,9 @@ Rtt ROS integration 2.9 on Xenomai
 
 .. tip::
 
-    echo 'export OROCOS_TARGET=xenomai' >> ~/.bashrc
+    Always build for Xenomai on the Xenomai computer :
+    ``echo 'export OROCOS_TARGET=xenomai' >> ~/.bashrc``
+
+.. note::
+
+    Libraries built with xenomai will have *-xenomai.so* appended to the library name (ex ``libmycontroller-xenomai.so``)
