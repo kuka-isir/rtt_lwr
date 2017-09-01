@@ -16,7 +16,7 @@ Introduction
 ------------
 
 **rtt_lwr** is a set of components for controlling the Kuka LWR and IIWA at 1Khz.
-It relies on OROCOS for the real-time part, but also interfaces with ROS such as Rviz, MoveIt, ros-control etc.
+It relies on OROCOS for the real-time part, but also interfaces with ROS so we can use Rviz, MoveIt, ros-control etc.
 
 It has been designed so researchers/Phd Students/Engineers at ISIR can develop generic controllers for light weight robots and seemlessly switch between simulation/real hardware without the need to recompile their code.
 
