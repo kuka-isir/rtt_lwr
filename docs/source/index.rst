@@ -27,6 +27,34 @@ Prerequisites
 * Knowledge about ROS
 * Notions about OROCOS
 
+Design
+------
+
+* The robot is kuka lwr 4+ with FRI with KRC4 controller that requires **strict** loop deadlines if we want to achieve 1kHz
+* We want to control the robot as fast as possible because we want to test control theory algorithms.
+* **Syroco's** team work at **isir** is focused on control theory.
+
+OROCOS and ros_control seems to be the only two options that give us a lot of flexibily, a high control rate, and the ability to run in a realtime environnement.
+
+We choose OROCOS because we wanted to design generic "black boxes", that we could reuse as much as possible.
+ros_control gives the ability to launch multiple controllers, the intra-process communication is (was ?) not supported.
+
+========================  =============  ===============  ==========================  ==============
+                          Realtime safe  Component based  Intraprocess communication  Well supported
+========================  =============  ===============  ==========================  ==============
+**FRI library (client)**   X
+**ros_control**            X                X                                           X
+**OROCOS**                 X                X               X                           X
+========================  =============  ===============  ==========================  ==============
+
+
+Final design is the following :
+
+* One deployer on the realtime control PC (running xenomai)
+* Control components inside that only deployer
+* ROS bridge for non-realtime components
+
+
 
 Experimental setup
 ------------------
