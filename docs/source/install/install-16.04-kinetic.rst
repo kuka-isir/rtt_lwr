@@ -146,7 +146,15 @@ RTT LWR packages
     # Download
     wstool update -j2
 
-.. note:: If you want to install and test cart_opt_ctrl :  ``wstool merge https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/rtt_lwr-full.rosinstall``
+Cart Opt Ctrl
+~~~~~~~~~~~~~
+
+Experimental optimisation based controller : 
+
+.. code-block::
+    
+    wstool merge https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/rtt_lwr-full.rosinstall
+    wstool update
 
 Install dependencies
 ~~~~~~~~~~~~~~~~~~~~
