@@ -15,7 +15,7 @@ Generate documentation locally
 
 .. code-block:: bash
 
-    sudo -H pip install sphinx sphinx-autobuild recommonmark sphinx_rtd_theme
+    sudo -H pip install -U pip sphinx sphinx-autobuild recommonmark sphinx_rtd_theme
 
 * Go to the docs directory : ``roscd rtt_lwr/../docs`` and type ``make livehtml``.
 * Open your favorite webbrowser and go to ``127.0.0.1/8000`` to see the generated site locally.

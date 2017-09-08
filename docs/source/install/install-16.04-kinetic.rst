@@ -149,10 +149,10 @@ RTT LWR packages
 Cart Opt Ctrl
 ~~~~~~~~~~~~~
 
-Experimental optimisation based controller : 
+Experimental optimisation based controller :
 
-.. code-block::
-    
+.. code-block:: bash
+
     wstool merge https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/rtt_lwr-full.rosinstall
     wstool update
 
