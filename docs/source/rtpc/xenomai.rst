@@ -189,7 +189,7 @@ Edit the grub config :
     #GRUB_HIDDEN_TIMEOUT=0
     #GRUB_HIDDEN_TIMEOUT_QUIET=true
     GRUB_TIMEOUT=5
-    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash xeno_nucleus.xenomai_gid=1234 xenomai.allowed_group=1234"
+    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash xeno_nucleus.xenomai_gid=1234"
     GRUB_CMDLINE_LINUX=""
 
 .. note::
