@@ -79,5 +79,6 @@ Experimental setup
     :maxdepth: 2
 
     rtpc/xenomai
+    rtpc/xenomai3
     rtpc/rtnet
     rtpc/orocos-xenomai
