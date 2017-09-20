@@ -91,13 +91,14 @@ Some guidelines to configure the linux kernel:
             --> Add-Ons
                 --> Real-Time Capturing Support (Enable)
     * Power management and ACPI options
-      --> ACPI (Advanced Configuration and Power Interface) Support
-          --> Processor (Disable)
       --> CPU Frequency scaling
           --> CPU Frequency scaling (Disable)
+      --> ACPI (Advanced Configuration and Power Interface) Support
+          --> Processor (Disable)
       --> CPU Idle
           --> CPU idle PM support (Disable)
     * Pocessor type and features
+      --> Enable maximum number of SMP processors and NUMA nodes (Disable)
       --> Processor family
           --> Core 2/newer Xeon (if "cat /proc/cpuinfo | grep family" returns 6, set as Generic otherwise)
       // Xenomai will issue a warning about CONFIG_MIGRATION, disable those in this order
