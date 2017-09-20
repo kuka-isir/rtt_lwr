@@ -4,13 +4,13 @@ Xenomai 2.6.5 on Ubuntu 14.04/16.04
 Recommended Hardware
 ~~~~~~~~~~~~~~~~~~~~
 
-* **Intel/AMD Processor i5/i7** (< 2016 is recommended to guaranty full 16.04 support)
+* **Intel/AMD Processor i5/i7** (< 2016 is recommended to guarantee full 16.04 support)
 * **Dedicated Ethernet controller for RTnet**, with either e1000e/e1000/r8169 driver (Intel PRO/1000 GT recommended)
 
 
 .. warning::
 
-    Nvidia Drivers are NOT supported (creates a lot of interruptions that breaks the real-time).
+    Nvidia/Ati Drivers are NOT supported (creates a lot of interruptions that breaks the real-time constraints).
     Please consider removing the dedicated graphic card and use the integrated graphics (Intel HD graphics).
 
 Download Xenomai 2.6.5
@@ -32,7 +32,7 @@ Download Linux kernel 3.18.20
 
 .. note::
 
-    We chose 3.18.20 because it is the latest kernel compatible with xenomai 2.
+    We chose 3.18.20 because it is the latest kernel compatible with xenomai 2.6.5.
 
 Configuration
 ~~~~~~~~~~~~~
@@ -147,6 +147,8 @@ Take a coffee and come back in 20min.
 
 Compile faster with distcc
 --------------------------
+
+If you have distcc servers setup and a fast network, you can speed up drastically the building speed.
 
 .. code-block:: bash
 
@@ -271,11 +273,11 @@ This loop will allow you to monitor a xenomai latency. Here's the output for a i
 
 .. tip::
 
-    To get pertinent results, you need to **stress** your system.
-    to do so, you can use ``stress`` or ``dohell`` from the ``apt``.
+    To get pertinent results, you need to **stress** your system while running the latency test. The latency has to be stable even if the system is under load.
 
     .. code-block:: bash
 
+        sudo apt install stress
         # Using stress
         stress -v -c 8 -i 10 -d 8
 
