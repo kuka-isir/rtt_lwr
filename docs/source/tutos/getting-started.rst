@@ -8,7 +8,7 @@ In lwr_utils, you'll find the main roslaunch to deploy the components :
 
 .. code-block:: ruby
 
-    roslaunch lwr_utils run.launch sim:=true
+    roslaunch lwr_utils run.launch sim:=true launch_gazebo:=true
 
 
 .. image:: /_static/main_launch.png
