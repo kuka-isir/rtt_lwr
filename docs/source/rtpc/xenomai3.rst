@@ -114,6 +114,7 @@ Some guidelines to configure the linux kernel:
           --> CPU idle PM support (Disable)
     * Pocessor type and features
       --> Enable maximum number of SMP processors and NUMA nodes (Disable)
+      // Ref : http://xenomai.org/pipermail/xenomai/2017-September/037718.html
       --> Processor family
           --> Core 2/newer Xeon (if "cat /proc/cpuinfo | grep family" returns 6, set as Generic otherwise)
       // Xenomai will issue a warning about CONFIG_MIGRATION, disable those in this order
@@ -240,9 +241,10 @@ First, make sure that you are running the cobalt kernel :
     ./configure --with-pic --with-core=cobalt --enable-smp --disable-tls --enable-dlopen-libs --disable-clock-monotonic-raw
     make -j`nproc`
     sudo make install
+    # --disable-clock-monotonic-raw : http://xenomai.org/pipermail/xenomai/2017-September/037695.html
 
 
-Update your bashrc
+Update your bashrc :
 
 .. code-block:: bash
 
