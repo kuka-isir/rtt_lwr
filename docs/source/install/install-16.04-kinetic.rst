@@ -170,6 +170,14 @@ Install dependencies
 
     Gazebo 7 is shipped by default with kinetic, so rosdep will try to install it and fail. You can ignore this issue safely as you now have Gazebo 8 installed.
 
+.. code-block:: bash
+
+    # dpkg-query: no packages found matching gazebo7
+    # ERROR: the following rosdeps failed to install
+    #   apt: command [sudo -H apt-get install -y gazebo7] failed
+    #   apt: Failed to detect successful installation of [gazebo7]
+
+
 Configure the workspace
 ~~~~~~~~~~~~~~~~~~~~~~~
 
