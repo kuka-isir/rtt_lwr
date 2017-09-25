@@ -33,9 +33,24 @@ install(DIRECTORY launch/
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
     PATTERN ".svn" EXCLUDE)
 
-install(DIRECTORY scripts/
-    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/scripts
-    PATTERN ".svn" EXCLUDE)
+set(scripts
+scripts/deployer-corba
+scripts/deployer-corba-debug
+scripts/eval_script
+scripts/generate_all_urdf_sdf
+scripts/kill_depl
+scripts/lwr_runner.ops
+scripts/ping_ati
+scripts/ping_lwr
+scripts/process_args
+scripts/rtnet
+scripts/rtping
+)
+
+install(FILES ${scripts}
+    PERMISSIONS OWNER_READ GROUP_READ WORLD_READ WORLD_EXECUTE GROUP_EXECUTE OWNER_EXECUTE
+    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+    )
 
 install(DIRECTORY config/
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config
