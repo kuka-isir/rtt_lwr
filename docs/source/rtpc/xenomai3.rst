@@ -256,7 +256,8 @@ Remove this macro from xenomai to hack-fix it. It is only used in xenomai intern
     sudo sed -i 's/clz/__clz/g' /usr/xenomai/include/boilerplate/compiler.h
 
 
-Update your bashrc :
+Update your bashrc
+------------------
 
 .. code-block:: bash
 
