@@ -244,6 +244,18 @@ First, make sure that you are running the cobalt kernel :
     # --disable-clock-monotonic-raw : http://xenomai.org/pipermail/xenomai/2017-September/037695.html
 
 
+Prevent Gazebo compiling issues (Hack)
+-------------------------------
+
+Gazebo won't compile because of some conflicting macros ( clz() ) present in libtbb and libcobalt.
+Remove this macro from xenomai to hack-fix it. It is only used in xenomai internals so won't cause any issue in user-land. 
+
+.. code-block:: bash
+    
+    # http://xenomai.org/pipermail/xenomai/2017-September/037729.html
+    sudo sed -i 's/clz/__clz/g' /usr/xenomai/include/boilerplate/compiler.h
+
+
 Update your bashrc :
 
 .. code-block:: bash
