@@ -278,7 +278,7 @@ use this hack **only** if you install xenomai from the 3.0.5 package, **not** th
 
 
 Update your bashrc
-------------------
+~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -296,7 +296,7 @@ Update your bashrc
     source ~/.bashrc
 
 Test your installation
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -332,8 +332,8 @@ This loop will allow you to monitor a xenomai latency. Here's the output for a i
         # Using stress
         stress -v -c 8 -i 10 -d 8
 
-Negative latency issues
------------------------
+Fix negative latency issues
+---------------------------
 
 You need to be in root ``sudo -s``, then you can set values to the latency calibration variable in **nanoseconds**:
 
