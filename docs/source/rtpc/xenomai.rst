@@ -75,6 +75,7 @@ Some guidelines to configure the linux kernel:
     * Real-time sub-system
       --> Xenomai (Enable)
       --> Nucleus (Enable)
+	  --> Pervasive real-time support in user-space (Enable)
     * Power management and ACPI options
       --> Run-time PM core functionality (Disable)
       --> ACPI (Advanced Configuration and Power Interface) Support
