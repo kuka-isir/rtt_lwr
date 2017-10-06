@@ -34,9 +34,9 @@
 	  </link>
 	  <joint name="ati_to_calib_joint" type="fixed">
 	    <origin
-		rpy="0 0 0"
-		xyz="0.0688 0 ${0.0195-0.0488}" />
-	    <parent link="ati_base_link" />
+		rpy="0 0 -1.5708"
+		xyz="0 -0.0688 ${0.02-0.0488}" />
+	    <parent link="ati_link" />
 	    <child link="calib_link" />
         <limit effort="400" velocity="0" lower="0" upper="0" />
 	  </joint>

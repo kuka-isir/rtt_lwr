@@ -369,6 +369,7 @@ global void generateGraph()
 {
     import("rtt_dot_service")
     loadService("Deployer","dot")
+    scripting.eval("dot.generate()")
     print.ln("Graph generated. You can now run \n\n\t xdot ~/.ros/orograph.dot")
 }
 

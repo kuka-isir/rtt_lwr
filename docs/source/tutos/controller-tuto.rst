@@ -11,8 +11,12 @@ Generate the controller
 
 .. code-block:: bash
 
-    cd ~/
+    mkdir -p ~/catkin_ws/src
+    cd ~/catkin_ws/src
     lwr_create_pkg my_controller -C MyController
+    
+    cd ~/catkin_ws
+    catkin config --init --extend ~/isir/lwr_ws/devel
 
 
 Build the controller
@@ -22,12 +26,10 @@ Build the controller
 
 .. code-block:: bash
 
-    cd ~/my_controller
-    mkdir build ; cd build ; cmake ..
-    make
-
+    cd ~/catkin_ws
+    catkin build
     # add the controller to the ros package path
-    source devel/setup.bash
+    source ~/catkin_ws/devel/setup.bash
 
 Launch it :
 
@@ -37,8 +39,6 @@ Launch it :
 
 
 .. image:: /_static/run_example2.png
-
-.. note:: Now you can **delete** this controller and create your own on your ``catkin worskpace`` with a better name :)
 
 General note on controllers
 ---------------------------
@@ -64,7 +64,7 @@ The complete list of LWR ports :
 
 .. code-block:: bash
 
-    curl --silent https://raw.githubusercontent.com/kuka-isir/lwr_hardware/indigo-devel/lwr_fri/src/FRIComponent.cpp  | grep -oP 'addPort\( *\"\K\w+'
+    curl --silent https://raw.githubusercontent.com/kuka-isir/lwr_hardware/master/lwr_fri/src/FRIComponent.cpp  | grep -oP 'addPort\( *\"\K\w+'
 
 
 .. code-block:: bash
@@ -98,10 +98,4 @@ This arm loads the robot_description from the ROS parameter server (you can use 
 
 Functions available can be found `here <https://github.com/kuka-isir/rtt_ros_kdl_tools/blob/master/include/rtt_ros_kdl_tools/chain_utils.hpp/>`_.
 
-Inverse Kinematics in not included in ChainUtils as there's not "perfect" solution for every problem. Meanwhile a few approches exists :
-
-- All the chainik in `KDL <https://github.com/orocos/orocos_kinematics_dynamics/tree/master/orocos_kdl/src/>`_
-- `Trac IK <https://bitbucket.org/traclabs/trac_ik.git/>`_ , same interface as KDL
-- Simple Jacobian transpose method
-    * Write into the kuka lwr CartesianPositionCommand port some cartesian position increments, but it is not recommended as it is kuka specific.
-    * Instead, use the ChainUtils arm object to compute :math:`J^{t}.(K_{P}(X^{*}-X) + K_{D}(\dot{X^{*}}-\dot{X}))`
+Inverse Kinematics is included in ChainUtils via `Trac IK <https://bitbucket.org/traclabs/trac_ik.git/>`_ .

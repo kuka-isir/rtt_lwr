@@ -201,3 +201,5 @@ install_manifest.txt
 .Trash-*
 
 .tb_history
+
+\.DS_Store

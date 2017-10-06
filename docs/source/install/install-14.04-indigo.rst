@@ -1,16 +1,5 @@
-Installation instructions
-=========================
-
-Requirements
-------------
-
-- **Ubuntu 14.04/16.04 LTS**
-- **ROS Indigo/Kinetic** - Desktop (not desktop-full)  : http://wiki.ros.org/indigo/Installation/Ubuntu
-- **OROCOS 2.8/2.9** ``(from the ros debian repos if not on xenomai)``
-- **Gazebo 7** ``(you can work with older version, but please prefer the latest)``
-
-.. note::
-    * This installation is valid for ROS Kinetic
+Installation on Ubuntu 14.04
+============================
 
 ROS Indigo ++
 -------------
@@ -28,18 +17,18 @@ Required tools
     sudo apt install python-rosdep python-catkin-tools ros-indigo-catkin python-wstool python-vcstool
 
 Fix Locales
-~~~~~~~~~~~~~~
+~~~~~~~~~~~
 
 .. code-block:: bash
-   
+
    sudo locale-gen en_US #warnings might occur
-   sudo locale-gen en_US-UTF-8
+   sudo locale-gen en_US.UTF-8
    sudo nano /etc/environment
    # put theses lines
    LANGUAGE=en_US
    LC_ALL=en_US
    # Reboot !
-   
+
 If you type ``perl`` you should not see any warnings.
 
 ROS Indigo Desktop
@@ -70,7 +59,7 @@ MoveIt! (via debians)
 .. code-block:: bash
 
     # MoveIt!
-    sudo apt install ros-indigo-moveit-full
+    sudo apt install ros-indigo-moveit
 
 MoveIt! (from source)
 ~~~~~~~~~~~~~~~~~~~~~
@@ -88,35 +77,18 @@ If you need bleeing-edge features, compile MoveIt! from source :
     cd ~/isir/moveit_ws/
     # Install dependencies
     source /opt/ros/indigo/setup.bash
-    rosdep install -q --from-paths ~/isir/moveit_ws/src --ignore-src --rosdistro indigo -y -r
+    rosdep install --from-paths ~/isir/moveit_ws/src --ignore-src --rosdistro indigo -y -r
     # Configure the workspace
     catkin config --init --install --extend /opt/ros/indigo --cmake-args -DCMAKE_BUILD_TYPE=Release
     # Build
     catkin build
 
-OROCOS 2.8 + rtt_ros_integration 2.8 (via debians)
-----------------------------------------------
-
-OROCOS toolchain 2.8
-~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-    sudo apt install ros-indigo-orocos-toolchain ruby1.9.3 ruby-dev libreadline-dev
-
-rtt_ros_integration 2.8
-~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-    sudo apt install ros-indigo-rtt-* ros-indigo-eigen-typekit ros-indigo-kdl-typekit
-
 OROCOS 2.9 + rtt_ros_integration 2.9 (from source)
-----------------------------------------------
+--------------------------------------------------
 
-If you already completed these instructions, and you are upgrading from orocos 2.8 :
+If you already completed these instructions, and you are **upgrading from orocos 2.8** :
 
-- If you installed orocos 2.8 from the debians, you need to remove them ``sudo apt remote ros-indigo-orocos-toolchain ros-indigo-rtt-*``.
+- If you installed orocos 2.8 from the debians, you need to remove them ``sudo apt remote ros-kinetic-orocos-toolchain ros-kinetic-rtt-*``.
 - If you installed orocos 2.8 from source, they can live side by side in a **different** workspace, but always check ``catkin config`` on your lwr_ws to make sure which workspace you are extending.
 
 Additionally, please make sure that these repos (if you have them) are in the right branches (with fixes for rtt) :
@@ -146,7 +118,7 @@ OROCOS toolchain 2.9
     cd ~/isir/orocos-2.9_ws/
     # Install dependencies
     source /opt/ros/indigo/setup.bash
-    rosdep install -q --from-paths ~/isir/orocos-2.9_ws/src --ignore-src --rosdistro indigo -y -r
+    rosdep install --from-paths ~/isir/orocos-2.9_ws/src --ignore-src --rosdistro indigo -y -r
     catkin config --init --install --extend /opt/ros/indigo/ --cmake-args -DCMAKE_BUILD_TYPE=Release
     # Build
     catkin build
@@ -171,17 +143,6 @@ rtt_ros_integration 2.9
     # Build (this can take a while)
     catkin build
 
-Use OROCOS with CORBA + MQUEUE (Advanced)
----------------------
-
-In order to use the corba interface (connect multiple deployers together), you'll need to build the orocos_ws and rtt_ros_ws with :
-
-.. code-block:: bash
-
-    catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release -DENABLE_MQ=ON -DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB
-
-Reference : http://www.orocos.org/stable/documentation/rtt/v2.x/doc-xml/orocos-components-manual.html#orocos-corba
-
 Gazebo 7
 --------
 
@@ -201,7 +162,7 @@ From http://gazebosim.org/tutorials?tut=install_ubuntu&cat=install.
 ROS Control
 -----------
 
-This allows you to use MoveIt! or just the ros_control capabilities in an orocos environnement. Let's install everything : 
+This allows you to use MoveIt! or just the ros_control capabilities in an orocos environnement. Let's install everything :
 
 .. code-block:: bash
 
@@ -227,16 +188,15 @@ RTT LWR packages
 .. note:: If you want to install and test cart_opt_ctrl :  ``wstool merge https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/rtt_lwr-full.rosinstall``
 
 Install dependencies
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
-    # If you compiled rtt_ros from sources
-    source ~/isir/rtt_ros-2.9_ws/install/setup.bash
-    # Use rosdep tool
-    rosdep install -q --from-paths ~/isir/lwr_ws/src --ignore-src --rosdistro indigo -y -r
 
-.. note:: 
-    
+    source ~/isir/rtt_ros-2.9_ws/install/setup.bash
+    rosdep install --from-paths ~/isir/lwr_ws/src --ignore-src --rosdistro indigo -y -r
+
+.. note::
+
     On **indigo**, rosdep will try to install **gazebo 2**, but will fail as we already installed **gazebo 7**.
     So you can **ignore** this error if you are running indigo.
     On ROS kinetic, it will install gazebo7 automatically.
@@ -247,19 +207,10 @@ Install dependencies
 Configure the workspace
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-If using the **debians** :
-
 .. code-block:: bash
 
     cd ~/isir/lwr_ws
-    catkin config --init --cmake-args -DCMAKE_BUILD_TYPE=Release
-
-If building rtt_ros **from source** :
-
-.. code-block:: bash
-
-    cd ~/isir/lwr_ws
-    catkin config --init --extend ~/isir/rtt_ros-2.9_ws/install --cmake-args -DCMAKE_BUILD_TYPE=Release 
+    catkin config --init --extend ~/isir/rtt_ros-2.9_ws/install --cmake-args -DCMAKE_BUILD_TYPE=Release
 
 Build the workspace
 ~~~~~~~~~~~~~~~~~~~
@@ -278,6 +229,6 @@ Once it's done, load the workspace :
 
     source ~/isir/lwr_ws/devel/setup.bash
 
-.. tip:: Put it in you bashrc : ``echo `source ~/isir/lwr_ws/devel/setup.bash` >> ~/.bashrc``
+.. tip:: Put it in you bashrc : ``echo 'source ~/isir/lwr_ws/devel/setup.bash' >> ~/.bashrc``
 
 Now we can :doc:`test the installation <test-install>`.

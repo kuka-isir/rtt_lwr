@@ -9,12 +9,12 @@ Orocos tutorial
 Orocos Basics
 -------------
 
-First, make you have the lwr workspace loaded ``source ~/lwr_ws/devel/setup.bash``
+First, make sure you have the lwr workspace loaded ``source ~/isir/lwr_ws/devel/setup.bash``
 
 .. note::
 
     Put this source file in your .bashrc :
-    ``echo `source ~/lwr_ws/devel/setup.bash` >> ~/.bashrc``
+    ``echo `source ~/isir/lwr_ws/devel/setup.bash` >> ~/.bashrc``
 
 Official documentation about the Orocos RealTime Toolkit (RTT) can be found here :
 http://www.orocos.org/stable/documentation/rtt/v2.x/doc-xml/orocos-components-manual.html
@@ -85,7 +85,7 @@ Example of a simple 2 components deployement :
 
     # Let's see the data :
 
-    hello.the_buffer_port.last
+    hello.the_results.last
     # It will show
     # "Hello World !"
 
@@ -126,25 +126,26 @@ Now let's build our own Orocos Component (Very simple one with no ports, operati
 
     class MyComponent : public RTT::TaskContext
     {
-       // Constructor
-       // That's the name you're gonna pass as first argument of "loadComponent"
-       MyComponent(const std::string& name):
-       RTT::TaskContext(name)
-       {
+        // Constructor
+        // That's the name you're gonna pass as first argument of "loadComponent"
+        public:
+        MyComponent(const std::string& name):
+        RTT::TaskContext(name)
+        {
             RTT::log(RTT::Info) << "Constructing ! " << RTT::endlog();
-       }
+        }
 
-       // The function called when writing my_component.configure()
-       void configureHook()
-       {
+        // The function called when writing my_component.configure()
+        bool configureHook()
+        {
             RTT::log(RTT::Info) << "Configuring  ! " << RTT::endlog();
-       }
+        }
 
-       // The function called (periodically or not) when calling my_component.start()
-       void updateHook()
-       {
+        // The function called (periodically or not) when calling my_component.start()
+        void updateHook()
+        {
             RTT::log(RTT::Info) << "Updating ! " << RTT::endlog();
-       }
+        }
     };
     ORO_CREATE_COMPONENT(MyComponent) //Let Orocos know how to build this component
 
@@ -189,8 +190,10 @@ Now if you ``source devel/setup.bash`` and then call ``deployer`` , Orocos will 
 
 .. code-block:: ruby
 
-    getComponentTypes() # You will see MyComponent !
+    displayComponentTypes() # You will see MyComponent !
 
+    import("rtt_ros")
+    ros.import("my_component")
     loadComponent("my_component","MyComponent")
     my_component.configure()
     my_component.start()

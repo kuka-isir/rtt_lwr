@@ -1,9 +1,16 @@
 Xenomai 2.6.5 on Ubuntu 14.04/16.04
-#############################
+###################################
 
-.. note::
+Recommended Hardware
+~~~~~~~~~~~~~~~~~~~~
 
-    Nvidia Drivers are NOT supported (creates a lot of interruptions that breaks the real-time).
+* **Intel/AMD Processor i5/i7** (< 2016 is recommended to guarantee full 16.04 support)
+* **Dedicated Ethernet controller for RTnet**, with either e1000e/e1000/r8169 driver (Intel PRO/1000 GT recommended)
+
+
+.. warning::
+
+    Nvidia/Ati Drivers are NOT supported (creates a lot of interruptions that breaks the real-time constraints).
     Please consider removing the dedicated graphic card and use the integrated graphics (Intel HD graphics).
 
 Download Xenomai 2.6.5
@@ -23,9 +30,26 @@ Download Linux kernel 3.18.20
     wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.18.20.tar.gz
     tar xfv linux-3.18.20.tar.gz
 
+.. note::
+
+    We chose 3.18.20 because it is the latest kernel compatible with xenomai 2.6.5.
 
 Configuration
 ~~~~~~~~~~~~~
+
+Prevent a bug in make-kpkg in 14.04
+-----------------------------------
+
+From https://bugs.launchpad.net/ubuntu/+source/kernel-package/+bug/1308183 :
+
+.. code-block:: bash
+
+    cd linux-3.18.20
+    # Paste that in the terminal
+    cat <<EOF > arch/x86/boot/install.sh
+    #!/bin/sh
+    cp -a -- "\$2" "\$4/vmlinuz-\$1"
+    EOF
 
 Prepare the kernel
 ------------------
@@ -49,12 +73,12 @@ Configure the kernel
 
 Now it's time to configure :
 
-Gui version : 
+Gui version :
 
 .. code-block:: bash
 
     make xconfig
- 
+
 Or without gui :
 
 .. code-block:: bash
@@ -67,7 +91,7 @@ Some guidelines to configure the linux kernel:
 .. code-block:: text
 
     Recommended options:
-    
+
     * General setup
       --> Local version - append to kernel release: -xenomai-2.6.5
       --> Timers subsystem
@@ -89,7 +113,7 @@ Some guidelines to configure the linux kernel:
           --> Core 2/newer Xeon (if \"cat /proc/cpuinfo | grep family\" returns 6, set as Generic otherwise)
     * Power management and ACPI options
       --> Memory power savings
-          --> Intel chipset idle memory power saving driver
+          --> Intel chipset idle memory power saving driver (Disable)
 
 .. warning::
 
@@ -125,6 +149,8 @@ Take a coffee and come back in 20min.
 Compile faster with distcc
 --------------------------
 
+If you have distcc servers setup and a fast network, you can speed up drastically the building speed.
+
 .. code-block:: bash
 
     MAKEFLAGS="CC=distcc" BUILD_TIME="/usr/bin/time" CONCURRENCY_LEVEL=$(distcc -j) make-kpkg --rootcmd fakeroot --initrd kernel_image kernel_headers
@@ -159,16 +185,17 @@ Edit the grub config :
 
 .. code-block:: bash
 
-    GRUB_DEFAULT=saved
-    GRUB_SAVEDEFAULT=true
+    GRUB_DEFAULT="Advanced options for Ubuntu>Ubuntu, with Linux 3.18.20-xenomai-2.6.5"
+    #GRUB_DEFAULT=saved
+    #GRUB_SAVEDEFAULT=true
     #GRUB_HIDDEN_TIMEOUT=0
     #GRUB_HIDDEN_TIMEOUT_QUIET=true
     GRUB_TIMEOUT=5
-    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash xeno_nucleus.xenomai_gid=1234 xenomai.allowed_group=1234"
+    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash xeno_nucleus.xenomai_gid=1234"
     GRUB_CMDLINE_LINUX=""
 
 .. note::
-    
+
     Please note the xenomai group (here 1234) should match what you set above (allow non-root users).
 
 .. tip:: ``noapic`` option might be added if the screen goes black at startup and you can't boot.
@@ -248,11 +275,11 @@ This loop will allow you to monitor a xenomai latency. Here's the output for a i
 
 .. tip::
 
-    To get pertinent results, you need to **stress** your system.
-    to do so, you can use ``stress`` or ``dohell`` from the ``apt``.
+    To get pertinent results, you need to **stress** your system while running the latency test. The latency has to be stable even if the system is under load.
 
     .. code-block:: bash
 
+        sudo apt install stress
         # Using stress
         stress -v -c 8 -i 10 -d 8
 
@@ -265,10 +292,10 @@ You need to be in root ``sudo -s``, then you can set values to the latency calib
 
     $ echo 0 > /proc/xenomai/latency
     # Now run the latency test
-    
-    # If the minimum latency value is positive, 
+
+    # If the minimum latency value is positive,
     # then get the lowest value from the latency test (ex: 0.088 us)
-    # and write it to the calibration file ( here you have to write 88 ns) : 
+    # and write it to the calibration file ( here you have to write 88 ns) :
     $ echo my_super_value_in_ns > /proc/xenomai/latency
 
 Source : https://xenomai.org/pipermail/xenomai/2007-May/009063.html
