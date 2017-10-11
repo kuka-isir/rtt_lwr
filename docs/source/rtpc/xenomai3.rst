@@ -187,7 +187,7 @@ Edit the grub config :
     #GRUB_HIDDEN_TIMEOUT=0
     #GRUB_HIDDEN_TIMEOUT_QUIET=true
     GRUB_TIMEOUT=5
-    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash xenomai.allowed_group=123"
+    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash xenomai.allowed_group=1234"
     GRUB_CMDLINE_LINUX=""
 
 .. note::
