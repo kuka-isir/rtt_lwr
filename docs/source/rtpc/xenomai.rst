@@ -99,6 +99,7 @@ Some guidelines to configure the linux kernel:
     * Real-time sub-system
       --> Xenomai (Enable)
       --> Nucleus (Enable)
+	  --> Pervasive real-time support in user-space (Enable)
     * Power management and ACPI options
       --> Run-time PM core functionality (Disable)
       --> ACPI (Advanced Configuration and Power Interface) Support
@@ -112,7 +113,7 @@ Some guidelines to configure the linux kernel:
           --> Core 2/newer Xeon (if \"cat /proc/cpuinfo | grep family\" returns 6, set as Generic otherwise)
     * Power management and ACPI options
       --> Memory power savings
-          --> Intel chipset idle memory power saving driver
+          --> Intel chipset idle memory power saving driver (Disable)
 
 .. warning::
 
@@ -184,8 +185,9 @@ Edit the grub config :
 
 .. code-block:: bash
 
-    GRUB_DEFAULT=saved
-    GRUB_SAVEDEFAULT=true
+    GRUB_DEFAULT="Advanced options for Ubuntu>Ubuntu, with Linux 3.18.20-xenomai-2.6.5"
+    #GRUB_DEFAULT=saved
+    #GRUB_SAVEDEFAULT=true
     #GRUB_HIDDEN_TIMEOUT=0
     #GRUB_HIDDEN_TIMEOUT_QUIET=true
     GRUB_TIMEOUT=5

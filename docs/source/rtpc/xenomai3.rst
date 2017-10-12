@@ -187,7 +187,7 @@ Edit the grub config :
     #GRUB_HIDDEN_TIMEOUT=0
     #GRUB_HIDDEN_TIMEOUT_QUIET=true
     GRUB_TIMEOUT=5
-    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash xenomai.allowed_group=123"
+    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash xenomai.allowed_group=1234"
     GRUB_CMDLINE_LINUX=""
 
 .. note::
@@ -200,14 +200,14 @@ If you have an Intel HD Graphics integrated GPU (any type) :
 
 .. code-block:: bash
 
-    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash i915.enable_rc6=0 i915.powersave=0 noapic xenomai.allowed_group=1234"
+    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash i915.enable_rc6=0 i915.enable_dc=0 noapic xenomai.allowed_group=1234"
     # This removes powersavings from the graphics, that creates disturbing interruptions.
 
 If you have an Intel **Skylake** (2015 processors), you ``need`` to add nosmap to fix the latency hang (https://xenomai.org/pipermail/xenomai/2016-October/036787.html) :
 
 .. code-block:: bash
 
-    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash i915.enable_rc6=0 i915.powersave=0 xeno_nucleus.xenomai_gid=1234 nosmap"
+    GRUB_CMDLINE_LINUX_DEFAULT="quiet splash i915.enable_rc6=0 i915.enable_dc=0 xeno_nucleus.xenomai_gid=1234 nosmap"
 
 Update GRUB and reboot
 
@@ -244,7 +244,41 @@ First, make sure that you are running the cobalt kernel :
     # --disable-clock-monotonic-raw : http://xenomai.org/pipermail/xenomai/2017-September/037695.html
 
 
-Update your bashrc :
+Prevent Gazebo compiling issues
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Proper fix : use Xenomai git repo
+---------------------------------
+
+The issue has been fixed with commits `5ec8be8 <https://git.xenomai.org/xenomai-3.git/commit/?id=5ec8be8b0588715baf92f8ababede5a1189e4f18>`_ and
+`1ed69a6 <https://git.xenomai.org/xenomai-3.git/commit/?id=1ed69a66af031bf8890c288299e9bb8ec4f48d4c>`_.
+
+.. code-block:: bash
+
+    git clone https://git.xenomai.org/xenomai-3.git
+    cd xenomai-3 
+    ./script/bootstrap
+    ./configure --with-pic --with-core=cobalt --enable-smp --disable-tls --enable-dlopen-libs
+    make -j`nproc`
+    sudo make install
+
+Hack with v3.0.5
+----------------
+
+Gazebo won't compile because of some conflicting macros ( clz() ) present in libtbb and libcobalt.
+Remove this macro from xenomai to hack-fix it. It is only used in xenomai internals so won't cause any issue in user-land.
+use this hack **only** if you install xenomai from the 3.0.5 package, **not** the git repo.
+
+.. code-block:: bash
+    
+    # http://xenomai.org/pipermail/xenomai/2017-September/037729.html
+    sudo sed -i 's/clz/__clz/g' /usr/xenomai/include/boilerplate/compiler.h
+
+
+
+
+Update your bashrc
+~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -262,7 +296,7 @@ Update your bashrc :
     source ~/.bashrc
 
 Test your installation
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -298,8 +332,8 @@ This loop will allow you to monitor a xenomai latency. Here's the output for a i
         # Using stress
         stress -v -c 8 -i 10 -d 8
 
-Negative latency issues
------------------------
+Fix negative latency issues
+---------------------------
 
 You need to be in root ``sudo -s``, then you can set values to the latency calibration variable in **nanoseconds**:
 
