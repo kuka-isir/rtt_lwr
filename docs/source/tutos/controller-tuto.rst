@@ -13,7 +13,7 @@ Generate the controller
 
     mkdir -p ~/catkin_ws/src
     cd ~/catkin_ws/src
-    lwr_create_pkg my_controller -C MyController
+    lwr_create_pkg my_controller -c MyController
     
     cd ~/catkin_ws
     catkin config --init --extend ~/isir/lwr_ws/devel
