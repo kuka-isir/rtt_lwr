@@ -221,6 +221,8 @@ if len(urdfs) > 1 :
     print('Note: You can test on gazebo  :\n')
     print('\t export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:'+output_dir)
     print('\n Don\'t forget to add the meshes repo : export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:/path/to/the/repo/containing_meshes')
+    print('\n Example : \n\n If your meshes are defined like this : <mesh filename=\"package://lwr_description/meshes/lwr/link1_c2.stl\" />')
+    print('Then the path to add is the path to the directory containing lwr_description')
     
     
     
