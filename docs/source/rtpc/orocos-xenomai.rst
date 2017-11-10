@@ -33,7 +33,7 @@ Orocos Toolchain 2.9 on Xenomai
     # Build
     catkin build
 
-Rtt ROS integration 2.9 on Xenomai
+RTT ROS Integration 2.9 on Xenomai
 ----------------------------------
 
 .. code-block:: bash
