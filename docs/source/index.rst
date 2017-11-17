@@ -6,7 +6,7 @@ OROCOS/ROS Components for Light Weight Robots
     :width: 100px
     :align: left
 
-.. image:: /_static/cnrs.jpg
+.. image:: /_static/cnrs.png
     :width: 100px
 
 .. image:: /_static/upmc.png
