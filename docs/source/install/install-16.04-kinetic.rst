@@ -181,12 +181,10 @@ Install dependencies
 Configure the workspace
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-If building rtt_ros **from source** :
-
 .. code-block:: bash
 
     cd ~/isir/lwr_ws
-    catkin config --init --extend ~/isir/rtt_ros-2.9_ws/install --cmake-args -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Release
+    catkin config --init --install --extend ~/isir/rtt_ros-2.9_ws/install --cmake-args -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Release
 
 Build the workspace
 ~~~~~~~~~~~~~~~~~~~
@@ -203,8 +201,8 @@ Once it's done, load the workspace :
 
 .. code-block:: bash
 
-    source ~/isir/lwr_ws/devel/setup.bash
+    source ~/isir/lwr_ws/install/setup.bash
 
-.. tip:: Put it in you bashrc : ``echo 'source ~/isir/lwr_ws/devel/setup.bash' >> ~/.bashrc``
+.. tip:: Put it in you bashrc : ``echo 'source ~/isir/lwr_ws/install/setup.bash' >> ~/.bashrc``
 
 Now we can :doc:`test the installation <test-install>`.
