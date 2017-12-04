@@ -102,7 +102,10 @@ Some guidelines to configure the linux kernel:
       --> Drivers
         --> RTnet
             --> RTnet, TCP/IP socket interface (Enable)
-                --> Drivers New intel(R) PRO/1000 PCIe (Enable)
+                --> Drivers
+                    --> New intel(R) PRO/1000 PCIe (Enable)
+                    --> Realtek 8169 (Enable)
+                    --> Loopback (Enable)
             --> Add-Ons
                 --> Real-Time Capturing Support (Enable)
     * Power management and ACPI options
@@ -256,7 +259,7 @@ The issue has been fixed with commits `5ec8be8 <https://git.xenomai.org/xenomai-
 .. code-block:: bash
 
     git clone https://git.xenomai.org/xenomai-3.git
-    cd xenomai-3 
+    cd xenomai-3
     ./script/bootstrap
     ./configure --with-pic --with-core=cobalt --enable-smp --disable-tls --enable-dlopen-libs
     make -j`nproc`
@@ -270,7 +273,7 @@ Remove this macro from xenomai to hack-fix it. It is only used in xenomai intern
 use this hack **only** if you install xenomai from the 3.0.5 package, **not** the git repo.
 
 .. code-block:: bash
-    
+
     # http://xenomai.org/pipermail/xenomai/2017-September/037729.html
     sudo sed -i 's/clz/__clz/g' /usr/xenomai/include/boilerplate/compiler.h
 
@@ -286,7 +289,7 @@ Update your bashrc
     ### Xenomai
     export XENOMAI_ROOT_DIR=/usr/xenomai
     export XENOMAI_PATH=/usr/xenomai
-    export PATH=$PATH:$XENOMAI_PATH/bin
+    export PATH=$PATH:$XENOMAI_PATH/bin:$XENOMAI_PATH/sbin
     export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$XENOMAI_PATH/lib/pkgconfig
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$XENOMAI_PATH/lib
     export OROCOS_TARGET=xenomai
