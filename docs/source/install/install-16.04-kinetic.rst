@@ -67,8 +67,9 @@ OROCOS toolchain 2.9
 
 .. code-block:: bash
 
-    mkdir -p ~/isir/orocos-2.9_ws/src
-    cd ~/isir/orocos-2.9_ws/src
+    mkdir ~/isir ; cd ~/isir
+    mkdir -p orocos-2.9_ws/src
+    cd orocos-2.9_ws/src
     # Get all the packages
     wstool init
     wstool merge https://raw.githubusercontent.com/kuka-isir/rtt_lwr/rtt_lwr-2.0/lwr_utils/config/orocos_toolchain-2.9.rosinstall
@@ -78,10 +79,10 @@ OROCOS toolchain 2.9
     git submodule foreach git checkout toolchain-2.9
     git submodule foreach git pull
     # Configure the workspace
-    cd ~/isir/orocos-2.9_ws/
+    cd ../../
     # Install dependencies
     source /opt/ros/kinetic/setup.bash
-    rosdep install --from-paths ~/isir/orocos-2.9_ws/src --ignore-src --rosdistro kinetic -y -r
+    rosdep install --from-paths src --ignore-src --rosdistro kinetic -y -r
     catkin config --init --install --extend /opt/ros/kinetic/ --cmake-args -DCMAKE_BUILD_TYPE=Release
     # Build
     catkin build
@@ -91,17 +92,18 @@ rtt_ros_integration 2.9
 
 .. code-block:: bash
 
-    mkdir -p ~/isir/rtt_ros-2.9_ws/src
-    cd ~/isir/rtt_ros-2.9_ws/src
+    cd ~/isir
+    mkdir -p rtt_ros-2.9_ws/src
+    cd rtt_ros-2.9_ws/src
     # Get all the packages
     wstool init
     wstool merge https://github.com/kuka-isir/rtt_lwr/raw/rtt_lwr-2.0/lwr_utils/config/rtt_ros_integration-2.9.rosinstall
     wstool update -j2
     # Configure the workspace
-    cd ~/isir/rtt_ros-2.9_ws/
+    cd ../
     # Install dependencies
     source ~/isir/orocos-2.9_ws/install/setup.bash
-    rosdep install --from-paths ~/isir/rtt_ros-2.9_ws/src --ignore-src --rosdistro kinetic -y -r
+    rosdep install --from-paths src --ignore-src --rosdistro kinetic -y -r
     catkin config --init --install --extend ~/isir/orocos-2.9_ws/install --cmake-args -DCMAKE_BUILD_TYPE=Release
     # Build (this can take a while)
     catkin build
