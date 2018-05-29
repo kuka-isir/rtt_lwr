@@ -143,14 +143,6 @@
             <geometry>
                <mesh filename="package://lwr_description/meshes/lwr/link2_c2.stl" />
             </geometry>
-           <surface>
-            <friction>
-              <ode>
-                <mu>0.998000</mu>
-                <mu2>0.998000</mu2>
-              </ode>
-            </friction>
-          </surface>
          </collision>
       </link>
       <!-- joint between lwr_2_link and lwr_3_link -->
