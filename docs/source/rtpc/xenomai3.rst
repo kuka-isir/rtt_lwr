@@ -48,8 +48,8 @@ We assume you are building an **x86_64** kernel (64bits).
 .. code-block:: bash
 
   cd linux-4.9.38
-  wget https://xenomai.org/downloads/ipipe/v4.x/x86/ipipe-core-4.9.38-x86-3.patch
-  ../xenomai-3.0.5/scripts/prepare-kernel.sh --arch=x86_64 --ipipe=ipipe-core-4.9.38-x86-3.patch
+  wget https://xenomai.org/downloads/ipipe/v4.x/x86/ipipe-core-4.9.38-x86-4.patch
+  ../xenomai-3.0.5/scripts/prepare-kernel.sh --arch=x86_64 --ipipe=ipipe-core-4.9.38-x86-4.patch
 
 
 Configure the kernel

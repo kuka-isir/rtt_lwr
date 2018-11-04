@@ -81,4 +81,5 @@ Experimental setup
     rtpc/xenomai
     rtpc/xenomai3
     rtpc/rtnet
+    rtpc/rtnet3
     rtpc/orocos-xenomai
