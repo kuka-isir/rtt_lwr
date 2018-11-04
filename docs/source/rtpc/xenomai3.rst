@@ -123,9 +123,8 @@ Some guidelines to configure the linux kernel:
       // Xenomai will issue a warning about CONFIG_MIGRATION, disable those in this order
       --> Transparent Hugepage Support (Disable)
       --> Allow for memory compaction (Disable)
+      --> Page Migration (Disable)
       --> Contiguous Memory Allocation (Disable)
-      --> Allow for memory compaction
-        --> Page Migration (Disable)
     * Device Drivers
       --> Staging drivers
           --> Unisys SPAR driver support
