@@ -9,7 +9,7 @@ OROCOS/ROS Components for Light Weight Robots
 .. image:: /_static/cnrs.png
     :width: 100px
 
-.. image:: /_static/upmc.png
+.. image:: /_static/sorbonne.png
     :width: 250px
 
 Introduction
@@ -23,7 +23,7 @@ It has been designed so researchers/Phd Students/Engineers at ISIR can develop g
 Prerequisites
 -------------
 
-* Relatively powerful Ubuntu 16.04/14.04 PC
+* Relatively powerful Ubuntu 18.04/16.04/14.04 PC
 * Knowledge about ROS
 * Notions about OROCOS
 
