@@ -10,8 +10,8 @@ env:
     
   matrix:
     - ROS_DISTRO="indigo"
-    - ROS_DISTRO="kinetic" ADDITIONAL_DEBS="curl libgazebo7-dev"
-    - ROS_DISTRO="melodic"
+    - ROS_DISTRO="kinetic" CATKIN_PARALLEL_JOBS="-p6 --cmake-args -DCMAKE_CXX_FLAGS=-std=c++11 --" ADDITIONAL_DEBS="curl libgazebo7-dev"
+    - ROS_DISTRO="melodic" CATKIN_PARALLEL_JOBS="-p6 --cmake-args -DCMAKE_CXX_FLAGS=-std=c++11 --" 
 
 install:
   - git clone https://github.com/ros-industrial/industrial_ci.git .ci_config
