@@ -16,7 +16,8 @@ Generate the controller
     lwr_create_pkg my_controller -c MyController
     
     cd ~/catkin_ws
-    catkin config --init --extend ~/isir/lwr_ws/devel
+    chmod a+x ~/isir/lwr_ws/install/env.sh
+    catkin config --init --extend ~/isir/lwr_ws/install
 
 
 Build the controller
