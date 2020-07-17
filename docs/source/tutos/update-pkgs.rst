@@ -3,7 +3,7 @@
 
 We are periodically doing updates on the code (new tools, bug fixes etc), so keeping it up-to-date can be very useful.
 
-To update all the packages we're going to use the ``vcs-tools`` utility (https://github.com/dirk-thomas/vcstool).
+To update all the packages we're going to use the ``vcstool`` utility (https://github.com/dirk-thomas/vcstool).
 
 It should be already installed during the :doc:`installation </install/install-16.04-kinetic>` procedure, otherwise ``sudo apt install python-vcstool``.
 
